@@ -66,13 +66,13 @@ Proof:<br/>
     "b4": { "rule": "impI"}
   },
   "connections": {
-    "c1": {"fromBlock": "proposition", "fromPort": "assumption1", "toBlock": "b2", "toPort": "in1"},
-    "c2": {"fromBlock": "b2", "fromPort": "out", "toBlock": "b3", "toPort": "in"},
-    "c3": {"fromBlock": "b3", "fromPort": "out", "toBlock": "b4", "toPort": "in"},
-    "c4": {"fromBlock": "b4", "fromPort": "out", "toBlock": "proposition", "toPort": "conclusion1"},
-    "c5": {"fromBlock": "b4", "fromPort": "hyp", "toBlock": "b1", "toPort": "in1"},
-    "c6": {"fromBlock": "b3", "fromPort": "hyp", "toBlock": "b1", "toPort": "in2"},
-    "c7": {"fromBlock": "b1", "fromPort": "out", "toBlock": "b2", "toPort": "in2"}
+    "c1": {"from": {"assumption": 1},              "to": {"block": "b2", "port": "in1"}},
+    "c2": {"from": {"block": "b2", "port": "out"}, "to": {"block": "b3", "port": "in"}},
+    "c3": {"from": {"block": "b3", "port": "out"}, "to": {"block": "b4", "port": "in"}},
+    "c4": {"from": {"block": "b4", "port": "out"}, "to": {"conclusion": 1}},
+    "c5": {"from": {"block": "b4", "port": "hyp"}, "to": {"block": "b1", "port": "in1"}},
+    "c6": {"from": {"block": "b3", "port": "hyp"}, "to": {"block": "b1", "port": "in2"}},
+    "c7": {"from": {"block": "b1", "port": "out"}, "to": {"block": "b2", "port": "in2"}}
   }
 }
 </textarea><br/>

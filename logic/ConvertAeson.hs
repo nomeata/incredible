@@ -6,6 +6,7 @@ import Data.Aeson.Types
 import qualified Data.Map as M
 import Control.Applicative
 import Data.List
+import Control.Monad
 
 import Types
 
@@ -49,22 +50,20 @@ instance FromJSON Block where
 
 instance FromJSON Connection where
   parseJSON = withObject "block" $ \o -> do
-    Connection <$> (toPortSpec <$> o .: "fromBlock" <*> o .: "fromPort")
-               <*> (toPortSpec <$> o .: "toBlock" <*> o .: "toPort")
+    Connection <$> o .: "from" <*> o .: "to"
+
+instance FromJSON PortSpec where
+ parseJSON = withObject "port spec" $ \o -> msum
+    [ AssumptionPort <$> o .: "assumption"
+    , ConclusionPort <$> o .: "conclusion"
+    , BlockPort <$> o .: "block" <*> o .: "port"
+    ]
+
 
 instance FromJSON Proof where
   parseJSON = withObject "proof" $ \o -> do
     Proof <$> o .:? "blocks"      .!= M.empty
           <*> o .:? "connections" .!= M.empty
-
-toPortSpec "proposition" port
-    | "assumption" `isPrefixOf` port
-    = AssumptionPort $ read $ drop (length ("assumption"::String)) port
-    | "conclusion" `isPrefixOf` port
-    = ConclusionPort $ read $ drop (length ("conclusion"::String)) port
-    | otherwise
-    = error "invalid proposition port"
-toPortSpec block port = BlockPort block port
 
 fromAnalysis :: Analysis -> Value
 fromAnalysis = toJSON
@@ -77,16 +76,6 @@ instance ToJSON Analysis where
         ]
 
 instance ToJSON PortSpec where
-    toJSON (AssumptionPort n) = object
-        [ "block" .= ("proposition"::String)
-        , "port"  .= ("assumption" ++ show n)
-        ]
-    toJSON (ConclusionPort n) = object
-        [ "block" .= ("proposition"::String)
-        , "port"  .= ("conclusion" ++ show n)
-        ]
-    toJSON (BlockPort b n) = object
-        [ "block" .= b
-        , "port"  .= n
-        ]
-
+    toJSON (AssumptionPort n) = object [ "assumption" .= n ]
+    toJSON (ConclusionPort n) = object [ "conclusion" .= n ]
+    toJSON (BlockPort b n)    = object [ "block" .= b, "port" .= n ]
