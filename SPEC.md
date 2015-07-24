@@ -43,37 +43,37 @@ proven), i.e. everything that does not change during the user's interaction.
 
 ```JSON
 context = {
-  'proposition': {
-    'assumptions': ['(A∧B)→C'],
-    'conclusions': ['A→(B→C)']
+  "proposition": {
+    "assumptions": ["(A∧B)→C"],
+    "conclusions": ["A→(B→C)"]
   },
-  'rules': [
-    { 'id': 'conjI',
-      'ports': {
-        'in1': {'type': 'assumption', 'proposition': 'A'},
-        'in2': {'type': 'assumption', 'proposition': 'B'},
-        'out': {'type': 'conclusion', 'proposition': 'A∧B'},
+  "rules": [
+    { "id": "conjI",
+      "ports": {
+        "in1": {"type": "assumption", "proposition": "A"},
+        "in2": {"type": "assumption", "proposition": "B"},
+        "out": {"type": "conclusion", "proposition": "A∧B"},
       },
     },
-    { 'id': 'conjE',
-      'ports': {
-        'in':   {'type': 'assumption', 'proposition': 'A∧B'},
-        'out1': {'type': 'conclusion', 'proposition': 'A'},
-        'out2': {'type': 'conclusion', 'proposition': 'B'},
+    { "id": "conjE",
+      "ports": {
+        "in":   {"type": "assumption", "proposition": "A∧B"},
+        "out1": {"type": "conclusion", "proposition": "A"},
+        "out2": {"type": "conclusion", "proposition": "B"},
       },
     },
-    { 'id': 'impI',
-      'ports': {
-        'in':  {'type': 'assumption',       'proposition': 'B'},
-        'hyp': {'type': 'local hypothesis', 'proposition': 'A', consumedBy: 'in'},
-        'out': {'type': 'conclusion',       'proposition': 'A → B'},
+    { "id": "impI",
+      "ports": {
+        "in":  {"type": "assumption",       "proposition": "B"},
+        "hyp": {"type": "local hypothesis", "proposition": "A", consumedBy: "in"},
+        "out": {"type": "conclusion",       "proposition": "A → B"},
       },
     },
-    { 'id': 'impE',
-      'ports': {
-        'in1': {'type': 'assumption', 'proposition': 'A→B'},
-        'in2': {'type': 'assumption', 'proposition': 'A'},
-        'out': {'type': 'conclusion', 'proposition': 'B'},
+    { "id": "impE",
+      "ports": {
+        "in1": {"type": "assumption", "proposition": "A→B"},
+        "in2": {"type": "assumption", "proposition": "A"},
+        "out": {"type": "conclusion", "proposition": "B"},
       },
     },
   ]
@@ -105,20 +105,20 @@ as well as connectors.
 
 ```JSON
 proof = {
-  blocks = {
-    'b1': { 'rule': 'conjI'},
-    'b2': { 'rule': 'impE'},
-    'b3': { 'rule': 'impI'},
-    'b4': { 'rule': 'impI'},
+  "blocks": {
+    "b1": { "rule": "conjI"},
+    "b2": { "rule": "impE"},
+    "b3": { "rule": "impI"},
+    "b4": { "rule": "impI"},
   },
-  connections = {
-    'c1': {'fromBlock': 'proposition', 'fromPort': 'assumption1', toBlock: 'b2', toPort: 'in1'},
-    'c2': {'fromBlock': 'b2', 'fromPort': 'out', toBlock: 'b3', toPort: 'in'},
-    'c3': {'fromBlock': 'b3', 'fromPort': 'out', toBlock: 'b4', toPort: 'in'},
-    'c4': {'fromBlock': 'b4', 'fromPort': 'out', toBlock: 'proposition', toPort: 'conclusion1'},
-    'c5': {'fromBlock': 'b4', 'fromPort': 'hyp', toBlock: 'b1', toPort: 'in1'},
-    'c6': {'fromBlock': 'b3', 'fromPort': 'hyp', toBlock: 'b1', toPort: 'in2'},
-    'c7': {'fromBlock': 'b1', 'fromPort': 'out', toBlock: 'b2', toPort: 'in2'},
+  "connections": {
+    "c1": {"fromBlock": "proposition", "fromPort": "assumption1", toBlock: "b2", toPort: "in1"},
+    "c2": {"fromBlock": "b2", "fromPort": "out", toBlock: "b3", toPort: "in"},
+    "c3": {"fromBlock": "b3", "fromPort": "out", toBlock: "b4", toPort: "in"},
+    "c4": {"fromBlock": "b4", "fromPort": "out", toBlock: "proposition", toPort: "conclusion1"},
+    "c5": {"fromBlock": "b4", "fromPort": "hyp", toBlock: "b1", toPort: "in1"},
+    "c6": {"fromBlock": "b3", "fromPort": "hyp", toBlock: "b1", toPort: "in2"},
+    "c7": {"fromBlock": "b1", "fromPort": "out", toBlock: "b2", toPort: "in2"},
   }
 }
 
@@ -152,7 +152,7 @@ The analysis for the `context` above and the empty proof should be
 
 ```JSON
 analysis = {
-  'unsolvedGoals': {'block': 'proposition', 'port': 'conclusion1'}
+  "unsolvedGoals": {"block": "proposition", "port": "conclusion1"}
 }
 ```
 
@@ -160,16 +160,16 @@ With the proof given above, one would expect
 
 ```JSON
 analysis = {
-  'connectionPropositions': {
-    'c1': '(A∧B)→C',,
-    'c2': 'C',
-    'c3': 'B→C',
-    'c4': 'A→B→C',
-    'c5': 'A',
-    'c6': 'B',
-    'c7': 'A∧B',
+  "connectionPropositions": {
+    "c1": "(A∧B)→C",,
+    "c2": "C",
+    "c3": "B→C",
+    "c4": "A→B→C",
+    "c5": "A",
+    "c6": "B",
+    "c7": "A∧B",
   },
-  'qed': true,
+  "qed": true,
 }
 ```
 
