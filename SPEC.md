@@ -65,7 +65,7 @@ context = {
     { "id": "impI",
       "ports": {
         "in":  {"type": "assumption",       "proposition": "B"},
-        "hyp": {"type": "local hypothesis", "proposition": "A", consumedBy: "in"},
+        "hyp": {"type": "local hypothesis", "proposition": "A", "consumedBy": "in"},
         "out": {"type": "conclusion",       "proposition": "A → B"},
       },
     },
@@ -112,13 +112,13 @@ proof = {
     "b4": { "rule": "impI"},
   },
   "connections": {
-    "c1": {"fromBlock": "proposition", "fromPort": "assumption1", toBlock: "b2", toPort: "in1"},
-    "c2": {"fromBlock": "b2", "fromPort": "out", toBlock: "b3", toPort: "in"},
-    "c3": {"fromBlock": "b3", "fromPort": "out", toBlock: "b4", toPort: "in"},
-    "c4": {"fromBlock": "b4", "fromPort": "out", toBlock: "proposition", toPort: "conclusion1"},
-    "c5": {"fromBlock": "b4", "fromPort": "hyp", toBlock: "b1", toPort: "in1"},
-    "c6": {"fromBlock": "b3", "fromPort": "hyp", toBlock: "b1", toPort: "in2"},
-    "c7": {"fromBlock": "b1", "fromPort": "out", toBlock: "b2", toPort: "in2"},
+    "c1": {"fromBlock": "proposition", "fromPort": "assumption1", "toBlock": "b2", "toPort": "in1"},
+    "c2": {"fromBlock": "b2", "fromPort": "out", "toBlock": "b3", "toPort": "in"},
+    "c3": {"fromBlock": "b3", "fromPort": "out", "toBlock": "b4", "toPort": "in"},
+    "c4": {"fromBlock": "b4", "fromPort": "out", "toBlock": "proposition", "toPort": "conclusion1"},
+    "c5": {"fromBlock": "b4", "fromPort": "hyp", "toBlock": "b1", "toPort": "in1"},
+    "c6": {"fromBlock": "b3", "fromPort": "hyp", "toBlock": "b1", "toPort": "in2"},
+    "c7": {"fromBlock": "b1", "fromPort": "out", "toBlock": "b2", "toPort": "in2"},
   }
 }
 
@@ -161,7 +161,7 @@ With the proof given above, one would expect
 ```JSON
 analysis = {
   "connectionPropositions": {
-    "c1": "(A∧B)→C",,
+    "c1": "(A∧B)→C",
     "c2": "C",
     "c3": "B→C",
     "c4": "A→B→C",
