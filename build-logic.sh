@@ -6,7 +6,7 @@
 set -e
 
 cd logic
-cabal configure --ghcjs
+cabal configure --ghcjs --disable-library-profiling
 cabal build
 cp dist/build/js-interface/js-interface.jsexe/all.js ../logic.js
 
