@@ -3,7 +3,7 @@ import GHCJS.Marshal
 import GHCJS.Foreign
 import GHCJS.Types
 
-import JSConversion
+import ConvertJS
 import Entry
 
 

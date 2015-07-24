@@ -15,40 +15,49 @@ data Entailment = Entailment
  { eAssumptions :: [Proposition]
  , eConclusions :: [Proposition]
  }
+ deriving Show
 
 data Rule = Rule
  { id :: Key
  , ports :: KMap Port
  }
+ deriving Show
 
 data PortType = PTAssumption | PTConclusion | PTLocalHyp Key
+ deriving Show
 
 data Port = Port
  { portType :: PortType
  , portProp :: Proposition
  }
+ deriving Show
 
 data Context = Context
  { ctxtProposition :: Entailment
  , ctxtRules :: [Rule]
  }
+ deriving Show
 
 
 data Block = Block
  { blockRule :: Key
  }
+ deriving Show
 
 data PortSpec = AssumptionPort Int | ConclusionPort Int | BlockPort Key Key
+ deriving Show
 
 data Connection = Connection
  { connFrom :: PortSpec
  , connTo :: PortSpec
  }
+ deriving Show
 
 data Proof = Proof
  { blocks :: KMap Block
  , connections :: KMap Connection
  }
+ deriving Show
 
 data Analysis = Analysis
  { connectionPropositions :: KMap Proposition
@@ -58,3 +67,4 @@ data Analysis = Analysis
 -- , escapedHypotheses
  , qed :: Bool
  }
+ deriving Show
