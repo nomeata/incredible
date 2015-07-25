@@ -1,0 +1,5 @@
+logic: conjAndImp
+assumptions:
+- (A∧B)→C
+conclusions:
+- A→(B→C)

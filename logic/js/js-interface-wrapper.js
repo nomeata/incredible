@@ -3,8 +3,8 @@
  * this is a work-around-wrapper.
  */
 
-function incredibleLogic(context, proof) {
-    var tmp = {"context": context, "proof": proof};
+function incredibleLogic(context, task, proof) {
+    var tmp = {"context": context, "task": task, "proof": proof};
     incredibleLogic_(tmp);
     return tmp.analysis;
 }

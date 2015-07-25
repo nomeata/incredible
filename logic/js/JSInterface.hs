@@ -1,9 +1,10 @@
 import Control.Applicative
+import Control.Monad
 import GHCJS.Marshal
 import GHCJS.Foreign
 import GHCJS.Types
 
-import JSConversion
+import ConvertJS
 import Entry
 
 
@@ -13,19 +14,18 @@ foreign import javascript unsafe "incredibleLogic_ = $1"
 main = do
     callback <- syncCallback1 NeverRetain False $ \o -> do
         rawContext <- getProp "context" o
+        rawTask <- getProp "task" o
         rawProof <- getProp "proof" o
         -- Call something here
 
         context <- toContext rawContext
+        task  <-   toTask    rawTask
         proof <-   toProof   rawProof
-        case (,) <$> context <*> proof of
+        case join $ incredibleLogic <$> context <*> task <*> proof of
             Left e -> setProp "error" (toJSString e) o
-            Right (c,p) -> do
-                case incredibleLogic c p of
-                    Left e -> setProp "error" (toJSString e) o
-                    Right analysis -> do
-                        rawAnalysis <- fromAnalysis analysis
-                        setProp "analysis" rawAnalysis o
+            Right analysis -> do
+                rawAnalysis <- fromAnalysis analysis
+                setProp "analysis" rawAnalysis o
 
     js_set_logic callback
 

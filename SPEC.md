@@ -1,18 +1,16 @@
 This file specifies some fundamental data types of The Incredible Proof Machine.
 
-Context
--------
+Logic
+-----
 
-The context contains the information about the current task (or theorem to be
-proven), i.e. everything that does not change during the user's interaction.
+The logic object contains the information about the currently allowed inference
+rules, i.e. our axiomatization. This is usually quite constant.
 
+  * `logic`: Object with field `rules`
 
-  * `context`: Object with fields `proposition` and `rules`
-
-      * `proposition`: Object with fields `assumtions` and `conclusions`, which are lists of
-        propositions, which are strings.
-
-      * `rules`: A list of rule objects. Why a List?
+      * `rules`: A list of rule objects. This is a list, and not a key-value
+	map, as the order might be intentional and should be preserved by the
+	UI.
 
           * rule objects:
 
@@ -43,44 +41,58 @@ proven), i.e. everything that does not change during the user's interaction.
 
 ```JSON
 context = {
-  "proposition": {
-    "assumptions": ["(A∧B)→C"],
-    "conclusions": ["A→(B→C)"]
-  },
   "rules": [
     { "id": "conjI",
       "ports": {
         "in1": {"type": "assumption", "proposition": "A"},
         "in2": {"type": "assumption", "proposition": "B"},
-        "out": {"type": "conclusion", "proposition": "A∧B"},
-      },
+        "out": {"type": "conclusion", "proposition": "A∧B"}
+      }
     },
     { "id": "conjE",
       "ports": {
         "in":   {"type": "assumption", "proposition": "A∧B"},
         "out1": {"type": "conclusion", "proposition": "A"},
-        "out2": {"type": "conclusion", "proposition": "B"},
-      },
+        "out2": {"type": "conclusion", "proposition": "B"}
+      }
     },
     { "id": "impI",
       "ports": {
         "in":  {"type": "assumption",       "proposition": "B"},
         "hyp": {"type": "local hypothesis", "proposition": "A", "consumedBy": "in"},
-        "out": {"type": "conclusion",       "proposition": "A → B"},
-      },
+        "out": {"type": "conclusion",       "proposition": "A → B"}
+      }
     },
     { "id": "impE",
       "ports": {
         "in1": {"type": "assumption", "proposition": "A→B"},
         "in2": {"type": "assumption", "proposition": "A"},
-        "out": {"type": "conclusion", "proposition": "B"},
-      },
-    },
+        "out": {"type": "conclusion", "proposition": "B"}
+      }
+    }
   ]
 }
 ```
 
 
+Task
+----
+
+The task is the theorem to be proven, and thus tells the logic engine about the
+assumptions availalbe, and the ultimate goal(s)
+
+   * `task`: Object with fields `assumtions` and `conclusions`, which
+     are lists of propositions, which are strings.
+
+
+**Example**:
+
+```JSON
+task = {
+    "assumptions": ["(A∧B)→C"],
+    "conclusions": ["A→(B→C)"]
+  }
+```
 
 Proof
 -----
@@ -94,12 +106,19 @@ as well as connectors.
           * `rule`: Id of the rule object used.
       * connection object:
 
-        Fields `fromBlock`, `toBlock`, `fromPort`, `toPort`,
-        where the block fields contain the keys of the block object in the proof, while the port fields contain the name of the port in the corresponding rule.
+        Fields `from` and `to`, which contain port references:
 
-        A special block name is `proposition`, which refers to the proposition
-        in the context, and has implicit ports `conclusion`*n* and
-        `assumption`*n*, where `conclusion1` is the first conclusion etc.
+          * A port reference object is either
+               * an object with fields `block` and `port`, where where the
+                 block fields contain the keys of the block object in the
+                 proof, while the port fields contain the name of the port in
+                 the corresponding rule.
+               * an object with field `assumption`, which references a global
+                 assumption. The value of the field is a number, starting with
+                 1.
+               * an object with field `conclusion`, which references a global
+                 conclusion. The value of the field is a number, starting with
+                 1.
 
 **Example:**
 
@@ -109,16 +128,16 @@ proof = {
     "b1": { "rule": "conjI"},
     "b2": { "rule": "impE"},
     "b3": { "rule": "impI"},
-    "b4": { "rule": "impI"},
+    "b4": { "rule": "impI"}
   },
   "connections": {
-    "c1": {"fromBlock": "proposition", "fromPort": "assumption1", "toBlock": "b2", "toPort": "in1"},
-    "c2": {"fromBlock": "b2", "fromPort": "out", "toBlock": "b3", "toPort": "in"},
-    "c3": {"fromBlock": "b3", "fromPort": "out", "toBlock": "b4", "toPort": "in"},
-    "c4": {"fromBlock": "b4", "fromPort": "out", "toBlock": "proposition", "toPort": "conclusion1"},
-    "c5": {"fromBlock": "b4", "fromPort": "hyp", "toBlock": "b1", "toPort": "in1"},
-    "c6": {"fromBlock": "b3", "fromPort": "hyp", "toBlock": "b1", "toPort": "in2"},
-    "c7": {"fromBlock": "b1", "fromPort": "out", "toBlock": "b2", "toPort": "in2"},
+    "c1": {"from": {"assumption": 1},              "to": {"block": "b2", "port": "in1"}},
+    "c2": {"from": {"block": "b2", "port": "out"}, "to": {"block": "b3", "port": "in"}},
+    "c3": {"from": {"block": "b3", "port": "out"}, "to": {"block": "b4", "port": "in"}},
+    "c4": {"from": {"block": "b4", "port": "out"}, "to": {"conclusion": 1}},
+    "c5": {"from": {"block": "b4", "port": "hyp"}, "to": {"block": "b1", "port": "in1"}},
+    "c6": {"from": {"block": "b3", "port": "hyp"}, "to": {"block": "b1", "port": "in2"}},
+    "c7": {"from": {"block": "b1", "port": "out"}, "to": {"block": "b2", "port": "in2"}}
   }
 }
 
@@ -133,10 +152,8 @@ This data structure describes everything the logic has to tell the UI about a gi
 
       * `connectionPropositions`: Map from connection keys to propositions
         (strings), for those connections where a proposition could be inferred.
-      * `unsolvedGoals`: A list of ports of type assumption that need to be connected before
-        the proof is complete. Every port is specified by an object with fields
-        `block` and `port`. Again, `block` can be `proposition`, then `goal`
-        can be `conclusion`*n*.
+      * `unsolvedGoals`: A list of ports references (see above) of type
+        assumption that need to be connected before the proof is complete.
       * `unificationFailures`: Map from connection key to
       * `cycles`: A list of cycles, where every cycle is a list of connection
         keys that form an illegal cycle.
@@ -152,7 +169,7 @@ The analysis for the `context` above and the empty proof should be
 
 ```JSON
 analysis = {
-  "unsolvedGoals": {"block": "proposition", "port": "conclusion1"}
+  "unsolvedGoals": {"conclusion": 1}
 }
 ```
 

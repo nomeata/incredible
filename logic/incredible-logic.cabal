@@ -23,17 +23,41 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:   Types,
-                     Entry
+                     Entry,
+                     ConvertAeson
   build-depends:     base >=4.7 && <4.8,
+                     aeson,
+                     text,
                      containers
   default-language:  Haskell2010
 
 executable js-interface
   main-is:           JSInterface.hs
-  other-modules:     JSConversion
   default-language:  Haskell2010
-  build-depends:     base >=4.7 && <4.8,
+
+  if impl(ghcjs)
+    buildable: True
+    other-modules:     ConvertJS
+    build-depends:     base >=4.7 && <4.8,
+                       incredible-logic,
+                       aeson,
+                       ghcjs-base
+    js-sources:        js/js-interface-wrapper.js
+    hs-source-dirs:    js/
+  else
+    buildable: False
+
+executable bundle-examples
+  main-is:           bundle-examples.hs
+  other-modules:     Examples
+  default-language:  Haskell2010
+  if impl(ghcjs)
+    buildable: False
+  else
+    build-depends:   base >=4.7 && <4.8,
                      containers,
+                     bytestring,
                      aeson,
-                     ghcjs-base
-  js-sources:        js-interface-wrapper.js
+                     extra,
+                     filepath,
+                     yaml

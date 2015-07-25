@@ -1,4 +1,5 @@
 dist
+dist-ghcjs
 cabal-dev
 *.o
 *.hi
@@ -17,3 +18,5 @@ cabal.sandbox.config
 .idea
 node_modules
 npm-debug.log
+logic.js
+examples.js
