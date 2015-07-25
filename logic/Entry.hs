@@ -3,17 +3,21 @@
 -- in the world of Haskell, i.e. no JS dependencies.
 module Entry where
 
-import Types
 import qualified Data.Map as M
 import Data.Graph
 
+import Types
+import Lint
+
 incredibleLogic :: Context -> Task -> Proof -> Either String Analysis
-incredibleLogic ctxt task proof = return $ Analysis
-    { connectionPropositions = M.empty
-    , unsolvedGoals = [ConclusionPort n | (n,_) <- zip [1..] concs]
-    , cycles = findCycles ctxt proof
-    , qed = False
-    }
+incredibleLogic ctxt task proof = do
+    lintsToEither (lintLogic ctxt)
+    return $ Analysis
+        { connectionPropositions = M.empty
+        , unsolvedGoals = [ConclusionPort n | (n,_) <- zip [1..] concs]
+        , cycles = findCycles ctxt proof
+        , qed = False
+        }
   where
     concs = tConclusions task
 

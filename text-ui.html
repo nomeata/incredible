@@ -9,11 +9,16 @@
 <script language="javascript">
 $(function() {
 	$("#update").click(function() {
+		$("#analysis").val();
 		var logic = $.parseJSON($("#logic").val());
 		var task = $.parseJSON($("#task").val());
 		var proof = $.parseJSON($("#proof").val());
 		var analysis = incredibleLogic(logic,task,proof);
-		$("#analysis").val(JSON.stringify(analysis, null, 2));
+		if (typeof analysis === 'string' || analysis instanceof String) {
+			$("#analysis").val(analysis);
+		} else {
+			$("#analysis").val(JSON.stringify(analysis, null, 2));
+		}
 	});
 
         $.each(examples.logics, function(name,l) {
