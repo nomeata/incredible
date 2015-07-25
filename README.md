@@ -5,7 +5,7 @@ non-textual interactive theorem prover, or at least it will hopefully become
 one.
 
 If you want to try it out, go to <http://nomeata.github.io/incredible/> for the
-current state of the graphical UI and <http://nomeata.github.io/incredible/>
+current state of the graphical UI and <http://nomeata.github.io/incredible/text-ui.html>
 for the text-based debug interface.
 
 
@@ -20,9 +20,9 @@ instructions, but here is a quick way.
 
   * Install GHC version 7.8 and cabal-install version 1.22. On Ubuntu, run
 
-	$ add-apt-repository -y ppa:hvr/ghc
-	$ apt-get install cabal-install-1.22  alex-3.1.4 happy-1.19.5 ghc-7.8.4
-	$ export PATH=$HOME/.cabal/bin:/opt/ghc/7.8.4/bin:/opt/cabal/1.22/bin:/opt/alex/3.1.4/bin:/opt/happy/1.19.5/bin:$PATH
+        $ add-apt-repository -y ppa:hvr/ghc
+        $ apt-get install cabal-install-1.22  alex-3.1.4 happy-1.19.5 ghc-7.8.4
+        $ export PATH=$HOME/.cabal/bin:/opt/ghc/7.8.4/bin:/opt/cabal/1.22/bin:/opt/alex/3.1.4/bin:/opt/happy/1.19.5/bin:$PATH
 
   * Run `cabal update`
   * Make sure the Cabal library is at least version 1.22. You can check that
@@ -30,11 +30,11 @@ instructions, but here is a quick way.
     install Cabal`
   * Now you can install GHCJS including most of its libraries
 
-	git clone https://github.com/ghcjs/ghcjs-prim.git
-	git clone https://github.com/ghcjs/haddock-internal.git
-	git clone https://github.com/ghcjs/ghcjs.git
-	cabal install ./ghcjs-prim ./haddock-internal ./ghcjs
-	ghcjs-boot --dev --no-prof
+        git clone https://github.com/ghcjs/ghcjs-prim.git
+        git clone https://github.com/ghcjs/haddock-internal.git
+        git clone https://github.com/ghcjs/ghcjs.git
+        cabal install ./ghcjs-prim ./haddock-internal ./ghcjs
+        ghcjs-boot --dev --no-prof
 
   * Now you should be able to compile both `logic.js` and `examples.js` by running `make`
 
