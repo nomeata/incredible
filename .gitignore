@@ -14,5 +14,6 @@ cabal.sandbox.config
 *.prof
 *.aux
 *.hp
-logic.js
 .idea
+node_modules
+npm-debug.log

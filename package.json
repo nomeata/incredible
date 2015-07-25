@@ -1,0 +1,44 @@
+{
+  "name": "incredible",
+  "description": "The Incredible Proof Machine",
+  "version": "0.0.1",
+  "author": "Joachim Breitner",
+  "contributors ": [
+    {
+      "name": "Nicole Rauch",
+      "web": "http://www.nicole-rauch.de"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nomeata/incredible"
+  },
+  "license": "(MIT OR Apache-2.0)",
+  "main": "",
+  "engines": {
+    "npm": ">1.4"
+  },
+  "dependencies": {
+    "backbone": "1.2.1",
+    "jointjs" : "0.9.4",
+    "jquery": "2.1.4",
+    "lodash": "3.10.0"
+  },
+  "devDependencies": {
+    "grunt": "0.4.5",
+    "grunt-eslint": "16.0.0",
+    "grunt-karma": "0.12.0",
+    "karma": "0.13.2",
+    "karma-mocha": "0.2.0",
+    "karma-must": "0.1.1",
+    "karma-phantomjs-launcher": "0.2.0",
+    "karma-sinon": "1.0.4",
+    "mocha": "2.2.5",
+    "must-dist": "0.12.0",
+    "phantomjs": "1.9.17",
+    "sinon": "1.15.4"
+  },
+  "scripts": {
+    "test": "grunt tests"
+  }
+}
