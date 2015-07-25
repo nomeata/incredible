@@ -2,7 +2,7 @@ sudo: false
 
 env:
   global:
-  - GH_REF: github.com/nomeata/incredible.git
+  - GH_REF: github.com/nomeata/incredible-demo.git
   - secure: "ZMFRlzcJEut3E4nDZpcM+wlkxOzRdTYN9pmlTApoMeYs2PCfaREpLVZCQ8EZ0XjJdKQzhsRZyQsa64/IcFmhFeAiBhaura5pE4VwXd6RKPJwNE9tgnpCJ7G/R0JIFzUA2SFgD4+UW5/Db1JgHIjOTVtvYqtlxjhQOhVTWi7vBlws4EccA+tGZk0VAkHNG4Uk78LZlfXBbluoxjYxI9SeMoPWSlwYUWfkvhl5GqoV18Si9i4vOmT5/T/yb84uQ/bHH3UbrWZ9UF2WtebC9/cvFhWwj1Qa2xyvTYsXfCEKJq6TV0OgialuECByDb5e+cWIixShLpwYTSJV4BrCEMxkLrOoRgLRPJ7LA+I+tjZsh1zmwJqyE5Tlbaq5fX/mE/4Y/HgrXbS4qNGbF6RvzVYhJAxQKFV3LpnrPthFQ5HXfZpyCJt32jTlsfsUdpEUM+QXFqnrDtF7BBEh7AJW2iO/ktObeBNulS428pHL7brA5IBfk/j4WeTAs2l7ZvTy/f8AQbPFv6BPWONJp81E2tdmo1oa+j1I4r4i9hP72Uf97dElZKsF4UANWp8Z7g1OShDymnG1R74gWQFn4utAC33jOF94mcTsHYh3phC/ZOGvdqQGmkZrhF0sVX8fdpxuBFZ6+BgobFiNMJowigM1tleDPTtcvgYbaziFgJ92/NblY54="
 
 

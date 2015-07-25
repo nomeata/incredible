@@ -4,8 +4,8 @@ Welcome to **The Incredible Proof Machine**. The Incredible Proof Machine is a
 non-textual interactive theorem prover, or at least it will hopefully become
 one.
 
-If you want to try it out, go to <http://nomeata.github.io/incredible/> for the
-current state of the graphical UI and <http://nomeata.github.io/incredible/text-ui.html>
+If you want to try it out, go to <http://nomeata.github.io/incredible-demo/> for the
+current state of the graphical UI and <http://nomeata.github.io/incredible-demo/text-ui.html>
 for the text-based debug interface.
 
 
@@ -65,9 +65,8 @@ that the JavaScript dependencies can be installed.
 
 If Travis thinks the build succeeds, it uses the deploy script in
 `deploy-gh-pages.sh` to push all files required to run the project to
-<http://nomeata.github.io/incredible/>. As this is a [Github
-Pages](http://pages.github.com/) page, this means that it pushes the files to
-the `gh-pages` branch of the repository. You can ignore that branch otherwise.
+<http://nomeata.github.io/incredible-demo/>. As this is a [Github
+Pages](http://pages.github.com/) page, this means that the sources are always the contents of the `gh-pages` branch of the `incredible-demo` repository, which is otherwise unused.
 
 ## Contact
 
