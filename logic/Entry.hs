@@ -4,6 +4,7 @@
 module Entry where
 
 import qualified Data.Map as M
+import Data.Map ((!))
 import Data.Graph
 
 import Types
@@ -32,9 +33,10 @@ findCycles ctxt proof = [ keys | CyclicSCC keys <- stronglyConnComp graph ]
     toMap = M.fromListWith (++) [ (connTo c, [k]) | (k,c) <- M.toList $ connections proof]
 
     connectionsBefore :: PortSpec -> [Key]
-    connectionsBefore (BlockPort blockId _)
+    connectionsBefore (BlockPort blockId toPortId)
         | Just block <- M.lookup blockId (blocks proof)
         , Just rule <- M.lookup (blockRule block) (ctxtRules ctxt)
+        , (Port PTConclusion _) <- ports rule ! toPortId -- No need to follow local assumptions
         = [ c'
           | (portId, Port PTAssumption _) <- M.toList (ports rule)
           , c' <- M.findWithDefault [] (BlockPort blockId portId) toMap
