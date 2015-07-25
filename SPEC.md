@@ -81,7 +81,7 @@ Task
 The task is the theorem to be proven, and thus tells the logic engine about the
 assumptions availalbe, and the ultimate goal(s)
 
-   * `task`: Object with fields `assumtions` and `conclusions`, which
+   * `task`: Object with fields `assumptions` and `conclusions`, which
      are lists of propositions, which are strings.
 
 
