@@ -46,15 +46,16 @@ install:
     - test -e $HOME/.ghcjs/*/ghcjs/ghcjs_boot.completed || ghcjs-boot --dev --no-haddock --no-prof
 
     # install dependencies
-
     - (  cd logic && cabal-1.22 install --dependencies-only )
+
+script:
+    - make
+    - npm install
+
+after_success:
+    - ./deploy-gh-pages.sh
 
 before_cache:
   - rm -rf $HOME/.ghcjs/*/ghcjs/ghcjs-boot/
   - du -sh $HOME/.ghcjs $HOME/.ghc $HOME/.cabal/bin $HOME/.cabal/lib $HOME/.cabal/share
 
-script:
-    - make
-
-after_success:
-    - ./deploy-gh-pages.sh
