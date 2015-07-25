@@ -48,7 +48,7 @@ data Block = Block
  deriving Show
 
 data PortSpec = AssumptionPort Int | ConclusionPort Int | BlockPort Key Key
- deriving Show
+ deriving (Eq, Ord, Show)
 
 data Connection = Connection
  { connFrom :: PortSpec
@@ -66,8 +66,10 @@ data Analysis = Analysis
  { connectionPropositions :: KMap Proposition
  , unsolvedGoals :: [PortSpec]
 -- , unificationFailures
--- , cycles
+ , cycles :: [Cycle]
 -- , escapedHypotheses
  , qed :: Bool
  }
  deriving Show
+
+type Cycle = [Key]
