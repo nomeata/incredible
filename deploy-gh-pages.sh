@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # inspired by https://gist.github.com/domenic/ec8b0fc8ab45f39403dd
 
 # Prepare an empty directory
@@ -17,8 +19,18 @@ make -C ..
 # Copy static HTML files and generated JS files
 cp -v ../*.html ../*.js .
 
-# Install node libraries
-npm install --production ..
+# Copy the required javascript files from the node package. Is there
+# npm-support to do this properly?
+cd ..
+cp --parents -v -t gh-page \
+	./node_modules/jointjs/dist/joint.all.css \
+	./webui/logic.css \
+	./node_modules/jquery/dist/jquery.min.js \
+	./node_modules/lodash/index.js \
+	./node_modules/backbone/backbone-min.js \
+	./node_modules/jointjs/dist/joint.all.js \
+	./webui/logic.js
+cd gh-page
 
 git add .
 git commit -m "Deploy to GitHub Pages"
