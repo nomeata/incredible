@@ -1,0 +1,51 @@
+sudo: false
+
+addons:
+  apt:
+    sources:
+    - hvr-ghc
+    packages:
+    - cabal-install-1.22
+    - ghc-7.8.4
+    - alex-3.1.4
+    - happy-1.19.5
+
+cache:
+  bundler: false
+  directories:
+  - $HOME/.ghc/
+  - $HOME/.ghcjs/
+  - $HOME/.cabal/bin
+  - $HOME/.cabal/share
+  - $HOME/.cabal/lib
+
+before_install:
+    - export PATH=$HOME/.cabal/bin:$PATH
+    - export PATH=/opt/cabal/1.22/bin:$PATH
+    - export PATH=/opt/alex/3.1.4/bin:$PATH
+    - export PATH=/opt/happy/1.19.5/bin:$PATH
+    - export PATH=/opt/ghc/7.8.4/bin:$PATH
+    - du -sh $HOME/.ghcjs $HOME/.ghc $HOME/.cabal/bin $HOME/.cabal/lib $HOME/.cabal/share
+
+install:
+    # install ghcjs
+    - cabal-1.22 update
+    - cabal-1.22 install Cabal
+    - test -e $HOME/.cabal/bin/ghcjs || git clone https://github.com/ghcjs/ghcjs-prim.git
+    - test -e $HOME/.cabal/bin/ghcjs || git clone https://github.com/ghcjs/haddock-internal.git
+    - test -e $HOME/.cabal/bin/ghcjs || git clone https://github.com/ghcjs/ghcjs.git
+    - test -e $HOME/.cabal/bin/ghcjs || cabal-1.22 install ./ghcjs-prim ./haddock-internal ./ghcjs
+    - ghcjs --version
+    - ghcjs-boot --version
+    - test -e $HOME/.ghcjs/*/ghcjs/ghcjs_boot.completed || ghcjs-boot --dev --no-haddock --no-prof
+
+    # install dependencies
+
+    - (  cd logic && cabal-1.22 install --dependencies-only )
+
+before_cache:
+  - rm -rf $HOME/.ghcjs/*/ghcjs/ghcjs-boot/
+  - du -sh $HOME/.ghcjs $HOME/.ghc $HOME/.cabal/bin $HOME/.cabal/lib $HOME/.cabal/share
+
+script:
+    - make
