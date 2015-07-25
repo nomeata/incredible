@@ -24,12 +24,12 @@ cp -v ../*.html ../*.js .
 cd ..
 cp --parents -v -t gh-page \
 	./node_modules/jointjs/dist/joint.all.css \
-	./webui/logic.css \
 	./node_modules/jquery/dist/jquery.min.js \
 	./node_modules/lodash/index.js \
 	./node_modules/backbone/backbone-min.js \
 	./node_modules/jointjs/dist/joint.all.js \
-	./webui/logic.js
+	./webui/*.css \
+	./webui/*.js
 cd gh-page
 
 git add .
