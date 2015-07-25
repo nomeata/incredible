@@ -11,7 +11,7 @@ $(function() {
 	$("#update").click(function() {
 		var logic = $.parseJSON($("#logic").val());
 		var task = $.parseJSON($("#task").val());
-		var proof = $.parseJSON($("#logic").val());
+		var proof = $.parseJSON($("#proof").val());
 		var analysis = incredibleLogic(logic,task,proof);
 		$("#analysis").val(JSON.stringify(analysis, null, 2));
 	});
@@ -38,7 +38,9 @@ $(function() {
         $("#task" ).bind("input", function () {$("#taskselect").val("")});
         $("#proof").bind("input", function () {$("#proofselect").val("")});
 
-        selectProof("curry1_complete");
+        if (!$("#proof").val()) {
+            selectProof("curry1_complete");
+        }
 
 });
 function selectLogic(name) {
