@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings, RecordWildCards #-}
 module ConvertAeson (toContext, toTask, toProof, fromAnalysis) where
 
+import qualified Data.Vector as V
 import qualified Data.Text as T
 import Data.Aeson.Types
 import qualified Data.Map as M
@@ -17,8 +18,7 @@ toContext = parseEither parseJSON
 
 instance FromJSON Rule where
   parseJSON = withObject "rule" $ \o ->
-    Rule <$> o .: "id"
-         <*> o .: "ports"
+    Rule <$> o .: "ports"
 
 instance FromJSON Port where
   parseJSON = withObject "port" $ \o -> do
@@ -33,7 +33,15 @@ instance FromJSON Port where
 
 instance FromJSON Context where
   parseJSON = withObject "context" $ \o -> do
-    Context <$> o .: "rules"
+    Context <$> (mapFromList "id" =<< o .: "rules")
+
+mapFromList :: (FromJSON k, FromJSON v, Ord k) => T.Text -> Value -> Parser (M.Map k v)
+mapFromList idField = withArray "rules" $ \a -> do
+    entries <- forM (V.toList a) $ \v -> do
+        k <- withObject "rule" (.: idField) v
+        r <- parseJSON v
+        return (k,r)
+    return $ M.fromList entries
 
 toTask :: Value -> Either String Task
 toTask = parseEither parseJSON

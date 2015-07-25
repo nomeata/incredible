@@ -17,9 +17,13 @@ data Task = Task
  }
  deriving Show
 
+-- This is different from the specification:
+--  - There, we have a list of rules with an id.
+--  - Here, we have a map from id to rule.
+-- The Logic does not worry about the order, so a map interface with efficient
+-- lookup is nicer.
 data Rule = Rule
- { id :: Key
- , ports :: KMap Port
+ { ports :: KMap Port
  }
  deriving Show
 
@@ -33,7 +37,7 @@ data Port = Port
  deriving Show
 
 data Context = Context
- { ctxtRules :: [Rule]
+ { ctxtRules :: KMap Rule
  }
  deriving Show
 
