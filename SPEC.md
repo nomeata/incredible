@@ -1,18 +1,16 @@
 This file specifies some fundamental data types of The Incredible Proof Machine.
 
-Context
--------
+Logic
+-----
 
-The context contains the information about the current task (or theorem to be
-proven), i.e. everything that does not change during the user's interaction.
+The logic object contains the information about the currently allowed inference
+rules, i.e. our axiomatization. This is usually quite constant.
 
+  * `logic`: Object with field `rules`
 
-  * `context`: Object with fields `proposition` and `rules`
-
-      * `proposition`: Object with fields `assumtions` and `conclusions`, which are lists of
-        propositions, which are strings.
-
-      * `rules`: A list of rule objects. Why a List?
+      * `rules`: A list of rule objects. This is a list, and not a key-value
+	map, as the order might be intentional and should be preserved by the
+	UI.
 
           * rule objects:
 
@@ -43,10 +41,6 @@ proven), i.e. everything that does not change during the user's interaction.
 
 ```JSON
 context = {
-  "proposition": {
-    "assumptions": ["(A∧B)→C"],
-    "conclusions": ["A→(B→C)"]
-  },
   "rules": [
     { "id": "conjI",
       "ports": {
@@ -81,6 +75,24 @@ context = {
 ```
 
 
+Task
+----
+
+The task is the theorem to be proven, and thus tells the logic engine about the
+assumptions availalbe, and the ultimate goal(s)
+
+   * `task`: Object with fields `assumtions` and `conclusions`, which
+     are lists of propositions, which are strings.
+
+
+**Example**:
+
+```JSON
+task = {
+    "assumptions": ["(A∧B)→C"],
+    "conclusions": ["A→(B→C)"]
+  }
+```
 
 Proof
 -----

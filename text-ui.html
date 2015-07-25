@@ -9,8 +9,9 @@
 $(function() {
 	$("#update").click(function() {
 		var context = $.parseJSON($("#context").val());
+		var task = $.parseJSON($("#task").val());
 		var proof = $.parseJSON($("#context").val());
-		var analysis = incredibleLogic(context,proof);
+		var analysis = incredibleLogic(context,task,proof);
 		$("#analysis").val(JSON.stringify(analysis, null, 2));
 	});
 });
@@ -18,12 +19,8 @@ $(function() {
 </head>
 <body>
 Context:<br/>
-<textarea  cols=100 rows=20 id="context">
+<textarea  cols=100 rows=5 id="context">
 {
-  "proposition": {
-    "assumptions": ["(A∧B)→C"],
-    "conclusions": ["A→(B→C)"]
-  },
   "rules": [
     { "id": "conjI",
       "ports": {
@@ -54,6 +51,13 @@ Context:<br/>
       }
     }
   ]
+}
+</textarea><br/>
+Task:<br/>
+<textarea  cols=100 rows=5 id="task">
+{
+  "assumptions": ["(A∧B)→C"],
+  "conclusions": ["A→(B→C)"]
 }
 </textarea><br/>
 Proof:<br/>

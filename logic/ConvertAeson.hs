@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings, RecordWildCards #-}
-module ConvertAeson (toContext, toProof, fromAnalysis) where
+module ConvertAeson (toContext, toTask, toProof, fromAnalysis) where
 
 import qualified Data.Text as T
 import Data.Aeson.Types
@@ -14,11 +14,6 @@ import Types
 
 toContext :: Value -> Either String Context
 toContext = parseEither parseJSON
-
-instance FromJSON Entailment where
-  parseJSON = withObject "entailment" $ \o ->
-    Entailment <$> o .:? "assumptions" .!= []
-               <*> o .:? "conclusions" .!= []
 
 instance FromJSON Rule where
   parseJSON = withObject "rule" $ \o ->
@@ -38,8 +33,16 @@ instance FromJSON Port where
 
 instance FromJSON Context where
   parseJSON = withObject "context" $ \o -> do
-    Context <$> o .: "proposition"
-            <*> o .: "rules"
+    Context <$> o .: "rules"
+
+toTask :: Value -> Either String Task
+toTask = parseEither parseJSON
+
+instance FromJSON Task where
+  parseJSON = withObject "task" $ \o ->
+    Task <$> o .:? "assumptions" .!= []
+         <*> o .:? "conclusions" .!= []
+
 
 toProof :: Value -> Either String Proof
 toProof = parseEither parseJSON

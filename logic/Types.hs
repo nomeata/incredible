@@ -11,9 +11,9 @@ type Key = String
 type KMap v = M.Map Key v
 
 
-data Entailment = Entailment
- { eAssumptions :: [Proposition]
- , eConclusions :: [Proposition]
+data Task = Task
+ { tAssumptions :: [Proposition]
+ , tConclusions :: [Proposition]
  }
  deriving Show
 
@@ -33,8 +33,7 @@ data Port = Port
  deriving Show
 
 data Context = Context
- { ctxtProposition :: Entailment
- , ctxtRules :: [Rule]
+ { ctxtRules :: [Rule]
  }
  deriving Show
 
