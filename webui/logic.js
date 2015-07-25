@@ -73,6 +73,9 @@ joint.shapes.logic.Repeater.prototype.onSignal = function (signal, handler) { _.
 // Output element just marks itself as alive.
 joint.shapes.logic.Output.prototype.onSignal = function (signal) { toggleLive(this, signal); }
 
+// TODO do we need this later on?
+shapes.Gate.prototype.onSignal = function (signal, handler) { handler.call(this, signal) }
+
 // diagramm setup
 var gates = {
   repeater: new joint.shapes.logic.Repeater({position: {x: 350, y: 50}}),
