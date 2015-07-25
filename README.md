@@ -40,7 +40,8 @@ instructions, but here is a quick way.
 
 Alternatively, if you do not want to hack on these parts of the project, but simply run them locally, you can run
 
-    git checkout origin/gh-pages logic.js examples.js
+    wget http://nomeata.github.io/incredible-demo/logic.js -O logic.js
+    wget http://nomeata.github.io/incredible-demo/examples.js -O examples.js
 
 
 You can check that this part is working by opening `text-ui.html` in your browser.
