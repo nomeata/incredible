@@ -26,6 +26,7 @@ library
                      Entry,
                      Lint,
                      TaggedMap,
+                     ShapeChecks,
                      ConvertAeson
   build-depends:     base >=4.7 && <4.8,
                      aeson,
