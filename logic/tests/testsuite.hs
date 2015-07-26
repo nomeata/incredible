@@ -1,15 +1,16 @@
+{-# LANGUAGE OverloadedStrings #-}
 import Test.Tasty
 import Test.Tasty.HUnit
+import qualified Data.Map as M
 
 import Entry
 import Types
-import qualified Data.Map as M
+import TaggedMap
 
 main = defaultMain tests
 
 tests :: TestTree
 tests = testGroup "Tests" [cycleTests]
-
 
 cycleTests = testGroup "Cycle detection"
   [ testCase "cycle"    $ findCycles oneBlockLogic proofWithCycle @?= [["c"]] 

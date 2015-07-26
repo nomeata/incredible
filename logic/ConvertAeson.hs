@@ -8,8 +8,10 @@ import qualified Data.Map as M
 import Control.Applicative
 import Data.List
 import Control.Monad
+import Data.Tagged
 
 import Types
+import TaggedMap
 
 -- Conversion from/to aeson value
 

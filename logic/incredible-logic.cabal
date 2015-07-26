@@ -25,12 +25,14 @@ library
   exposed-modules:   Types,
                      Entry,
                      Lint,
+                     TaggedMap,
                      ConvertAeson
   build-depends:     base >=4.7 && <4.8,
                      aeson,
                      text,
                      vector,
-                     containers
+                     containers,
+                     tagged
   default-language:  Haskell2010
 
 executable js-interface

@@ -14,8 +14,10 @@ module Lint where
 import qualified Data.Map as M
 import Text.Printf
 import Data.Monoid
+import Data.Tagged
 
 import Types
+
 
 type Lints = [String]
 
@@ -24,7 +26,7 @@ lintLogic logic = wrongLocalHyps
   where
     wrongLocalHyps =
         [ printf "local hypothesis \"%s\" of rule \"%s\" has an invalid consumedBy field \"%s\""
-          portKey ruleKey consumedBy
+          (untag portKey) (untag ruleKey) (untag consumedBy)
         | (ruleKey, rule) <- M.toList (ctxtRules logic)
         , (portKey, Port (PTLocalHyp consumedBy) _) <- M.toList (ports rule)
         , maybe True (not.isAssumption) $ M.lookup consumedBy (ports rule)

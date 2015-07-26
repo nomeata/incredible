@@ -32,7 +32,7 @@ findCycles ctxt proof = [ keys | CyclicSCC keys <- stronglyConnComp graph ]
 
     toMap = M.fromListWith (++) [ (connTo c, [k]) | (k,c) <- M.toList $ connections proof]
 
-    connectionsBefore :: PortSpec -> [Key]
+    connectionsBefore :: PortSpec -> [Key Connection]
     connectionsBefore (BlockPort blockId toPortId)
         | Just block <- M.lookup blockId (blocks proof)
         , Just rule <- M.lookup (blockRule block) (ctxtRules ctxt)

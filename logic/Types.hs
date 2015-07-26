@@ -3,12 +3,13 @@
 module Types where
 
 import qualified Data.Map as M
+import Data.Tagged
 
 type Proposition = String
 
--- We might want to look into other maps
-type Key = String
-type KMap v = M.Map Key v
+-- We might want to look into other implementation of key-value maps
+type Key k = Tagged k String
+type KMap v = M.Map (Key v) v
 
 
 data Task = Task
@@ -27,7 +28,7 @@ data Rule = Rule
  }
  deriving Show
 
-data PortType = PTAssumption | PTConclusion | PTLocalHyp Key
+data PortType = PTAssumption | PTConclusion | PTLocalHyp (Key Port)
  deriving Show
 
 data Port = Port
@@ -43,11 +44,11 @@ data Context = Context
 
 
 data Block = Block
- { blockRule :: Key
+ { blockRule :: Key Rule
  }
  deriving Show
 
-data PortSpec = AssumptionPort Int | ConclusionPort Int | BlockPort Key Key
+data PortSpec = AssumptionPort Int | ConclusionPort Int | BlockPort (Key Block) (Key Port)
  deriving (Eq, Ord, Show)
 
 data Connection = Connection
@@ -72,4 +73,4 @@ data Analysis = Analysis
  }
  deriving Show
 
-type Cycle = [Key]
+type Cycle = [Key Connection]
