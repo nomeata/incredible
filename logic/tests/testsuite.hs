@@ -13,6 +13,7 @@ tests :: TestTree
 tests = testGroup "Tests"
     [ cycleTests
     , escapedHypothesesTests
+    , unsolvedGoalsTests
     ]
 
 cycleTests = testGroup "Cycle detection"
@@ -21,10 +22,16 @@ cycleTests = testGroup "Cycle detection"
   ]
   where
 
-escapedHypothesesTests = testGroup "Escaped Hypotheses"
+escapedHypothesesTests = testGroup "Escaped hypotheses"
   [ testCase "direct"    $ findEscapedHypotheses impILogic directEscape @?= [["c"]]
   , testCase "indirect"  $ findEscapedHypotheses impILogic indirectEscape @?= [["c", "c2"]]
   , testCase "ok"        $ findEscapedHypotheses impILogic noEscape @?= []
+  ]
+
+unsolvedGoalsTests = testGroup "Unsolved goals"
+  [ testCase "empty"     $ findUnsolvedGoals impILogic simpleTask emptyProof @?= [ConclusionPort 1]
+  , testCase "indirect"  $ findUnsolvedGoals impILogic simpleTask partialProof @?= [BlockPort "b" "in"]
+  , testCase "complete"  $ findUnsolvedGoals impILogic simpleTask completeProof @?= []
   ]
 
 
@@ -60,3 +67,14 @@ indirectEscape = Proof
         , ("c2", (Connection (BlockPort "b2" "out") (ConclusionPort 1)))
         ])
 
+simpleTask = Task [] ["A→A"]
+
+emptyProof = Proof M.empty M.empty
+
+partialProof = Proof
+    (M.fromList [("b", Block "impI")])
+    (M.fromList [("c", (Connection (BlockPort "b" "out") (ConclusionPort 1)))])
+completeProof = Proof
+    (M.fromList [("b", Block "impI")])
+    (M.fromList [ ("c1", (Connection (BlockPort "b" "hyp") (BlockPort "b" "in")))
+                , ("c2", (Connection (BlockPort "b" "out") (ConclusionPort 1)))])

@@ -1,7 +1,7 @@
 -- |
 -- This module contains the graph-related checks of a proof, i.e. no cycles;
 -- local assumptions used properly.
-module ShapeChecks (findCycles, findEscapedHypotheses) where
+module ShapeChecks (findCycles, findEscapedHypotheses, findUnsolvedGoals) where
 
 import qualified Data.Map as M
 import qualified Data.Set as S
@@ -75,29 +75,28 @@ findEscapedHypotheses ctxt proof =
     fromMap = M.fromListWith (++) [ (connFrom c, [k]) | (k,c) <- M.toList $ connections proof]
     connsFrom ps = M.findWithDefault [] ps fromMap
 
-
-{-
-findEscapedHypotheses :: Context -> Proof -> [Path]
-findEscapedHypotheses ctxt proof = undefined
+findUnsolvedGoals :: Context -> Task -> Proof -> [PortSpec]
+findUnsolvedGoals ctxt task proof = go S.empty conclusions
   where
-    infected :: S.Set (Key Connection, PortSpec)
-    infected = fixBy S.size infect initialInfection
+    conclusions = map ConclusionPort [1..length (tConclusions task)]
 
-    initialInfection = S.fromList
-        [ (connKey, BlockPort blockId consumedBy)
-        | (connKey, c) <- M.toList $ connections proof
-        , BlockPort blockId portId <- return $ connFrom c
-        , let rule = ctxtRules ctxt ! blockRule (blocks proof ! blockId)
-        , (Port (PTLocalHyp consumedBy) _) <- return $ ports rule ! portId
-        ]
+    go seen [] = []
+    go seen (to:todo)
+        | to `S.member` seen =      go seen todo
+        | null conns         = to : go seen' todo
+        | otherwise          =      go seen' (inPorts ++ todo)
+      where
+        seen' = S.insert to seen
+        conns = connsTo to
+        blockKeys = S.toList $ S.fromList
+            [ blockKey | c <- conns
+                       , BlockPort blockKey _ <- return $ connFrom (connections proof ! c)]
+        inPorts = [ spec
+            | blockKey <- blockKeys
+            , let rule = ctxtRules ctxt ! blockRule (blocks proof ! blockKey)
+            , (portId, Port PTAssumption _) <- M.toList $ ports rule
+            , let spec = BlockPort blockKey portId
+            ]
 
-    infect s = undefined
-
-fixBy :: Eq b => (a -> b) -> (a -> a) -> a -> a
-fixBy test f x
-    | test x == test x' = x
-    | otherwise         = fixBy test f x'
-  where
-    x' = f x
-
--}
+    toMap = M.fromListWith (++) [ (connTo c, [k]) | (k,c) <- M.toList $ connections proof]
+    connsTo ps = M.findWithDefault [] ps toMap
