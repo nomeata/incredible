@@ -159,9 +159,12 @@ This data structure describes everything the logic has to tell the UI about a gi
         keys that form an illegal cycle.
       * `escapedHypotheses`: A list of paths, where every path is a list of connection
         keys that form a path from a local hypothesis to a conclusion of the proposition.
-      * `qed`: Is `true` if the proof is complete. This should be equiavalent to
-        `unsolvedGoals`, `unificationFailures`, `cycles` and
-        `escapedHypotheses` being absent or empty.
+      * `qed`: Is `true` if the proof is complete.
+
+        This does not necessarily imply that all of `unsolvedGoals`,
+        `unificationFailures`, `cycles` and `escapedHypotheses` are empty: It
+        is possible, to have cycles and escapedHypotheses, as long as they are not used
+        to prove any conclusions.
 
 **Example**
 
@@ -169,7 +172,8 @@ The analysis for the `context` above and the empty proof should be
 
 ```JSON
 analysis = {
-  "unsolvedGoals": {"conclusion": 1}
+  "unsolvedGoals": {"conclusion": 1},
+  "qed": false
 }
 ```
 
