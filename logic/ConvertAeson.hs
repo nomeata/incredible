@@ -86,6 +86,7 @@ instance ToJSON Analysis where
         [ "connectionPropositions" .= toJSON connectionPropositions
         , "unsolvedGoals" .= toJSON unsolvedGoals
         , "cycles" .= toJSON cycles
+        , "escapedHypotheses" .= toJSON escapedHypotheses
         , "qed" .= toJSON qed
         ]
 

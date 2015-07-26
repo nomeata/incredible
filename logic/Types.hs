@@ -31,6 +31,16 @@ data Rule = Rule
 data PortType = PTAssumption | PTConclusion | PTLocalHyp (Key Port)
  deriving Show
 
+isPortTypeOut :: PortType -> Bool
+isPortTypeOut PTConclusion = True
+isPortTypeOut (PTLocalHyp _) = True
+isPortTypeOut PTAssumption = False
+
+isPortTypeIn :: PortType -> Bool
+isPortTypeIn PTConclusion = False
+isPortTypeIn (PTLocalHyp _) = False
+isPortTypeIn PTAssumption = True
+
 data Port = Port
  { portType :: PortType
  , portProp :: Proposition
@@ -68,9 +78,10 @@ data Analysis = Analysis
  , unsolvedGoals :: [PortSpec]
 -- , unificationFailures
  , cycles :: [Cycle]
--- , escapedHypotheses
+ , escapedHypotheses :: [Path]
  , qed :: Bool
  }
  deriving Show
 
 type Cycle = [Key Connection]
+type Path = [Key Connection]

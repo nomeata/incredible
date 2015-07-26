@@ -16,6 +16,7 @@ incredibleLogic ctxt task proof = do
         { connectionPropositions = M.empty
         , unsolvedGoals = [ConclusionPort n | (n,_) <- zip [1..] concs]
         , cycles = findCycles ctxt proof
+        , escapedHypotheses = findEscapedHypotheses ctxt proof
         , qed = False
         }
   where
