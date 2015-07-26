@@ -10,7 +10,7 @@ logic.js: logic/dist-ghcjs/build/js-interface/js-interface.jsexe/all.js
 
 logic/dist/build/bundle-examples/bundle-examples:
 	cd logic && \
-	cabal configure --disable-library-profiling && \
+	cabal configure --enable-tests --disable-library-profiling && \
 	cabal build
 
 examples.js: examples/*/* logic/dist/build/bundle-examples/bundle-examples
