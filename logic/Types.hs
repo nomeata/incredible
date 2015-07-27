@@ -75,7 +75,7 @@ data Proof = Proof
 
 data Analysis = Analysis
  { connectionPropositions :: KMap Proposition
- , unsolvedGoals :: [PortSpec]
+ , unconnectedGoals :: [PortSpec]
 -- , unificationFailures
  , cycles :: [Cycle]
  , escapedHypotheses :: [Path]

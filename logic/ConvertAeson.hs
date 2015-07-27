@@ -84,7 +84,7 @@ fromAnalysis = toJSON
 instance ToJSON Analysis where
     toJSON (Analysis {..}) = object
         [ "connectionPropositions" .= toJSON connectionPropositions
-        , "unsolvedGoals" .= toJSON unsolvedGoals
+        , "unconnectedGoals" .= toJSON unconnectedGoals
         , "cycles" .= toJSON cycles
         , "escapedHypotheses" .= toJSON escapedHypotheses
         , "qed" .= toJSON qed

@@ -1,7 +1,7 @@
 -- |
 -- This module contains the graph-related checks of a proof, i.e. no cycles;
 -- local assumptions used properly.
-module ShapeChecks (findCycles, findEscapedHypotheses, findUnsolvedGoals) where
+module ShapeChecks (findCycles, findEscapedHypotheses, findUnconnectedGoals) where
 
 import qualified Data.Map as M
 import qualified Data.Set as S
@@ -75,8 +75,8 @@ findEscapedHypotheses ctxt proof =
     fromMap = M.fromListWith (++) [ (connFrom c, [k]) | (k,c) <- M.toList $ connections proof]
     connsFrom ps = M.findWithDefault [] ps fromMap
 
-findUnsolvedGoals :: Context -> Task -> Proof -> [PortSpec]
-findUnsolvedGoals ctxt task proof = go S.empty conclusions
+findUnconnectedGoals :: Context -> Task -> Proof -> [PortSpec]
+findUnconnectedGoals ctxt task proof = go S.empty conclusions
   where
     conclusions = map ConclusionPort [1..length (tConclusions task)]
 

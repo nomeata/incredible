@@ -13,7 +13,7 @@ tests :: TestTree
 tests = testGroup "Tests"
     [ cycleTests
     , escapedHypothesesTests
-    , unsolvedGoalsTests
+    , unconnectedGoalsTests
     ]
 
 cycleTests = testGroup "Cycle detection"
@@ -28,10 +28,10 @@ escapedHypothesesTests = testGroup "Escaped hypotheses"
   , testCase "ok"        $ findEscapedHypotheses impILogic noEscape @?= []
   ]
 
-unsolvedGoalsTests = testGroup "Unsolved goals"
-  [ testCase "empty"     $ findUnsolvedGoals impILogic simpleTask emptyProof @?= [ConclusionPort 1]
-  , testCase "indirect"  $ findUnsolvedGoals impILogic simpleTask partialProof @?= [BlockPort "b" "in"]
-  , testCase "complete"  $ findUnsolvedGoals impILogic simpleTask completeProof @?= []
+unconnectedGoalsTests = testGroup "Unsolved goals"
+  [ testCase "empty"     $ findUnconnectedGoals impILogic simpleTask emptyProof @?= [ConclusionPort 1]
+  , testCase "indirect"  $ findUnconnectedGoals impILogic simpleTask partialProof @?= [BlockPort "b" "in"]
+  , testCase "complete"  $ findUnconnectedGoals impILogic simpleTask completeProof @?= []
   ]
 
 

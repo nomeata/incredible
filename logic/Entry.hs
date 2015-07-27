@@ -14,7 +14,7 @@ incredibleLogic ctxt task proof = do
     lintsToEither (lintLogic ctxt)
     return $ Analysis
         { connectionPropositions = M.empty
-        , unsolvedGoals = [ConclusionPort n | (n,_) <- zip [1..] concs]
+        , unconnectedGoals = [ConclusionPort n | (n,_) <- zip [1..] concs]
         , cycles = findCycles ctxt proof
         , escapedHypotheses = findEscapedHypotheses ctxt proof
         , qed = False

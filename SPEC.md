@@ -9,8 +9,8 @@ rules, i.e. our axiomatization. This is usually quite constant.
   * `logic`: Object with field `rules`
 
       * `rules`: A list of rule objects. This is a list, and not a key-value
-	map, as the order might be intentional and should be preserved by the
-	UI.
+        map, as the order might be intentional and should be preserved by the
+        UI.
 
           * rule objects:
 
@@ -152,7 +152,7 @@ This data structure describes everything the logic has to tell the UI about a gi
 
       * `connectionPropositions`: Map from connection keys to propositions
         (strings), for those connections where a proposition could be inferred.
-      * `unsolvedGoals`: A list of ports references (see above) of type
+      * `unconnectedGoals`: A list of ports references (see above) of type
         assumption that need to be connected before the proof is complete.
       * `unificationFailures`: Map from connection key to
       * `cycles`: A list of cycles, where every cycle is a list of connection
@@ -161,10 +161,15 @@ This data structure describes everything the logic has to tell the UI about a gi
         keys that form a path from a local hypothesis to a conclusion of the task.
       * `qed`: Is `true` if the proof is complete.
 
-        This does not necessarily imply that all of `unsolvedGoals`,
-        `unificationFailures`, `cycles` and `escapedHypotheses` are empty: It
-        is possible, to have cycles and escapedHypotheses, as long as they are not used
-        to prove any conclusions.
+        This implies that `unconnectedGoals` is empty.
+
+        It does not necessarily imply that all of `unificationFailures`,
+        `cycles` and `escapedHypotheses` are empty: It is possible, to have
+        cycles and escapedHypotheses, as long as they are not used to prove any
+        conclusions.
+
+        Conversely, even if `unconnectedGoals` is empty, we can have `qed = false`
+        if there are other problems.
 
 **Example**
 
@@ -172,7 +177,7 @@ The analysis for the `context` above and the empty proof should be
 
 ```JSON
 analysis = {
-  "unsolvedGoals": {"conclusion": 1},
+  "unconnectedGoals": {"conclusion": 1},
   "qed": false
 }
 ```
