@@ -158,7 +158,7 @@ This data structure describes everything the logic has to tell the UI about a gi
       * `cycles`: A list of cycles, where every cycle is a list of connection
         keys that form an illegal cycle.
       * `escapedHypotheses`: A list of paths, where every path is a list of connection
-        keys that form a path from a local hypothesis to a conclusion of the proposition.
+        keys that form a path from a local hypothesis to a conclusion of the task.
       * `qed`: Is `true` if the proof is complete.
 
         This does not necessarily imply that all of `unsolvedGoals`,
