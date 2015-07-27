@@ -21,6 +21,7 @@ instructions, but here is a quick way.
   * Install GHC version 7.8 and cabal-install version 1.22. On Ubuntu, run
 
         $ add-apt-repository -y ppa:hvr/ghc
+        $ apt-get update
         $ apt-get install cabal-install-1.22  alex-3.1.4 happy-1.19.5 ghc-7.8.4
         $ export PATH=$HOME/.cabal/bin:/opt/ghc/7.8.4/bin:/opt/cabal/1.22/bin:/opt/alex/3.1.4/bin:/opt/happy/1.19.5/bin:$PATH
 
@@ -52,7 +53,10 @@ The JavaScript part of the project uses a few external libraries. These are most
 
   * Install npm, either using `apt-get install npm` or [by other
     means](http://blog.npmjs.org/post/85484771375/how-to-install-npm)
-  * Run `npm install`
+  * Run `npm install`  
+    If you run into the problem `sh: 1: node: not found` on Debian/Ubuntu,
+    then `apt-get install nodejs-legacy` should help.
+    [explanation](http://stackoverflow.com/a/21171188/2361979)
   * Open `index.html`
 
 ## Continuous integration
