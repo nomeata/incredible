@@ -37,7 +37,14 @@ instructions, but here is a quick way.
         cabal install ./ghcjs-prim ./haddock-internal ./ghcjs
         ghcjs-boot --dev --no-prof
 
+  * Install any further dependencies
+
+        cd logic; cabal install --dependencies-only --enable-tests
+        cd logic; cabal install --ghcjs --dependencies-only --disable-tests
+
   * Now you should be able to compile both `logic.js` and `examples.js` by running `make`
+
+  * To run the testsuite, run `cabal test` in the `logic/` directory
 
 Alternatively, if you do not want to hack on these parts of the project, but simply run them locally, you can run
 
