@@ -8,12 +8,13 @@ import qualified Data.Map as M
 import Types
 import Lint
 import ShapeChecks
+import LabelConnections
 
 incredibleLogic :: Context -> Task -> Proof -> Either String Analysis
 incredibleLogic ctxt task proof = do
     lintsToEither (lintLogic ctxt)
     return $ Analysis
-        { connectionPropositions = M.empty
+        { connectionPropositions = labelConnections ctxt task proof
         , unconnectedGoals = findUnconnectedGoals ctxt task proof
         , cycles = findCycles ctxt proof
         , escapedHypotheses = findEscapedHypotheses ctxt proof

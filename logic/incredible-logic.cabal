@@ -27,12 +27,16 @@ library
                      Lint,
                      TaggedMap,
                      ShapeChecks,
+                     LabelConnections,
+                     Propositions,
+                     Unification,
                      ConvertAeson
   build-depends:     base >=4.7 && <4.8,
                      aeson,
                      text,
                      vector,
                      containers,
+                     parsec,
                      tagged
   default-language:  Haskell2010
 

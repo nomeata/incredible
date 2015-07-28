@@ -74,7 +74,7 @@ data Proof = Proof
  deriving Show
 
 data Analysis = Analysis
- { connectionPropositions :: KMap Proposition
+ { connectionPropositions :: M.Map (Key Connection) Proposition
  , unconnectedGoals :: [PortSpec]
 -- , unificationFailures
  , cycles :: [Cycle]
