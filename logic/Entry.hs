@@ -14,7 +14,7 @@ incredibleLogic :: Context -> Task -> Proof -> Either String Analysis
 incredibleLogic ctxt task proof = do
     lintsToEither (lintLogic ctxt)
     return $ Analysis
-        { connectionPropositions = labelConnections ctxt task proof
+        { connectionLabels = labelConnections ctxt task proof
         , unconnectedGoals = findUnconnectedGoals ctxt task proof
         , cycles = findCycles ctxt proof
         , escapedHypotheses = findEscapedHypotheses ctxt proof

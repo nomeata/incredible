@@ -10,7 +10,7 @@ import Types
 import Unification
 import Propositions
 
-labelConnections :: Context -> Task -> Proof -> M.Map (Key Connection) Proposition
+labelConnections :: Context -> Task -> Proof -> M.Map (Key Connection) ConnLabel
 labelConnections ctxt task proof = M.map instantiate (connections proof)
   where
     final_bind = foldl consider emptyBinding (M.elems (connections proof))
@@ -25,12 +25,12 @@ labelConnections ctxt task proof = M.map instantiate (connections proof)
         equation = (propAt (connFrom conn), propAt (connTo conn))
 
 
-    instantiate conn =
-        -- TODO check if valid
-        mapVar prettyVarName $
-        applyBinding final_bind $
-        propAt (connFrom conn)
-        -- propAt (connTo conn)
+    instantiate conn
+        | propFrom == propTo = Ok (mapVar prettyVarName propFrom)
+        | otherwise          = Mismatch (mapVar prettyVarName propFrom) (mapVar prettyVarName propTo)
+      where
+        propFrom = applyBinding final_bind $ propAt (connFrom conn)
+        propTo   = applyBinding final_bind $ propAt (connTo conn)
 
     propAt (ConclusionPort n)           = mapVar absurd $ tConclusions task !! (n-1)
     propAt (AssumptionPort n)           = mapVar absurd $ tAssumptions task !! (n-1)

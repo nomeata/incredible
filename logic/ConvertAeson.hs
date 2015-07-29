@@ -100,12 +100,17 @@ fromAnalysis = toJSON
 
 instance ToJSON Analysis where
     toJSON (Analysis {..}) = object
-        [ "connectionPropositions" .= toJSON connectionPropositions
+        [ "connectionLabels" .= toJSON connectionLabels
         , "unconnectedGoals" .= toJSON unconnectedGoals
         , "cycles" .= toJSON cycles
         , "escapedHypotheses" .= toJSON escapedHypotheses
         , "qed" .= toJSON qed
         ]
+
+instance ToJSON ConnLabel where
+    toJSON (Ok prop) = toJSON prop
+    toJSON (Mismatch prop1 prop2) = object
+        [ "propIn" .= prop1, "propOut" .= prop2 ]
 
 instance ToJSON PortSpec where
     toJSON (AssumptionPort n) = object [ "assumption" .= n ]

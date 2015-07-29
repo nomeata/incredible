@@ -47,7 +47,7 @@ unconnectedGoalsTests = testGroup "Unsolved goals"
 
 unificationTests = testGroup "Unification"
   [ testCase "complete" $ labelConnections impILogic simpleTask completeProof @?=
-        M.fromList [("c1",Symb "Prop" []),("c2",Symb "imp" [Symb "Prop" [],Symb "Prop" []])]
+        M.fromList [("c1",Ok $ Symb "Prop" []),("c2", Ok $ Symb "imp" [Symb "Prop" [],Symb "Prop" []])]
   ]
 
 

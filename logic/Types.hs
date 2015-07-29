@@ -73,10 +73,12 @@ data Proof = Proof
  }
  deriving Show
 
+data ConnLabel = Ok Proposition | Mismatch Proposition Proposition
+ deriving (Eq, Show)
+
 data Analysis = Analysis
- { connectionPropositions :: M.Map (Key Connection) Proposition
+ { connectionLabels :: M.Map (Key Connection) ConnLabel
  , unconnectedGoals :: [PortSpec]
--- , unificationFailures
  , cycles :: [Cycle]
  , escapedHypotheses :: [Path]
  , qed :: Bool
