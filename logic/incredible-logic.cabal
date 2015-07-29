@@ -86,4 +86,5 @@ test-suite test
     , containers
     , tasty >= 0.10
     , tasty-hunit >= 0.9
+    , tasty-quickcheck >= 0.8
     , incredible-logic

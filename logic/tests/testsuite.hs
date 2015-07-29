@@ -1,14 +1,18 @@
 {-# LANGUAGE OverloadedStrings, TypeSynonymInstances, FlexibleInstances #-}
 import Test.Tasty
 import Test.Tasty.HUnit
+import Test.Tasty.QuickCheck
 import qualified Data.Map as M
 import Data.String
+import Control.Monad
+import Data.Maybe
 
 import ShapeChecks
 import Types
 import TaggedMap
 import Propositions
 import LabelConnections
+import Unification
 
 
 -- Hack for here
@@ -101,3 +105,33 @@ completeProof = Proof
     (M.fromList [("b", Block "impI")])
     (M.fromList [ ("c1", (Connection (BlockPort "b" "hyp") (BlockPort "b" "in")))
                 , ("c2", (Connection (BlockPort "b" "out") (ConclusionPort 1)))])
+
+-- Quickcheck tests
+
+-- Nice try, but random equations are not equal likely enough.
+unificationUnifiesProp :: Equality String String -> Property
+unificationUnifiesProp (prop1, prop2) =
+    isJust result ==>
+    counterexample txt (not (bindingOk bind) || prop1' == prop2')
+  where
+    result = addEquationToBinding emptyBinding (prop1, prop2)
+    bind = fromJust result
+    prop1' = applyBinding bind prop1
+    prop2' = applyBinding bind prop2
+
+    txt = "Input was " ++ printTerm prop1 ++ "=" ++ printTerm prop2
+
+
+instance Arbitrary Proposition where
+    arbitrary = sized genProp
+
+genProp :: Int -> Gen Proposition
+genProp 0 = elements $
+    map Var ["A","B","C","D","E"] ++
+    [Symb "Prop1" [], Symb "Prop2" []]
+genProp n = do
+    (name,arity) <- elements [("and",2), ("or",2), ("not",1)]
+    args <- replicateM arity $ do
+        n' <- choose (0,n`div`2)
+        genProp n'
+    return $ Symb name args
