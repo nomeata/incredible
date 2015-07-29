@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, RecordWildCards #-}
+{-# LANGUAGE OverloadedStrings, RecordWildCards, TypeSynonymInstances, FlexibleInstances #-}
 module ConvertAeson (toContext, toTask, toProof, fromAnalysis) where
 
 import qualified Data.Vector as V
@@ -12,6 +12,7 @@ import Data.Tagged
 
 import Types
 import TaggedMap
+import Propositions
 
 -- Conversion from/to aeson value
 
@@ -31,6 +32,22 @@ instance FromJSON Port where
         "local hypothesis" -> do
             PTLocalHyp  <$> o .: "consumedBy"
     Port typ <$> o .: "proposition"
+
+instance FromJSON Proposition where
+    parseJSON = withText "proposition" $ \s ->
+        case parseTerm (T.unpack s) of
+            Left e -> fail e
+            Right p -> return p
+
+instance FromJSON GroundTerm where
+    parseJSON = withText "ground term" $ \s ->
+        case parseGroundTerm (T.unpack s) of
+            Left e -> fail e
+            Right p -> return p
+
+
+instance ToJSON Proposition where
+    toJSON = toJSON . printTerm
 
 
 instance FromJSON Context where

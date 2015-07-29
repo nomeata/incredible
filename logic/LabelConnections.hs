@@ -1,8 +1,10 @@
+{-# LANGUAGE TupleSections #-}
 module LabelConnections where
 
 import qualified Data.Map as M
 import Data.Map ((!))
 import Data.Tagged
+import Data.Void
 
 import Types
 import Unification
@@ -20,33 +22,24 @@ labelConnections ctxt task proof = M.map instantiate (connections proof)
         | otherwise
         = bind
       where
-        equation = ( either error id $ propAt (connFrom conn)
-                   , either error id $ propAt (connTo conn))
+        equation = (propAt (connFrom conn), propAt (connTo conn))
 
 
     instantiate conn =
-        (
-        printTerm $
         -- TODO check if valid
+        mapVar prettyVarName $
         applyBinding final_bind $
-        either error id $
         propAt (connFrom conn)
-        ) ++ " == " ++ 
-        (
-        printTerm $
-        -- TODO check if valid
-        applyBinding final_bind $
-        either error id $
-        propAt (connTo conn)
-        ) 
+        -- propAt (connTo conn)
 
-    propAt (ConclusionPort n) = parseTerm (tConclusions task !! (n-1))
-    propAt (AssumptionPort n) = parseTerm (tAssumptions task !! (n-1))
-    propAt (BlockPort blockKey portKey) =
-        fmap (mapVar ((unTagged blockKey ++ ".") ++))  $ parseTerm (portProp port)
+    propAt (ConclusionPort n)           = mapVar absurd $ tConclusions task !! (n-1)
+    propAt (AssumptionPort n)           = mapVar absurd $ tAssumptions task !! (n-1)
+    propAt (BlockPort blockKey portKey) = mapVar ((blockKey,)) $ portProp port
       where block = blocks proof ! blockKey
             rule = ctxtRules ctxt ! blockRule block
             port = ports rule ! portKey
+
+    prettyVarName (blockKey, v) =  unTagged blockKey ++ "." ++ v
 
 
 

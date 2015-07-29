@@ -1,11 +1,20 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, TypeSynonymInstances, FlexibleInstances #-}
 import Test.Tasty
 import Test.Tasty.HUnit
 import qualified Data.Map as M
+import Data.String
 
 import ShapeChecks
 import Types
 import TaggedMap
+import Propositions
+
+
+-- Hack for here
+instance IsString Proposition where
+    fromString = either (error . show) id . parseTerm
+instance IsString GroundTerm where
+    fromString = either (error . show) id . parseGroundTerm
 
 main = defaultMain tests
 
@@ -36,7 +45,7 @@ unconnectedGoalsTests = testGroup "Unsolved goals"
 
 
 oneBlockLogic = Context
-    (M.singleton "r" (Rule (M.fromList [("in", Port PTAssumption "foo"), ("out", Port PTConclusion "foo")])))
+    (M.singleton "r" (Rule (M.fromList [("in", Port PTAssumption "A"), ("out", Port PTConclusion "A")])))
 
 proofWithCycle = Proof
     (M.singleton "b" (Block "r"))
@@ -47,7 +56,14 @@ proofWithoutCycle = Proof
     (M.singleton "c" (Connection (BlockPort "b" "out") (ConclusionPort 1)))
 
 impILogic = Context
-    (M.singleton "impI" (Rule (M.fromList [("in", Port PTAssumption "B"), ("out", Port PTConclusion "A→B"), ("hyp", Port (PTLocalHyp "in") "A")])))
+    (M.fromList
+        [ ("impI", Rule (M.fromList
+            [ ("in",  Port PTAssumption "B")
+            , ("out", Port PTConclusion "imp(A,B)")
+            , ("hyp", Port (PTLocalHyp "in") "A")
+            ]))
+        ]
+    )
 
 directEscape = Proof
     (M.singleton "b" (Block "impI"))
@@ -67,7 +83,7 @@ indirectEscape = Proof
         , ("c2", (Connection (BlockPort "b2" "out") (ConclusionPort 1)))
         ])
 
-simpleTask = Task [] ["A→A"]
+simpleTask = Task [] ["imp(A,A)"]
 
 emptyProof = Proof M.empty M.empty
 

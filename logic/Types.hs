@@ -5,7 +5,7 @@ module Types where
 import qualified Data.Map as M
 import Data.Tagged
 
-type Proposition = String
+import Propositions
 
 -- We might want to look into other implementation of key-value maps
 type Key k = Tagged k String
@@ -13,8 +13,8 @@ type KMap v = M.Map (Key v) v
 
 
 data Task = Task
- { tAssumptions :: [Proposition]
- , tConclusions :: [Proposition]
+ { tAssumptions :: [GroundTerm]
+ , tConclusions :: [GroundTerm]
  }
  deriving Show
 

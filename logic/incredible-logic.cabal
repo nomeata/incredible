@@ -37,6 +37,7 @@ library
                      vector,
                      containers,
                      parsec,
+                     void,
                      tagged
   default-language:  Haskell2010
 
