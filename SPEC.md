@@ -152,7 +152,7 @@ This data structure describes everything the logic has to tell the UI about a gi
 
       * `connectionLabels`: Map from connection keys to either
           - propositions (strings), for those connections where a proposition could be inferred or
-	  - objects with field `propIn` and `propOut`, where unification failed.
+          - objects with field `propIn` and `propOut`, where unification failed.
       * `unconnectedGoals`: A list of ports references (see above) of type
         assumption that need to be connected before the proof is complete.
       * `cycles`: A list of cycles, where every cycle is a list of connection
