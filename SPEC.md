@@ -186,7 +186,7 @@ With the proof given above, one would expect
 
 ```JSON
 analysis = {
-  "connectionPropositions": {
+  "connectionLabels": {
     "c1": "(A∧B)→C",
     "c2": "C",
     "c3": "B→C",
