@@ -8,7 +8,7 @@ import Data.Void
 
 -- This could be made more abstract as in the unification-fd package
 data Term f v = Symb f [Term f v] | Var v
-    deriving Show
+    deriving (Eq, Show)
 
 type Proposition = Term String String
 

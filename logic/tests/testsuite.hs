@@ -8,6 +8,7 @@ import ShapeChecks
 import Types
 import TaggedMap
 import Propositions
+import LabelConnections
 
 
 -- Hack for here
@@ -23,6 +24,7 @@ tests = testGroup "Tests"
     [ cycleTests
     , escapedHypothesesTests
     , unconnectedGoalsTests
+    , unificationTests
     ]
 
 cycleTests = testGroup "Cycle detection"
@@ -41,6 +43,11 @@ unconnectedGoalsTests = testGroup "Unsolved goals"
   [ testCase "empty"     $ findUnconnectedGoals impILogic simpleTask emptyProof @?= [ConclusionPort 1]
   , testCase "indirect"  $ findUnconnectedGoals impILogic simpleTask partialProof @?= [BlockPort "b" "in"]
   , testCase "complete"  $ findUnconnectedGoals impILogic simpleTask completeProof @?= []
+  ]
+
+unificationTests = testGroup "Unification"
+  [ testCase "complete" $ labelConnections impILogic simpleTask completeProof @?=
+        M.fromList [("c1",Symb "Prop" []),("c2",Symb "imp" [Symb "Prop" [],Symb "Prop" []])]
   ]
 
 
@@ -83,7 +90,7 @@ indirectEscape = Proof
         , ("c2", (Connection (BlockPort "b2" "out") (ConclusionPort 1)))
         ])
 
-simpleTask = Task [] ["imp(A,A)"]
+simpleTask = Task [] ["imp(Prop,Prop)"]
 
 emptyProof = Proof M.empty M.empty
 
