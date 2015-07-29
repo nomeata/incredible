@@ -1,5 +1,5 @@
 logic: conjAndImp
 assumptions:
-- (A∧B)→C
+- imp(and(A,B),C)
 conclusions:
-- A→(B→C)
+- imp(A,imp(B,C))
