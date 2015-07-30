@@ -19,7 +19,8 @@ mapVar vf (Var v) = Var $ vf v
 -- Horribly inefficient, all that
 printTerm :: Proposition -> String
 printTerm (Var v) = v
-printTerm (Symb f args) =  f ++ "(" ++ intercalate "," (map printTerm args) ++ ")"
+printTerm (Symb f []) = f
+printTerm (Symb f args) = f ++ "(" ++ intercalate "," (map printTerm args) ++ ")"
 
 parseTerm :: String -> Either String Proposition
 parseTerm = either (Left . show) Right . parse termP ""
