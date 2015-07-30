@@ -51,7 +51,7 @@ install:
 
 script:
     - make
-    - ( cd logic && cabal-1.22 test )
+    - ( cd logic && cabal-1.22 test --show-details=streaming )
     - npm install
 
 after_success:
