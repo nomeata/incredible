@@ -35,7 +35,7 @@ test2 = Symb "f" [Var "a", Symb "k" [Var "c"]]
 addAssignmentToBinding :: (Ord v, Eq f) => Bindings f v -> Assignment f v -> Maybe (Bindings f v)
 addAssignmentToBinding bind (v, t) = case M.lookup v bind of
     Just t2 -> addEquationToBinding bind (t, t2)
-    Nothing -> Just $ M.insert v t bind
+    Nothing -> justIf bindingOk $ M.insert v t bind
 
 addEquationToBinding :: (Ord v, Eq f) => Bindings f v -> Equality f v -> Maybe (Bindings f v)
 addEquationToBinding bind eq = do
@@ -60,3 +60,5 @@ applyBinding bind (Var v) = case M.lookup v bind of
     Just t -> applyBinding bind t
     Nothing -> Var v
 applyBinding bind (Symb f terms) = Symb f $ map (applyBinding bind) terms
+
+justIf p x = if p x then Just x else Nothing

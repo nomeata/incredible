@@ -28,6 +28,7 @@ tests = testGroup "Tests"
     [ cycleTests
     , escapedHypothesesTests
     , unconnectedGoalsTests
+    , labelConectionsTests
     , unificationTests
     ]
 
@@ -49,11 +50,15 @@ unconnectedGoalsTests = testGroup "Unsolved goals"
   , testCase "complete"  $ findUnconnectedGoals impILogic simpleTask completeProof @?= []
   ]
 
-unificationTests = testGroup "Unification"
+labelConectionsTests = testGroup "Label Connections"
   [ testCase "complete" $ labelConnections impILogic simpleTask completeProof @?=
         M.fromList [("c1",Ok $ Symb "Prop" []),("c2", Ok $ Symb "imp" [Symb "Prop" [],Symb "Prop" []])]
   ]
 
+unificationTests = testGroup "Unification tests"
+  [ testCase "regression1" $
+    addEquationToBinding emptyBinding ("f(A,not(A))", "f(not(not(A)),not(not(A)))"::Proposition) @?= Nothing
+  ]
 
 oneBlockLogic = Context
     (M.singleton "r" (Rule (M.fromList [("in", Port PTAssumption "A"), ("out", Port PTConclusion "A")])))

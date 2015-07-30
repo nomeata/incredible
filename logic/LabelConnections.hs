@@ -17,7 +17,6 @@ labelConnections ctxt task proof = M.map instantiate (connections proof)
 
     consider bind conn
         | Just bind' <- addEquationToBinding bind equation
-        , bindingOk bind'
         = bind'
         | otherwise
         = bind
