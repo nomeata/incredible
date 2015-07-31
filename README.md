@@ -66,6 +66,11 @@ The JavaScript part of the project uses a few external libraries. These are most
     [explanation](http://stackoverflow.com/a/21171188/2361979)
   * Open `index.html`
 
+## Creating logic images  
+  
+To create an image, draw it in Inkscape and save it as SVG (make sure that the graphic is inside the "paper" frame).
+To convert it to Base64-encoding, you can use a website such as http://b64.io/
+  
 ## Continuous integration
 
 Every push to the repository is tested on
