@@ -5,11 +5,40 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
    id="svg2"
    viewBox="0 0 744.09448819 1052.3622047"
    height="297mm"
-   width="210mm">
+   width="210mm"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="Logik1.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1600"
+     inkscape:window-height="1137"
+     id="namedview10"
+     showgrid="true"
+     inkscape:zoom="0.44851478"
+     inkscape:cx="142.0095"
+     inkscape:cy="530.01579"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2"
+     showguides="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid4137" />
+  </sodipodi:namedview>
   <defs
      id="defs4" />
   <metadata
@@ -20,16 +49,18 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <g
-     id="layer1">
+     id="layer1"
+     transform="matrix(0.34399811,0,0,0.34399811,913.03157,311.99327)">
     <path
        d="m -1577.1429,-41.120728 -178.5015,-309.173522 -178.5014,-309.1735 357.0029,-10e-6 357.0028,-10e-6 -178.5014,309.17353 z"
        id="path4136"
-       style="opacity:1;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:75;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;stroke-dashoffset:0" />
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:75;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:connector-curvature="0" />
     <rect
        ry="5.499229"
        y="-556.73425"
