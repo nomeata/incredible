@@ -47,7 +47,7 @@ install:
 
     # install dependencies
     - (  cd logic && cabal-1.22 install --enable-tests --dependencies-only )
-    - (  cd logic && cabal-1.22 install --ghcjs --disable-tests )
+    - (  cd logic && cabal-1.22 install --ghcjs --disable-tests --dependencies-only )
 
 script:
     - make
