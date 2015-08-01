@@ -55,7 +55,7 @@ script:
     - npm install
 
 after_success:
-    - ./deploy-gh-pages.sh
+    - ./.travis-push-gh-pages.sh
 
 before_cache:
   - rm -rf $HOME/.ghcjs/*/ghcjs/ghcjs-boot/

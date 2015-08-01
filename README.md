@@ -60,17 +60,17 @@ The JavaScript part of the project uses a few external libraries. These are most
 
   * Install npm, either using `apt-get install npm` or [by other
     means](http://blog.npmjs.org/post/85484771375/how-to-install-npm)
-  * Run `npm install`  
+  * Run `npm install` 
     If you run into the problem `sh: 1: node: not found` on Debian/Ubuntu,
     then `apt-get install nodejs-legacy` should help.
     [explanation](http://stackoverflow.com/a/21171188/2361979)
   * Open `index.html`
 
-## Creating logic images  
-  
+## Creating logic images
+
 To create an image, draw it in Inkscape and save it as SVG (make sure that the graphic is inside the "paper" frame).
 To convert it to Base64-encoding, you can use a website such as http://b64.io/
-  
+
 ## Continuous integration
 
 Every push to the repository is tested on
@@ -78,12 +78,19 @@ Every push to the repository is tested on
 this makes sure that the Haskell code compiles both under GHC and GHCJS, and
 that the JavaScript dependencies can be installed.
 
+## Deployment
+
+Running the script `./deploy.sh dir/` should put all files required for the
+runtime into the directory `dir/`, which should not exist before.
+
 ## Continuous deployment
 
-If Travis thinks the build succeeds, it uses the deploy script in
-`deploy-gh-pages.sh` to push all files required to run the project to
-<http://nomeata.github.io/incredible-demo/>. As this is a [Github
-Pages](http://pages.github.com/) page, this means that the sources are always the contents of the `gh-pages` branch of the `incredible-demo` repository, which is otherwise unused.
+If Travis thinks the build succeeds, it uses the above deploy script, together
+with `.travis-push-gh-pages.sh`, to push the final result to to
+<http://nomeata.github.io/incredible-demo/>.
+As this is a [Github Pages](http://pages.github.com/) page, this means that the
+sources are always the contents of the `gh-pages` branch of the
+`incredible-demo` repository, which is otherwise unused.
 
 ## Contact
 
