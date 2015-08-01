@@ -29,11 +29,12 @@ cp --parents -v -t gh-page \
 	./node_modules/backbone/backbone-min.js \
 	./node_modules/jointjs/dist/joint.all.js \
 	./webui/*.css \
-	./webui/*.js
+	./webui/*.js \
+    ./images/*
 cd gh-page
 
 git add .
 git commit -m "Deploy to GitHub Pages"
-git push --force --quiet "https://${GH_TOKEN}@${GH_REF}" master:gh-pages > /dev/null 2>&1
+git push --force --quiet "https://github.com/nomeata/incredible-demo.git" master:gh-pages
 
 
