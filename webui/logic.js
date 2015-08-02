@@ -169,6 +169,10 @@ function buildProof(graph) {
     proof.blocks = {}
     graph.getElements().map(
         function (e,i) {
+			c = graph.getCell(e.id);
+			if (c.get('assumption') || c.get('conclusion')) {
+				return;
+			}
             proof.blocks[e.id] = {};
             proof.blocks[e.id]['rule'] = e.attributes.type;
         });
