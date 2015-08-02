@@ -5,6 +5,7 @@
 <title>The not at all incredible proof machine.</title>
 <script language="javascript" src="logic.js"></script>
 <script language="javascript" src="examples.js"></script>
+<script language="javascript" src="version.js"></script>
 <script language="javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script language="javascript">
 $(function() {
@@ -47,6 +48,8 @@ $(function() {
             selectProof("curry1_complete");
         }
 
+	$("#version").text(incredibleVersion);
+
 });
 function selectLogic(name) {
         $("#logicselect").val(name);
@@ -79,5 +82,8 @@ Proof: <select id="proofselect"><option value=""></option></select><br/>
 Analysis: <button id="update">Update</button><br/>
 <textarea  cols=100 rows=20 id="analysis" readonly="readonly">
 </textarea>
+<p>
+This is the <a href="http://github.com/nomeata/incredible">not at all Incredible Proof Machine</a>, version <span id="version"></span>.
+</p>
 </body>
 </html>

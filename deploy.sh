@@ -21,6 +21,7 @@ then
 fi
 
 mkdir $dirname
+
 cp --parents -v -t $dirname \
 	*.html  \
 	*.js  \
@@ -32,3 +33,12 @@ cp --parents -v -t $dirname \
 	./webui/*.css \
 	./webui/*.js \
 	./images/*
+
+if [ -d ".git" ]
+then
+	desc="$(git describe --tags --always --dirty)"
+	echo "incredibleVersion = \"$desc\";" > $dirname/version.js
+else
+	echo "incredibleVersion = \"UNKNOWN\";" > $dirname/version.js
+fi
+
