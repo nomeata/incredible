@@ -103,7 +103,7 @@ function selectTask(name) {
 selectTask('conjself');
 
 $("#update").click(processGraph);
-graph.on('change:source change:target', function(model, end) {
+graph.on('change', function(model, end) {
     processGraph();
 });
 
@@ -124,7 +124,6 @@ function processGraph() {
                 for (connId in analysis.connectionLabels) {
                         lbl = analysis.connectionLabels[connId];
                         conn = graph.getCell(connId);
-                        console.log(conn);
                         if (lbl.propIn && lbl.propOut) {
                                 conn.set('labels', [{
                                         position: .1,
@@ -196,7 +195,10 @@ function buildProof(graph) {
 
 function makeConnEnd(graph, x) {
     ret = {};
-	c = graph.getCell(x.id);
+    c = graph.getCell(x.id);
+    if (!c) {
+        return ret;
+    }
     if (c.get('assumption')) {
         ret.assumption = c.get('assumption');
     } else if (c.get('conclusion')) {
