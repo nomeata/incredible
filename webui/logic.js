@@ -45,40 +45,63 @@ var task = examples.tasks.curry1;
 var logic = examples.logics.conjAndImp;
 
 
-// Fixed blocks for input and output
-$.each(task.conclusions, function (i,c) {
-  var n = i+1;
-  var gate = new shapes.Conclusion({
-	position: {x: 450, y: 100 + 50 * i},
-	attrs: { text: {text: c}},
-	conclusion: n,
-	});
-  graph.addCell(gate);
-});
-$.each(task.assumptions, function (i,c) {
-  var n = i+1;
-  var gate = new shapes.Assumption({
-	position: {x: 50, y: 100 + 50 * i},
-	attrs: { text: {text: c}},
-	assumption: n,
-	});
-  graph.addCell(gate);
+function setupGraph(graph, logic, task) {
+  var cells = [];
+  // Fixed blocks for input and output
+  $.each(task.conclusions, function (i,c) {
+    var n = i+1;
+    var gate = new shapes.Conclusion({
+          position: {x: 450, y: 100 + 50 * i},
+          attrs: { text: {text: c}},
+          conclusion: n,
+          });
+    cells.push(gate);
+  });
+  $.each(task.assumptions, function (i,c) {
+    var n = i+1;
+    var gate = new shapes.Assumption({
+          position: {x: 50, y: 100 + 50 * i},
+          attrs: { text: {text: c}},
+          assumption: n,
+          });
+    cells.push(gate);
+  });
+
+  // "Prototype blocks" for each element
+  $.each(logic.rules, function(i,rule) {
+    var n = i+1;
+    if (shapes[rule.id]){
+      var elem = new shapes[rule.id]({
+            originalPosition: {x: 550, y: 100 + 50 * i},
+            position: {x: 550, y: 100 + 50 * i},
+            prototypeElement: true,
+            });
+      cells.push(elem);
+    } else {
+      console.log("No shape for rule \""+rule.id+"\"");
+    }
+  });
+
+  graph.resetCells(cells);
+}
+
+
+$.each(examples.tasks, function(name,l) {
+        $("#taskselect").append(
+                $("<option />").val(name).text(name)
+        );
 });
 
-// "Prototype blocks" for each element
-$.each(logic.rules, function(i,rule) {
-  var n = i+1;
-  if (shapes[rule.id]){
-    var elem = new shapes[rule.id]({
-          originalPosition: {x: 550, y: 100 + 50 * i},
-          position: {x: 550, y: 100 + 50 * i},
-          prototypeElement: true,
-          });
-    graph.addCell(elem);
-  } else {
-    console.log("No shape for rule \""+rule.id+"\"");
-  }
-});
+$("#taskselect" ).change(function () {if (this.value) {selectTask(this.value)}});
+
+function selectTask(name) {
+        task = examples.tasks[name];
+        logic = examples.logics[task.logic];
+        $("#taskselect").val(name);
+        setupGraph(graph, logic, task);
+}
+selectTask('conjself');
+
 
 $("#update").click(function() {
 	$("#analysis").val();
