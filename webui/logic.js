@@ -85,6 +85,26 @@ function setupGraph(graph, logic, task) {
   graph.resetCells(cells);
 }
 
+paper.on('cell:pointerdown', function(cellView, evt, x, y) {
+  var cell = cellView.model;
+  if (cell && cell.get('prototypeElement')) {
+    cell.toFront();
+  }
+});
+paper.on('cell:pointerup', function(cellView, evt, x, y) {
+  var cell = cellView.model;
+  if (cell && cell.get('prototypeElement')) {
+    // Add a new element
+    var newElem = cell.clone();
+    newElem.set('prototypeElement', false);
+    graph.addCell(newElem);
+
+    // Reset prototype cell
+    cell.set('position',newElem.get('originalPosition'));
+  }
+});
+
+
 
 $.each(examples.tasks, function(name,l) {
         $("#taskselect").append(

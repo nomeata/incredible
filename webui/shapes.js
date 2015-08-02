@@ -7,28 +7,7 @@ shapes = {
 
 // Abstract shapes
 
-shapes.Prototypeable = joint.shapes.basic.Generic.extend({
-  initialize: function(options){
-    joint.shapes.basic.Generic.prototype.initialize.apply(this, [options])
-
-    this.on('change:position', this.hasMoved, this);
-  },
-
-  hasMoved: function(elem) {
-    // When we start moving a prototype cell, remove the prototype flag
-    // and create a new protoype.
-    if (elem.get('prototypeElement')) {
-      var newElem = elem.clone();
-      newElem.set('position',newElem.get('originalPosition'));
-      elem.set('prototypeElement', false);
-      elem.off('change:position', this.hasMoved, this);
-      // Accessing graph here -- broken?
-      graph.addCell(newElem);
-    }
-  },
-});
-
-shapes.Gate = shapes.Prototypeable.extend({
+shapes.Gate = joint.shapes.basic.Generic.extend({
 
   defaults: joint.util.deepSupplement({
 
@@ -40,7 +19,7 @@ shapes.Gate = shapes.Prototypeable.extend({
       circle: { r: 7, stroke: 'black', fill: 'transparent', 'stroke-width': 2 }
     }
 
-  }, shapes.Prototypeable.prototype.defaults),
+  }, joint.shapes.basic.Generic.prototype.defaults),
 });
 
 shapes.Gate11 = shapes.Gate.extend({
@@ -95,7 +74,7 @@ shapes.conjI = shapes.Gate21.extend({
 
 });
 
-shapes.genericBlock = shapes.Prototypeable.extend(_.extend({}, joint.shapes.basic.PortsModelInterface, {
+shapes.genericBlock = joint.shapes.basic.Generic.extend(_.extend({}, joint.shapes.basic.PortsModelInterface, {
 
     markup: '<g class="rotatable"><g class="scalable"><rect class="body"/></g><text class="label"/><g class="inPorts"/><g class="outPorts"/></g>',
     portMarkup: '<g class="port port<%= id %>"><circle class="port-body"/><text class="port-label"/></g>',
@@ -128,7 +107,7 @@ shapes.genericBlock = shapes.Prototypeable.extend(_.extend({}, joint.shapes.basi
             '.outPorts .port-label':{ x: 15, dy: 4, fill: '#000000' }
         }
 
-    }, shapes.Prototypeable.prototype.defaults),
+    }, joint.shapes.basic.Generic.prototype.defaults),
 
     getPortAttrs: function(portSpec, index, total, selector, type) {
 
