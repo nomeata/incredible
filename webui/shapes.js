@@ -71,3 +71,61 @@ shapes.ConjI = shapes.Gate21.extend({
   }
 
 });
+
+
+// Assumptions and conclusions
+shapes.IO = shapes.Gate.extend({
+
+    markup: '<g class="rotatable"><g class="scalable"><rect class="body"/></g><path class="wire"/><circle/><text/></g>',
+
+    defaults: joint.util.deepSupplement({
+
+        type: 'logic.IO',
+        size: { width: 60, height: 30 },
+        attrs: {
+            '.body': { fill: 'white', stroke: 'black', 'stroke-width': 2 },
+            '.wire': { ref: '.body', 'ref-y': .5, stroke: 'black' },
+            text: {
+                fill: 'black',
+                ref: '.body', 'ref-x': .5, 'ref-y': .5, 'y-alignment': 'middle',
+                'text-anchor': 'middle',
+		'font-family': 'sans-serif',
+                'font-size': '12px'
+            }
+        }
+
+    }, shapes.Gate.prototype.defaults),
+
+    initialize: function(options){
+	shapes.Gate.prototype.initialize.apply(this, [options])
+	// TODO: resize accoring to the text
+    },
+});
+
+shapes.Assumption = shapes.IO.extend({
+
+    defaults: joint.util.deepSupplement({
+
+        type: 'logic.Input',
+        attrs: {
+            '.wire': { 'ref-dx': 0, d: 'M 0 0 L 23 0' },
+            circle: { ref: '.body', 'ref-dx': 30, 'ref-y': 0.5, magnet: true, 'class': 'output', port: 'out' },
+        }
+
+    }, shapes.IO.prototype.defaults)
+});
+
+shapes.Conclusion = shapes.IO.extend({
+
+    defaults: joint.util.deepSupplement({
+
+        type: 'logic.Output',
+        attrs: {
+            '.wire': { 'ref-x': 0, d: 'M 0 0 L -23 0' },
+            circle: { ref: '.body', 'ref-x': -30, 'ref-y': 0.5, magnet: 'passive', 'class': 'input', port: 'in' },
+        }
+
+    }, shapes.IO.prototype.defaults)
+
+});
+

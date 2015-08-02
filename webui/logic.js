@@ -86,14 +86,21 @@ var gates = {
   nor: new joint.shapes.logic.Nor({position: {x: 250, y: 130}}),
   xor: new joint.shapes.logic.Xor({position: {x: 550, y: 200}}),
   xnor: new joint.shapes.logic.Xnor({position: {x: 550, y: 100}}),
-  input: new joint.shapes.logic.Input({position: {x: 10, y: 100}}),
-  output: new joint.shapes.logic.Output({position: {x: 400, y: 300}}),
+  input1: new shapes.Assumption({
+	position: {x: 10, y: 100},
+	attrs: { text: {text: "imp(and(A,B),C)"}},
+	assumption: 1,
+	}),
+  output: new shapes.Conclusion({
+	position: {x: 400, y: 300},
+	attrs: { text: {text: "imp(A,imp(B,C))"}},
+	conclusion: 1}),
 
   conjI: new shapes.ConjI({position: {x: 60, y: 60}})
 }
 
 var wires = [
-  {source: {id: gates.input.id, port: 'out'}, target: {id: gates.not.id, port: 'in'}},
+  {source: {id: gates.input1.id, port: 'out'}, target: {id: gates.not.id, port: 'in'}},
   {source: {id: gates.not.id, port: 'out'}, target: {id: gates.conjI.id, port: 'in1'}},
   {source: {id: gates.conjI.id, port: 'out'}, target: {id: gates.repeater.id, port: 'in'}},
   {source: {id: gates.conjI.id, port: 'out'}, target: {id: gates.output.id, port: 'in'}},
