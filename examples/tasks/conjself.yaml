@@ -1,4 +1,4 @@
-logic: conjI
+logic: conjAndImp
 assumptions:
 - A
 conclusions:
