@@ -159,26 +159,36 @@ graph.on('change:signal', function (wire, signal) {
 var current = initializeSignal();
 
 function buildProof(graph) {
-	var proof = {}
+    var proof = {}
 
-	proof.blocks = {}
-	graph.getElements().map(
-		function (e,i) {
-			proof.blocks[e.id] = {};
-			proof.blocks[e.id]['rule'] = e.attributes.type;
-		});
+    proof.blocks = {}
+    graph.getElements().map(
+        function (e,i) {
+            proof.blocks[e.id] = {};
+            proof.blocks[e.id]['rule'] = e.attributes.type;
+        });
 
-	proof.connections = {}
-	graph.getLinks().map(
-		function(l,i) {
-			con = {}
-			con.from = {}
-			con.from.block = l.attributes.source.id;
-			con.from.port = l.attributes.source.port;
-			con.to = {}
-			con.to.block = l.attributes.target.id;
-			con.to.port = l.attributes.target.port;
-			proof.connections[l.id] = con;
-		});
-	return proof;
+    proof.connections = {}
+    graph.getLinks().map(
+        function(l,i) {
+            con = {}
+            con.from = makeConnEnd(graph, l.get('source'));
+            con.to = makeConnEnd(graph, l.get('target'));
+            proof.connections[l.id] = con;
+        });
+    return proof;
+}
+
+function makeConnEnd(graph, x) {
+    ret = {};
+	c = graph.getCell(x.id);
+    if (c.get('assumption')) {
+        ret.assumption = c.get('assumption');
+    } else if (c.get('conclusion')) {
+        ret.conclusion = c.get('conclusion');
+    } else {
+        ret.block = x.id;
+        ret.port = x.port;
+    }
+    return ret;
 }
