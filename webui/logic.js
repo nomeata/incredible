@@ -66,6 +66,7 @@ $.each(task.assumptions, function (i,c) {
 $.each(logic.rules, function(i,rule) {
   var n = i+1;
   var elem = new shapes[rule.id]({
+	originalPosition: {x: 550, y: 100 + 50 * i},
 	position: {x: 550, y: 100 + 50 * i},
 	prototypeElement: true,
 	});

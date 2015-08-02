@@ -34,6 +34,7 @@ shapes.Gate = joint.shapes.basic.Generic.extend({
     // and create a new protoype.
     if (elem.get('prototypeElement')) {
       var newElem = elem.clone();
+      newElem.set('position',newElem.get('originalPosition'));
       elem.set('prototypeElement', false);
       elem.off('change:position', this.hasMoved, this);
       // Accessing graph here -- broken?
