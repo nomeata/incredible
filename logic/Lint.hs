@@ -36,13 +36,23 @@ lintLogic logic = wrongLocalHyps
             isAssumption _ = False
 
 lintProof :: Context -> Proof -> Lints
-lintProof logic proof = missingRule
+lintProof logic proof = mconcat [missingRule, wrongPort]
   where
     missingRule =
         [ printf "Block \"%s\" references unknown rule \"%s\"" (untag blockKey) (untag ruleKey)
         | (blockKey, block) <- M.toList (blocks proof)
         , let ruleKey = blockRule block
         , ruleKey `M.notMember` ctxtRules logic
+        ]
+    wrongPort =
+        [ printf "Connection \"%s\" references unknown port \"%s\" of block \"%s\", rule \"%s\""
+          (untag connKey) (untag portKey) (untag blockKey) (untag ruleKey)
+        | (connKey, conn) <- M.toList (connections proof)
+        , BlockPort blockKey portKey <- [connFrom conn, connTo conn]
+        , Just block <- return $ M.lookup blockKey (blocks proof)
+        , let ruleKey = blockRule block
+        , Just rule <- return $ M.lookup ruleKey (ctxtRules logic)
+        , portKey `M.notMember` ports rule
         ]
 
 lintAll :: Context -> Task -> Proof -> Lints
