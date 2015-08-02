@@ -14,7 +14,9 @@ var paper = new joint.dia.Paper({
       if (vt.model.get('prototypeElement')) return false;
 
       // target requires an input port to connect
-      if (!mt || !mt.getAttribute('class') || mt.getAttribute('class').indexOf('input') < 0) return false;
+      // Disabled for now. Needs to be made compatible
+      // with the PortsModelInterface-blocks
+      // if (!mt || !mt.getAttribute('class') || mt.getAttribute('class').indexOf('input') < 0) return false;
 
       // check whether the port is being already used
       var portUsed = _.find(this.model.getLinks(), function (link) {
@@ -39,8 +41,8 @@ var paper = new joint.dia.Paper({
 paper.scale(1.5, 1.5);
 
 // Diagram setup
-var task = examples.tasks.conjself;
-var logic = examples.logics[task.logic];
+var task = examples.tasks.curry1;
+var logic = examples.logics.conjAndImp;
 
 
 var gates = {};
@@ -68,12 +70,16 @@ $.each(task.assumptions, function (i,c) {
 // "Prototype blocks" for each element
 $.each(logic.rules, function(i,rule) {
   var n = i+1;
-  var elem = new shapes[rule.id]({
-	originalPosition: {x: 550, y: 100 + 50 * i},
-	position: {x: 550, y: 100 + 50 * i},
-	prototypeElement: true,
-	});
-  graph.addCell(elem);
+  if (shapes[rule.id]){
+    var elem = new shapes[rule.id]({
+          originalPosition: {x: 550, y: 100 + 50 * i},
+          position: {x: 550, y: 100 + 50 * i},
+          prototypeElement: true,
+          });
+    graph.addCell(elem);
+  } else {
+    console.log("No shape for rule \""+rule.id+"\"");
+  }
 });
 
 $("#update").click(function() {
@@ -105,7 +111,7 @@ function buildProof(graph) {
 				return;
 			}
             proof.blocks[e.id] = {};
-            proof.blocks[e.id]['rule'] = e.attributes.type;
+            proof.blocks[e.id]['rule'] = e.attributes.rule;
         });
 
     proof.connections = {}
