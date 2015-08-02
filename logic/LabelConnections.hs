@@ -25,6 +25,7 @@ labelConnections ctxt task proof = M.map instantiate (connections proof)
         | otherwise
         = bind
 
+    blockKeyNum = (!) $ M.fromList $ zip (M.keys (blocks proof)) [1..]
 
     instantiate conn = case (propFromMB, propToMB) of
         (Nothing, Nothing) -> Unconnected
@@ -40,12 +41,25 @@ labelConnections ctxt task proof = M.map instantiate (connections proof)
     propAt NoPort                       = Nothing
     propAt (ConclusionPort n)           = Just $ mapVar absurd $ tConclusions task !! (n-1)
     propAt (AssumptionPort n)           = Just $ mapVar absurd $ tAssumptions task !! (n-1)
-    propAt (BlockPort blockKey portKey) = Just $ mapVar ((blockKey,)) $ portProp port
+    propAt (BlockPort blockKey portKey) = Just $ mapVar ((blockKeyNum blockKey,)) $ portProp port
       where block = blocks proof ! blockKey
             rule = ctxtRules ctxt ! blockRule block
             port = ports rule ! portKey
 
-    prettyVarName (blockKey, v) =  unTagged blockKey ++ "." ++ v
+    prettyVarName (blockKeyNum, v) = v ++ map subscriptify (show blockKeyNum)
+
+    subscriptify '0' = '₀'
+    subscriptify '1' = '₁'
+    subscriptify '2' = '₂'
+    subscriptify '3' = '₃'
+    subscriptify '4' = '₄'
+    subscriptify '5' = '₅'
+    subscriptify '6' = '₆'
+    subscriptify '7' = '₇'
+    subscriptify '8' = '₈'
+    subscriptify '9' = '₉'
+    subscriptify _ = error "subscriptify: non-numeral argument"
+
 
 
 
