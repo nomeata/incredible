@@ -73,6 +73,23 @@ $.each(logic.rules, function(i,rule) {
   graph.addCell(elem);
 });
 
+$("#update").click(function() {
+	$("#analysis").val();
+	var proof = buildProof(graph)
+	var timeBefore = performance.now()
+	var analysis = incredibleLogic(logic,task,proof);
+	var timeAfter = performance.now()
+	if (typeof analysis === 'string' || analysis instanceof String) {
+		$("#analysis").val(analysis);
+	} else {
+		$("#analysis").val(JSON.stringify(analysis, null, 2));
+	}
+	$("#took").text("processing took " + (timeAfter-timeBefore).toFixed(1) + "ms");
+});
+
+
+
+
 
 function buildProof(graph) {
     var proof = {}
