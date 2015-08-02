@@ -56,10 +56,13 @@ findEscapedHypotheses ctxt proof =
         | start `S.member` stopAt = Nothing
 
     -- We have reached a dead end
-    pathToConclusion stopAt NoPort = Nothing
+    pathToConclusion _ NoPort = Nothing
 
     -- We have reached a conclusion. Return a path.
-    pathToConclusion stopAt (ConclusionPort _) = Just []
+    pathToConclusion _ (ConclusionPort _) = Just []
+
+    -- Should not happen
+    pathToConclusion _ (AssumptionPort _) = error "pathToConclusion: Connected to an assumption"
 
     pathToConclusion stopAt start@(BlockPort blockId portId)
          -- We are at an assumption port. Continue with all conclusions of this
@@ -112,7 +115,7 @@ findUnconnectedGoals ctxt task proof = go S.empty conclusions
   where
     conclusions = map ConclusionPort [1..length (tConclusions task)]
 
-    go seen [] = []
+    go _    [] = []
     go seen (to:todo)
         | to `S.member` seen =      go seen todo
         | null conns         = to : go seen' todo

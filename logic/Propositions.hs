@@ -1,7 +1,6 @@
 module Propositions where
 
 import Text.Parsec
-import Text.Parsec.Char
 import Control.Applicative
 import Data.List
 import Data.Void

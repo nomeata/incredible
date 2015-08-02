@@ -4,7 +4,6 @@ module LabelConnections where
 import Data.Functor
 import qualified Data.Map as M
 import Data.Map ((!))
-import Data.Tagged
 import Data.Void
 
 import Types
@@ -46,6 +45,7 @@ labelConnections ctxt task proof = M.map instantiate (connections proof)
             rule = ctxtRules ctxt ! blockRule block
             port = ports rule ! portKey
 
+    prettyVarName :: (Int, String) -> String
     prettyVarName (blockKeyNum, v) = v ++ map subscriptify (show blockKeyNum)
 
     subscriptify '0' = '₀'

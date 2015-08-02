@@ -6,12 +6,10 @@ import qualified Data.Text as T
 import Data.Aeson.Types
 import qualified Data.Map as M
 import Control.Applicative
-import Data.List
 import Control.Monad
-import Data.Tagged
 
 import Types
-import TaggedMap
+import TaggedMap ()
 import Propositions
 
 -- Conversion from/to aeson value
@@ -31,6 +29,7 @@ instance FromJSON Port where
         "conclusion" -> return PTConclusion
         "local hypothesis" -> do
             PTLocalHyp  <$> o .: "consumedBy"
+        t -> fail $ "Unknown port type \"" ++ T.unpack t ++ "\""
     Port typ <$> o .: "proposition"
 
 instance FromJSON Proposition where
@@ -115,6 +114,7 @@ instance ToJSON ConnLabel where
         [ "propIn" .= prop1, "propOut" .= prop2 ]
 
 instance ToJSON PortSpec where
+    toJSON NoPort             = object []
     toJSON (AssumptionPort n) = object [ "assumption" .= n ]
     toJSON (ConclusionPort n) = object [ "conclusion" .= n ]
     toJSON (BlockPort b n)    = object [ "block" .= b, "port" .= n ]

@@ -15,6 +15,8 @@ type Assignment f v = (v, Term f v)
 type Equality f v = (Term f v, Term f v)
 
 type Bindings f v = M.Map v (Term f v)
+
+emptyBinding :: Bindings f v
 emptyBinding = M.empty
 
 equationToAssignments :: (Ord v, Eq f) => Equality f v -> Maybe [Assignment f v]
@@ -27,9 +29,6 @@ equationToAssignments (Symb f1 args1, Symb f2 args2)
     = concat <$> mapM equationToAssignments (zip args1 args2)
     | otherwise
     = Nothing
-
-test1 = Symb "f" [Var "b", Var "b"]
-test2 = Symb "f" [Var "a", Symb "k" [Var "c"]]
 
 
 addAssignmentToBinding :: (Ord v, Eq f) => Bindings f v -> Assignment f v -> Maybe (Bindings f v)
@@ -51,7 +50,7 @@ bindingOk bind = all (go S.empty) $ M.keys bind
 
     goT seen (Var v) | v `S.member` seen = False
                      | otherwise         = go seen v
-    goT seen (Symb f args) = all (goT seen) args
+    goT seen (Symb _ args) = all (goT seen) args
 
 
 
@@ -61,4 +60,5 @@ applyBinding bind (Var v) = case M.lookup v bind of
     Nothing -> Var v
 applyBinding bind (Symb f terms) = Symb f $ map (applyBinding bind) terms
 
+justIf :: (a -> Bool) -> a -> Maybe a
 justIf p x = if p x then Just x else Nothing

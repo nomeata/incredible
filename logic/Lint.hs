@@ -22,8 +22,9 @@ import Types
 
 type Lints = [String]
 
-lintLogic :: Context -> Lints
-lintLogic logic = wrongLocalHyps
+lint :: Context -> Task -> Proof -> Lints
+lint logic _task proof = mconcat
+    [ wrongLocalHyps, missingRule, wrongPort ]
   where
     wrongLocalHyps =
         [ printf "local hypothesis \"%s\" of rule \"%s\" has an invalid consumedBy field \"%s\""
@@ -35,9 +36,6 @@ lintLogic logic = wrongLocalHyps
       where isAssumption (Port PTAssumption _) = True
             isAssumption _ = False
 
-lintProof :: Context -> Proof -> Lints
-lintProof logic proof = mconcat [missingRule, wrongPort]
-  where
     missingRule =
         [ printf "Block \"%s\" references unknown rule \"%s\"" (untag blockKey) (untag ruleKey)
         | (blockKey, block) <- M.toList (blocks proof)
@@ -54,12 +52,6 @@ lintProof logic proof = mconcat [missingRule, wrongPort]
         , Just rule <- return $ M.lookup ruleKey (ctxtRules logic)
         , portKey `M.notMember` ports rule
         ]
-
-lintAll :: Context -> Task -> Proof -> Lints
-lintAll logic task proof = mconcat
-    [ lintLogic logic
-    , lintProof logic proof
-    ]
 
 
 lintsToEither :: Lints -> Either String ()
