@@ -97,6 +97,8 @@ paper.on('cell:pointerup', function(cellView, evt, x, y) {
     // Add a new element
     var newElem = cell.clone();
     newElem.set('prototypeElement', false);
+    newElem.attr({'.inPorts text': {display: 'none'}});
+    newElem.attr({'.outPorts text': {display: 'none'}});
     graph.addCell(newElem);
 
     // Reset prototype cell
