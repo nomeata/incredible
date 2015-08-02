@@ -181,7 +181,7 @@ shapes.impE = shapes.genericBlock.extend({
 
 shapes.conjE = shapes.genericBlock.extend({
     defaults: joint.util.deepSupplement({
-            rule: 'conJE',
+            rule: 'conjE',
             inPorts: [
                 {text: 'and(A,B)', id: 'in'},
             ],
