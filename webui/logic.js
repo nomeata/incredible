@@ -45,8 +45,6 @@ var task = examples.tasks.curry1;
 var logic = examples.logics.conjAndImp;
 
 
-var gates = {};
-
 // Fixed blocks for input and output
 $.each(task.conclusions, function (i,c) {
   var n = i+1;
