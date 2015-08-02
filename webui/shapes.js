@@ -5,6 +5,8 @@ shapes = {
 
 };
 
+// Abstract shapes
+
 shapes.Gate = joint.shapes.basic.Generic.extend({
 
   defaults: joint.util.deepSupplement({
@@ -54,7 +56,9 @@ shapes.Gate21 = shapes.Gate.extend({
 
 });
 
-shapes.ConjI = shapes.Gate21.extend({
+// Concrete shape. Should be named like the rule in the logic (for now)
+
+shapes.conjI = shapes.Gate21.extend({
 
   defaults: joint.util.deepSupplement({
 

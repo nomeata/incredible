@@ -76,43 +76,50 @@ joint.shapes.logic.Output.prototype.onSignal = function (signal) { toggleLive(th
 // TODO do we need this later on?
 shapes.Gate.prototype.onSignal = function (signal, handler) { handler.call(this, signal) }
 
-// diagramm setup
-var gates = {
-  repeater: new joint.shapes.logic.Repeater({position: {x: 350, y: 50}}),
-  or: new joint.shapes.logic.Or({position: {x: 550, y: 50}}),
-  and: new joint.shapes.logic.And({position: {x: 550, y: 150}}),
-  not: new joint.shapes.logic.Not({position: {x: 120, y: 200}}),
-  nand: new joint.shapes.logic.Nand({position: {x: 550, y: 250}}),
-  nor: new joint.shapes.logic.Nor({position: {x: 250, y: 130}}),
-  xor: new joint.shapes.logic.Xor({position: {x: 550, y: 200}}),
-  xnor: new joint.shapes.logic.Xnor({position: {x: 550, y: 100}}),
-  input1: new shapes.Assumption({
-	position: {x: 10, y: 100},
-	attrs: { text: {text: "imp(and(A,B),C)"}},
-	assumption: 1,
-	}),
-  output: new shapes.Conclusion({
-	position: {x: 400, y: 300},
-	attrs: { text: {text: "imp(A,imp(B,C))"}},
-	conclusion: 1}),
 
-  conjI: new shapes.ConjI({position: {x: 60, y: 60}})
-}
 
-var wires = [
-  {source: {id: gates.input1.id, port: 'out'}, target: {id: gates.not.id, port: 'in'}},
-  {source: {id: gates.not.id, port: 'out'}, target: {id: gates.conjI.id, port: 'in1'}},
-  {source: {id: gates.conjI.id, port: 'out'}, target: {id: gates.repeater.id, port: 'in'}},
-  {source: {id: gates.conjI.id, port: 'out'}, target: {id: gates.output.id, port: 'in'}},
-  {
-    source: {id: gates.repeater.id, port: 'out'}, target: {id: gates.conjI.id, port: 'in2'},
-    vertices: [{x: 300, y: 220}]
-  }
-];
+// Diagram setup
+var task = examples.tasks.conjself;
+var logic = examples.logics[task.logic];
 
-// add gates and wires to the graph
-graph.addCells(_.toArray(gates));
-_.each(wires, function (attributes) { graph.addCell(new joint.shapes.logic.Wire(attributes)) });
+
+var gates = {};
+
+// Fixed blocks for input and output
+$.each(task.conclusions, function (i,c) {
+  console.log(i,c);
+  var n = i+1;
+  var gate = new shapes.Conclusion({
+	position: {x: 550, y: 100 + 50 * i},
+	attrs: { text: {text: c}},
+	conclusion: n,
+	});
+  graph.addCell(gate);
+});
+$.each(task.assumptions, function (i,c) {
+  var n = i+1;
+  var gate = new shapes.Assumption({
+	position: {x: 50, y: 100 + 50 * i},
+	attrs: { text: {text: c}},
+	assumption: n,
+	});
+  graph.addCell(gate);
+});
+
+
+// UI for adding new blocks
+$.each(logic.rules, function(i,rule) {
+	$("#blockselect").append(
+		$("<option />").val(rule.id).text(rule.id)
+	);
+});
+$("#blockselect").change(function () {if (this.value) {
+	var elem = new shapes[this.value]({position: {x: 200, y: 100}});
+	graph.addCell(elem);
+        $("#blockselect").val("");
+}});
+
+
 
 graph.on('change:source change:target', function (model, end) {
 
