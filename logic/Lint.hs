@@ -19,6 +19,7 @@ import Data.Tagged
 import Types
 
 
+
 type Lints = [String]
 
 lintLogic :: Context -> Lints
@@ -33,6 +34,23 @@ lintLogic logic = wrongLocalHyps
         ]
       where isAssumption (Port PTAssumption _) = True
             isAssumption _ = False
+
+lintProof :: Context -> Proof -> Lints
+lintProof logic proof = missingRule
+  where
+    missingRule =
+        [ printf "Block \"%s\" references unknown rule \"%s\"" (untag blockKey) (untag ruleKey)
+        | (blockKey, block) <- M.toList (blocks proof)
+        , let ruleKey = blockRule block
+        , ruleKey `M.notMember` ctxtRules logic
+        ]
+
+lintAll :: Context -> Task -> Proof -> Lints
+lintAll logic task proof = mconcat
+    [ lintLogic logic
+    , lintProof logic proof
+    ]
+
 
 lintsToEither :: Lints -> Either String ()
 lintsToEither [] = Right ()

@@ -15,7 +15,7 @@ import LabelConnections
 
 incredibleLogic :: Context -> Task -> Proof -> Either String Analysis
 incredibleLogic ctxt task proof = do
-    lintsToEither (lintLogic ctxt)
+    lintsToEither (lintAll ctxt task proof)
     return $ Analysis {..}
   where
     concs = tConclusions task
