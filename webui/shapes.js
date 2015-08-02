@@ -21,7 +21,25 @@ shapes.Gate = joint.shapes.basic.Generic.extend({
 
   }, joint.shapes.basic.Generic.prototype.defaults),
 
-  operation: function() { return true; }
+  operation: function() { return true; },
+
+  initialize: function(options){
+    joint.shapes.basic.Generic.prototype.initialize.apply(this, [options])
+
+    this.on('change:position', this.hasMoved, this);
+  },
+
+  hasMoved: function(elem) {
+    // When we start moving a prototype cell, remove the prototype flag
+    // and create a new protoype.
+    if (elem.get('prototypeElement')) {
+      var newElem = elem.clone();
+      elem.set('prototypeElement', false);
+      elem.off('change:position', this.hasMoved, this);
+      // Accessing graph here -- broken?
+      graph.addCell(newElem);
+    }
+  },
 });
 
 shapes.Gate11 = shapes.Gate.extend({

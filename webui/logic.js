@@ -87,10 +87,9 @@ var gates = {};
 
 // Fixed blocks for input and output
 $.each(task.conclusions, function (i,c) {
-  console.log(i,c);
   var n = i+1;
   var gate = new shapes.Conclusion({
-	position: {x: 550, y: 100 + 50 * i},
+	position: {x: 450, y: 100 + 50 * i},
 	attrs: { text: {text: c}},
 	conclusion: n,
 	});
@@ -106,19 +105,15 @@ $.each(task.assumptions, function (i,c) {
   graph.addCell(gate);
 });
 
-
-// UI for adding new blocks
+// "Prototype blocks" for each element
 $.each(logic.rules, function(i,rule) {
-	$("#blockselect").append(
-		$("<option />").val(rule.id).text(rule.id)
-	);
+  var n = i+1;
+  var elem = new shapes[rule.id]({
+	position: {x: 550, y: 100 + 50 * i},
+	prototypeElement: true,
+	});
+  graph.addCell(elem);
 });
-$("#blockselect").change(function () {if (this.value) {
-	var elem = new shapes[this.value]({position: {x: 200, y: 100}});
-	graph.addCell(elem);
-        $("#blockselect").val("");
-}});
-
 
 
 graph.on('change:source change:target', function (model, end) {
