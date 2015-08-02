@@ -55,6 +55,9 @@ findEscapedHypotheses ctxt proof =
     pathToConclusion stopAt start
         | start `S.member` stopAt = Nothing
 
+    -- We have reached a dead end
+    pathToConclusion stopAt NoPort = Nothing
+
     -- We have reached a conclusion. Return a path.
     pathToConclusion stopAt (ConclusionPort _) = Just []
 
