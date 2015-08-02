@@ -81,7 +81,7 @@ function buildProof(graph) {
     graph.getElements().map(
         function (e,i) {
 			c = graph.getCell(e.id);
-			if (c.get('assumption') || c.get('conclusion')) {
+			if (c.get('assumption') || c.get('conclusion') || c.get('prototypeElement')) {
 				return;
 			}
             proof.blocks[e.id] = {};
