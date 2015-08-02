@@ -102,61 +102,68 @@ function selectTask(name) {
 }
 selectTask('conjself');
 
+$("#update").click(processGraph);
+graph.on('change:source change:target', function(model, end) {
+    processGraph();
+});
 
-$("#update").click(function() {
+function processGraph() {
 	$("#analysis").val();
 	var proof = buildProof(graph)
 	var timeBefore = performance.now()
 	var analysis = incredibleLogic(logic,task,proof);
 	var timeAfter = performance.now()
+
+	$("#took").text("processing took " + (timeAfter-timeBefore).toFixed(1) + "ms");
+
 	if (typeof analysis === 'string' || analysis instanceof String) {
 		$("#analysis").val(analysis);
 	} else {
 		$("#analysis").val(JSON.stringify(analysis, null, 2));
+
+                for (connId in analysis.connectionLabels) {
+                        lbl = analysis.connectionLabels[connId];
+                        conn = graph.getCell(connId);
+                        console.log(conn);
+                        if (lbl.propIn && lbl.propOut) {
+                                conn.set('labels', [{
+                                        position: .1,
+                                        attrs: {
+                                                text: {
+                                                        text: lbl.propIn,
+                                                }
+                                        }
+                                },
+                                {
+                                        position: .5,
+                                        attrs: {
+                                                text: {
+                                                        text: '☠'
+                                                }
+                                        }
+                                },
+                                {
+                                        position: .9,
+                                        attrs: {
+                                                text: {
+                                                        text: lbl.propOut,
+                                                }
+                                        }
+                                }
+                        ]);
+                        } else {
+                                conn.set('labels', [{
+                                        position: .5,
+                                        attrs: {
+                                                text: {
+                                                        text: lbl,
+                                                }
+                                        }
+                                }]);
+                }
 	}
-	$("#took").text("processing took " + (timeAfter-timeBefore).toFixed(1) + "ms");
-	for (connId in analysis.connectionLabels) {
-		lbl = analysis.connectionLabels[connId];
-		conn = graph.getCell(connId);
-		console.log(conn);
-		if (lbl.propIn && lbl.propOut) {
-			conn.set('labels', [{
-				position: .1,
-				attrs: {
-					text: {
-						text: lbl.propIn,
-					}
-				}
-			},
-			{
-				position: .5,
-				attrs: {
-					text: {
-						text: '☠'
-					}
-				}
-			},
-			{
-				position: .9,
-				attrs: {
-					text: {
-						text: lbl.propOut,
-					}
-				}
-			}
-		]);
-		} else {
-			conn.set('labels', [{
-				position: .5,
-				attrs: {
-					text: {
-						text: lbl,
-					}
-				}
-			}]);
-    	}
-	}
-});
+        }
+};
 
 
 
