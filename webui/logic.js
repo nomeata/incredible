@@ -9,7 +9,9 @@ var paper = new joint.dia.Paper({
 
   validateConnection: function (vs, ms, vt, mt, e, vl) {
 
+
     if (e === 'target') {
+      if (vt.model.get('prototypeElement')) return false;
 
       // target requires an input port to connect
       if (!mt || !mt.getAttribute('class') || mt.getAttribute('class').indexOf('input') < 0) return false;
@@ -25,6 +27,7 @@ var paper = new joint.dia.Paper({
       return !portUsed;
 
     } else { // e === 'source'
+      if (vs.model.get('prototypeElement')) return false;
 
       // source requires an output port to connect
       return ms && ms.getAttribute('class') && ms.getAttribute('class').indexOf('output') >= 0;
