@@ -148,3 +148,28 @@ graph.on('change:signal', function (wire, signal) {
 
 // initialize signal and keep its value
 var current = initializeSignal();
+
+function buildProof(graph) {
+	var proof = {}
+
+	proof.blocks = {}
+	graph.getElements().map(
+		function (e,i) {
+			proof.blocks[e.id] = {};
+			proof.blocks[e.id]['rule'] = e.attributes.type;
+		});
+
+	proof.connections = {}
+	graph.getLinks().map(
+		function(l,i) {
+			con = {}
+			con.from = {}
+			con.from.block = l.attributes.source.id;
+			con.from.port = l.attributes.source.port;
+			con.to = {}
+			con.to.block = l.attributes.target.id;
+			con.to.port = l.attributes.target.port;
+			proof.connections[l.id] = con;
+		});
+	return proof;
+}
