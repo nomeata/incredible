@@ -14,12 +14,15 @@ $(function() {
 		var logic = $.parseJSON($("#logic").val());
 		var task = $.parseJSON($("#task").val());
 		var proof = $.parseJSON($("#proof").val());
+		var timeBefore = performance.now()
 		var analysis = incredibleLogic(logic,task,proof);
+		var timeAfter = performance.now()
 		if (typeof analysis === 'string' || analysis instanceof String) {
 			$("#analysis").val(analysis);
 		} else {
 			$("#analysis").val(JSON.stringify(analysis, null, 2));
 		}
+		$("#took").text("processing took " + (timeAfter-timeBefore).toFixed(1) + "ms");
 	});
 
         $.each(examples.logics, function(name,l) {
@@ -79,7 +82,9 @@ Task: <select id="taskselect"><option value=""></option></select><br/>
 Proof: <select id="proofselect"><option value=""></option></select><br/>
 <textarea  cols=100 rows=20 id="proof">
 </textarea><br/>
-Analysis: <button id="update">Update</button><br/>
+Analysis: <button id="update">Update</button>
+<span id="took"></span>
+<br/>
 <textarea  cols=100 rows=20 id="analysis" readonly="readonly">
 </textarea>
 <p>
