@@ -1,7 +1,12 @@
 -- |
 -- This module contains the graph-related checks of a proof, i.e. no cycles;
 -- local assumptions used properly.
-module ShapeChecks (findCycles, findEscapedHypotheses, findUnconnectedGoals) where
+module ShapeChecks
+    ( findCycles
+    , findEscapedHypotheses
+    , findUnconnectedGoals
+    , findUsedConnections
+    ) where
 
 import qualified Data.Map as M
 import qualified Data.Set as S
@@ -75,6 +80,30 @@ findEscapedHypotheses ctxt proof =
     fromMap = M.fromListWith (++) [ (connFrom c, [k]) | (k,c) <- M.toList $ connections proof]
     connsFrom ps = M.findWithDefault [] ps fromMap
 
+findUsedConnections :: Context -> Task -> Proof -> S.Set (Key Connection)
+findUsedConnections ctxt task proof = go S.empty connectionsToConclusions
+  where
+    conclusions = map ConclusionPort [1..length (tConclusions task)]
+    connectionsToConclusions = [ c | spec <- conclusions, c <- connsTo spec ]
+
+    go conns [] = conns
+    go conns (connKey:todo)
+        | connKey `S.member` conns = go conns todo
+        | otherwise                = go conns' (inConnections ++ todo)
+      where
+        conns' = S.insert connKey conns
+        inConnections = [ c
+            | BlockPort blockKey _ <- return $ connFrom (connections proof ! connKey)
+            , let rule = ctxtRules ctxt ! blockRule (blocks proof ! blockKey)
+            , (portId, Port PTAssumption _) <- M.toList $ ports rule
+            , let spec = BlockPort blockKey portId
+            , c <- connsTo spec
+            ]
+
+    toMap = M.fromListWith (++) [ (connTo c, [k]) | (k,c) <- M.toList $ connections proof]
+    connsTo :: PortSpec -> [Key Connection]
+    connsTo ps = M.findWithDefault [] ps toMap
+
 findUnconnectedGoals :: Context -> Task -> Proof -> [PortSpec]
 findUnconnectedGoals ctxt task proof = go S.empty conclusions
   where
@@ -99,4 +128,5 @@ findUnconnectedGoals ctxt task proof = go S.empty conclusions
             ]
 
     toMap = M.fromListWith (++) [ (connTo c, [k]) | (k,c) <- M.toList $ connections proof]
+    connsTo :: PortSpec -> [Key Connection]
     connsTo ps = M.findWithDefault [] ps toMap
