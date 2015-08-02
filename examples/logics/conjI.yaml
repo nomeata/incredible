@@ -1,0 +1,12 @@
+rules:
+- id: conjI
+  ports:
+    in1:
+      type: assumption
+      proposition: A
+    in2:
+      type: assumption
+      proposition: B
+    out:
+      type: conclusion
+      proposition: and(A,B)

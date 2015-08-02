@@ -1,0 +1,6 @@
+logic: conjI
+assumptions:
+- A
+conclusions:
+- and(A,A)
+
