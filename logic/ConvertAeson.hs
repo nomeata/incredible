@@ -87,6 +87,7 @@ instance FromJSON PortSpec where
     [ AssumptionPort <$> o .: "assumption"
     , ConclusionPort <$> o .: "conclusion"
     , BlockPort <$> o .: "block" <*> o .: "port"
+    , pure NoPort
     ]
 
 
@@ -108,6 +109,7 @@ instance ToJSON Analysis where
         ]
 
 instance ToJSON ConnLabel where
+    toJSON Unconnected = object []
     toJSON (Ok prop) = toJSON prop
     toJSON (Mismatch prop1 prop2) = object
         [ "propIn" .= prop1, "propOut" .= prop2 ]

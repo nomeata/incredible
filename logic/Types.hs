@@ -58,7 +58,7 @@ data Block = Block
  }
  deriving Show
 
-data PortSpec = AssumptionPort Int | ConclusionPort Int | BlockPort (Key Block) (Key Port)
+data PortSpec = NoPort | AssumptionPort Int | ConclusionPort Int | BlockPort (Key Block) (Key Port)
  deriving (Eq, Ord, Show)
 
 data Connection = Connection
@@ -73,7 +73,7 @@ data Proof = Proof
  }
  deriving Show
 
-data ConnLabel = Ok Proposition | Mismatch Proposition Proposition
+data ConnLabel = Unconnected | Ok Proposition | Mismatch Proposition Proposition
  deriving (Eq, Show)
 
 data Analysis = Analysis

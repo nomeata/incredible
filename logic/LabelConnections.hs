@@ -1,6 +1,7 @@
 {-# LANGUAGE TupleSections #-}
 module LabelConnections where
 
+import Data.Functor
 import qualified Data.Map as M
 import Data.Map ((!))
 import Data.Tagged
@@ -16,24 +17,30 @@ labelConnections ctxt task proof = M.map instantiate (connections proof)
     final_bind = foldl consider emptyBinding (M.elems (connections proof))
 
     consider bind conn
-        | Just bind' <- addEquationToBinding bind equation
+        | Just prop1 <- propAt (connFrom conn)
+        , Just prop2 <- propAt (connTo conn)
+        , let equation = (prop1, prop2)
+        , Just bind' <- addEquationToBinding bind equation
         = bind'
         | otherwise
         = bind
+
+
+    instantiate conn = case (propFromMB, propToMB) of
+        (Nothing, Nothing) -> Unconnected
+        (Just propFrom, Nothing) -> Ok (mapVar prettyVarName propFrom)
+        (Nothing, Just propTo)   -> Ok (mapVar prettyVarName propTo)
+        (Just propFrom, Just propTo)
+            | propFrom == propTo -> Ok (mapVar prettyVarName propFrom)
+            | otherwise          -> Mismatch (mapVar prettyVarName propFrom) (mapVar prettyVarName propTo)
       where
-        equation = (propAt (connFrom conn), propAt (connTo conn))
+        propFromMB = applyBinding final_bind <$> propAt (connFrom conn)
+        propToMB   = applyBinding final_bind <$> propAt (connTo conn)
 
-
-    instantiate conn
-        | propFrom == propTo = Ok (mapVar prettyVarName propFrom)
-        | otherwise          = Mismatch (mapVar prettyVarName propFrom) (mapVar prettyVarName propTo)
-      where
-        propFrom = applyBinding final_bind $ propAt (connFrom conn)
-        propTo   = applyBinding final_bind $ propAt (connTo conn)
-
-    propAt (ConclusionPort n)           = mapVar absurd $ tConclusions task !! (n-1)
-    propAt (AssumptionPort n)           = mapVar absurd $ tAssumptions task !! (n-1)
-    propAt (BlockPort blockKey portKey) = mapVar ((blockKey,)) $ portProp port
+    propAt NoPort                       = Nothing
+    propAt (ConclusionPort n)           = Just $ mapVar absurd $ tConclusions task !! (n-1)
+    propAt (AssumptionPort n)           = Just $ mapVar absurd $ tAssumptions task !! (n-1)
+    propAt (BlockPort blockKey portKey) = Just $ mapVar ((blockKey,)) $ portProp port
       where block = blocks proof ! blockKey
             rule = ctxtRules ctxt ! blockRule block
             port = ports rule ! portKey
