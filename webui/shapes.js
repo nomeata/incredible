@@ -186,8 +186,8 @@ shapes.conjE = shapes.genericBlock.extend({
                 {text: 'and(A,B)', id: 'in'},
             ],
             outPorts: [
-                {text: 'A', id: 'out'},
-                {text: 'B', id: 'out'},
+                {text: 'A', id: 'out1'},
+                {text: 'B', id: 'out2'},
             ],
             size: { width: 80, height: 50 },
             attrs: { '.label': {text: 'conjE'}},
