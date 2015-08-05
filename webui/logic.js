@@ -43,7 +43,6 @@ paper.scale(1.5, 1.5);
 // Diagram setup
 var task = examples.tasks.curry1;
 var logic = examples.logics.conjAndImp;
-logic.rules = [logic.rules[2]];
 
 
 function setupGraph(graph, logic, task) {
@@ -71,16 +70,23 @@ function setupGraph(graph, logic, task) {
   // "Prototype blocks" for each element
   $.each(logic.rules, function(i,rule) {
     var n = i+1;
+    var elemClass;
     if (shapes[rule.id]){
-      var elem = new shapes[rule.id]({
+	elemClass =  shapes[rule.id];
+    } else {
+	// Is this overly complicatd?
+        elemClass = joint.shapes.incredible.Generic.extend({
+	    defaults: joint.util.deepSupplement({
+		    rule: rule
+	    }, joint.shapes.incredible.Generic.prototype.defaults),
+      });
+    }
+    var elem = new elemClass({
             originalPosition: {x: 550, y: 100 + 50 * i},
             position: {x: 550, y: 100 + 50 * i},
             prototypeElement: true,
             });
-      cells.push(elem);
-    } else {
-      console.log("No shape for rule \""+rule.id+"\"");
-    }
+    cells.push(elem);
   });
 
   graph.resetCells(cells);
@@ -202,7 +208,7 @@ function buildProof(graph) {
 				return;
 			}
             proof.blocks[e.id] = {};
-            proof.blocks[e.id]['rule'] = e.attributes.rule;
+            proof.blocks[e.id]['rule'] = e.get('rule').id;
         });
 
     proof.connections = {}
