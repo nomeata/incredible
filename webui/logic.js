@@ -9,10 +9,16 @@ var paper = new joint.dia.Paper({
 
   validateConnection: function (vs, ms, vt, mt, e, vl) {
 
+    var portSpec1 = vs.model.ports[ms.getAttribute('port')];
+    var portSpec2 = vt.model.ports[mt.getAttribute('port')];
+    if (portSpec1.type && portSpec2.type) {
+	if (portSpec1.type == portSpec2.type) {
+	  return false;
+	}
+    }
 
     if (e === 'target') {
       if (vt.model.get('prototypeElement')) return false;
-
       // target requires an input port to connect
       // Disabled for now. Needs to be made compatible
       // with the PortsModelInterface-blocks
@@ -70,17 +76,18 @@ function setupGraph(graph, logic, task) {
   // "Prototype blocks" for each element
   $.each(logic.rules, function(i,rule) {
     var n = i+1;
-    var elemClass;
+    var baseClass;
     if (shapes[rule.id]){
-	elemClass =  shapes[rule.id];
+	baseClass =  shapes[rule.id];
     } else {
-	// Is this overly complicatd?
-        elemClass = joint.shapes.incredible.Generic.extend({
-	    defaults: joint.util.deepSupplement({
-		    rule: rule
-	    }, joint.shapes.incredible.Generic.prototype.defaults),
-      });
+        baseClass = joint.shapes.incredible.Generic;
     }
+    // Is this overly complicatd?
+    elemClass = baseClass.extend({
+        defaults: joint.util.deepSupplement({
+                rule: rule
+        }, baseClass.prototype.defaults),
+    });
     var elem = new elemClass({
             originalPosition: {x: 550, y: 100 + 50 * i},
             position: {x: 550, y: 100 + 50 * i},

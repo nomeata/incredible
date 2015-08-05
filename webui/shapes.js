@@ -59,8 +59,6 @@ shapes.Gate21 = shapes.Gate.extend({
 shapes.conjI = shapes.Gate21.extend({
 
   defaults: joint.util.deepSupplement({
-
-    rule: 'conjI',
     attrs: {
       image: { 'xlink:href': 'images/conjI.svg' },
       text: { text: 'conjI', 'ref-x': 27, 'ref-y': 0.5, 'font-size': 10 }
