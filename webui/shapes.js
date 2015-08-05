@@ -74,18 +74,34 @@ shapes.conjI = shapes.Gate21.extend({
 
 });
 
-shapes.genericBlock = joint.shapes.basic.Generic.extend(_.extend({}, joint.shapes.basic.PortsModelInterface, {
 
-    markup: '<g class="rotatable"><g class="scalable"><rect class="body"/></g><text class="label"/><g class="inPorts"/><g class="outPorts"/></g>',
+/*
+ * How does jointJS find the view for a model?
+ * It takes the 'type' field, of the model, excepts it to be foo.bar
+ * and then looks at join.shapes[foo][bar+'View']....
+ */
+
+
+joint.shapes.incredible = {}
+
+/*
+ * The followsing is derived from Ports{Model,View}Interface in
+ * joint.shapes.basic, for customization
+ */
+
+joint.shapes.incredible.Generic = joint.shapes.basic.Generic.extend({
+
+    markup: '<g class="rotatable"><g class="scalable"><rect class="body"/></g><text class="label"/><g class="inPorts"/><g class="outPorts"/><g class="bottomPorts"/></g>',
     portMarkup: '<g class="port port<%= id %>"><circle class="port-body"/><text class="port-label"/></g>',
 
     defaults: joint.util.deepSupplement({
 
-        type: 'devs.Model',
+        type: 'incredible.Generic',
         size: { width: 1, height: 1 },
 
         inPorts: [],
         outPorts: [],
+        bottomPorts: [],
 
         attrs: {
             '.': { magnet: false },
@@ -103,11 +119,67 @@ shapes.genericBlock = joint.shapes.basic.Generic.extend(_.extend({}, joint.shape
             },
             '.label': { text: 'Model', 'ref-x': .5, 'ref-y': 10, ref: '.body', 'text-anchor': 'middle', fill: '#000000' },
             '.port-label': { 'font-size': '8px' },
-            '.inPorts .port-label': { x:-15, dy: 4, 'text-anchor': 'end', fill: '#000000' },
-            '.outPorts .port-label':{ x: 15, dy: 4, fill: '#000000' }
+            '.inPorts .port-label': { x:-15, dy: 0, 'text-anchor': 'end', fill: '#000000' },
+            '.outPorts .port-label':{ x: 15, dy: 0, fill: '#000000' },
+            '.bottomPorts .port-label':{ dx: 0, dy: 15, fill: '#000000' }
         }
 
     }, joint.shapes.basic.Generic.prototype.defaults),
+
+
+    initialize: function() {
+
+        this.updatePortsAttrs();
+        this.on('change:inPorts change:outPorts', this.updatePortsAttrs, this);
+
+        // Call the `initialize()` of the parent.
+        this.constructor.__super__.constructor.__super__.initialize.apply(this, arguments);
+    },
+
+    updatePortsAttrs: function(eventName) {
+
+        // Delete previously set attributes for ports.
+        var currAttrs = this.get('attrs');
+        _.each(this._portSelectors, function(selector) {
+            if (currAttrs[selector]) delete currAttrs[selector];
+        });
+
+        // This holds keys to the `attrs` object for all the port specific attribute that
+        // we set in this method. This is necessary in order to remove previously set
+        // attributes for previous ports.
+        this._portSelectors = [];
+
+        var attrs = {};
+
+        _.each(this.get('inPorts'), function(portName, index, ports) {
+            var portAttributes = this.getPortAttrs(portName, index, ports.length, '.inPorts', 'in');
+            this._portSelectors = this._portSelectors.concat(_.keys(portAttributes));
+            _.extend(attrs, portAttributes);
+        }, this);
+
+        _.each(this.get('outPorts'), function(portName, index, ports) {
+            var portAttributes = this.getPortAttrs(portName, index, ports.length, '.outPorts', 'out');
+            this._portSelectors = this._portSelectors.concat(_.keys(portAttributes));
+            _.extend(attrs, portAttributes);
+        }, this);
+
+        _.each(this.get('bottomPorts'), function(portName, index, ports) {
+            var portAttributes = this.getPortAttrs(portName, index, ports.length, '.bottomPorts', 'out');
+            this._portSelectors = this._portSelectors.concat(_.keys(portAttributes));
+            _.extend(attrs, portAttributes);
+        }, this);
+
+        console.log(attrs);
+
+        // Silently set `attrs` on the cell so that noone knows the attrs have changed. This makes sure
+        // that, for example, command manager does not register `change:attrs` command but only
+        // the important `change:inPorts`/`change:outPorts` command.
+        this.attr(attrs, { silent: true });
+        // Manually call the `processPorts()` method that is normally called on `change:attrs` (that we just made silent).
+        this.processPorts();
+        // Let the outside world (mainly the `ModelView`) know that we're done configuring the `attrs` object.
+        this.trigger('process:ports');
+    },
 
     getPortAttrs: function(portSpec, index, total, selector, type) {
 
@@ -120,30 +192,110 @@ shapes.genericBlock = joint.shapes.basic.Generic.extend(_.extend({}, joint.shape
 
         attrs[portLabelSelector] = { text: portSpec.text };
         attrs[portBodySelector] = { port: { id: portSpec.id || _.uniqueId(type) , type: type } };
-        attrs[portSelector] = { ref: '.body', 'ref-y': (index + 0.5) * (1 / total) };
+        attrs[portSelector] = { ref: '.body' };
 
-        if (selector === '.outPorts') { attrs[portSelector]['ref-dx'] = 0; }
+        if (selector === '.inPorts') {
+            attrs[portSelector]['ref-y'] =  (index + 0.5) * (1 / total);
+            attrs[portBodySelector].port.edge = 'left';
+        } else if (selector === '.outPorts'){
+            attrs[portSelector]['ref-y'] =  (index + 0.5) * (1 / total);
+            attrs[portSelector]['ref-dx'] = 1;
+            attrs[portBodySelector].port.edge = 'right';
+        } else if (selector === '.bottomPorts') {
+            attrs[portSelector]['ref-x'] =  (index + 0.5) * (1 / total);
+            attrs[portSelector]['ref-dy'] = 1;
+            attrs[portBodySelector].port.edge = 'bottom';
+	} else {
+            throw new Error("getPortAttrs(): Unknown selector");
+        }
 
         return attrs;
-    }
-}));
+    },
 
-shapes.impI = shapes.genericBlock.extend({
+    getPortSelector: function(name) {
+
+        var selector = '.inPorts';
+        var index = this.get('inPorts').indexOf(name);
+
+        if (index < 0) {
+            selector = '.outPorts';
+            index = this.get('outPorts').indexOf(name);
+
+            if (index < 0) {
+                selector = '.bottomPorts';
+                index = this.get('bottomPorts').indexOf(name);
+
+                if (index < 0) throw new Error("getPortSelector(): Port doesn't exist.");
+            }
+        }
+
+        return selector + '>g:nth-child(' + (index + 1) + ')>circle';
+    }
+});
+
+
+joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
+
+    initialize: function() {
+
+        // `Model` emits the `process:ports` whenever it's done configuring the `attrs` object for ports.
+        this.listenTo(this.model, 'process:ports', this.update);
+
+        joint.dia.ElementView.prototype.initialize.apply(this, arguments);
+    },
+
+    update: function() {
+
+        // First render ports so that `attrs` can be applied to those newly created DOM elements
+        // in `ElementView.prototype.update()`.
+        this.renderPorts();
+        joint.dia.ElementView.prototype.update.apply(this, arguments);
+    },
+
+    renderPorts: function() {
+
+        var $inPorts = this.$('.inPorts').empty();
+        var $outPorts = this.$('.outPorts').empty();
+        var $bottomPorts = this.$('.bottomPorts').empty();
+
+        var portTemplate = _.template(this.model.portMarkup);
+        console.log(this.model.ports);
+
+        _.each(_.filter(this.model.ports, function(p) { return p.edge === 'left'; }), function(port, index) {
+
+            $inPorts.append(V(portTemplate({ id: index, port: port })).node);
+        });
+        _.each(_.filter(this.model.ports, function(p) { return p.edge === 'right'; }), function(port, index) {
+
+            $outPorts.append(V(portTemplate({ id: index, port: port })).node);
+        });
+        _.each(_.filter(this.model.ports, function(p) { return p.edge === 'bottom'; }), function(port, index) {
+
+            $bottomPorts.append(V(portTemplate({ id: index, port: port })).node);
+        });
+    }
+});
+
+
+
+shapes.impI = joint.shapes.incredible.Generic.extend({
     defaults: joint.util.deepSupplement({
             rule: 'impI',
             inPorts: [
                 {text: 'B', id: 'in'},
             ],
             outPorts: [
-                {text: 'A', id: 'hyp'},
                 {text: 'imp(A,B)', id: 'out'},
+            ],
+            bottomPorts: [
+                {text: 'A', id: 'hyp'},
             ],
             size: { width: 80, height: 50 },
             attrs: { '.label': {text: 'impI'}},
-    }, shapes.genericBlock.prototype.defaults),
+    }, joint.shapes.incredible.Generic.prototype.defaults),
 });
 
-shapes.impE = shapes.genericBlock.extend({
+shapes.impE = joint.shapes.incredible.Generic.extend({
     defaults: joint.util.deepSupplement({
             rule: 'impE',
             inPorts: [
@@ -155,10 +307,10 @@ shapes.impE = shapes.genericBlock.extend({
             ],
             size: { width: 80, height: 50 },
             attrs: { '.label': {text: 'impE'}},
-    }, shapes.genericBlock.prototype.defaults),
+    }, joint.shapes.incredible.Generic.prototype.defaults),
 });
 
-shapes.conjE = shapes.genericBlock.extend({
+shapes.conjE = joint.shapes.incredible.Generic.extend({
     defaults: joint.util.deepSupplement({
             rule: 'conjE',
             inPorts: [
@@ -170,7 +322,7 @@ shapes.conjE = shapes.genericBlock.extend({
             ],
             size: { width: 80, height: 50 },
             attrs: { '.label': {text: 'conjE'}},
-    }, shapes.genericBlock.prototype.defaults),
+    }, joint.shapes.incredible.Generic.prototype.defaults),
 });
 
 

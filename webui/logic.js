@@ -43,6 +43,7 @@ paper.scale(1.5, 1.5);
 // Diagram setup
 var task = examples.tasks.curry1;
 var logic = examples.logics.conjAndImp;
+logic.rules = [logic.rules[2]];
 
 
 function setupGraph(graph, logic, task) {
