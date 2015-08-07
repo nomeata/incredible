@@ -43,7 +43,13 @@ joint.shapes.incredible = {}
 joint.shapes.incredible.Generic = joint.shapes.basic.Generic.extend({
 
     markup: '<g class="rotatable"><g class="scalable"><rect class="body"/></g><text class="label"/><g class="ports"/></g>',
-    portMarkup: '<g class="port port<%= id %>"><circle class="port-body"/><text class="port-label"/></g>',
+    portMarkup:
+     '<g class="port port<%= id %>">' +
+//     '<circle class="port-body"/>'  +
+     // pacman open towards left
+     '<path class="port-body" stroke="none" fill="#777" transform="rotate(135)" d="M0,0 l 0 5 a5,5 0 1,1 5,-5 z"/>'  +
+     '<text class="port-label"/>' +
+     '</g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -59,7 +65,6 @@ joint.shapes.incredible.Generic = joint.shapes.basic.Generic.extend({
             '.port-body': {
                 r: 10,
                 magnet: true,
-                stroke: '#000000'
             },
             text: {
                 'pointer-events': 'none'
@@ -89,7 +94,6 @@ joint.shapes.incredible.Generic = joint.shapes.basic.Generic.extend({
         var rulesList = _.map(rules, function (v,i) {return _.extend({id:i}, v);});
         var rulesGroup = _.groupBy(rulesList, "type");
 
-	console.log(this.get('prototypeElement'));
         _.each(rulesGroup, function(thesePorts, portType) {
             var total = _.size(thesePorts);
             _.each(thesePorts, function(portDesc, index) {
@@ -106,17 +110,19 @@ joint.shapes.incredible.Generic = joint.shapes.basic.Generic.extend({
 
                 if (portType === 'assumption') {
                     attrs[portSelector]['ref-y'] =  (index + 0.5) * (1 / total);
-                    attrs[portBodySelector].port.edge = 'left';
-                    attrs[portLabelSelector] = { x:-15, y: 5, 'y-alignment': 'middle', 'text-anchor': 'end', fill: '#000000' };
+                    attrs[portBodySelector].transform = 'rotate(135)';
+                    attrs[portLabelSelector] = { dx:-10, y: 5, 'y-alignment': 'middle', 'text-anchor': 'end', fill: '#000000' };
                 } else if (portType === 'conclusion'){
                     attrs[portSelector]['ref-y'] =  (index + 0.5) * (1 / total);
                     attrs[portSelector]['ref-dx'] = 0;
-                    attrs[portBodySelector].port.edge = 'right';
-                    attrs[portLabelSelector] = { x: 15, y: 5, 'y-alignment': 'middle', fill: '#000000' };
+                    attrs[portBodySelector].transform = 'rotate(135)';
+                    attrs[portBodySelector].d = 'M-5,-5 l 0 5 a5,5 0 1,0 5,-5 z';
+                    attrs[portLabelSelector] = { dx: 10, y: 5, 'y-alignment': 'middle', fill: '#000000' };
                 } else if (portType === 'local hypothesis') {
                     attrs[portSelector]['ref-x'] =  (index + 0.5) * (1 / total);
                     attrs[portSelector]['ref-dy'] = 1;
-                    attrs[portBodySelector].port.edge = 'bottom';
+                    attrs[portBodySelector].transform = 'rotate(-135)';
+                    attrs[portBodySelector].d = 'M-5,-5 l 0 5 a5,5 0 1,0 5,-5 z';
                     attrs[portLabelSelector] = { x: 0, y: 20, 'text-anchor': 'middle', fill: '#000000' };
                 } else {
                     throw new Error("initialize(): Unknown portType");
