@@ -27,7 +27,9 @@ parseTerm = either (Left . show) Right . parse termP ""
 termP :: Parsec String () Proposition
 termP = do
     hd <- many1 alphaNum
-    option (Var hd) $ do
+    if hd == "False"
+    then return $ Symb "False" []
+    else option (Var hd) $ do
         between (char '(') (char ')') $ do
             Symb hd <$> termP `sepBy1` (char ',')
 
