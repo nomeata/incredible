@@ -80,8 +80,8 @@ function setupGraph(graph, logic, task) {
         }, baseClass.prototype.defaults),
     });
     var elem = new elemClass({
-            originalPosition: {x: 550, y: 100 + 50 * i},
-            position: {x: 550, y: 100 + 50 * i},
+            originalPosition: {x: 550, y: 25 + 50 * i},
+            position: {x: 550, y: 25 + 50 * i},
             prototypeElement: true,
             });
     cells.push(elem);
