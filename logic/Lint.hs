@@ -24,7 +24,7 @@ type Lints = [String]
 
 lint :: Context -> Task -> Proof -> Lints
 lint logic _task proof = mconcat
-    [ wrongLocalHyps, missingRule, wrongPort ]
+    [ wrongLocalHyps, missingRule, wrongBlock, wrongPort ]
   where
     wrongLocalHyps =
         [ printf "local hypothesis \"%s\" of rule \"%s\" has an invalid consumedBy field \"%s\""
@@ -35,12 +35,18 @@ lint logic _task proof = mconcat
         ]
       where isAssumption (Port PTAssumption _) = True
             isAssumption _ = False
-
     missingRule =
         [ printf "Block \"%s\" references unknown rule \"%s\"" (untag blockKey) (untag ruleKey)
         | (blockKey, block) <- M.toList (blocks proof)
         , let ruleKey = blockRule block
         , ruleKey `M.notMember` ctxtRules logic
+        ]
+    wrongBlock =
+        [ printf "Connection \"%s\" references unknown block \"%s\""
+          (untag connKey) (untag blockKey)
+        | (connKey, conn) <- M.toList (connections proof)
+        , BlockPort blockKey _ <- [connFrom conn, connTo conn]
+        , blockKey `M.notMember` blocks proof
         ]
     wrongPort =
         [ printf "Connection \"%s\" references unknown port \"%s\" of block \"%s\", rule \"%s\""
