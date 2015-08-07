@@ -216,6 +216,22 @@ joint.shapes.incredible.ACBlock = joint.shapes.basic.Generic.extend({
     },
 });
 
+joint.shapes.incredible.ACBlockView = joint.dia.ElementView.extend({
+    update: function() {
+	/* Doesn’t work
+        w = this.$('text')[0].getBBox().width;
+	if (w > 0) {
+		console.log(w);
+		V(this.$('.body').get(0)).attr('width', w);
+	}
+	*/
+        joint.dia.ElementView.prototype.update.apply(this, arguments);
+    },
+
+});
+joint.shapes.incredible.AssumptionView = joint.shapes.incredible.ACBlockView
+joint.shapes.incredible.ConclusionView = joint.shapes.incredible.ACBlockView
+
 joint.shapes.incredible.Assumption = joint.shapes.incredible.ACBlock.extend({
 
     defaults: joint.util.deepSupplement({
