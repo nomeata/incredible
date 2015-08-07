@@ -8,21 +8,14 @@ var paper = new joint.dia.Paper({
   defaultLink: new joint.shapes.logic.Wire,
 
   validateConnection: function (vs, ms, vt, mt, e, vl) {
+    //console.log(vs,ms,vt,mt,e,vl);
 
-    var portSpec1 = vs.model.ports[ms.getAttribute('port')];
-    var portSpec2 = vt.model.ports[mt.getAttribute('port')];
-    if (portSpec1.type && portSpec2.type) {
-	if (portSpec1.type == portSpec2.type) {
-	  return false;
-	}
+    if (ms && mt && ms.getAttribute('direction') == mt.getAttribute('direction')) {
+      return false;
     }
 
     if (e === 'target') {
       if (vt.model.get('prototypeElement')) return false;
-      // target requires an input port to connect
-      // Disabled for now. Needs to be made compatible
-      // with the PortsModelInterface-blocks
-      // if (!mt || !mt.getAttribute('class') || mt.getAttribute('class').indexOf('input') < 0) return false;
 
       // check whether the port is being already used
       var portUsed = _.find(this.model.getLinks(), function (link) {
@@ -36,9 +29,7 @@ var paper = new joint.dia.Paper({
 
     } else { // e === 'source'
       if (vs.model.get('prototypeElement')) return false;
-
-      // source requires an output port to connect
-      return ms && ms.getAttribute('class') && ms.getAttribute('class').indexOf('output') >= 0;
+      return true;
     }
   }
 });
@@ -56,7 +47,7 @@ function setupGraph(graph, logic, task) {
   // Fixed blocks for input and output
   $.each(task.conclusions, function (i,c) {
     var n = i+1;
-    var gate = new shapes.Conclusion({
+    var gate = new joint.shapes.incredible.Conclusion({
           position: {x: 450, y: 100 + 50 * i},
           attrs: { text: {text: c}},
           conclusion: n,
@@ -65,7 +56,7 @@ function setupGraph(graph, logic, task) {
   });
   $.each(task.assumptions, function (i,c) {
     var n = i+1;
-    var gate = new shapes.Assumption({
+    var gate = new joint.shapes.incredible.Assumption({
           position: {x: 50, y: 100 + 50 * i},
           attrs: { text: {text: c}},
           assumption: n,
@@ -111,8 +102,6 @@ paper.on('cell:pointerup', function(cellView, evt, x, y) {
     // Add a new element
     var newElem = cell.clone();
     newElem.set('prototypeElement', false);
-    newElem.attr({'.inPorts text': {display: 'none'}});
-    newElem.attr({'.outPorts text': {display: 'none'}});
     graph.addCell(newElem);
 
     // Reset prototype cell
