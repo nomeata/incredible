@@ -5,7 +5,11 @@ var paper = new joint.dia.Paper({
   el: $('#paper'), model: graph,
   width: 1000, height: 600, gridSize: 5,
   snapLinks: true,
-  defaultLink: new joint.shapes.logic.Wire,
+  defaultLink: function (elementView, magnet) {
+	  e = new joint.shapes.logic.Wire
+	  e.set('router', {name: 'manhattan'});
+	  return e
+  },
 
   validateConnection: function (vs, ms, vt, mt, e, vl) {
     //console.log(vs,ms,vt,mt,e,vl);
