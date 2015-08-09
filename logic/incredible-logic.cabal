@@ -31,7 +31,7 @@ library
                      Propositions,
                      Unification,
                      ConvertAeson
-  build-depends:     base >=4.7 && <4.8,
+  build-depends:     base >=4.7 && <4.9,
                      aeson,
                      text,
                      vector,
@@ -50,7 +50,7 @@ executable js-interface
   if impl(ghcjs)
     buildable: True
     other-modules:     ConvertJS
-    build-depends:     base >=4.7 && <4.8,
+    build-depends:     base >=4.7 && <4.9,
                        incredible-logic,
                        aeson,
                        ghcjs-base
@@ -66,7 +66,7 @@ executable bundle-examples
   if impl(ghcjs)
     buildable: False
   else
-    build-depends:   base >=4.7 && <4.8,
+    build-depends:   base >=4.7 && <4.9,
                      containers,
                      bytestring,
                      aeson,
