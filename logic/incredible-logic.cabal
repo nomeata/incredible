@@ -36,6 +36,7 @@ library
                      text,
                      vector,
                      containers,
+                     transformers,
                      parsec,
                      void,
                      tagged
