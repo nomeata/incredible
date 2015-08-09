@@ -42,9 +42,12 @@ instructions, but here is a quick way.
         cd logic; cabal install --dependencies-only --enable-tests
         cd logic; cabal install --ghcjs --dependencies-only --disable-tests
 
+    or run `make prepare` in the project root.
+
   * Now you should be able to compile both `logic.js` and `examples.js` by running `make`
 
-  * To run the testsuite, run `cabal test` in the `logic/` directory
+  * To run the testsuite, run `cabal test` in the `logic/` directory or `make
+    test` in the project root
 
 Alternatively, if you do not want to hack on these parts of the project, but simply run them locally, you can run
 
