@@ -21,6 +21,9 @@ var paper = new joint.dia.Paper({
     if (e === 'target') {
       if (vt.model.get('prototypeElement')) return false;
 
+      /* Disabled: It may be convenient to temporarily attach
+       * two links to a port
+
       // check whether the port is being already used
       var portUsed = _.find(this.model.getLinks(), function (link) {
 
@@ -28,8 +31,9 @@ var paper = new joint.dia.Paper({
         link.get('target').id === vt.model.id &&
         link.get('target').port === mt.getAttribute('port'));
       });
-
       return !portUsed;
+      */
+      return true;
 
     } else { // e === 'source'
       if (vs.model.get('prototypeElement')) return false;
