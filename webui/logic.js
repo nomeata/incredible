@@ -136,9 +136,15 @@ function selectTask(name) {
 selectTask('conjself');
 
 $("#update").click(processGraph);
-graph.on('change', function(model, end) {
-    processGraph();
-});
+graph.on('add remove ', function() { processGraph(); });
+graph.on('change:source change:target', function(model, end) {
+	var connected = model.get('source').id && model.get('target').id;
+	var was_connected = model.get('connected');
+	if (connected != was_connected) {
+		model.set('connected', connected);
+		processGraph();
+	}
+})
 
 function processGraph() {
 	$("#analysis").val();
