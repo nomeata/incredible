@@ -160,9 +160,20 @@ function processGraph() {
 	} else {
 		$("#analysis").val(JSON.stringify(analysis, null, 2));
 
+		// Reset everything
+		$.each(graph.getElements(), function (i, el) {
+			var rule = el.get('rule');
+			if (rule) {
+				$.each(rule.ports, function (p, c) {
+					el.attr('.port'+p+'>.port-body', {fill:'#777'}); 
+				});
+			}
+		});
 		$.each(graph.getLinks(), function (i, conn) {
 			conn.attr({'.connection': { class: 'connection' }});
 		});
+
+		// Collect errors
 		$.each(analysis.cycles, function (i,path) {
 			$.each(path, function (i,connId) {
 				conn = graph.getCell(connId);
@@ -178,6 +189,14 @@ function processGraph() {
 				conn.attr({'.connection': { class: 'connection error' }});
 
 			});
+		});
+
+		$.each(analysis.unconnectedGoals, function (i,goal) {
+			console.log(goal);
+			if (goal.block) {
+				el = graph.getCell(goal.block);
+				el.attr('.port'+goal.port+'>.port-body', {fill:'#F00'}); 
+			}
 		});
 
                 for (connId in analysis.connectionLabels) {
@@ -233,10 +252,9 @@ function buildProof(graph) {
     proof.blocks = {}
     graph.getElements().map(
         function (e,i) {
-			c = graph.getCell(e.id);
-			if (c.get('assumption') || c.get('conclusion') || c.get('prototypeElement')) {
-				return;
-			}
+	    if (e.get('assumption') || e.get('conclusion') || e.get('prototypeElement')) {
+		return;
+	    }
             proof.blocks[e.id] = {};
             proof.blocks[e.id]['rule'] = e.get('rule').id;
         });
