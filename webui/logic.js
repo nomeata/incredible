@@ -160,6 +160,26 @@ function processGraph() {
 	} else {
 		$("#analysis").val(JSON.stringify(analysis, null, 2));
 
+		$.each(graph.getLinks(), function (i, conn) {
+			conn.attr({'.connection': { class: 'connection' }});
+		});
+		$.each(analysis.cycles, function (i,path) {
+			$.each(path, function (i,connId) {
+				conn = graph.getCell(connId);
+				// not very nice, see http://stackoverflow.com/questions/32010888
+				conn.attr({'.connection': { class: 'connection error' }});
+
+			});
+		});
+		$.each(analysis.escapedHypotheses, function (i,path) {
+			$.each(path, function (i,connId) {
+				conn = graph.getCell(connId);
+				// not very nice, see http://stackoverflow.com/questions/32010888
+				conn.attr({'.connection': { class: 'connection error' }});
+
+			});
+		});
+
                 for (connId in analysis.connectionLabels) {
                         lbl = analysis.connectionLabels[connId];
                         conn = graph.getCell(connId);

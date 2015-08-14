@@ -2,6 +2,10 @@
     stroke: #999;
 }
 
+.connection.error {
+    stroke: #F00;
+}
+
 .connection-wrap {
     stroke-linecap: butt;
     transition: all 0.5s linear 0.2s;
