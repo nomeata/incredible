@@ -87,8 +87,12 @@
     transition: all 0.2s;
 }
 
+.element .body.qed {
+    fill: #0F0;
+}
+
 .element circle {
-    fill: #fff;
+    /* fill: #fff; overriden via attrs */
     stroke: #7f8c8d;
     stroke-opacity: 0.5;
     stroke-width: 2px;

@@ -2,7 +2,8 @@ var graph = new joint.dia.Graph;
 
 var paper = new joint.dia.Paper({
 
-  el: $('#paper'), model: graph,
+  el: $('#paper'),
+  model: graph,
   width: 1000, height: 600, gridSize: 5,
   snapLinks: true,
   defaultLink: function (elementView, magnet) {
@@ -49,6 +50,7 @@ paper.scale(1.5, 1.5);
 var task = examples.tasks.curry1;
 var logic = examples.logics.conjAndImp;
 
+var conclusionModels = [];
 
 function setupGraph(graph, logic, task) {
   var cells = [];
@@ -61,6 +63,7 @@ function setupGraph(graph, logic, task) {
           conclusion: n,
           });
     cells.push(gate);
+    conclusionModels[i] = gate;
   });
   $.each(task.assumptions, function (i,c) {
     var n = i+1;
@@ -160,18 +163,32 @@ function processGraph() {
 	} else {
 		$("#analysis").val(JSON.stringify(analysis, null, 2));
 
+
 		// Reset everything
 		$.each(graph.getElements(), function (i, el) {
 			var rule = el.get('rule');
 			if (rule) {
 				$.each(rule.ports, function (p, c) {
-					el.attr('.port'+p+'>.port-body', {fill:'#777'}); 
-				});
+					el.attr('.port'+p+'>.port-body', {fill:'#777'});
+				})
+			}
+			if (el.get('conclusion')) {
+				el.attr('circle', {fill:'#777'});
 			}
 		});
 		$.each(graph.getLinks(), function (i, conn) {
 			conn.attr({'.connection': { class: 'connection' }});
 		});
+
+		if (analysis.qed) {
+			conclusionModels.map(function (c) {
+				c.attr({'rect': {'class': 'body qed'}});
+			});
+		} else {
+			conclusionModels.map(function (c) {
+				c.attr({'rect': {'class': 'body'}});
+			});
+		}
 
 		// Collect errors
 		$.each(analysis.cycles, function (i,path) {
@@ -192,10 +209,12 @@ function processGraph() {
 		});
 
 		$.each(analysis.unconnectedGoals, function (i,goal) {
-			console.log(goal);
 			if (goal.block) {
 				el = graph.getCell(goal.block);
 				el.attr('.port'+goal.port+'>.port-body', {fill:'#F00'}); 
+			}
+			if (goal.conclusion) {
+				conclusionModels[goal.conclusion-1].attr('circle', {fill:'#F00'});
 			}
 		});
 
