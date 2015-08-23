@@ -2,5 +2,5 @@ logic: conjAndImp
 assumptions:
 - A
 conclusions:
-- and(A,A)
+- A∧A
 

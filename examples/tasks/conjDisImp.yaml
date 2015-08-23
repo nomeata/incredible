@@ -1,6 +1,6 @@
 logic: propositional
 assumptions:
-- imp(A,C)
-- imp(B,C)
+- A→C
+- B→C
 conclusions:
-- imp(or(A,B),C)
+- (A∨B)→C
