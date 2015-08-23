@@ -143,8 +143,12 @@ function selectTask(name) {
 		$("#conclusions").append($("<div>").text(el));
 	});
         setupGraph(graph, logic, task);
+	processGraph();
 }
-selectTask('conjself');
+
+$(function () {
+	selectTask('conjself');
+});
 
 $("#update").click(processGraph);
 graph.on('add remove ', function() { processGraph(); });
