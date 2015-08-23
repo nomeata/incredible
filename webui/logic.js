@@ -6,7 +6,7 @@ var paper = new joint.dia.Paper({
   model: graph,
   width: 1000,
   height: 600,
-  //gridSize: 5,
+  gridSize: 1,
   snapLinks: true,
   defaultLink: function (elementView, magnet) {
 	  e = new joint.shapes.logic.Wire
@@ -48,13 +48,21 @@ var paper = new joint.dia.Paper({
 // zoom the viewport by 50%
 paper.scale(1.5, 1.5);
 
-$(function () {
-	paper.setDimensions($("#paper").width(), $("#paper").height());
-});
-// TODO when I’m online: How to react on size changes:
-$("#paper").bind('resize', function () {
-	paper.setDimensions($("#paper").width(), $("#paper").height());
-});
+
+function rescale_paper () {
+	var paper_w = $("#paper").innerWidth()-5;
+	var paper_h = $("#paper").innerHeight()-5;
+
+	V($("#vertical-separator").get(0)).attr({y2:0})
+	var bb = paper.getContentBBox();
+
+	var w= Math.max(paper_w, bb.x + bb.width);
+	var h= Math.max(paper_h, bb.y + bb.height);
+	paper.setDimensions(w,h);
+	V($("#vertical-separator").get(0)).attr({y2:h})
+}
+
+$(window).on('resize', rescale_paper);
 
 // Diagram setup
 var task = examples.tasks.curry1;
@@ -65,24 +73,24 @@ var conclusionModels = [];
 function setupGraph(graph, logic, task) {
   var cells = [];
   // Fixed blocks for input and output
+  $.each(task.assumptions, function (i,c) {
+    var n = i+1;
+    var gate = new joint.shapes.incredible.Assumption({
+          position: {x: 230, y: 30 + 50 * i},
+          attrs: { text: {text: c}},
+          assumption: n,
+          });
+    cells.push(gate);
+  });
   $.each(task.conclusions, function (i,c) {
     var n = i+1;
     var gate = new joint.shapes.incredible.Conclusion({
-          position: {x: 450, y: 100 + 50 * i},
+          position: {x: 550, y: 300 + 50 * i},
           attrs: { text: {text: c}},
           conclusion: n,
           });
     cells.push(gate);
     conclusionModels[i] = gate;
-  });
-  $.each(task.assumptions, function (i,c) {
-    var n = i+1;
-    var gate = new joint.shapes.incredible.Assumption({
-          position: {x: 50, y: 100 + 50 * i},
-          attrs: { text: {text: c}},
-          assumption: n,
-          });
-    cells.push(gate);
   });
 
   // "Prototype blocks" for each element
@@ -101,14 +109,18 @@ function setupGraph(graph, logic, task) {
         }, baseClass.prototype.defaults),
     });
     var elem = new elemClass({
-            originalPosition: {x: 550, y: 25 + 50 * i},
-            position: {x: 550, y: 25 + 50 * i},
+            originalPosition: {x: 50, y: 25 + 50 * i},
+            position: {x: 50, y: 25 + 50 * i},
             prototypeElement: true,
             });
     cells.push(elem);
   });
 
   graph.resetCells(cells);
+
+  // Vertical line
+  var line = V('line', { id: "vertical-separator", x1: 200, y1: 5, x2: 200, y2: 400, stroke: 'grey' });
+  V(paper.viewport).append(line);
 }
 
 paper.on('cell:pointerdown', function(cellView, evt, x, y) {
@@ -158,6 +170,7 @@ function selectTask(name) {
 
 $(function () {
 	selectTask('conjself');
+	rescale_paper();
 });
 
 $("#update").click(processGraph);

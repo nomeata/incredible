@@ -10,37 +10,63 @@
         <link rel="stylesheet" type="text/css" href="./webui/logic.css" />
 
         <style>
-            #paper {
+	    #header {
 		position: absolute;
 		top:0px;
 		left:0px;
-		width:100%;
-		height:100%;
-		border: 0px solid grey;
+		right:0px;
+		height:150px;
+		overflow: auto;
+		border-bottom: 5px solid grey;
             }
 
-	    .task {
-		width:40em;
+	    #task {
+		position: absolute;
+		top:0px;
+		width:30em;
+		right:0px;
 		padding:1em;
-		border: 1px solid black;
-		text-align: center
+		overflow: auto;
+		text-align: center;
+            }
+
+	    #task h3 {
+		padding:1px;
+		margin:0px;
+		text-align: left;
 	    }
+
+            #paper {
+		position: absolute;
+		top:150px;
+		left:0px;
+		right:0px;
+		bottom:0px;
+		overflow: auto;
+            }
 
 	    .debug {
 		display:none;
+	    }
+
+	    h1, h2, h3 {
+		font-family: sans-serif
 	    }
         </style>
     </head>
     <body>
 
-    <h1>The Incredible Proof Machine</h1>
-
-	Task: <select id="taskselect"></select><br/>
-	<div class="task">
+    <div id="header">
+      <h1>The Incredible Proof Machine</h1>
+	Load a new task: <select id="taskselect"></select><br/>
+	<div id="task">
+	<h3>Current task:</h3>
 	<div id="assumptions"></div>
 	<hr/>
 	<div id="conclusions"></div>
 	</div>
+
+    </div>
 
         <div id="paper"></div>
 
