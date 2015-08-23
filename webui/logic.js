@@ -4,7 +4,9 @@ var paper = new joint.dia.Paper({
 
   el: $('#paper'),
   model: graph,
-  width: 1000, height: 600, gridSize: 5,
+  width: 1000,
+  height: 600,
+  //gridSize: 5,
   snapLinks: true,
   defaultLink: function (elementView, magnet) {
 	  e = new joint.shapes.logic.Wire
@@ -45,6 +47,14 @@ var paper = new joint.dia.Paper({
 
 // zoom the viewport by 50%
 paper.scale(1.5, 1.5);
+
+$(function () {
+	paper.setDimensions($("#paper").width(), $("#paper").height());
+});
+// TODO when I’m online: How to react on size changes:
+$("#paper").bind('resize', function () {
+	paper.setDimensions($("#paper").width(), $("#paper").height());
+});
 
 // Diagram setup
 var task = examples.tasks.curry1;
