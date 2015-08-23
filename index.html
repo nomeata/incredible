@@ -15,6 +15,17 @@
                 height: 600px;
                 border: 1px solid gray;
             }
+
+	    .task {
+		width:40em;
+		padding:1em;
+		border: 1px solid black;
+		text-align: center
+	    }
+
+	    .debug {
+		display:none;
+	    }
         </style>
     </head>
     <body>
@@ -22,13 +33,21 @@
     <h1>The Incredible Proof Machine</h1>
 
 	Task: <select id="taskselect"></select><br/>
+	<div class="task">
+	<div id="assumptions"></div>
+	<hr/>
+	<div id="conclusions"></div>
+	</div>
+
         <div id="paper"></div>
 
+	<div class="debug">
         Analysis: <button id="update">Update</button>
         <span id="took"></span>
         <br/>
         <textarea  cols=100 rows=20 id="analysis" readonly="readonly">
         </textarea>
+	</div>
 
         <script src="./node_modules/jquery/dist/jquery.min.js"></script>
     <!--

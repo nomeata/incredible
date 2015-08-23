@@ -134,6 +134,14 @@ function selectTask(name) {
         task = examples.tasks[name];
         logic = examples.logics[task.logic];
         $("#taskselect").val(name);
+	$("#assumptions").empty();
+	$.each(task.assumptions, function (i, el) {
+		$("#assumptions").append($("<div>").text(el));
+	});
+	$("#conclusions").empty();
+	$.each(task.conclusions, function (i, el) {
+		$("#conclusions").append($("<div>").text(el));
+	});
         setupGraph(graph, logic, task);
 }
 selectTask('conjself');
