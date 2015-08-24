@@ -176,10 +176,11 @@ $(function () {
 $("#update").click(processGraph);
 graph.on('add remove ', function() { processGraph(); });
 graph.on('change:source change:target', function(model, end) {
-	var connected = model.get('source').id && model.get('target').id;
-	var was_connected = model.get('connected');
-	if (connected != was_connected) {
-		model.set('connected', connected);
+	var connection_state = model.get('source').id + model.get('source').port
+	                     + model.get('target').id + model.get('target').port;
+	var connection_state_old = model.get('connection_state');
+	if (connection_state != connection_state_old) {
+		model.set('connection_state', connection_state);
 		processGraph();
 	}
 })
