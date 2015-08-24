@@ -14,6 +14,10 @@ var paper = new joint.dia.Paper({
 	  return e
   },
 
+  validateMagnet: function (v, m) {
+    return !v.model.get('prototypeElement');
+  },
+
   validateConnection: function (vs, ms, vt, mt, e, vl) {
     //console.log(vs,ms,vt,mt,e,vl);
 
@@ -39,7 +43,6 @@ var paper = new joint.dia.Paper({
       return true;
 
     } else { // e === 'source'
-      if (vs.model.get('prototypeElement')) return false;
       return true;
     }
   }
@@ -98,11 +101,11 @@ function setupGraph(graph, logic, task) {
     var n = i+1;
     var baseClass;
     if (shapes[rule.id]){
-	baseClass =  shapes[rule.id];
+        baseClass = shapes[rule.id];
     } else {
         baseClass = joint.shapes.incredible.Generic;
     }
-    // Is this overly complicatd?
+    // Is this overly complicated?
     elemClass = baseClass.extend({
         defaults: joint.util.deepSupplement({
                 rule: rule
