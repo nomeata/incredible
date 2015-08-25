@@ -110,7 +110,6 @@ function setupGraph(graph, logic, task) {
                 baseClass.prototype.defaults),
         });
         var elem = new elemClass({
-                        originalPosition: {x: 50, y: 25 + 50 * i},
                         position: {x: 50, y: 25 + 50 * i},
                         prototypeElement: true,
                         });
@@ -124,22 +123,40 @@ function setupGraph(graph, logic, task) {
     V(paper.viewport).append(line);
 }
 
+function isTrashArea(x, y) {
+    return x < 200; // KEEP IN SYNC with visual cues!
+}
+
 paper.on('cell:pointerdown', function(cellView, evt, x, y) {
     var cell = cellView.model;
-    if (cell && cell.get('prototypeElement')) {
-        cell.toFront();
+    if (cell) {
+        cell.set('originalPosition',cell.get('position'));
+        if (cell.get('prototypeElement')) {
+            cell.toFront();
+        }
     }
 });
 paper.on('cell:pointerup', function(cellView, evt, x, y) {
     var cell = cellView.model;
-    if (cell && cell.get('prototypeElement')) {
-        // Add a new element
-        var newElem = cell.clone();
-        newElem.set('prototypeElement', false);
-        graph.addCell(newElem);
+    if (cell) {
+        var trashCell = isTrashArea(x, y);
+        if (cell.get('prototypeElement')) {
+            if (!trashCell) {
+                // Add a new element
+                var newElem = cell.clone();
+                newElem.set('prototypeElement', false);
+                graph.addCell(newElem);
+            }
 
-        // Reset prototype cell
-        cell.set('position',newElem.get('originalPosition'));
+            // Reset prototype cell
+            cell.set('position',cell.get('originalPosition'));
+        }
+        else if (trashCell) {
+            if (cell.get('assumption') || cell.get('conclusion'))
+                cell.set('position',cell.get('originalPosition'));
+            else
+                cell.remove();
+        }
     }
 });
 
