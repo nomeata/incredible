@@ -52,6 +52,10 @@
 	    h1, h2, h3 {
 		font-family: sans-serif
 	    }
+
+	    #errors {
+		white-space: pre-line;
+	    }
         </style>
     </head>
     <body>
@@ -59,6 +63,7 @@
     <div id="header">
       <h1>The Incredible Proof Machine</h1>
 	Load a new task: <select id="taskselect"></select><br/>
+	<div id="errors"></div>
 	<div id="task">
 	<h3>Current task:</h3>
 	<div id="assumptions"></div>

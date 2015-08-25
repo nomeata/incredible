@@ -212,8 +212,10 @@ function processGraph() {
 
     if (typeof analysis === 'string' || analysis instanceof String) {
         $("#analysis").val(analysis);
+	$("#errors").text(analysis);
     } else {
         $("#analysis").val(JSON.stringify(analysis, null, 2));
+	$("#errors").text();
 
         // Reset everything
         $.each(graph.getElements(), function (i, el) {

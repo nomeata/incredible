@@ -24,7 +24,7 @@ type Lints = [String]
 
 lint :: Context -> Task -> Proof -> Lints
 lint logic _task proof = mconcat
-    [ wrongLocalHyps, missingRule, wrongBlock, wrongPort ]
+    [ wrongLocalHyps, missingRule, wrongBlock, wrongPort, wrongSourceType, wrongTargetType ]
   where
     wrongLocalHyps =
         [ printf "local hypothesis \"%s\" of rule \"%s\" has an invalid consumedBy field \"%s\""
@@ -58,6 +58,43 @@ lint logic _task proof = mconcat
         , Just rule <- return $ M.lookup ruleKey (ctxtRules logic)
         , portKey `M.notMember` ports rule
         ]
+    wrongSourceType =
+        [ printf "Connection \"%s\" begins in port \"%s\" of block \"%s\", which is not a conclusion or local hypothesis"
+          (untag connKey) (untag portKey) (untag blockKey)
+        | (connKey, conn) <- M.toList (connections proof)
+        , BlockPort blockKey portKey <- return $ connFrom conn
+        , Just block <- return $ M.lookup blockKey (blocks proof)
+        , let ruleKey = blockRule block
+        , Just rule <- return $ M.lookup ruleKey (ctxtRules logic)
+        , Just port <- return $ M.lookup portKey (ports rule)
+        , not $ isOk port
+        ] ++
+        [ printf "Connection \"%s\" begins in conclusion %d"
+          (untag connKey) n
+        | (connKey, conn) <- M.toList (connections proof)
+        , ConclusionPort n <- return $ connFrom conn
+        ]
+      where isOk (Port (PTLocalHyp _) _) = True
+            isOk (Port PTConclusion _) = True
+            isOk _ = False
+    wrongTargetType =
+        [ printf "Connection \"%s\" ends in port \"%s\" of block \"%s\", which is not an assumption."
+          (untag connKey) (untag portKey) (untag blockKey)
+        | (connKey, conn) <- M.toList (connections proof)
+        , BlockPort blockKey portKey <- return $ connTo conn
+        , Just block <- return $ M.lookup blockKey (blocks proof)
+        , let ruleKey = blockRule block
+        , Just rule <- return $ M.lookup ruleKey (ctxtRules logic)
+        , Just port <- return $ M.lookup portKey (ports rule)
+        , not $ isOk port
+        ] ++
+        [ printf "Connection \"%s\" begins in global assumption %d"
+          (untag connKey) n
+        | (connKey, conn) <- M.toList (connections proof)
+        , AssumptionPort n <- return $ connTo conn
+        ]
+      where isOk (Port PTAssumption _) = True
+            isOk _ = False
 
 
 lintsToEither :: Lints -> Either String ()
