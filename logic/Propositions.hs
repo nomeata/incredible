@@ -10,6 +10,7 @@ import Control.Applicative hiding ((<|>))
 import Data.Maybe
 import Data.List
 import Data.Void
+import Data.Tree
 
 -- This could be made more abstract as in the unification-fd package
 data Term f v = Symb f [Term f v] | Var v
@@ -34,18 +35,21 @@ mapVar vf (Symb f ts) = Symb f $ map (mapVar vf) ts
 mapVar vf (Var v) = Var $ vf v
 
 -- Pretty printer
+-- Puts everything in a `Tree String` and flattens it in the end to avoid inefficient repeated (++)
 
--- Horribly inefficient, all that
+-- The boolean tells us whether the term can stand by itself or is compound and needs parens when included in another
+asSubterm :: (Bool, Tree String) -> Tree String
+asSubterm (False, s) = s
+asSubterm (True, s) = Node "(" [s, Node ")" []]
+
+-- Here we ignore the compound-marker by simply using `snd, because the outermost expression never needs parens
 printTerm :: Proposition -> String
-printTerm (Var v) = v
-printTerm (Symb f []) = f
-printTerm (Symb f [arg1,arg2])
-    | f `S.member` infixSymbols
-    = printParens (printTerm arg1) ++ f ++ printParens (printTerm arg2)
-printTerm (Symb f args) = f ++ printParens (intercalate "," (map printTerm args))
-
-printParens :: String -> String
-printParens s = "("++s++")"
+printTerm = concat . flatten . snd . pr
+  where
+    pr (Var v) = (False, Node v [])
+    pr (Symb f []) = (False, Node f [])
+    pr (Symb f [arg1, arg2]) = (True, Node [] [asSubterm (pr arg1), Node f [], asSubterm (pr arg2)])
+    pr (Symb f args) = (True, Node [] (Node f []:map (asSubterm . pr) args))
 
 -- Parser
 
