@@ -79,7 +79,7 @@ function setupGraph(graph, logic, task) {
     var gate = new joint.shapes.incredible.Assumption({
       position: {x: 230, y: 30 + 50 * i},
       attrs: {text: {text: c}},
-      assumption: n,
+      assumption: n
     });
     cells.push(gate);
   });
@@ -88,7 +88,7 @@ function setupGraph(graph, logic, task) {
     var gate = new joint.shapes.incredible.Conclusion({
       position: {x: 550, y: 300 + 50 * i},
       attrs: {text: {text: c}},
-      conclusion: n,
+      conclusion: n
     });
     cells.push(gate);
     conclusionModels[i] = gate;
@@ -96,7 +96,6 @@ function setupGraph(graph, logic, task) {
 
   // "Prototype blocks" for each element
   $.each(logic.rules, function (i, rule) {
-    var n = i + 1;
     var baseClass;
     if (shapes[rule.id]) {
       baseClass = shapes[rule.id];
@@ -107,11 +106,11 @@ function setupGraph(graph, logic, task) {
     elemClass = baseClass.extend({
       defaults: joint.util.deepSupplement(
         {rule: rule},
-        baseClass.prototype.defaults),
+        baseClass.prototype.defaults)
     });
     var elem = new elemClass({
       position: {x: 50, y: 25 + 50 * i},
-      prototypeElement: true,
+      prototypeElement: true
     });
     cells.push(elem);
   });
@@ -277,7 +276,7 @@ function processGraph() {
           position: .1,
           attrs: {
             text: {
-              text: lbl.propIn,
+              text: lbl.propIn
             }
           }
         },
@@ -293,7 +292,7 @@ function processGraph() {
             position: .9,
             attrs: {
               text: {
-                text: lbl.propOut,
+                text: lbl.propOut
               }
             }
           }
@@ -303,19 +302,19 @@ function processGraph() {
           position: .5,
           attrs: {
             text: {
-              text: lbl,
+              text: lbl
             }
           }
         }]);
       }
     }
   }
-};
+}
 
 function buildProof(graph) {
-  var proof = {}
+  var proof = {};
 
-  proof.blocks = {}
+  proof.blocks = {};
   graph.getElements().map(
     function (e, i) {
       if (e.get('assumption') || e.get('conclusion') || e.get('prototypeElement')) {
@@ -325,7 +324,7 @@ function buildProof(graph) {
       proof.blocks[e.id]['rule'] = e.get('rule').id;
     });
 
-  proof.connections = {}
+  proof.connections = {};
   graph.getLinks().map(
     function (l, i) {
       con = {};
