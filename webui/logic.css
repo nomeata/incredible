@@ -48,7 +48,7 @@
     stroke-width: 2px;
 }
 
-.marker-arrowhead:hover,  .marker-vertex:hover {
+.marker-arrowhead:hover, .marker-vertex:hover {
     fill: #ecf0f1;
     stroke: #bdc3c7;
 }
