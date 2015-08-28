@@ -8,7 +8,7 @@ var paper = new joint.dia.Paper({
   gridSize: 1,
   snapLinks: true,
   defaultLink: function (elementView, magnet) {
-    e = new joint.shapes.logic.Wire();
+    var e = new joint.shapes.logic.Wire();
     e.set('router', {name: 'manhattan'});
     return e;
   },
@@ -103,7 +103,7 @@ function setupGraph(graph, logic, task) {
       baseClass = joint.shapes.incredible.Generic;
     }
     // Is this overly complicated?
-    elemClass = baseClass.extend({
+    var elemClass = baseClass.extend({
       defaults: joint.util.deepSupplement(
         {rule: rule},
         baseClass.prototype.defaults)
@@ -245,14 +245,14 @@ function processGraph() {
     // Collect errors
     $.each(analysis.cycles, function (i, path) {
       $.each(path, function (i, connId) {
-        conn = graph.getCell(connId);
+        var conn = graph.getCell(connId);
         // not very nice, see http://stackoverflow.com/questions/32010888
         conn.attr({'.connection': {class: 'connection error'}});
       });
     });
     $.each(analysis.escapedHypotheses, function (i, path) {
       $.each(path, function (i, connId) {
-        conn = graph.getCell(connId);
+        var conn = graph.getCell(connId);
         // not very nice, see http://stackoverflow.com/questions/32010888
         conn.attr({'.connection': {class: 'connection error'}});
       });
@@ -268,9 +268,9 @@ function processGraph() {
       }
     });
 
-    for (connId in analysis.connectionLabels) {
-      lbl = analysis.connectionLabels[connId];
-      conn = graph.getCell(connId);
+    for (var connId in analysis.connectionLabels) {
+      var lbl = analysis.connectionLabels[connId];
+      var conn = graph.getCell(connId);
       if (lbl.propIn && lbl.propOut) {
         conn.set('labels', [{
           position: .1,
@@ -327,7 +327,7 @@ function buildProof(graph) {
   proof.connections = {};
   graph.getLinks().map(
     function (l, i) {
-      con = {};
+      var con = {};
       con.from = makeConnEnd(graph, l.get('source'));
       con.to = makeConnEnd(graph, l.get('target'));
       proof.connections[l.id] = con;
@@ -336,8 +336,8 @@ function buildProof(graph) {
 }
 
 function makeConnEnd(graph, x) {
-  ret = {};
-  c = graph.getCell(x.id);
+  var ret = {};
+  var c = graph.getCell(x.id);
   if (!c) {
     return ret;
   }
