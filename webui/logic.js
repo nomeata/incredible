@@ -96,19 +96,19 @@ function setupGraph(graph, logic, task) {
 
   // "Prototype blocks" for each element
   $.each(logic.rules, function (i, rule) {
-    var baseClass;
+    var BaseClass;
     if (shapes[rule.id]) {
-      baseClass = shapes[rule.id];
+      BaseClass = shapes[rule.id];
     } else {
-      baseClass = joint.shapes.incredible.Generic;
+      BaseClass = joint.shapes.incredible.Generic;
     }
     // Is this overly complicated?
-    var elemClass = baseClass.extend({
+    var ElemClass = BaseClass.extend({
       defaults: joint.util.deepSupplement(
         {rule: rule},
-        baseClass.prototype.defaults)
+        BaseClass.prototype.defaults)
     });
-    var elem = new elemClass({
+    var elem = new ElemClass({
       position: {x: 50, y: 25 + 50 * i},
       prototypeElement: true
     });
