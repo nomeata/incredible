@@ -39,7 +39,8 @@ library
                      transformers,
                      parsec,
                      void,
-                     tagged
+                     tagged,
+                     unbound
   default-language:  Haskell2010
   ghc-options:       -Wall -fno-warn-name-shadowing -fno-warn-orphans
 

@@ -27,8 +27,10 @@ equationToAssignments (t,      Var v)  = Just [(v, t)]
 equationToAssignments (Symb f1 args1, Symb f2 args2)
     | f1 == f2 && length args1 == length args2
     = concat <$> mapM equationToAssignments (zip args1 args2)
-    | otherwise
-    = Nothing
+equationToAssignments (Quant q1 v1 t1, Quant q2 v2 t2)
+    | q1 == q2 && v1 == v2 -- TODO: alpha-rename this!
+    = equationToAssignments (t1, t2) -- TODO: This is wrong, variable v1 could escape!
+equationToAssignments _ = Nothing
 
 
 addAssignmentToBinding :: (Ord v) => Bindings v -> Assignment v -> Maybe (Bindings v)
@@ -51,7 +53,8 @@ bindingOk bind = all (go S.empty) $ M.keys bind
     goT seen (Var v) | v `S.member` seen = False
                      | otherwise         = go seen v
     goT seen (Symb _ args) = all (goT seen) args
-
+    goT seen (Quant _ v t) | v `S.member` seen = False -- TODO: think this through
+                           | otherwise         = goT seen t
 
 
 applyBinding :: (Ord v) => Bindings v -> Term v -> Term v
@@ -59,6 +62,7 @@ applyBinding bind (Var v) = case M.lookup v bind of
     Just t -> applyBinding bind t
     Nothing -> Var v
 applyBinding bind (Symb f terms) = Symb f $ map (applyBinding bind) terms
+applyBinding bind (Quant q v t) = Quant q v $ applyBinding bind t -- TODO: Avoid variable capture!
 
 justIf :: (a -> Bool) -> a -> Maybe a
 justIf p x = if p x then Just x else Nothing
