@@ -17,7 +17,7 @@ test: all
 	cd logic && \
 	cabal test
 
-logic/dist-ghcjs/build/js-interface/js-interface.jsexe/all.js:
+logic/dist-ghcjs/build/js-interface/js-interface.jsexe/all.js: logic/*.hs logic/js/*.hs
 	cd logic && \
 	cabal configure --distdir=dist-ghcjs --ghcjs --disable-library-profiling && \
 	cabal build --distdir=dist-ghcjs
@@ -25,7 +25,7 @@ logic/dist-ghcjs/build/js-interface/js-interface.jsexe/all.js:
 logic.js: logic/dist-ghcjs/build/js-interface/js-interface.jsexe/all.js
 	cp -v $< $@
 
-logic/dist/build/bundle-examples/bundle-examples:
+logic/dist/build/bundle-examples/bundle-examples: logic/*.hs
 	cd logic && \
 	cabal configure --enable-tests --disable-library-profiling && \
 	cabal build
