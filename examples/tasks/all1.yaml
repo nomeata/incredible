@@ -1,0 +1,5 @@
+logic: predicate
+assumptions:
+- ∀x.P(x)
+conclusions:
+- P(c)∧P(f(c))

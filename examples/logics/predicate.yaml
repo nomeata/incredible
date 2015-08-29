@@ -1,0 +1,100 @@
+rules:
+- id: allE
+  ports:
+    in1:
+      type: assumption
+      proposition: ∀x.P(x)
+    out2:
+      type: conclusion
+      proposition: P(x)
+- id: conjI
+  ports:
+    in1:
+      type: assumption
+      proposition: A
+    in2:
+      type: assumption
+      proposition: B
+    out:
+      type: conclusion
+      proposition: A∧B
+- id: conjE
+  ports:
+    in:
+      type: assumption
+      proposition: A∧B
+    out1:
+      type: conclusion
+      proposition: A
+    out2:
+      type: conclusion
+      proposition: B
+- id: impI
+  ports:
+    hyp:
+      type: local hypothesis
+      consumedBy: in
+      proposition: A
+    in:
+      type: assumption
+      proposition: B
+    out:
+      type: conclusion
+      proposition: A→B
+- id: impE
+  ports:
+    in1:
+      type: assumption
+      proposition: A→B
+    in2:
+      type: assumption
+      proposition: A
+    out:
+      type: conclusion
+      proposition: B
+- id: disjI1
+  ports:
+    in:
+      type: assumption
+      proposition: A
+    out:
+      type: conclusion
+      proposition: A∨B
+- id: disjI2
+  ports:
+    in:
+      type: assumption
+      proposition: B
+    out:
+      type: conclusion
+      proposition: A∨B
+- id: disjE
+  ports:
+    in:
+      type: assumption
+      proposition: A∨B
+    hyp1:
+      type: local hypothesis
+      proposition: A
+      consumedBy: in1
+    in1:
+      type: assumption
+      proposition: P
+    hyp2:
+      type: local hypothesis
+      proposition: B
+      consumedBy: in2
+    in2:
+      type: assumption
+      proposition: P
+    out:
+      type: conclusion
+      proposition: P
+- id: falseE
+  ports:
+    in:
+      type: assumption
+      proposition: "False"
+    out:
+      type: conclusion
+      proposition: P
