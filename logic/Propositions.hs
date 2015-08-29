@@ -13,15 +13,15 @@ import Data.Void
 import Data.Tree
 
 -- This could be made more abstract as in the unification-fd package
-data Term f v = Symb f [Term f v] | Var v
+data Term v = Symb String [Term v] | Var v
     deriving (Eq, Show)
 
-type Proposition = Term String String
+type Proposition = Term String
 
 infixSymbols :: S.Set String
 infixSymbols = S.fromList $ words "∧ ∨ →"
 
-mapVar :: (v1 -> v2) -> Term f v1 -> Term f v2
+mapVar :: (v1 -> v2) -> Term v1 -> Term v2
 mapVar vf (Symb f ts) = Symb f $ map (mapVar vf) ts
 mapVar vf (Var v) = Var $ vf v
 
@@ -80,11 +80,11 @@ atomP = choice
 
 -- Ground terms are terms with no variables, such as the propositions in the
 -- task. We encode that invariant in the type system.
-type GroundTerm = Term String Void
+type GroundTerm = Term Void
 
 parseGroundTerm :: String -> Either String GroundTerm
 parseGroundTerm = either (Left . show) (Right . fixVar) . parse termP ""
 
-fixVar :: Term a a -> Term a Void
+fixVar :: Term String -> Term Void
 fixVar (Symb f ts) = Symb f $ map fixVar ts
 fixVar (Var v) = Symb v []

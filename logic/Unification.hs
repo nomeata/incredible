@@ -11,15 +11,15 @@ import Propositions
 -- unification-fd package
 
 -- Invariant: If (v1, Var v2), then v1 <= v2
-type Assignment f v = (v, Term f v)
-type Equality f v = (Term f v, Term f v)
+type Assignment v = (v, Term v)
+type Equality v = (Term v, Term v)
 
-type Bindings f v = M.Map v (Term f v)
+type Bindings v = M.Map v (Term v)
 
-emptyBinding :: Bindings f v
+emptyBinding :: Bindings v
 emptyBinding = M.empty
 
-equationToAssignments :: (Ord v, Eq f) => Equality f v -> Maybe [Assignment f v]
+equationToAssignments :: (Ord v) => Equality v -> Maybe [Assignment v]
 equationToAssignments (Var v1, Var v2) | v1 == v2  = Just []
                                        | otherwise =  Just [(min v1 v2, Var (max v1 v2))]
 equationToAssignments (Var v,  t)      = Just [(v, t)]
@@ -31,17 +31,17 @@ equationToAssignments (Symb f1 args1, Symb f2 args2)
     = Nothing
 
 
-addAssignmentToBinding :: (Ord v, Eq f) => Bindings f v -> Assignment f v -> Maybe (Bindings f v)
+addAssignmentToBinding :: (Ord v) => Bindings v -> Assignment v -> Maybe (Bindings v)
 addAssignmentToBinding bind (v, t) = case M.lookup v bind of
     Just t2 -> addEquationToBinding bind (t, t2)
     Nothing -> justIf bindingOk $ M.insert v t bind
 
-addEquationToBinding :: (Ord v, Eq f) => Bindings f v -> Equality f v -> Maybe (Bindings f v)
+addEquationToBinding :: (Ord v) => Bindings v -> Equality v -> Maybe (Bindings v)
 addEquationToBinding bind eq = do
     asss <- equationToAssignments eq
     foldM addAssignmentToBinding bind asss
 
-bindingOk :: Ord v => Bindings f v -> Bool
+bindingOk :: Ord v => Bindings v -> Bool
 bindingOk bind = all (go S.empty) $ M.keys bind
   where
     go seen v = case M.lookup v bind of
@@ -54,7 +54,7 @@ bindingOk bind = all (go S.empty) $ M.keys bind
 
 
 
-applyBinding :: (Ord v) => Bindings f v -> Term f v -> Term f v
+applyBinding :: (Ord v) => Bindings v -> Term v -> Term v
 applyBinding bind (Var v) = case M.lookup v bind of
     Just t -> applyBinding bind t
     Nothing -> Var v
