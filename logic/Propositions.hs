@@ -18,15 +18,6 @@ data Term f v = Symb f [Term f v] | Var v
 
 type Proposition = Term String String
 
-abbreviations :: M.Map String String
-abbreviations = M.fromList
-    [ ("and", "∧")
-    , ("or", "∨")
-    , ("imp", "→")
-    , ("True", "⊤")
-    , ("False", "⊥")
-    ]
-
 infixSymbols :: S.Set String
 infixSymbols = S.fromList $ words "∧ ∨ →"
 
@@ -81,8 +72,7 @@ atomP = choice
     , try (string "True") >> return (Symb "⊤" [])
     , between (char '(') (char ')') termP
     , do
-        hd <- many1 alphaNum
-        let sym = fromMaybe hd $ M.lookup hd abbreviations
+        sym <- many1 alphaNum
         option (Var sym) $ between (char '(') (char ')') $ do
             Symb sym <$> termP `sepBy1` (char ',')
     ]
