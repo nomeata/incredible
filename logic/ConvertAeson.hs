@@ -19,7 +19,9 @@ toContext = parseEither parseJSON
 
 instance FromJSON Rule where
   parseJSON = withObject "rule" $ \o ->
-    Rule <$> o .: "ports"
+    Rule <$> (map (string2Name) <$> o .: "free")
+         <*> (map (string2Name) <$> o .: "free")
+         <*> o .: "ports"
 
 instance FromJSON Port where
   parseJSON = withObject "port" $ \o -> do
@@ -38,11 +40,13 @@ instance FromJSON Proposition where
             Left e -> fail e
             Right p -> return p
 
+{-
 instance FromJSON GroundTerm where
     parseJSON = withText "ground term" $ \s ->
         case parseGroundTerm (T.unpack s) of
             Left e -> fail e
             Right p -> return p
+-}
 
 
 instance ToJSON Proposition where

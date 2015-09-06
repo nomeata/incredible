@@ -1,5 +1,6 @@
 rules:
 - id: conjI
+  free: ["A","B"]
   ports:
     in1:
       type: assumption
@@ -11,6 +12,7 @@ rules:
       type: conclusion
       proposition: A∧B
 - id: conjE
+  free: ["A","B"]
   ports:
     in:
       type: assumption
@@ -22,6 +24,7 @@ rules:
       type: conclusion
       proposition: B
 - id: impI
+  free: ["A","B"]
   ports:
     hyp:
       type: local hypothesis
@@ -34,6 +37,7 @@ rules:
       type: conclusion
       proposition: A→B
 - id: impE
+  free: ["A","B"]
   ports:
     in1:
       type: assumption
@@ -45,6 +49,7 @@ rules:
       type: conclusion
       proposition: B
 - id: disjI1
+  free: ["A","B"]
   ports:
     in:
       type: assumption
@@ -53,6 +58,7 @@ rules:
       type: conclusion
       proposition: A∨B
 - id: disjI2
+  free: ["A","B"]
   ports:
     in:
       type: assumption
@@ -61,6 +67,7 @@ rules:
       type: conclusion
       proposition: A∨B
 - id: disjE
+  free: ["A","B","P"]
   ports:
     in:
       type: assumption
@@ -83,6 +90,7 @@ rules:
       type: conclusion
       proposition: P
 - id: falseE
+  free: ["P"]
   ports:
     in:
       type: assumption

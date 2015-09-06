@@ -17,9 +17,13 @@ import Unification
 
 -- Hack for here
 instance IsString Proposition where
-    fromString = either (error . show) id . parseTerm
+    fromString = readTerm
+instance IsString Var where
+    fromString = string2Name
+{-
 instance IsString GroundTerm where
     fromString = either (error . show) id . parseGroundTerm
+-}
 
 main = defaultMain tests
 
@@ -61,7 +65,7 @@ unificationTests = testGroup "Unification tests"
   ]
 
 oneBlockLogic = Context
-    (M.singleton "r" (Rule (M.fromList [("in", Port PTAssumption "A"), ("out", Port PTConclusion "A")])))
+    (M.singleton "r" (Rule ["A"] ["A"] (M.fromList [("in", Port PTAssumption "A"), ("out", Port PTConclusion "A")])))
 
 proofWithCycle = Proof
     (M.singleton "b" (Block "r"))
@@ -73,7 +77,7 @@ proofWithoutCycle = Proof
 
 impILogic = Context
     (M.fromList
-        [ ("impI", Rule (M.fromList
+        [ ("impI", Rule ["A", "B"] ["A", "B"] (M.fromList
             [ ("in",  Port PTAssumption "B")
             , ("out", Port PTConclusion "imp(A,B)")
             , ("hyp", Port (PTLocalHyp "in") "A")
@@ -114,7 +118,7 @@ completeProof = Proof
 -- Quickcheck tests
 
 -- Nice try, but random equations are not equal likely enough.
-unificationUnifiesProp :: Equality String String -> Property
+unificationUnifiesProp :: Equality -> Property
 unificationUnifiesProp (prop1, prop2) =
     isJust result ==>
     counterexample txt (not (bindingOk bind) || prop1' == prop2')

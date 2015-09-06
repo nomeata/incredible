@@ -24,7 +24,9 @@ data Task = Task
 -- The Logic does not worry about the order, so a map interface with efficient
 -- lookup is nicer.
 data Rule = Rule
- { ports :: KMap Port
+ { localVars :: [Var]
+ , freeVars :: [Var] -- Subset of the local vars!
+ , ports :: KMap Port
  }
  deriving Show
 

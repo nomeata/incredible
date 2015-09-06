@@ -4,64 +4,83 @@ module LabelConnections where
 import Data.Functor
 import qualified Data.Map as M
 import Data.Map ((!))
-import Data.Void
+import Data.Tagged -- because unbound does not handle Tag :-(
+import Control.Arrow
+import Debug.Trace
 
 import Types
 import Unification
 import Propositions
 
+import Unbound.LocallyNameless
+
+
 labelConnections :: Context -> Task -> Proof -> M.Map (Key Connection) ConnLabel
-labelConnections ctxt task proof = M.map instantiate (connections proof)
+labelConnections ctxt task proof =
+    -- traceShow (unificationVariables, equations) $
+    -- traceShow final_bind $
+    M.map instantiate (connections proof)
   where
-    final_bind = foldl consider emptyBinding (M.elems (connections proof))
+    -- Strategy:
+    --  1. For each block in the proof, create a data structure
+    --     (Bind [block-local var]  ([unification variabes], [(port name, proposition)]))
+    --     (a.k.a BlockData)  to abstract over these.
+    --  2. Apply unbind to each of them, to get unique names for them:
+    --     [(port name, proposition)]
+    --  3. Look at each connection, turn this into equations
+    --     [(proposition, proposition)], and pass them to the unification module
+    --  4. Get back a substiution, apply it to the data structure from step 2
+    --  5. For each connection, calculate the ConnLabel
 
-    consider bind conn
-        | Just prop1 <- propAt (connFrom conn)
-        , Just prop2 <- propAt (connTo conn)
-        , let equation = (prop1, prop2)
-        , Just bind' <- addEquationToBinding bind equation
-        = bind'
-        | otherwise
-        = bind
+    closedBlockData :: [(Key Block, Bind [Var] ([Var], [(String, Term)]))]
+    closedBlockData =
+        [ (blockKey, bind (localVars rule) (freeVars rule, portList))
+        | (blockKey, block) <- M.toList (blocks proof)
+        , let rule = ctxtRules ctxt ! blockRule block
+              portList =
+                [ (untag pk, portProp p)
+                | (pk,p) <- M.toList $ ports rule
+                ]
+        ]
 
-    blockKeyNum = (!) $ M.fromList $ zip (M.keys (blocks proof)) [1..]
+    -- Is it ok to limit runFreshM to this, or does the whole function have to 
+    -- live in FreshM?
+    renamedBlockData :: [(Key Block, ([Var], [(String, Term)]))]
+    renamedBlockData = runFreshM $ fresh (s2n "dummy" :: Name ()) >> mapM go closedBlockData
+      where
+        go (blockKey, boundBlockData) = do
+            (_,stuff) <- unbind boundBlockData
+            return (blockKey, stuff)
+
+    unificationVariables :: [Var]
+    unificationVariables = concat $ map (fst.snd) renamedBlockData
+
+    renamedBlockProps :: M.Map (Key Block) (M.Map (Key Port) Term)
+    renamedBlockProps =
+        M.fromList $ map (second (M.fromList . map (first Tagged) . snd)) renamedBlockData
+
+    propAt NoPort                       = Nothing
+    propAt (ConclusionPort n)           = Just $ tConclusions task !! (n-1)
+    propAt (AssumptionPort n)           = Just $ tAssumptions task !! (n-1)
+    propAt (BlockPort blockKey portKey) = Just $ renamedBlockProps ! blockKey ! portKey
+
+    equations =
+        [ (prop1, prop2)
+        | conn <- M.elems (connections proof)
+        , Just prop1 <- return $ propAt (connFrom conn)
+        , Just prop2 <- return $ propAt (connTo conn)
+        ]
+
+    final_bind = unifyEquationsWherePossible unificationVariables equations
+
 
     instantiate conn = case (propFromMB, propToMB) of
         (Nothing, Nothing) -> Unconnected
-        (Just propFrom, Nothing) -> Ok (mapVar prettyVarName propFrom)
-        (Nothing, Just propTo)   -> Ok (mapVar prettyVarName propTo)
+        (Just propFrom, Nothing) -> Ok propFrom
+        (Nothing, Just propTo)   -> Ok propTo
         (Just propFrom, Just propTo)
-            | propFrom == propTo -> Ok (mapVar prettyVarName propFrom)
-            | otherwise          -> Mismatch (mapVar prettyVarName propFrom) (mapVar prettyVarName propTo)
+            | propFrom == propTo -> Ok propFrom
+            | otherwise          -> Mismatch propFrom propTo
       where
         propFromMB = applyBinding final_bind <$> propAt (connFrom conn)
         propToMB   = applyBinding final_bind <$> propAt (connTo conn)
-
-    propAt NoPort                       = Nothing
-    propAt (ConclusionPort n)           = Just $ mapVar absurd $ tConclusions task !! (n-1)
-    propAt (AssumptionPort n)           = Just $ mapVar absurd $ tAssumptions task !! (n-1)
-    propAt (BlockPort blockKey portKey) = Just $ mapVar ((blockKeyNum blockKey,)) $ portProp port
-      where block = blocks proof ! blockKey
-            rule = ctxtRules ctxt ! blockRule block
-            port = ports rule ! portKey
-
-    prettyVarName :: (Int, String) -> String
-    prettyVarName (blockKeyNum, v) = v ++ map subscriptify (show blockKeyNum)
-
-    subscriptify '0' = '₀'
-    subscriptify '1' = '₁'
-    subscriptify '2' = '₂'
-    subscriptify '3' = '₃'
-    subscriptify '4' = '₄'
-    subscriptify '5' = '₅'
-    subscriptify '6' = '₆'
-    subscriptify '7' = '₇'
-    subscriptify '8' = '₈'
-    subscriptify '9' = '₉'
-    subscriptify _ = error "subscriptify: non-numeral argument"
-
-
-
-
-
-
