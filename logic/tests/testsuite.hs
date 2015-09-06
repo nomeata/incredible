@@ -56,12 +56,12 @@ unconnectedGoalsTests = testGroup "Unsolved goals"
 
 labelConectionsTests = testGroup "Label Connections"
   [ testCase "complete" $ labelConnections impILogic simpleTask completeProof @?=
-        M.fromList [("c1",Ok $ Symb "Prop" []),("c2", Ok $ Symb "→" [Symb "Prop" [],Symb "Prop" []])]
+        M.fromList [("c1",Ok $ Var "Prop"),("c2", Ok $ Symb (Var "→") [Var "Prop",Var "Prop"])]
   ]
 
 unificationTests = testGroup "Unification tests"
   [ testCase "regression1" $
-    addEquationToBinding emptyBinding ("f(A,not(A))", "f(not(not(A)),not(not(A)))"::Proposition) @?= Nothing
+    addEquationToBinding ["A"] emptyBinding ("f(A,not(A))", "f(not(not(A)),not(not(A)))"::Proposition) @?= Nothing
   ]
 
 oneBlockLogic = Context
@@ -79,7 +79,7 @@ impILogic = Context
     (M.fromList
         [ ("impI", Rule ["A", "B"] ["A", "B"] (M.fromList
             [ ("in",  Port PTAssumption "B")
-            , ("out", Port PTConclusion "imp(A,B)")
+            , ("out", Port PTConclusion "A→B")
             , ("hyp", Port (PTLocalHyp "in") "A")
             ]))
         ]
@@ -103,7 +103,7 @@ indirectEscape = Proof
         , ("c2", (Connection (BlockPort "b2" "out") (ConclusionPort 1)))
         ])
 
-simpleTask = Task [] ["imp(Prop,Prop)"]
+simpleTask = Task [] ["Prop→Prop"]
 
 emptyProof = Proof M.empty M.empty
 
@@ -123,7 +123,7 @@ unificationUnifiesProp (prop1, prop2) =
     isJust result ==>
     counterexample txt (not (bindingOk bind) || prop1' == prop2')
   where
-    result = addEquationToBinding emptyBinding (prop1, prop2)
+    result = addEquationToBinding [] emptyBinding (prop1, prop2)
     bind = fromJust result
     prop1' = applyBinding bind prop1
     prop2' = applyBinding bind prop2
@@ -137,10 +137,10 @@ instance Arbitrary Proposition where
 genProp :: Int -> Gen Proposition
 genProp 0 = elements $
     map Var ["A","B","C","D","E"] ++
-    [Symb "Prop1" [], Symb "Prop2" []]
+    [Symb (Var "Prop1") [], Symb (Var "Prop2") []]
 genProp n = do
     (name,arity) <- elements [("∧",2), ("∨",2), ("not",1)]
     args <- replicateM arity $ do
         n' <- choose (0,n`div`2)
         genProp n'
-    return $ Symb name args
+    return $ Symb (Var name) args
