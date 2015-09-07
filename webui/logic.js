@@ -74,7 +74,7 @@ var conclusionModels = [];
 function setupGraph(graph, logic, task) {
   var cells = [];
   // Fixed blocks for input and output
-  $.each(task.assumptions, function (i, c) {
+  $.each(task.assumptions || [], function (i, c) {
     var n = i + 1;
     var gate = new joint.shapes.incredible.Assumption({
       position: {x: 230, y: 30 + 50 * i},
@@ -83,7 +83,7 @@ function setupGraph(graph, logic, task) {
     });
     cells.push(gate);
   });
-  $.each(task.conclusions, function (i, c) {
+  $.each(task.conclusions || [], function (i, c) {
     var n = i + 1;
     var gate = new joint.shapes.incredible.Conclusion({
       position: {x: 550, y: 300 + 50 * i},
@@ -172,11 +172,11 @@ function selectTask(name) {
   logic = examples.logics[task.logic];
   $("#taskselect").val(name);
   $("#assumptions").empty();
-  $.each(task.assumptions, function (i, el) {
+  $.each(task.assumptions || [], function (i, el) {
     $("#assumptions").append($("<div>").text(el));
   });
   $("#conclusions").empty();
-  $.each(task.conclusions, function (i, el) {
+  $.each(task.conclusions || [], function (i, el) {
     $("#conclusions").append($("<div>").text(el));
   });
   setupGraph(graph, logic, task);
