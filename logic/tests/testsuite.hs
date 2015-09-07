@@ -6,6 +6,7 @@ import qualified Data.Map as M
 import Data.String
 import Control.Monad
 import Data.Maybe
+import Unbound.LocallyNameless
 
 import ShapeChecks
 import Types
@@ -68,9 +69,36 @@ labelConectionsTests = testGroup "Label Connections"
   ]
 
 unificationTests = testGroup "Unification tests"
-  [ testCase "regression1" $
-    addEquationToBinding ["A"] emptyBinding ("f(A,not(A))", "f(not(not(A)),not(not(A)))"::Proposition) @?= Nothing
+  [ testCase "unify pred" $
+    assertUnifies ["P"] [("P(x)", "Q(R(x))")]
+        [("P", absTerm ["x"] "Q(R(x))")]
+  , testCase "unify with ∀" $
+    assertUnifies ["R"] [("R", "∀z.P(z)")]
+        [("R", noAbs "∀z.P(z)")]
+  , testCase "unify pred under ∀" $
+    assertUnifies ["P","Z"] [("∀z.P(z)", "∀z.Q(R(z))")]
+        [("P", absTerm ["x"] "Q(R(x))")]
+  , testCase "unify subst under ∀" $
+    assertUnifies ["P","V"] [("P(x)", "Q(R(x))"), ("∀z.P(z)", "∀z.Q(V(z))")]
+        [("P", absTerm ["x"] "Q(R(x))"), ("V", absTerm ["x"] "R(x)")]
+  {- TODO
+  , testCase "∀ escape" $
+    assertUnifies ["P","V"] [("∀y.P(x)", "∀y.Q(y)")]
+        []
+  -}
+  , testCase "regression1" $
+    runLFreshMT (addEquationToBinding ["A"] emptyBinding ("f(A,not(A))", "f(not(not(A)),not(not(A)))"::Proposition)) @?= Nothing
   ]
+
+assertUnifies vars eqns expt = do
+    let expt' = M.fromList expt
+    let res = unifyEquationsWherePossible vars eqns
+    unless (res == expt') $ do
+        assertFailure $ unlines $
+            ["expected: "] ++
+            map (\(k,v) -> "    " ++ show k ++ ": " ++ printAbs v) (M.toList expt') ++
+            [" but got: "] ++
+            map (\(k,v) -> "    " ++ show k ++ ": " ++ printAbs v) (M.toList res)
 
 oneBlockLogic = Context
     (M.singleton "r" (Rule ["A"] ["A"] (M.fromList [("in", Port PTAssumption "A"), ("out", Port PTConclusion "A")])))
@@ -131,7 +159,7 @@ unificationUnifiesProp (prop1, prop2) =
     isJust result ==>
     counterexample txt (not (bindingOk bind) || prop1' == prop2')
   where
-    result = addEquationToBinding [] emptyBinding (prop1, prop2)
+    result = runLFreshMT $ addEquationToBinding [] emptyBinding (prop1, prop2)
     bind = fromJust result
     prop1' = applyBinding bind prop1
     prop2' = applyBinding bind prop2

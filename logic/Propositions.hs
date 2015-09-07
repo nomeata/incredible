@@ -10,6 +10,7 @@ import qualified Data.Set as S
 import Control.Applicative hiding ((<|>))
 import Control.Monad
 import Data.List
+import Utils
 
 import Unbound.LocallyNameless hiding (Infix)
 
@@ -23,7 +24,6 @@ data Term
     | Quant String (Bind Var Term)
     deriving Show
 
-
 $(derive [''Term])
 
 instance Alpha Term
@@ -32,7 +32,6 @@ instance Eq Term where (==) = aeq
 instance Subst Term Term where
    isvar (Var v) = Just (SubstName v)
    isvar _       = Nothing
-
 
 
 type Proposition = Term
@@ -156,15 +155,22 @@ fixVar :: Term -> Term
 fixVar = id -- TODO
 
 
-subscriptify :: Char -> Char
-subscriptify '0' = '₀'
-subscriptify '1' = '₁'
-subscriptify '2' = '₂'
-subscriptify '3' = '₃'
-subscriptify '4' = '₄'
-subscriptify '5' = '₅'
-subscriptify '6' = '₆'
-subscriptify '7' = '₇'
-subscriptify '8' = '₈'
-subscriptify '9' = '₉'
-subscriptify _ = error "subscriptify: non-numeral argument"
+data AbsTerm = AbsTerm (Bind [Var] Term)
+    deriving Show
+
+
+absTerm :: [Var] -> Term -> AbsTerm
+absTerm xs t =  AbsTerm (bind xs t)
+
+noAbs :: Term -> AbsTerm
+noAbs = absTerm []
+$(derive [''AbsTerm])
+
+printAbs :: AbsTerm -> String
+printAbs (AbsTerm abs) = runLFreshM $ lunbind abs $ \(p,body) ->
+    return $ (if null p then "" else "λ" ++ unwords (map show p) ++ ".") ++
+    printTerm body
+
+instance Alpha AbsTerm
+instance Eq AbsTerm where (==) = aeq
+instance Subst AbsTerm Term

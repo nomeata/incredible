@@ -29,6 +29,7 @@ library
                      ShapeChecks,
                      LabelConnections,
                      Propositions,
+                     Utils,
                      Unification,
                      ConvertAeson
   build-depends:     base >=4.7 && <4.9,
@@ -91,3 +92,4 @@ test-suite test
     , tasty-hunit >= 0.9
     , tasty-quickcheck >= 0.8
     , incredible-logic
+    , unbound

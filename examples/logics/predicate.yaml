@@ -1,13 +1,13 @@
 rules:
 - id: allE
-  free: ["P","x"]
+  free: ["P","y"]
   ports:
     in1:
       type: assumption
       proposition: ∀x.P(x)
     out2:
       type: conclusion
-      proposition: P(x)
+      proposition: P(y)
 - id: conjI
   free: ["A","B"]
   ports:
