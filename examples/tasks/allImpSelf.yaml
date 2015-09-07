@@ -1,0 +1,4 @@
+logic: predicate
+assumptions: []
+conclusions:
+- ∀x.P(x)→P(x)
