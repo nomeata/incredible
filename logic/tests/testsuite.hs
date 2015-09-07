@@ -29,12 +29,20 @@ main = defaultMain tests
 
 tests :: TestTree
 tests = testGroup "Tests"
-    [ cycleTests
+    [ parserTests
+    , cycleTests
     , escapedHypothesesTests
     , unconnectedGoalsTests
     , labelConectionsTests
     , unificationTests
     ]
+
+parserTests = testGroup "Parsers"
+  [ testCase ("can parse " ++ s) $ assertRight $ parseTerm s
+  | s <- [ "∀x.P(x)"
+         , "!x.P(x)"
+         ]
+  ]
 
 cycleTests = testGroup "Cycle detection"
   [ testCase "cycle"    $ findCycles oneBlockLogic proofWithCycle @?= [["c"]]
@@ -144,3 +152,6 @@ genProp n = do
         n' <- choose (0,n`div`2)
         genProp n'
     return $ Symb (Var name) args
+
+assertRight :: Either String a -> Assertion
+assertRight = either assertFailure (const (return ()))

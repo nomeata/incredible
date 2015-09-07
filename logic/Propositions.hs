@@ -110,12 +110,27 @@ table = [ [ binary "∧" ["&"]
   where
     binary op alts = Infix ((\a b -> Symb (Var (string2Name op)) [a,b]) <$ l (choice (map string (op:alts)))) AssocLeft
 
+quantifiers :: [(Char, [Char])]
+quantifiers =
+    [ ('∀', ['!'])
+    , ('∃', ['?'])
+    ]
+
+quantP :: Parser String
+quantP = choice [ (q:"") <$ choice (map char (q:a)) | (q,a) <- quantifiers ]
+
 atomP :: Parser Proposition
 atomP = choice
     [ string "⊥" >> return (s "⊥" [])
     , string "⊤" >> return (s "⊤" [])
     , try (string "False") >> return (s "⊥" [])
     , try (string "True") >> return (s "⊤" [])
+    , do
+        q <- quantP
+        vname <- nameP
+        _ <- char '.'
+        p <- termP
+        return $ Quant q (bind vname p)
     , between (char '(') (char ')') termP
     , do
         sym <- nameP
