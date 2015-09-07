@@ -55,7 +55,7 @@ script:
     - npm install
 
 after_success:
-    - ./.travis-push-gh-pages.sh
+    - '[ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_SECURE_ENV_VARS" = "true" ] &&  [ "$TRAVIS_PULL_REQUEST" = "false" ] && ./.travis-push-gh-pages.sh'
 
 before_cache:
   - rm -rf $HOME/.ghcjs/*/ghcjs/ghcjs-boot/
