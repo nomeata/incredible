@@ -1,4 +1,14 @@
 rules:
+- id: allI
+  free: ["P"]
+  local: ["c"]
+  ports:
+    in1:
+      type: assumption
+      proposition: P(c)
+    out2:
+      type: conclusion
+      proposition: ∀x.P(x)
 - id: allE
   free: ["P","y"]
   ports:

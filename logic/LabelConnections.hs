@@ -53,7 +53,7 @@ labelConnections ctxt task proof =
             return (blockKey, stuff)
 
     unificationVariables :: [Var]
-    unificationVariables = concat $ map (fst.snd) renamedBlockData
+    unificationVariables = traceShowId $ concat $ map (fst.snd) renamedBlockData
 
     renamedBlockProps :: M.Map (Key Block) (M.Map (Key Port) Term)
     renamedBlockProps =

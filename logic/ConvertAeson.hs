@@ -18,10 +18,10 @@ toContext :: Value -> Either String Context
 toContext = parseEither parseJSON
 
 instance FromJSON Rule where
-  parseJSON = withObject "rule" $ \o ->
-    Rule <$> (map (string2Name) <$> o .: "free")
-         <*> (map (string2Name) <$> o .: "free")
-         <*> o .: "ports"
+  parseJSON = withObject "rule" $ \o -> do
+    f <- map (string2Name) <$> o .:? "free" .!= []
+    l <- map (string2Name) <$> o .:? "local" .!= []
+    Rule (f++l) f <$> o .: "ports"
 
 instance FromJSON Port where
   parseJSON = withObject "port" $ \o -> do
