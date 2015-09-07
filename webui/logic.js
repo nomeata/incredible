@@ -214,7 +214,7 @@ function processGraph() {
     $("#errors").text(analysis);
   } else {
     $("#analysis").val(JSON.stringify(analysis, null, 2));
-    $("#errors").text();
+    $("#errors").empty()
 
     // Reset everything
     $.each(graph.getElements(), function (i, el) {
