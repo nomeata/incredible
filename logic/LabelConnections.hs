@@ -17,8 +17,6 @@ import Unbound.LocallyNameless
 
 labelConnections :: Context -> Task -> Proof -> M.Map (Key Connection) ConnLabel
 labelConnections ctxt task proof =
-    -- traceShow (unificationVariables, equations) $
-    -- traceShow final_bind $
     M.map instantiate (connections proof)
   where
     -- Strategy:
@@ -43,7 +41,7 @@ labelConnections ctxt task proof =
                 ]
         ]
 
-    -- Is it ok to limit runFreshM to this, or does the whole function have to 
+    -- Is it ok to limit runFreshM to this, or does the whole function have to
     -- live in FreshM?
     renamedBlockData :: [(Key Block, ([Var], [(String, Term)]))]
     renamedBlockData = runFreshM $ fresh (s2n "dummy" :: Name ()) >> mapM go closedBlockData
@@ -53,7 +51,7 @@ labelConnections ctxt task proof =
             return (blockKey, stuff)
 
     unificationVariables :: [Var]
-    unificationVariables = traceShowId $ concat $ map (fst.snd) renamedBlockData
+    unificationVariables = concat $ map (fst.snd) renamedBlockData
 
     renamedBlockProps :: M.Map (Key Block) (M.Map (Key Port) Term)
     renamedBlockProps =
