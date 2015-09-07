@@ -18,6 +18,25 @@ rules:
     out2:
       type: conclusion
       proposition: P(y)
+- id: exI
+  free: ["P", "y"]
+  ports:
+    in1:
+      type: assumption
+      proposition: P(y)
+    out2:
+      type: conclusion
+      proposition: ∃x.P(x)
+- id: exE
+  free: ["P"]
+  local: ["c"]
+  ports:
+    in1:
+      type: assumption
+      proposition: ∃x.P(x)
+    out2:
+      type: conclusion
+      proposition: P(c)
 - id: conjI
   free: ["A","B"]
   ports:
