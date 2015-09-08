@@ -85,6 +85,8 @@ test-suite test
     tests
   main-is:
     testsuite.hs
+  other-modules:
+    Test.Tasty.Runners.Wrap
   build-depends:
       base >= 4 && < 5
     , containers
@@ -93,3 +95,4 @@ test-suite test
     , tasty-quickcheck >= 0.8
     , incredible-logic
     , unbound
+    , tagged

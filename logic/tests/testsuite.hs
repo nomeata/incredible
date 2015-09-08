@@ -2,8 +2,7 @@
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
--- Once https://github.com/feuerbach/tasty/pull/115 is merged:
--- import Test.Tasty.Runners
+import Test.Tasty.Runners.Wrap -- see https://github.com/feuerbach/tasty/pull/115
 import qualified Data.Map as M
 import Data.String
 import Control.Monad
@@ -210,6 +209,3 @@ assertRight = either assertFailure (const (return ()))
 
 (>:) :: a -> b -> (a, b)
 (>:) = (,)
-
--- Remove if https://github.com/feuerbach/tasty/pull/115 is merged
-expectFail = const $ testGroup "ignored test case" []
