@@ -2,6 +2,8 @@
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
+-- Once https://github.com/feuerbach/tasty/pull/115 is merged:
+-- import Test.Tasty.Runners
 import qualified Data.Map as M
 import Data.String
 import Control.Monad
@@ -88,6 +90,28 @@ unificationTests = testGroup "Unification tests"
   -}
   , testCase "regression1" $
     runLFreshMT (addEquationToBinding ["A"] emptyBinding ("f(A,not(A))", "f(not(not(A)),not(not(A)))"::Proposition)) @?= Nothing
+  , expectFail $
+    testCase "regression2" $
+    assertUnifies
+        -- P1: exE
+        -- P2: allE
+        -- P3: exI
+        -- P4: allI
+        ["P1","P2","P3","P4","A","B","y1","y2"]
+        [ "A"        >: "∃x.P1(x)"
+        , "P1(c)"    >: "∀x.P2(x)"
+        , "P2(y1)"   >: "P3(y2)"
+        , "∃x.P3(x)" >: "P4(c2)"
+        , "∀x.P4(x)" >: "B"
+        , "A→B"      >: "(∃y.∀x.P(x,y))→(∀x.∃y.P(x,y))"
+        ]
+        [ "A" >: noAbs "∃y.P1(y)"
+        , "B" >: noAbs "∀x.P4(x)"
+        , "P1" >: absTerm ["y"] "∀x.P(x,y)"
+        , "P2" >: absTerm ["x"] "P(x,c)"
+        , "P3" >: absTerm ["x"] "P(x,c)"
+        , "P4" >: absTerm ["x"] "∃y.P(x,y)"
+        ]
   ]
 
 assertUnifies vars eqns expt = do
@@ -183,3 +207,9 @@ genProp n = do
 
 assertRight :: Either String a -> Assertion
 assertRight = either assertFailure (const (return ()))
+
+(>:) :: a -> b -> (a, b)
+(>:) = (,)
+
+-- Remove if https://github.com/feuerbach/tasty/pull/115 is merged
+expectFail = const $ testGroup "ignored test case" []
