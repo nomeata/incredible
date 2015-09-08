@@ -2,7 +2,7 @@
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
-import Test.Tasty.Runners.Wrap -- see https://github.com/feuerbach/tasty/pull/115
+import Test.Tasty.ExpectedFailure
 import qualified Data.Map as M
 import Data.String
 import Control.Monad

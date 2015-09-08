@@ -85,12 +85,11 @@ test-suite test
     tests
   main-is:
     testsuite.hs
-  other-modules:
-    Test.Tasty.Runners.Wrap
   build-depends:
       base >= 4 && < 5
     , containers
     , tasty >= 0.10
+    , tasty-expected-failure >= 0.11
     , tasty-hunit >= 0.9
     , tasty-quickcheck >= 0.8
     , incredible-logic
