@@ -98,3 +98,28 @@ rules:
     out:
       type: conclusion
       proposition: P
+- id: notI
+  free: ["A"]
+  ports:
+    in:
+      type: assumption
+      proposition: "False"
+    hyp:
+      type: local hypothesis
+      proposition: A
+      consumedBy: in
+    out:
+      type: conclusion
+      proposition: ¬ A
+- id: notE
+  free: ["A","P"]
+  ports:
+    in1:
+      type: assumption
+      proposition: A
+    in2:
+      type: assumption
+      proposition: ¬ A
+    out:
+      type: conclusion
+      proposition: P
