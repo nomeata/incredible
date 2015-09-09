@@ -87,8 +87,6 @@ unificationTests = testGroup "Unification tests"
     assertUnifies ["P","V"] [("∀y.P(x)", "∀y.Q(y)")]
         []
   -}
-  , testCase "regression1" $
-    runLFreshMT (addEquationToBinding ["A"] emptyBinding ("f(A,not(A))", "f(not(not(A)),not(not(A)))"::Proposition)) @?= Nothing
   , expectFail $
     testCase "regression2" $
     assertUnifies
@@ -111,11 +109,31 @@ unificationTests = testGroup "Unification tests"
         , "P3" >: absTerm ["x"] "P(x,c)"
         , "P4" >: absTerm ["x"] "∃y.P(x,y)"
         ]
+  , expectFail $
+    testCase "quantifier order" $
+    assertUnifies
+        -- We can prove (∀y.∃x.P(x,y))→(∃x.P(x,x)) if we do not watch for quantifier order
+        -- P1: allE
+        -- P2: exE
+        -- P3: exI
+        ["P1","P2","P3","A","B","y1","y2"]
+        [ "A"        >: "∀x.P1(x)"
+        , "P1(y1)"   >: "∃x.P2(x)"
+        , "P2(c)"    >: "P3(y2)"
+        , "∃x.P3(x)" >: "B"
+        , "A→B"      >: "(∀y.∃x.P(x,y))→(∃x.P(x,x))"
+        ]
+        [ "A" >: noAbs "∀x.P1(x)"
+        , "B" >: noAbs "∃x.P3(x)"
+        , "P1" >: absTerm ["y"] "∃x.P2(x)"
+        , "P2" >: absTerm ["x"] "P3(y2)"
+        , "P3" >: absTerm ["tmp"] "∃x.P(x,y1)"
+        ]
   ]
 
 assertUnifies vars eqns expt = do
     let expt' = M.fromList expt
-    let res = unifyEquationsWherePossible vars eqns
+    let res = unifyLiberally vars eqns
     unless (res == expt') $ do
         assertFailure $ unlines $
             ["expected: "] ++
@@ -176,23 +194,7 @@ completeProof = Proof
 
 -- Quickcheck tests
 
--- Nice try, but random equations are not equal likely enough.
-unificationUnifiesProp :: Equality -> Property
-unificationUnifiesProp (prop1, prop2) =
-    isJust result ==>
-    counterexample txt (not (bindingOk bind) || prop1' == prop2')
-  where
-    result = runLFreshMT $ addEquationToBinding [] emptyBinding (prop1, prop2)
-    bind = fromJust result
-    prop1' = applyBinding bind prop1
-    prop2' = applyBinding bind prop2
-
-    txt = "Input was " ++ printTerm prop1 ++ "=" ++ printTerm prop2
-
-
-instance Arbitrary Proposition where
-    arbitrary = sized genProp
-
+{-
 genProp :: Int -> Gen Proposition
 genProp 0 = elements $
     map Var ["A","B","C","D","E"] ++
@@ -203,6 +205,7 @@ genProp n = do
         n' <- choose (0,n`div`2)
         genProp n'
     return $ Symb (Var name) args
+-}
 
 assertRight :: Either String a -> Assertion
 assertRight = either assertFailure (const (return ()))

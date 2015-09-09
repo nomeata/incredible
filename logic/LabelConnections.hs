@@ -69,7 +69,7 @@ labelConnections ctxt task proof =
         , Just prop2 <- return $ propAt (connTo conn)
         ]
 
-    final_bind = unifyEquationsWherePossible unificationVariables equations
+    final_bind = unifyLiberally unificationVariables equations
 
 
     instantiate conn = case (propFromMB, propToMB) of
