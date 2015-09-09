@@ -33,6 +33,8 @@ instance Subst Term Term where
    isvar (Var v) = Just (SubstName v)
    isvar _       = Nothing
 
+firstFree :: Alpha a => a -> Integer
+firstFree = (1+) . maximum . (0:) . map anyName2Integer . fvAny
 
 type Proposition = Term
 

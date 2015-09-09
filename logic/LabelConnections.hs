@@ -13,6 +13,7 @@ import Unification
 import Propositions
 
 import Unbound.LocallyNameless
+import Unbound.LocallyNameless.Fresh
 
 
 labelConnections :: Context -> Task -> Proof -> M.Map (Key Connection) ConnLabel
@@ -44,8 +45,10 @@ labelConnections ctxt task proof =
     -- Is it ok to limit runFreshM to this, or does the whole function have to
     -- live in FreshM?
     renamedBlockData :: [(Key Block, ([Var], [(String, Term)]))]
-    renamedBlockData = runFreshM $ fresh (s2n "dummy" :: Name ()) >> mapM go closedBlockData
+    renamedBlockData = flip contFreshM i $
+         mapM go closedBlockData
       where
+        i = firstFree $ map snd closedBlockData
         go (blockKey, boundBlockData) = do
             (_,stuff) <- unbind boundBlockData
             return (blockKey, stuff)

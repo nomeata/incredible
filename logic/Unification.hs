@@ -26,7 +26,7 @@ emptyBinding = M.empty
 unifyLiberally :: Unifiable -> [Equality] -> Bindings
 unifyLiberally uvs eqns =
     snd $ flip contFreshM highest $ foldM (uncurry unif) (uvs, emptyBinding) eqns
-  where highest = 1000
+  where highest = firstFree (uvs, eqns)
 
 -- Code taken from http://www21.in.tum.de/~nipkow/pubs/lics93.html
 
@@ -199,7 +199,7 @@ strip t = go t []
 
 
 applyBinding :: Bindings -> Term -> Term
-applyBinding bindings t = flip contFreshM 1000 $ go [] t -- TODO
+applyBinding bindings t = flip contFreshM (firstFree (M.toList bindings,t)) $ go [] t
   where
     go args (Var v) | Just t <- M.lookup v bindings
                     = go [] =<< redsAbsTerm t args
