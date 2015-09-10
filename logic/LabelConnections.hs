@@ -5,7 +5,7 @@ import Data.Functor
 import qualified Data.Map as M
 import Data.Map ((!))
 import Data.Tagged -- because unbound does not handle Tag :-(
-import Debug.Trace
+--import Debug.Trace
 import Control.Arrow
 
 import Types

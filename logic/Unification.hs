@@ -1,4 +1,4 @@
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE LambdaCase, MultiWayIf #-}
 module Unification
     ( Equality
     , Bindings
@@ -14,7 +14,7 @@ import Control.Applicative
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Writer
-import Debug.Trace
+--import Debug.Trace
 import Data.List
 
 import Propositions
@@ -128,17 +128,25 @@ flexflex uvs binds f ym g zn
     = do
         newName <- fresh (string2Name "uni")
         let rhs = absTerm ym' (App (V newName) (intersect ym zn))
-        let binds' = M.insert f rhs binds
+            binds' = M.insert f rhs binds
         return (newName:uvs, binds')
     | f == g = return (uvs, binds) -- non-pattern: Just ignore
     | Just ym' <- allBoundVar uvs ym
     , Just zn' <- allBoundVar uvs zn
-    = do
-        newName <- fresh (string2Name "uni")
-        let rhs1 = absTerm ym' (App (V newName) (intersect ym zn))
-        let rhs2 = absTerm zn' (App (V newName) (intersect ym zn))
-        let binds' = M.insert f rhs1 $ M.insert g rhs2 binds
-        return (newName:uvs, binds')
+    = if | all (`elem` zn') ym' -> do
+             let rhs = absTerm zn' (App (V f) ym)
+                 binds' = M.insert g rhs binds
+             return (uvs, binds')
+         | all (`elem` ym') zn' -> do
+             let rhs = absTerm ym' (App (V g) zn)
+                 binds' = M.insert f rhs binds
+             return (uvs, binds')
+         | otherwise -> do
+             newName <- fresh (string2Name "uni")
+             let rhs1 = absTerm ym' (App (V newName) (intersect ym zn))
+                 rhs2 = absTerm zn' (App (V newName) (intersect ym zn))
+                 binds' = M.insert f rhs1 $ M.insert g rhs2 binds
+             return (newName:uvs, binds')
     | otherwise = return (uvs, binds) -- non-pattern: Just ignore
 
 {-
