@@ -16,7 +16,7 @@ import Unbound.LocallyNameless.Fresh
 type Equality = (Term, Term)
 
 -- Invariant: If (v1, Var v2), then v1 <= v2
-type Bindings = M.Map Var AbsTerm
+type Bindings = M.Map Var Term
 
 type Unifiable = [Var]
 
@@ -42,11 +42,8 @@ unif uvs binds (s,t) = do
     s' <- devar binds s
     t' <- devar binds t
     case (s',t') of
-        (Quant q1 b1, Quant q2 b2)
-            -> if q1 == q2
-               then lunbind2' b1 b2 $ \(Just (_,s,_,t)) -> unif uvs binds (s,t)
-               else return (uvs, binds) -- Error-ignoring
-        -- no term level lambdas yet
+        (Lam b1, Lam b2)
+            -> lunbind2' b1 b2 $ \(Just (_,s,_,t)) -> unif uvs binds (s,t)
         (s,t) -> cases uvs binds (s,t)
 
 {-
@@ -141,7 +138,7 @@ proj :: Fresh m => [Var] -> [Var] -> Bindings -> Term -> m ([Var], Bindings)
 proj w uvs binds s = do
     s' <- devar binds s
     case strip s' of
-        (Quant _ b, _)
+        (Lam b, _)
             -> lunbind' b $ \(x,t) -> proj (x:w) uvs binds t
         (Var v, ss) | v `elem` uvs
             -> case mapM fromVar ss of
@@ -185,12 +182,13 @@ devar :: Fresh m => Bindings -> Term -> m Term
 devar binds t = case strip t of
     (Var v,ys)
         | Just t <- M.lookup v binds
-        -> redsAbsTerm t ys >>= devar binds
+        -> redsTerm t ys >>= devar binds
     _   -> return t
 
-redsAbsTerm :: Fresh m => AbsTerm -> [Term] -> m Term
-redsAbsTerm (AbsTerm t) args =
-    lunbind' t $ \(pats, body) -> return $ substs (zip pats args) body
+redsTerm :: Fresh m => Term -> [Term] -> m Term
+redsTerm t [] = return t
+redsTerm (Lam b) (x:xs) = lunbind' b $ \(v,body) -> redsTerm (subst v x body) xs
+redsTerm t xs = return $ Symb t xs
 
 strip :: Term -> (Term, [Term])
 strip t = go t []
@@ -202,16 +200,14 @@ applyBinding :: Bindings -> Term -> Term
 applyBinding bindings t = flip contFreshM (firstFree (M.toList bindings,t)) $ go [] t
   where
     go args (Var v) | Just t <- M.lookup v bindings
-                    = go [] =<< redsAbsTerm t args
+                    = go args t
     go []   (Var v) = return $ Var v
     go args (Var v) = Symb (Var v) <$> mapM (go []) args
 
     go args (Symb t args') = go (args' ++ args) t
 
-    go [] (Quant q b) = lunbind' b $ \(v,body) ->
-        Quant q . bind v <$> go [] body
-
-    go args t@(Quant _ _) = error $ "applyBinding: Quanitfier with arguments: " ++ show (t,args)
+    go [] (Lam b) = lunbind' b $ \(v,body) -> Lam . bind v <$> go [] body
+    go (x:xs) (Lam b) = lunbind' b $ \(v,body) -> go xs (subst v x body)
 
 lunbind' :: (Fresh m, Alpha p, Alpha t) => Bind p t -> ((p, t) -> m c) -> m c
 lunbind' b c = unbind b >>= c

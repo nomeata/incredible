@@ -75,7 +75,7 @@ unificationTests = testGroup "Unification tests"
         [("P", absTerm ["x"] "Q(R(x))")]
   , testCase "unify with ∀" $
     assertUnifies ["R"] [("R", "∀z.P(z)")]
-        [("R", noAbs "∀z.P(z)")]
+        [("R", "∀z.P(z)")]
   , testCase "unify pred under ∀" $
     assertUnifies ["P","Z"] [("∀z.P(z)", "∀z.Q(R(z))")]
         [("P", absTerm ["x"] "Q(R(x))")]
@@ -102,8 +102,8 @@ unificationTests = testGroup "Unification tests"
         , "∀x.P4(x)" >: "B"
         , "A→B"      >: "(∃y.∀x.P(x,y))→(∀x.∃y.P(x,y))"
         ]
-        [ "A" >: noAbs "∃y.P1(y)"
-        , "B" >: noAbs "∀x.P4(x)"
+        [ "A" >: "∃y.P1(y)"
+        , "B" >: "∀x.P4(x)"
         , "P1" >: absTerm ["y"] "∀x.P(x,y)"
         , "P2" >: absTerm ["x"] "P(x,c)"
         , "P3" >: absTerm ["x"] "P(x,c)"
@@ -123,8 +123,8 @@ unificationTests = testGroup "Unification tests"
         , "∃x.P3(x)" >: "B"
         , "A→B"      >: "(∀y.∃x.P(x,y))→(∃x.P(x,x))"
         ]
-        [ "A" >: noAbs "∀x.P1(x)"
-        , "B" >: noAbs "∃x.P3(x)"
+        [ "A" >: "∀x.P1(x)"
+        , "B" >: "∃x.P3(x)"
         , "P1" >: absTerm ["y"] "∃x.P2(x)"
         , "P2" >: absTerm ["x"] "P3(y2)"
         , "P3" >: absTerm ["tmp"] "∃x.P(x,y1)"
@@ -137,9 +137,9 @@ assertUnifies vars eqns expt = do
     unless (res == expt') $ do
         assertFailure $ unlines $
             ["expected: "] ++
-            map (\(k,v) -> "    " ++ show k ++ ": " ++ printAbs v) (M.toList expt') ++
+            map (\(k,v) -> "    " ++ show k ++ ": " ++ printTerm v) (M.toList expt') ++
             [" but got: "] ++
-            map (\(k,v) -> "    " ++ show k ++ ": " ++ printAbs v) (M.toList res)
+            map (\(k,v) -> "    " ++ show k ++ ": " ++ printTerm v) (M.toList res)
 
 oneBlockLogic = Context
     (M.singleton "r" (Rule ["A"] ["A"] (M.fromList [("in", Port PTAssumption "A"), ("out", Port PTConclusion "A")])))

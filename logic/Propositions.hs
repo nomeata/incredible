@@ -21,7 +21,7 @@ type Var = Name Term
 data Term
     = Symb Term [Term]
     | Var Var
-    | Quant String (Bind Var Term)
+    | Lam (Bind Var Term)
     deriving Show
 
 $(derive [''Term])
@@ -38,15 +38,8 @@ firstFree = (1+) . maximum . (0:) . map anyName2Integer . fvAny
 
 type Proposition = Term
 
-infixSymbols :: S.Set String
-infixSymbols = S.fromList $ words "∧ ∨ →"
-
-{-
-mapVar :: (v1 -> v2) -> Term v1 -> Term v2
-mapVar vf (Symb f ts) = Symb f $ map (mapVar vf) ts
-mapVar vf (Var v) = Var $ vf v
-mapVar vf (Quant q v p) = Quant q (vf v) $ mapVar vf p
--}
+absTerm :: [Var] -> Term -> Term
+absTerm vs t = foldr (\v t -> Lam (bind v t)) t vs
 
 -- Pretty printer
 
@@ -57,9 +50,12 @@ printTerm p = runLFreshM (prP (0::Int) p) ""
     prP _ (Var v)     = prN v
     prP d (Symb (Var f) [a1, a2]) | Just p <- isInFix (name2String f)
         = prParens (p < d) $ prP (p+1) a1 <> prN f <> prP p a2
+    prP d (Symb (Var f) [Lam b]) | isQuant (name2String f)
+        = prParens (1 < d) $ lunbind b $ \(v,t) ->
+        prN f <> prN v <> prS "." <> prP 1 t
     prP _ (Symb f args) = prP 4 f <> prS "(" <> prCommas [prP 0 a | a <- args] <> prS ")"
-    prP d (Quant q b) = prParens (1 < d) $ lunbind b $ \(v,t) ->
-        prS q <> prN v <> prS "." <> prP 1 t
+    prP d (Lam b) = prParens (1 < d) $ lunbind b $ \(v,t) ->
+        prS "λ" <> prN v <> prS "." <> prP 1 t
 
     prN n = prS (name2String n)
         <> (if i > 0 then prS (map subscriptify (show i)) else return id)
@@ -84,6 +80,8 @@ isInFix "→" = Just 3
 isInFix "∨" = Just 2
 isInFix _   = Nothing
 
+isQuant :: String -> Bool
+isQuant = (`elem` words "∃ ∀")
 
 -- Parser
 
@@ -115,7 +113,12 @@ quantifiers :: [(Char, [Char])]
 quantifiers =
     [ ('∀', ['!'])
     , ('∃', ['?'])
+    , ('λ', ['\\'])
     ]
+
+mkQuant :: String -> Var -> Term -> Term
+mkQuant "λ" n t = Lam (bind n t)
+mkQuant q   n t = Symb (Var (string2Name q)) [Lam (bind n t)]
 
 quantP :: Parser String
 quantP = choice [ (q:"") <$ choice (map char (q:a)) | (q,a) <- quantifiers ]
@@ -131,7 +134,7 @@ atomP = choice
         vname <- nameP
         _ <- char '.'
         p <- termP
-        return $ Quant q (bind vname p)
+        return $ mkQuant q vname p
     , between (char '(') (char ')') termP
     , do
         sym <- nameP
@@ -155,24 +158,3 @@ parseGroundTerm = either (Left . show) (Right . fixVar) . parse termP ""
 
 fixVar :: Term -> Term
 fixVar = id -- TODO
-
-
-data AbsTerm = AbsTerm (Bind [Var] Term)
-    deriving Show
-
-
-absTerm :: [Var] -> Term -> AbsTerm
-absTerm xs t =  AbsTerm (bind xs t)
-
-noAbs :: Term -> AbsTerm
-noAbs = absTerm []
-$(derive [''AbsTerm])
-
-printAbs :: AbsTerm -> String
-printAbs (AbsTerm abs) = runLFreshM $ lunbind abs $ \(p,body) ->
-    return $ (if null p then "" else "λ" ++ unwords (map show p) ++ ".") ++
-    printTerm body
-
-instance Alpha AbsTerm
-instance Eq AbsTerm where (==) = aeq
-instance Subst AbsTerm Term
