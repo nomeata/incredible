@@ -53,6 +53,8 @@ printTerm p = runLFreshM (prP (0::Int) p) ""
   where
     prP :: Int -> Proposition -> LFreshM (String -> String)
     prP _ (Var v)     = prN v
+    prP d (Symb (Var f) [a]) | Just p <- isPrefix (name2String f)
+        = prParens (p < d) $ prN f <> prP p a
     prP d (Symb (Var f) [a1, a2]) | Just p <- isInFix (name2String f)
         = prParens (p < d) $ prP (p+1) a1 <> prN f <> prP p a2
     prP _ (Symb f args) = prP 4 f <> prS "(" <> prCommas [prP 0 a | a <- args] <> prS ")"
@@ -82,6 +84,9 @@ isInFix "→" = Just 3
 isInFix "∨" = Just 2
 isInFix _   = Nothing
 
+isPrefix :: String -> Maybe Int
+isPrefix "¬" = Just 4
+isPrefix _   = Nothing
 
 -- Parser
 
