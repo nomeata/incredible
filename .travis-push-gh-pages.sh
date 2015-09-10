@@ -5,6 +5,8 @@
 
 ./deploy.sh gh-page
 
+cp -r logic/dist/doc ghc-page/doc
+
 # Prepare an empty directory
 cd gh-page
 git init
