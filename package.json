@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "backbone": "1.2.1",
-    "jointjs" : "0.9.4",
+    "jointjs" : "0.9.5",
     "jquery": "2.1.4",
     "lodash": "3.10.0"
   },
