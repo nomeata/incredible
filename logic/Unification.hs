@@ -123,15 +123,15 @@ flexflex :: (MonadPlus m, Fresh m) => [Var] -> Bindings -> Var -> [Term] -> Var 
 flexflex uvs binds f ym g zn
     | f == g && ym == zn = return (uvs, binds)
     | f == g
-    , Just ym' <- mapM fromVar ym
+    , Just ym' <- allBoundVar uvs ym
     = do
         newName <- fresh (string2Name "uni")
         let rhs = absTerm ym' (Symb (V newName) (intersect ym zn))
         let binds' = M.insert f rhs binds
         return (newName:uvs, binds')
     | f == g = return (uvs, binds) -- non-pattern: Just ignore
-    | Just ym' <- mapM fromVar ym
-    , Just zn' <- mapM fromVar zn
+    | Just ym' <- allBoundVar uvs ym
+    , Just zn' <- allBoundVar uvs zn
     = do
         newName <- fresh (string2Name "uni")
         let rhs1 = absTerm ym' (Symb (V newName) (intersect ym zn))
@@ -161,7 +161,7 @@ flexrigid :: (MonadPlus m, Fresh m) => [Var] -> Bindings -> Var -> [Term] -> Ter
 flexrigid uvs binds f ym t
     | occ binds f t
     = mzero
-    | Just vs <- mapM fromVar ym
+    | Just vs <- allBoundVar uvs ym
     = let binds' = M.insert f (absTerm vs t) binds
       in proj vs uvs binds' t
     | otherwise
@@ -182,7 +182,7 @@ proj w uvs binds s = do
         (Lam b, _)
             -> lunbind' b $ \(x,t) -> proj (x:w) uvs binds t
         (V v, ss) | v `elem` uvs
-            -> case mapM fromVar ss of
+            -> case allBoundVar uvs ss of
                 Just vs | all (`elem` w) vs -> return (uvs, binds)
                 Just vs -> do
                     newName <- fresh (string2Name "uni")
@@ -204,6 +204,11 @@ proj w uvs binds s = do
 fromVar :: Term -> Maybe Var
 fromVar (V n) = Just n
 fromVar _       = Nothing
+
+allBoundVar :: Unifiable -> [Term] -> Maybe [Var]
+allBoundVar _   []                         = return []
+allBoundVar uvs (V x:xs) | x `notElem` uvs = (x:) <$> allBoundVar uvs xs
+allBoundVar _ _                            = Nothing
 
 {-
 and rigidrigid(a,ss,b,ts,S) = if a <> b then raise Unif
