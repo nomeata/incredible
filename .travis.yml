@@ -15,7 +15,6 @@ addons:
     - ghc-7.8.4
     - alex-3.1.4
     - happy-1.19.5
-    - hscolour
 
 cache:
   bundler: false
@@ -38,6 +37,7 @@ install:
     # install ghcjs
     - cabal-1.22 update
     - cabal-1.22 install Cabal
+    - text -e $HOME/.cabal/bin/HsColour || cabal-1.22 install hscolour
     - test -e $HOME/.cabal/bin/ghcjs || git clone https://github.com/ghcjs/ghcjs-prim.git
     - test -e $HOME/.cabal/bin/ghcjs || git clone https://github.com/ghcjs/haddock-internal.git
     - test -e $HOME/.cabal/bin/ghcjs || git clone https://github.com/ghcjs/ghcjs.git
