@@ -4,8 +4,10 @@ module Unification (Equality, Bindings, unifyLiberally, applyBinding) where
 import qualified Data.Map as M
 import Control.Monad
 import Control.Applicative
+import Control.Monad.Trans.Maybe
 import Debug.Trace
 import Data.List
+import Data.Maybe
 
 import Propositions
 
@@ -24,9 +26,33 @@ emptyBinding :: Bindings
 emptyBinding = M.empty
 
 unifyLiberally :: Unifiable -> [Equality] -> Bindings
-unifyLiberally uvs eqns =
-    snd $ flip contFreshM highest $ foldM (uncurry unif) (uvs, emptyBinding) eqns
-  where highest = firstFree (uvs, eqns)
+unifyLiberally uvs eqns = flip contFreshM highest $ iter (uvs, emptyBinding) eqns
+  where
+    highest = firstFree (uvs, eqns)
+
+
+    -- Repeatedly go through the list of equalities until we can solve no more
+    iter :: Fresh m => (Unifiable, Bindings) -> [Equality] -> m Bindings
+    iter (uvs, bind) eqns = do
+        (uvs', bind') <- go [] (uvs,bind) eqns
+        if M.size bind' > M.size bind
+           then iter (uvs', bind') eqns
+           else return bind'
+                -- we learned something, so retry
+
+
+    go :: Fresh m => [Equality] -> (Unifiable, Bindings) -> [Equality] -> m (Unifiable, Bindings)
+    go _     uvs_bind [] = return uvs_bind
+    go retry uvs_bind (x:xs) = do
+        maybe_uvs_bind' <- runMaybeT (uncurry unif uvs_bind x)
+        case maybe_uvs_bind' of
+            Just (uvs',bind') ->
+                if x `solvedBy` bind'
+                then go retry (uvs',bind') xs
+                else go (x:retry) (uvs',bind') xs
+            Nothing        -> do
+                -- Ignore failed equations
+                go retry uvs_bind xs
 
 -- Code taken from http://www21.in.tum.de/~nipkow/pubs/lics93.html
 
@@ -37,7 +63,7 @@ fun unif (S,(s,t)) = case (devar S s,devar S t) of
       | (s,x\t)   => unif (S,(s$(B x),t))
       | (s,t)     => cases S (s,t)
 -}
-unif :: Fresh m => [Var] -> Bindings -> (Term, Term) -> m ([Var], Bindings)
+unif :: (MonadPlus m, Fresh m) => [Var] -> Bindings -> (Term, Term) -> m ([Var], Bindings)
 unif uvs binds (s,t) = do
     s' <- devar binds s
     t' <- devar binds t
@@ -53,7 +79,7 @@ and cases S (s,t) = case (strip s,strip t) of
                     | (_,(V F,ym))        => flexrigid(F,ym,s,S)
                     | ((a,sm),(b,tn))     => rigidrigid(a,sm,b,tn,S)
 -}
-cases :: Fresh m => [Var] -> Bindings -> (Term, Term) -> m ([Var], Bindings)
+cases :: (MonadPlus m, Fresh m) => [Var] -> Bindings -> (Term, Term) -> m ([Var], Bindings)
 cases uvs binds (s,t) = do
     case (strip s, strip t) of
         ((Var f, ym), (Var g, zn))
@@ -79,7 +105,7 @@ fun flexflex(F,ym,G,zn,S) = if F=G then flexflex1(F,ym,zn,S)
                             else flexflex2(F,ym,G,zn,S);
 -}
 
-flexflex :: Fresh m => [Var] -> Bindings -> Var -> [Term] -> Var -> [Term] -> m ([Var], Bindings)
+flexflex :: (MonadPlus m, Fresh m) => [Var] -> Bindings -> Var -> [Term] -> Var -> [Term] -> m ([Var], Bindings)
 flexflex uvs binds f ym g zn
     | f == g && ym == zn = return (uvs, binds)
     | f == g
@@ -117,10 +143,10 @@ occ binds v t = v `elem` vars || any (maybe False (occ binds v) . (`M.lookup` bi
 fun flexrigid(F,ym,t,S) = if occ F S t then raise Unif
                           else proj (map B1 ym) (((F,abs(ym,t))::S),t);
 -}
-flexrigid :: Fresh m => [Var] -> Bindings -> Var -> [Term] -> Term -> m ([Var], Bindings)
+flexrigid :: (MonadPlus m, Fresh m) => [Var] -> Bindings -> Var -> [Term] -> Term -> m ([Var], Bindings)
 flexrigid uvs binds f ym t
     | occ binds f t
-    = return (uvs, binds) -- Error-ignoring
+    = mzero
     | Just vs <- mapM fromVar ym
     = proj vs uvs (M.insert f (absTerm vs t) binds) t
     | otherwise
@@ -134,7 +160,7 @@ fun proj W (S,s) = case strip(devar S s) of
     | (V F,ss) => if (map B1 ss) subset W then S
                   else (F, hnf(ss, newV(), ss /\ (map B W))) :: S;
 -}
-proj :: Fresh m => [Var] -> [Var] -> Bindings -> Term -> m ([Var], Bindings)
+proj :: (MonadPlus m, Fresh m) => [Var] -> [Var] -> Bindings -> Term -> m ([Var], Bindings)
 proj w uvs binds s = do
     s' <- devar binds s
     case strip s' of
@@ -163,12 +189,12 @@ fromVar _       = Nothing
 and rigidrigid(a,ss,b,ts,S) = if a <> b then raise Unif
                               else foldl unif (S,zip ss ts);
 -}
-rigidrigid :: Fresh m => [Var] -> Bindings -> Term -> [Term] -> Term -> [Term] -> m ([Var], Bindings)
+rigidrigid :: (MonadPlus m, Fresh m) => [Var] -> Bindings -> Term -> [Term] -> Term -> [Term] -> m ([Var], Bindings)
 rigidrigid uvs binds a sm b tn
     | a `aeq` b && length sm == length tn
     = foldM (uncurry unif) (uvs, binds) (zip sm tn)
-    | otherwise -- we are a error-ignoring unification algorithm
-    = return (uvs, binds)
+    | otherwise
+    = mzero
 
 
 {-
@@ -195,6 +221,8 @@ strip t = go t []
   where go (Symb t args) args' = go t (args++args')
         go t             args' = (t, args')
 
+solvedBy :: Equality -> Bindings -> Bool
+solvedBy (t1,t2) b = applyBinding b t1 `aeq` applyBinding b t2
 
 applyBinding :: Bindings -> Term -> Term
 applyBinding bindings t = flip contFreshM (firstFree (M.toList bindings,t)) $ go [] t
