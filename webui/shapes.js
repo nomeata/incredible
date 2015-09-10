@@ -89,7 +89,7 @@ joint.shapes.incredible.Generic = joint.shapes.basic.Generic.extend({
     attrs['.label'] = {text: ruleObj.id};
 
     var rules = ruleObj.ports;
-    var rulesList = _.map(rules, function (v, i) {return _.extend({id: i}, v);});
+    var rulesList = _.sortBy(_.map(rules, function (v, i) {return _.extend({id: i}, v);}), 'id');
     var rulesGroup = _.groupBy(rulesList, "type");
 
     _.each(rulesGroup, function (thesePorts, portType) {

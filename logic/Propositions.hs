@@ -46,6 +46,10 @@ absTerm vs t = foldr mkLam t vs
 mkLam :: Var -> Term -> Term
 mkLam v t = Lam (bind v (const2Var [v] t))
 
+mkApps :: Term -> [Term] -> Term
+mkApps t [] = t
+mkApps t ts = Symb t ts
+
 const2Var :: [Var] -> Term -> Term
 const2Var vs = substs [(v, V v) | v <- vs]
 

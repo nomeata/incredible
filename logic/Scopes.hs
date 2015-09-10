@@ -15,10 +15,7 @@ import Data.Graph.Dom
 
 import Types
 
-data ScopeElement = ScopedVar Var | ScopedPort PortSpec
-    deriving Show
-
-type Scope = ([Key Block], [ScopeElement])
+type Scope = ([Key Block], Key Block)
 
 calculateScopes :: Context -> Task -> Proof -> [Scope]
 calculateScopes ctxt task proof = scopes
@@ -39,12 +36,13 @@ calculateScopes ctxt task proof = scopes
 
 
     findSuccs :: Key Block -> IS.IntSet
-    findSuccs blockKey = IS.fromList . fakeExit $
+    findSuccs blockKey = IS.fromList . fakeExit $ catMaybes $
         [ portSpec2Node ps | ps <- connsFrom blockKey ]
 
-    portSpec2Node :: PortSpec -> Node
-    portSpec2Node (ConclusionPort n) | n >= 1 = -n
-    portSpec2Node (BlockPort blockKey _) = block2node M.! blockKey
+    portSpec2Node :: PortSpec -> Maybe Node
+    portSpec2Node (ConclusionPort n) | n >= 1 = Just (-n)
+    portSpec2Node (BlockPort blockKey _) = Just $ block2node M.! blockKey
+    portSpec2Node NoPort = Nothing
     portSpec2Node ps = error $ "portSpec2Node: " ++ show ps
 
     fakeExit :: [Node] -> [Node]
@@ -72,13 +70,13 @@ calculateScopes ctxt task proof = scopes
     go (Node Nothing childs) = mapM_ go childs -- exit and conclusion nodes
     go (Node (Just blockKey) childs) = do
         mapM_ go childs
-        -- Does this open any scope
+        -- Does this open any scope?
         unless (null scopes) $ do
-            tell [(catMaybes (concatMap flatten childs), scopes)]
+            tell [(catMaybes (concatMap flatten childs), blockKey)]
       where
         block = blocks proof M.! blockKey
         rule = ctxtRules ctxt M.! blockRule block
-        scopes = [ ScopedVar v
+        scopes = [ ()
                  | port <- M.elems (ports rule)
-                 , v <- portScopes port
+                 , _ <- portScopes port
                  ]

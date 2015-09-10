@@ -169,9 +169,9 @@ impILogic :: Context
 impILogic = Context
     (M.fromList
         [ ("impI", Rule f f (M.fromList
-            [ "in"  >: Port PTAssumption (const2Var f "B") []
-            , "out" >: Port PTConclusion (const2Var f "A→B") []
-            , "hyp" >: Port (PTLocalHyp "in") (const2Var f "A") []
+            [ "in"  >: Port PTAssumption "B" []
+            , "out" >: Port PTConclusion "A→B" []
+            , "hyp" >: Port (PTLocalHyp "in") "A" []
             ]))
         ]
     )

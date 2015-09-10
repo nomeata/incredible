@@ -29,15 +29,22 @@ rules:
       type: conclusion
       proposition: ∃x.P(x)
 - id: exE
-  free: ["P"]
+  free: ["P","Q"]
   ports:
     in1:
       type: assumption
       proposition: ∃x.P(x)
-    out2:
-      type: conclusion
-      proposition: P(c)
+    in2:
+      type: assumption
+      proposition: Q
       scoped: ["c"]
+    hyp:
+      type: local hypothesis
+      proposition: P(c)
+      consumedBy: in2
+    out:
+      type: conclusion
+      proposition: Q
 - id: conjI
   free: ["A","B"]
   ports:
