@@ -53,6 +53,7 @@ script:
     - make
     - ( cd logic && cabal-1.22 test --show-details=streaming )
     - npm install
+    - make docs
 
 after_success:
     - '[ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_SECURE_ENV_VARS" = "true" ] &&  [ "$TRAVIS_PULL_REQUEST" = "false" ] && ./.travis-push-gh-pages.sh'
