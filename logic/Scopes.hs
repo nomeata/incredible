@@ -15,33 +15,43 @@ import Data.Graph.Dom
 
 import Types
 
-type Scope = ([Key Block], Key Block)
+type Scope = ([Key Block], PortSpec)
 
 calculateScopes :: Context -> Task -> Proof -> [Scope]
 calculateScopes ctxt task proof = scopes
   where
     -- Building a graph for the dom-lt library
 
-    graph :: Graph
-    graph = IM.map findSuccs node2block `IM.union`
-        IM.fromList [ (c,IS.singleton exitNode) | c <- conclusionNodes ]
-
     conclusionNodes = take (length (tConclusions task)) [-1..] :: [Node]
 
     exitNode = 0 :: Node
 
-    (node2block, block2node) =
-        IM.fromList &&& (M.fromList . map swap) $
-        zip [1..] (M.keys (blocks proof))
+    -- We only need to consider assumption ports
+    portSpecs =
+        [ BlockPort blockKey portKey
+        | (blockKey, block) <- M.toList (blocks proof)
+        , let rule = ctxtRules ctxt M.! blockRule block
+        , (portKey, Port {portType = PTAssumption}) <- M.toList (ports rule)
+        ]
 
+    (node2obj, obj2node) =
+        IM.fromList &&& (M.fromList . map swap) $
+        zip [1..] $
+        (map Left (M.keys (blocks proof))) ++ (map Right portSpecs)
+
+    graph :: Graph
+    graph = IM.fromList $
+        [ (obj2node M.! (Left blockKey), findSuccs blockKey) | blockKey <- M.keys (blocks proof) ] ++
+        [ (obj2node M.! (Right ps), IS.singleton (obj2node M.! Left blockKey)) | ps@(BlockPort blockKey _) <- portSpecs ] ++
+        [ (c,IS.singleton exitNode) | c <- conclusionNodes ]
 
     findSuccs :: Key Block -> IS.IntSet
-    findSuccs blockKey = IS.fromList . fakeExit $ catMaybes $
+    findSuccs blockKey = IS.fromList $ fakeExit $ catMaybes $
         [ portSpec2Node ps | ps <- connsFrom blockKey ]
 
     portSpec2Node :: PortSpec -> Maybe Node
     portSpec2Node (ConclusionPort n) | n >= 1 = Just (-n)
-    portSpec2Node (BlockPort blockKey _) = Just $ block2node M.! blockKey
+    portSpec2Node ps@(BlockPort _ _) = Just $ obj2node M.! Right ps
     portSpec2Node NoPort = Nothing
     portSpec2Node ps = error $ "portSpec2Node: " ++ show ps
 
@@ -64,19 +74,18 @@ calculateScopes ctxt task proof = scopes
     -- Calculating the scopes
     -- (by traversing the tree)
 
-    scopes = execWriter $ go $ fmap (`IM.lookup` node2block) tree
+    scopes = execWriter $ go $ fmap (`IM.lookup` node2obj) tree
 
-    go :: Tree (Maybe (Key Block)) -> Writer [Scope] ()
-    go (Node Nothing childs) = mapM_ go childs -- exit and conclusion nodes
-    go (Node (Just blockKey) childs) = do
+    go :: Tree (Maybe (Either (Key Block) PortSpec)) -> Writer [Scope] ()
+    go (Node (Just (Right (ps@(BlockPort blockKey portKey)))) childs) = do
         mapM_ go childs
         -- Does this open any scope?
-        unless (null scopes) $ do
-            tell [(catMaybes (concatMap flatten childs), blockKey)]
+        unless (null (portScopes port)) $ do
+            tell [(childBlocks childs, ps)]
       where
         block = blocks proof M.! blockKey
         rule = ctxtRules ctxt M.! blockRule block
-        scopes = [ ()
-                 | port <- M.elems (ports rule)
-                 , _ <- portScopes port
-                 ]
+        port = ports rule M.! portKey
+
+        childBlocks childs = [ b | Just (Left b) <- concatMap flatten childs ]
+    go (Node _ childs) = mapM_ go childs -- exit, conclusion and block nodes

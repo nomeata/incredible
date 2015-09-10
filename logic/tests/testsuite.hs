@@ -121,26 +121,6 @@ unificationTests = testGroup "Unification tests"
         , "y1" >: "c2"
         , "y2" >: "c"
         ]
-  , expectFail $
-    testCase "quantifier order" $
-    assertUnifies
-        -- We can prove (∀y.∃x.P(x,y))→(∃x.P(x,x)) if we do not watch for quantifier order
-        -- P1: allE
-        -- P2: exE
-        -- P3: exI
-        ["P1","P2","P3","A","B","y1","y2"]
-        [ "A"        >: "∀x.P1(x)"
-        , "P1(y1)"   >: "∃x.P2(x)"
-        , "P2(c)"    >: "P3(y2)"
-        , "∃x.P3(x)" >: "B"
-        , "A→B"      >: "(∀y.∃x.P(x,y))→(∃x.P(x,x))"
-        ]
-        [ "A" >: "∀x.P1(x)"
-        , "B" >: "∃x.P3(x)"
-        , "P1" >: absTerm ["y"] "∃x.P2(x)"
-        , "P2" >: absTerm ["x"] "P3(y2)"
-        , "P3" >: absTerm ["tmp"] "∃x.P(x,y1)"
-        ]
   ]
 
 assertUnifies :: [Var] -> [Equality] -> [(Var, Term)] -> Assertion

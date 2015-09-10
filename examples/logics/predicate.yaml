@@ -30,6 +30,7 @@ rules:
       proposition: ∃x.P(x)
 - id: exE
   free: ["P","Q"]
+  local: ["c"]
   ports:
     in1:
       type: assumption

@@ -6,6 +6,7 @@ import qualified Data.Map as M
 import Data.Map ((!))
 import Data.Tagged -- because unbound does not handle Tag :-(
 import Debug.Trace
+import Control.Arrow
 
 import Types
 import Unification
@@ -33,7 +34,7 @@ labelConnections ctxt task proof =
     --  4. Get back a substiution, apply it to the data structure from step 2
     --  5. For each connection, calculate the ConnLabel
 
-    closedBlockData :: [(Key Block, Bind [Var] ([Var], [(String, Term, [Var])]))]
+    closedBlockData :: [(Key Block, Bind [Var] ([Var], [(String, (Term, [Var]))]))]
     closedBlockData =
         [ (blockKey, bind l (f, portList))
         | (blockKey, block) <- M.toList (blocks proof)
@@ -41,21 +42,21 @@ labelConnections ctxt task proof =
               l = localVars rule
               f = freeVars rule
               portList =
-                [ (untag pk, portProp p, portScopes p)
+                [ (untag pk, (portProp p, portScopes p))
                 | (pk,p) <- M.toList $ ports rule
                 ]
         ]
 
     -- Is it ok to limit runFreshM to this, or does the whole function have to
     -- live in FreshM?
-    renamedBlockData :: [(Key Block, ([Var], [(String, Term, [Var])]))]
+    renamedBlockData :: [(Key Block, ([Var], M.Map (Key Port) (Term, [Var])))]
     renamedBlockData = flip contFreshM i $
          mapM go closedBlockData
       where
         i = firstFree $ map snd closedBlockData
         go (blockKey, boundBlockData) = do
-            (_,stuff) <- unbind boundBlockData
-            return (blockKey, stuff)
+            (_,(uvs,portList)) <- unbind boundBlockData
+            return (blockKey, (uvs, M.fromList (map (first Tagged) portList)))
     renamedBlockMap = M.fromList renamedBlockData
 
     unificationVariables :: [Var]
@@ -67,17 +68,17 @@ labelConnections ctxt task proof =
     renamedBlockProps :: M.Map (Key Block) (M.Map (Key Port) Term)
     renamedBlockProps = M.mapWithKey prepareBlock renamedBlockMap
 
-    prepareBlock blockKey (unv, ports) = M.fromList (map preparePort ports)
+    prepareBlock blockKey (unv, ports) = M.map preparePort ports
       where
         scopedVars = [ v
-            | postdom <- M.findWithDefault [] blockKey scopeMap
-            , Just (_,ports) <- return $ M.lookup postdom renamedBlockMap
-            , (_,_,sv) <- ports
+            | BlockPort pdBlockKey pdPortKey <- M.findWithDefault [] blockKey scopeMap
+            , Just (_,ports) <- return $ M.lookup pdBlockKey renamedBlockMap
+            , let (_,sv) = ports M.! pdPortKey
             , v <- sv
             ]
         -- Change free variables to variables, possibly depending on these arguments
         s = [ (s, mkApps (V s) (map V scopedVars)) | s <- unv ]
-        preparePort (pk, prop, _) = (Tagged pk, substs s prop)
+        preparePort (prop, _) = (substs s prop)
 
     propAt NoPort                       = Nothing
     propAt (ConclusionPort n)           = Just $ tConclusions task !! (n-1)
