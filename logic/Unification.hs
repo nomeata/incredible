@@ -48,7 +48,7 @@ unifyLiberally uvs eqns = flip contFreshM highest $
         ((uvs', bind'), eqns') <- runWriterT $ go (uvs,bind) eqns
         if M.size bind' > M.size bind
            then iter (uvs', bind') eqns'
-           else return (bind', map (\(n,r,e) -> (n,r)) eqns')
+           else return (bind', map (\(n,r,_) -> (n,r)) eqns')
                 -- we learned something, so retry
 
 
@@ -189,13 +189,16 @@ proj w uvs binds s = do
                     let rhs = absTerm vs (Symb (V newName) (ss ++ map V w))
                     let binds' = M.insert v rhs binds
                     return (newName:uvs, binds')
-                Nothing -> error "What to do here?"
-        (V v, ss)
-            -> foldM (uncurry (proj w)) (uvs, binds) ss
-                -- Todo: How to distinguish constansts from bound variables here?
-        (C v, ss)
-            -> foldM (uncurry (proj w)) (uvs, binds) ss
-        (Symb _ _, _) -> error "Unreachable"
+
+                -- Found a non-pattern use of a free variable, so recurse into the arguments
+                -- (The correctness of this is a guess by Joachim)
+                Nothing        -> recurse ss
+                  | v `elem` w -> recurse ss
+                  | otherwise  -> mzero
+        (C _, ss)              -> recurse ss
+        (Symb _ _, _)          -> error "Unreachable"
+  where
+    recurse = foldM (uncurry (proj w)) (uvs, binds)
 
 
 fromVar :: Term -> Maybe Var
