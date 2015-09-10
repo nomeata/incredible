@@ -54,13 +54,13 @@ function rescale_paper() {
   var paper_w = $("#paper").innerWidth() - 5;
   var paper_h = $("#paper").innerHeight() - 5;
 
-  V($("#vertical-separator").get(0)).attr({y2: 0});
+  $("#vertical-separator").each(function() {V(this).attr({y2: 0})});
   var bb = paper.getContentBBox();
 
   var w = Math.max(paper_w, bb.x + bb.width);
   var h = Math.max(paper_h, bb.y + bb.height);
   paper.setDimensions(w, h);
-  V($("#vertical-separator").get(0)).attr({y2: h});
+  $("#vertical-separator").each(function() {V(this).attr({y2: h})});
 }
 
 $(window).on('resize', rescale_paper);
