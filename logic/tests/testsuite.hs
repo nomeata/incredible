@@ -96,8 +96,7 @@ unificationTests = testGroup "Unification tests"
     assertUnifies ["P","V"] [("∀y.P(x)", "∀y.Q(y)")]
         []
   -}
-  , expectFail $
-    testCase "regression2" $
+  , testCase "regression2" $
     assertUnifies
         -- P1: exE
         -- P2: allE
@@ -115,8 +114,10 @@ unificationTests = testGroup "Unification tests"
         , "B" >: "∀x.P4(x)"
         , "P1" >: absTerm ["y"] "∀x.P(x,y)"
         , "P2" >: absTerm ["x"] "P(x,c)"
-        , "P3" >: absTerm ["x"] "P(x,c)"
+        , "P3" >: absTerm ["x"] "P(c2,x)"
         , "P4" >: absTerm ["x"] "∃y.P(x,y)"
+        , "y1" >: "c2"
+        , "y2" >: "c"
         ]
   , expectFail $
     testCase "quantifier order" $
@@ -142,7 +143,7 @@ unificationTests = testGroup "Unification tests"
 
 assertUnifies :: [Var] -> [Equality] -> [(Var, Term)] -> Assertion
 assertUnifies vars eqns expt = do
-    let expt' = M.fromList expt
+    let expt' = M.fromList $ map (second (const2Var vars)) expt
     let eqns' = map (both (const2Var vars)) eqns
     let (res,_) = unifyLiberally vars (map ((),) eqns')
     unless (res == expt') $ do
