@@ -1,0 +1,5 @@
+logic: predicate
+assumptions:
+ - ∀x.(r(x)→⊥)→r(f(x))
+conclusions:
+ - ∃x.r(x)∧r(f(f(x)))

@@ -145,3 +145,10 @@ rules:
     out:
       type: conclusion
       proposition: P
+- id: TND
+  free: ["P"]
+  ports:
+    out:
+      type: conclusion
+      proposition: "P∨(P→⊥)"
+
