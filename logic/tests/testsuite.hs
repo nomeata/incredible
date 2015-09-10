@@ -153,6 +153,7 @@ assertUnifies vars eqns expt = do
             [" but got: "] ++
             map (\(k,v) -> "    " ++ show k ++ ": " ++ printTerm v) (M.toList res)
 
+oneBlockLogic :: Context
 oneBlockLogic = Context
     (M.singleton "r" (Rule ["A"] ["A"] (M.fromList ["in" >: Port PTAssumption "A" [], "out" >: Port PTConclusion "A" []])))
 
@@ -164,6 +165,7 @@ proofWithoutCycle = Proof
     (M.singleton "b" (Block "r"))
     (M.singleton "c" (Connection (BlockPort "b" "out") (ConclusionPort 1)))
 
+impILogic :: Context
 impILogic = Context
     (M.fromList
         [ ("impI", Rule f f (M.fromList

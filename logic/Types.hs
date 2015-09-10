@@ -1,8 +1,13 @@
 -- | The data types for the UI→Haskell interface. Roughly corresponds to the
 -- specification in SPEC.md.
-module Types where
+module Types
+    ( module Types
+    , Var
+    )
+    where
 
 import qualified Data.Map as M
+import qualified Data.Set as S
 import Data.Tagged
 
 import Propositions
@@ -10,7 +15,7 @@ import Propositions
 -- We might want to look into other implementation of key-value maps
 type Key k = Tagged k String
 type KMap v = M.Map (Key v) v
-
+type KSet v = S.Set (Key v)
 
 data Task = Task
  { tAssumptions :: [Term]

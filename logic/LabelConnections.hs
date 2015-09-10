@@ -26,6 +26,8 @@ labelConnections ctxt task proof =
     --     (a.k.a BlockData)  to abstract over these.
     --  2. Apply unbind to each of them, to get unique names for them:
     --     [(port name, proposition)]
+    --  3. Calculate scopes, and give scoped bound variables as arguments to
+    --     free variables
     --  3. Look at each connection, turn this into equations
     --     [(proposition, proposition)], and pass them to the unification module
     --  4. Get back a substiution, apply it to the data structure from step 2

@@ -2,6 +2,7 @@
 module Unification
     ( Equality
     , Bindings
+    , Unifiable
     , unifyLiberally
     , applyBinding
     , UnificationResult(..)
