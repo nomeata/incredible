@@ -75,7 +75,7 @@ unconnectedGoalsTests = testGroup "Unsolved goals"
 
 labelConectionsTests = testGroup "Label Connections"
   [ testCase "complete" $ labelConnections impILogic simpleTask completeProof @?=
-        M.fromList [("c1",Ok $ C "Prop"),("c2", Ok $ Symb (C "→") [C "Prop", C "Prop"])]
+        M.fromList [("c1",Ok $ C "Prop"),("c2", Ok $ App (C "→") [C "Prop", C "Prop"])]
   ]
 
 unificationTests = testGroup "Unification tests"
@@ -213,13 +213,13 @@ completeProof = Proof
 genProp :: Int -> Gen Proposition
 genProp 0 = elements $
     map Var ["A","B","C","D","E"] ++
-    [Symb (Var "Prop1") [], Symb (Var "Prop2") []]
+    [App (Var "Prop1") [], Symb (Var "Prop2") []]
 genProp n = do
     (name,arity) <- elements [("∧",2), ("∨",2), ("not",1)]
     args <- replicateM arity $ do
         n' <- choose (0,n`div`2)
         genProp n'
-    return $ Symb (Var name) args
+    return $ App (Var name) args
 -}
 
 assertRight :: Either String a -> Assertion

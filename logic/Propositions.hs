@@ -19,7 +19,7 @@ type Var = Name Term
 
 -- This could be made more abstract as in the unification-fd package
 data Term
-    = Symb Term [Term]
+    = App Term [Term]
     | V Var
     | C Var
     | Lam (Bind Var Term)
@@ -48,7 +48,7 @@ mkLam v t = Lam (bind v (const2Var [v] t))
 
 mkApps :: Term -> [Term] -> Term
 mkApps t [] = t
-mkApps t ts = Symb t ts
+mkApps t ts = App t ts
 
 const2Var :: [Var] -> Term -> Term
 const2Var vs = substs [(v, V v) | v <- vs]
@@ -61,12 +61,12 @@ printTerm p = runLFreshM (prP (0::Int) p) ""
     prP :: Int -> Proposition -> LFreshM (String -> String)
     prP _ (C v) = prN v
     prP _ (V v) = prN v
-    prP d (Symb (C f) [a1, a2]) | Just p <- isInFix (name2String f)
+    prP d (App (C f) [a1, a2]) | Just p <- isInFix (name2String f)
         = prParens (p < d) $ prP (p+1) a1 <> prN f <> prP p a2
-    prP d (Symb (C f) [Lam b]) | isQuant (name2String f)
+    prP d (App (C f) [Lam b]) | isQuant (name2String f)
         = prParens (1 < d) $ lunbind b $ \(v,t) ->
         prN f <> prN v <> prS "." <> prP 1 t
-    prP _ (Symb f args) = prP 4 f <> prS "(" <> prCommas [prP 0 a | a <- args] <> prS ")"
+    prP _ (App f args) = prP 4 f <> prS "(" <> prCommas [prP 0 a | a <- args] <> prS ")"
     prP d (Lam b) = prParens (1 < d) $ lunbind b $ \(v,t) ->
         prS "λ" <> prN v <> prS "." <> prP 1 t
 
@@ -120,7 +120,7 @@ table = [ [ binary "∧" ["&"]
           ]
         ]
   where
-    binary op alts = Infix ((\a b -> Symb (C (string2Name op)) [a,b]) <$ l (choice (map string (op:alts)))) AssocLeft
+    binary op alts = Infix ((\a b -> App (C (string2Name op)) [a,b]) <$ l (choice (map string (op:alts)))) AssocLeft
 
 quantifiers :: [(Char, [Char])]
 quantifiers =
@@ -131,7 +131,7 @@ quantifiers =
 
 mkQuant :: String -> Var -> Term -> Term
 mkQuant "λ" n t = mkLam n t
-mkQuant q   n t = Symb (C (string2Name q)) [mkLam n t]
+mkQuant q   n t = App (C (string2Name q)) [mkLam n t]
 
 quantP :: Parser String
 quantP = choice [ (q:"") <$ choice (map char (q:a)) | (q,a) <- quantifiers ]
@@ -152,10 +152,10 @@ atomP = choice
     , do
         head <- varOrConstP
         option head $ between (char '(') (char ')') $ do
-            Symb head <$> termP `sepBy1` (char ',')
+            App head <$> termP `sepBy1` (char ',')
     ]
   where
-    s n = Symb (C (string2Name n))
+    s n = App (C (string2Name n))
 
 varOrConstP :: Parser Term
 varOrConstP = do

@@ -127,7 +127,7 @@ flexflex uvs binds f ym g zn
     , Just ym' <- allBoundVar uvs ym
     = do
         newName <- fresh (string2Name "uni")
-        let rhs = absTerm ym' (Symb (V newName) (intersect ym zn))
+        let rhs = absTerm ym' (App (V newName) (intersect ym zn))
         let binds' = M.insert f rhs binds
         return (newName:uvs, binds')
     | f == g = return (uvs, binds) -- non-pattern: Just ignore
@@ -135,8 +135,8 @@ flexflex uvs binds f ym g zn
     , Just zn' <- allBoundVar uvs zn
     = do
         newName <- fresh (string2Name "uni")
-        let rhs1 = absTerm ym' (Symb (V newName) (intersect ym zn))
-        let rhs2 = absTerm zn' (Symb (V newName) (intersect ym zn))
+        let rhs1 = absTerm ym' (App (V newName) (intersect ym zn))
+        let rhs2 = absTerm zn' (App (V newName) (intersect ym zn))
         let binds' = M.insert f rhs1 $ M.insert g rhs2 binds
         return (newName:uvs, binds')
     | otherwise = return (uvs, binds) -- non-pattern: Just ignore
@@ -187,7 +187,7 @@ proj w uvs binds s = do
                 Just vs | all (`elem` w) vs -> return (uvs, binds)
                 Just vs -> do
                     newName <- fresh (string2Name "uni")
-                    let rhs = absTerm vs (Symb (V newName) (ss ++ map V w))
+                    let rhs = absTerm vs (App (V newName) (ss ++ map V w))
                     let binds' = M.insert v rhs binds
                     return (newName:uvs, binds')
 
@@ -197,7 +197,7 @@ proj w uvs binds s = do
                   | v `elem` w -> recurse ss
                   | otherwise  -> mzero
         (C _, ss)              -> recurse ss
-        (Symb _ _, _)          -> error "Unreachable"
+        (App _ _, _)          -> error "Unreachable"
   where
     recurse = foldM (uncurry (proj w)) (uvs, binds)
 
@@ -240,11 +240,11 @@ devar binds t = case strip t of
 redsTerm :: Fresh m => Term -> [Term] -> m Term
 redsTerm t [] = return t
 redsTerm (Lam b) (x:xs) = lunbind' b $ \(v,body) -> redsTerm (subst v x body) xs
-redsTerm t xs = return $ Symb t xs
+redsTerm t xs = return $ App t xs
 
 strip :: Term -> (Term, [Term])
 strip t = go t []
-  where go (Symb t args) args' = go t (args++args')
+  where go (App t args) args' = go t (args++args')
         go t             args' = (t, args')
 
 solvedBy :: Equality -> Bindings -> Bool
@@ -257,13 +257,13 @@ applyBinding bindings t = flip contFreshM (firstFree (M.toList bindings,t)) $ go
     go args (V v) | Just t <- M.lookup v bindings
                   = go args t
     go []   (V v) = return $ V v
-    go args (V v) = Symb (V v) <$> mapM (go []) args
+    go args (V v) = App (V v) <$> mapM (go []) args
 
     go []   (C v) = return $ C v
-    go args (C v) = Symb (C v) <$> mapM (go []) args
+    go args (C v) = App (C v) <$> mapM (go []) args
 
 
-    go args (Symb t args') = go (args' ++ args) t
+    go args (App t args') = go (args' ++ args) t
 
     go [] (Lam b) = lunbind' b $ \(v,body) -> Lam . bind v <$> go [] body
     go (x:xs) (Lam b) = lunbind' b $ \(v,body) -> go xs (subst v x body)
