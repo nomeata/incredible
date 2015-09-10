@@ -133,6 +133,6 @@ findUnconnectedGoals ctxt task proof = go S.empty conclusions
             , let spec = BlockPort blockKey portId
             ]
 
-    toMap = M.fromListWith (++) [ (connTo c, [k]) | (k,c) <- M.toList $ connections proof]
+    toMap = M.fromListWith (++) [ (connTo c, [k]) | (k,c) <- M.toList $ connections proof, connFrom c /= NoPort ]
     connsTo :: PortSpec -> [Key Connection]
     connsTo ps = M.findWithDefault [] ps toMap
