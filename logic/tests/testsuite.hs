@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, TypeSynonymInstances, FlexibleInstances #-}
+{-# LANGUAGE OverloadedStrings, TypeSynonymInstances, FlexibleInstances, TupleSections #-}
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
@@ -133,7 +133,7 @@ unificationTests = testGroup "Unification tests"
 
 assertUnifies vars eqns expt = do
     let expt' = M.fromList expt
-    let res = unifyLiberally vars eqns
+    let (res,_) = unifyLiberally vars (map ((),) eqns)
     unless (res == expt') $ do
         assertFailure $ unlines $
             ["expected: "] ++

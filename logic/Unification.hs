@@ -1,13 +1,20 @@
 {-# LANGUAGE LambdaCase #-}
-module Unification (Equality, Bindings, unifyLiberally, applyBinding) where
+module Unification
+    ( Equality
+    , Bindings
+    , unifyLiberally
+    , applyBinding
+    , UnificationResult(..)
+    ) where
 
 import qualified Data.Map as M
 import Control.Monad
 import Control.Applicative
+import Control.Monad.Trans.Class
 import Control.Monad.Trans.Maybe
+import Control.Monad.Trans.Writer
 import Debug.Trace
 import Data.List
-import Data.Maybe
 
 import Propositions
 
@@ -25,34 +32,38 @@ type Unifiable = [Var]
 emptyBinding :: Bindings
 emptyBinding = M.empty
 
-unifyLiberally :: Unifiable -> [Equality] -> Bindings
-unifyLiberally uvs eqns = flip contFreshM highest $ iter (uvs, emptyBinding) eqns
-  where
-    highest = firstFree (uvs, eqns)
 
+data UnificationResult = Solved | Failed | Dunno
+
+unifyLiberally :: Unifiable -> [(a,Equality)] -> (Bindings, [(a,UnificationResult)])
+unifyLiberally uvs eqns = flip contFreshM highest $
+    iter (uvs, emptyBinding) $ map (\(n,e) -> (n,Dunno,e)) eqns
+  where
+    highest = firstFree (uvs, map snd eqns)
 
     -- Repeatedly go through the list of equalities until we can solve no more
-    iter :: Fresh m => (Unifiable, Bindings) -> [Equality] -> m Bindings
+    iter :: Fresh m => (Unifiable, Bindings) -> [(a, UnificationResult, Equality)] -> m (Bindings, [(a, UnificationResult)])
     iter (uvs, bind) eqns = do
-        (uvs', bind') <- go [] (uvs,bind) eqns
+        ((uvs', bind'), eqns') <- runWriterT $ go (uvs,bind) eqns
         if M.size bind' > M.size bind
-           then iter (uvs', bind') eqns
-           else return bind'
+           then iter (uvs', bind') eqns'
+           else return (bind', map (\(n,r,e) -> (n,r)) eqns')
                 -- we learned something, so retry
 
 
-    go :: Fresh m => [Equality] -> (Unifiable, Bindings) -> [Equality] -> m (Unifiable, Bindings)
-    go _     uvs_bind [] = return uvs_bind
-    go retry uvs_bind (x:xs) = do
-        maybe_uvs_bind' <- runMaybeT (uncurry unif uvs_bind x)
+    go :: Fresh m => (Unifiable, Bindings) -> [(a,UnificationResult, Equality)] -> WriterT [(a,UnificationResult, Equality)] m (Unifiable, Bindings)
+    go uvs_bind [] = return uvs_bind
+    go uvs_bind ((n,Dunno,x):xs) = do
+        maybe_uvs_bind' <- lift $ runMaybeT (uncurry unif uvs_bind x)
         case maybe_uvs_bind' of
             Just (uvs',bind') ->
                 if x `solvedBy` bind'
-                then go retry (uvs',bind') xs
-                else go (x:retry) (uvs',bind') xs
-            Nothing        -> do
-                -- Ignore failed equations
-                go retry uvs_bind xs
+                then tell [(n,Solved, x)] >> go (uvs',bind') xs
+                else tell [(n,Dunno,  x)] >> go (uvs',bind') xs
+            Nothing ->
+                tell [(n, Failed, x)] >> go uvs_bind xs
+    -- Do not look at solved or failed equations again
+    go uvs_bind ((n,r,x):xs) = tell [(n,r,x)] >> go uvs_bind xs
 
 -- Code taken from http://www21.in.tum.de/~nipkow/pubs/lics93.html
 

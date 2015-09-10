@@ -272,6 +272,10 @@ function processGraph() {
       var lbl = analysis.connectionLabels[connId];
       var conn = graph.getCell(connId);
       if (lbl.propIn && lbl.propOut) {
+        var symbol;
+        if (lbl.type == "mismatch")   {symbol = "☠"}
+        else if (lbl.type == "dunno") {symbol = "?"}
+        else {console.log("Unknown connection label type")}
         conn.set('labels', [{
           position: .1,
           attrs: {
@@ -284,7 +288,7 @@ function processGraph() {
             position: .5,
             attrs: {
               text: {
-                text: '☠'
+                text: symbol
               }
             }
           },

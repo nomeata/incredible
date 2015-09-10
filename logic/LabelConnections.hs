@@ -18,7 +18,7 @@ import Unbound.LocallyNameless.Fresh
 
 labelConnections :: Context -> Task -> Proof -> M.Map (Key Connection) ConnLabel
 labelConnections ctxt task proof =
-    M.map instantiate (connections proof)
+    M.mapWithKey instantiate (connections proof)
   where
     -- Strategy:
     --  1. For each block in the proof, create a data structure
@@ -66,22 +66,27 @@ labelConnections ctxt task proof =
     propAt (BlockPort blockKey portKey) = Just $ renamedBlockProps ! blockKey ! portKey
 
     equations =
-        [ (prop1, prop2)
-        | conn <- M.elems (connections proof)
+        [ (connKey, (prop1, prop2))
+        | (connKey, conn) <- M.toList (connections proof)
         , Just prop1 <- return $ propAt (connFrom conn)
         , Just prop2 <- return $ propAt (connTo conn)
         ]
 
-    final_bind = unifyLiberally unificationVariables equations
+    (final_bind, unificationResults) = unifyLiberally unificationVariables equations
+
+    resultsMap :: M.Map (Key Connection) UnificationResult
+    resultsMap = M.fromList unificationResults
 
 
-    instantiate conn = case (propFromMB, propToMB) of
+    instantiate connKey conn = case (propFromMB, propToMB) of
         (Nothing, Nothing) -> Unconnected
         (Just propFrom, Nothing) -> Ok propFrom
         (Nothing, Just propTo)   -> Ok propTo
-        (Just propFrom, Just propTo)
-            | propFrom == propTo -> Ok propFrom
-            | otherwise          -> Mismatch propFrom propTo
+        (Just propFrom, Just propTo) -> case resultsMap M.! connKey of
+            Solved | propFrom == propTo -> Ok propFrom
+                   | otherwise          -> error "instantiate: not solved"
+            Dunno  -> DunnoLabel propFrom propTo
+            Failed -> Mismatch propFrom propTo
       where
         propFromMB = applyBinding final_bind <$> propAt (connFrom conn)
         propToMB   = applyBinding final_bind <$> propAt (connTo conn)

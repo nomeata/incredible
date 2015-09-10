@@ -115,7 +115,9 @@ instance ToJSON ConnLabel where
     toJSON Unconnected = object []
     toJSON (Ok prop) = toJSON prop
     toJSON (Mismatch prop1 prop2) = object
-        [ "propIn" .= prop1, "propOut" .= prop2 ]
+        [ "propIn" .= prop1, "propOut" .= prop2, "type" .= ("mismatch"::T.Text) ]
+    toJSON (DunnoLabel prop1 prop2) = object
+        [ "propIn" .= prop1, "propOut" .= prop2, "type" .= ("dunno"::T.Text) ]
 
 instance ToJSON PortSpec where
     toJSON NoPort             = object []

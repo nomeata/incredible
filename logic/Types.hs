@@ -75,7 +75,7 @@ data Proof = Proof
  }
  deriving Show
 
-data ConnLabel = Unconnected | Ok Proposition | Mismatch Proposition Proposition
+data ConnLabel = Unconnected | Ok Proposition | Mismatch Proposition Proposition | DunnoLabel Proposition Proposition
  deriving (Eq, Show)
 
 data Analysis = Analysis
