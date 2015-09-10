@@ -31,9 +31,9 @@ findCycles ctxt proof = [ keys | CyclicSCC keys <- stronglyConnComp graph ]
     connectionsBefore (BlockPort blockId toPortId)
         | Just block <- M.lookup blockId (blocks proof)
         , Just rule <- M.lookup (blockRule block) (ctxtRules ctxt)
-        , (Port PTConclusion _) <- ports rule ! toPortId -- No need to follow local assumptions
+        , (Port PTConclusion _ _) <- ports rule ! toPortId -- No need to follow local assumptions
         = [ c'
-          | (portId, Port PTAssumption _) <- M.toList (ports rule)
+          | (portId, Port PTAssumption _ _) <- M.toList (ports rule)
           , c' <- M.findWithDefault [] (BlockPort blockId portId) toMap
           ]
     connectionsBefore _ = []
@@ -43,7 +43,7 @@ findEscapedHypotheses ctxt proof =
     [ path
     | (blockKey, block) <- M.toList $ blocks proof
     , let rule = ctxtRules ctxt ! blockRule block
-    , (portKey, Port (PTLocalHyp consumedBy) _) <- M.toList (ports rule)
+    , (portKey, Port (PTLocalHyp consumedBy) _ _) <- M.toList (ports rule)
     , Just path <- return $ pathToConclusion
         (S.singleton (BlockPort blockKey consumedBy))
         (BlockPort blockKey portKey)
@@ -69,7 +69,7 @@ findEscapedHypotheses ctxt proof =
          -- block.
         | isPortTypeIn $ portType (ports rule ! portId)
         = msum [ pathToConclusion stopAt' nextPortSpec
-            | (nextPortKey, Port PTConclusion _) <- M.toList (ports rule)
+            | (nextPortKey, Port PTConclusion _ _) <- M.toList (ports rule)
             , let nextPortSpec = BlockPort blockId nextPortKey
             ]
         -- We are at an conclusion or a local assumption port. Continue with
@@ -101,7 +101,7 @@ findUsedConnections ctxt task proof = go S.empty connectionsToConclusions
         inConnections = [ c
             | BlockPort blockKey _ <- return $ connFrom (connections proof ! connKey)
             , let rule = ctxtRules ctxt ! blockRule (blocks proof ! blockKey)
-            , (portId, Port PTAssumption _) <- M.toList $ ports rule
+            , (portId, Port PTAssumption _ _) <- M.toList $ ports rule
             , let spec = BlockPort blockKey portId
             , c <- connsTo spec
             ]
@@ -129,7 +129,7 @@ findUnconnectedGoals ctxt task proof = go S.empty conclusions
         inPorts = [ spec
             | blockKey <- blockKeys
             , let rule = ctxtRules ctxt ! blockRule (blocks proof ! blockKey)
-            , (portId, Port PTAssumption _) <- M.toList $ ports rule
+            , (portId, Port PTAssumption _ _) <- M.toList $ ports rule
             , let spec = BlockPort blockKey portId
             ]
 

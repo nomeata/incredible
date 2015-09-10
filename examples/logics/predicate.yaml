@@ -6,6 +6,7 @@ rules:
     in1:
       type: assumption
       proposition: P(c)
+      scoped: ["c"]
     out2:
       type: conclusion
       proposition: ∀x.P(x)
@@ -29,7 +30,6 @@ rules:
       proposition: ∃x.P(x)
 - id: exE
   free: ["P"]
-  local: ["c"]
   ports:
     in1:
       type: assumption
@@ -37,6 +37,7 @@ rules:
     out2:
       type: conclusion
       proposition: P(c)
+      scoped: ["c"]
 - id: conjI
   free: ["A","B"]
   ports:

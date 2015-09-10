@@ -30,10 +30,10 @@ lint logic _task proof = mconcat
         [ printf "local hypothesis \"%s\" of rule \"%s\" has an invalid consumedBy field \"%s\""
           (untag portKey) (untag ruleKey) (untag consumedBy)
         | (ruleKey, rule) <- M.toList (ctxtRules logic)
-        , (portKey, Port (PTLocalHyp consumedBy) _) <- M.toList (ports rule)
+        , (portKey, Port (PTLocalHyp consumedBy) _ _) <- M.toList (ports rule)
         , maybe True (not.isAssumption) $ M.lookup consumedBy (ports rule)
         ]
-      where isAssumption (Port PTAssumption _) = True
+      where isAssumption (Port PTAssumption _ _) = True
             isAssumption _ = False
     missingRule =
         [ printf "Block \"%s\" references unknown rule \"%s\"" (untag blockKey) (untag ruleKey)
@@ -74,8 +74,8 @@ lint logic _task proof = mconcat
         | (connKey, conn) <- M.toList (connections proof)
         , ConclusionPort n <- return $ connFrom conn
         ]
-      where isOk (Port (PTLocalHyp _) _) = True
-            isOk (Port PTConclusion _) = True
+      where isOk (Port (PTLocalHyp _) _ _) = True
+            isOk (Port PTConclusion _ _) = True
             isOk _ = False
     wrongTargetType =
         [ printf "Connection \"%s\" ends in port \"%s\" of block \"%s\", which is not an assumption."
@@ -93,7 +93,7 @@ lint logic _task proof = mconcat
         | (connKey, conn) <- M.toList (connections proof)
         , AssumptionPort n <- return $ connTo conn
         ]
-      where isOk (Port PTAssumption _) = True
+      where isOk (Port PTAssumption _ _) = True
             isOk _ = False
 
 

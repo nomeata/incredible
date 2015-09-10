@@ -17,13 +17,18 @@ import Propositions
 toContext :: Value -> Either String Context
 toContext = parseEither parseJSON
 
+
+varList :: Object -> T.Text -> Parser [Var]
+varList o field = map (string2Name) <$> o .:? field .!= []
+
+
 instance FromJSON Rule where
   parseJSON = withObject "rule" $ \o -> do
-    f <- map (string2Name) <$> o .:? "free" .!= []
-    l <- map (string2Name) <$> o .:? "local" .!= []
+    f <- varList o "free"
+    l <- varList o "local"
     Rule (f++l) f . M.map (const2Var' f) <$> o .: "ports"
     where
-        const2Var' f (Port t p) = Port t (const2Var f p)
+        const2Var' f (Port t p s) = Port t (const2Var (f++s) p) s
 
 instance FromJSON Port where
   parseJSON = withObject "port" $ \o -> do
@@ -34,7 +39,7 @@ instance FromJSON Port where
         "local hypothesis" -> do
             PTLocalHyp  <$> o .: "consumedBy"
         t -> fail $ "Unknown port type \"" ++ T.unpack t ++ "\""
-    Port typ <$> o .: "proposition"
+    Port typ <$> o .: "proposition" <*> varList o "scoped"
 
 instance FromJSON Proposition where
     parseJSON = withText "proposition" $ \s ->

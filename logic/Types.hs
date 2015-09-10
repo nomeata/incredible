@@ -46,6 +46,7 @@ isPortTypeIn PTAssumption = True
 data Port = Port
  { portType :: PortType
  , portProp :: Proposition
+ , portScopes :: [Var]
  }
  deriving Show
 
