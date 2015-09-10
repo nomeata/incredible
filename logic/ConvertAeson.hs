@@ -21,7 +21,9 @@ instance FromJSON Rule where
   parseJSON = withObject "rule" $ \o -> do
     f <- map (string2Name) <$> o .:? "free" .!= []
     l <- map (string2Name) <$> o .:? "local" .!= []
-    Rule (f++l) f <$> o .: "ports"
+    Rule (f++l) f . M.map (const2Var' f) <$> o .: "ports"
+    where
+        const2Var' f (Port t p) = Port t (const2Var f p)
 
 instance FromJSON Port where
   parseJSON = withObject "port" $ \o -> do

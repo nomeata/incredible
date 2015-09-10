@@ -33,9 +33,11 @@ labelConnections ctxt task proof =
 
     closedBlockData :: [(Key Block, Bind [Var] ([Var], [(String, Term)]))]
     closedBlockData =
-        [ (blockKey, bind (localVars rule) (freeVars rule, portList))
+        [ (blockKey, bind l (f, portList))
         | (blockKey, block) <- M.toList (blocks proof)
         , let rule = ctxtRules ctxt ! blockRule block
+              l = localVars rule
+              f = freeVars rule
               portList =
                 [ (untag pk, portProp p)
                 | (pk,p) <- M.toList $ ports rule

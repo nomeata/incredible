@@ -13,8 +13,8 @@ type KMap v = M.Map (Key v) v
 
 
 data Task = Task
- { tAssumptions :: [GroundTerm]
- , tConclusions :: [GroundTerm]
+ { tAssumptions :: [Term]
+ , tConclusions :: [Term]
  }
  deriving Show
 

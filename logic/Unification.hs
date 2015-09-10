@@ -34,6 +34,7 @@ emptyBinding = M.empty
 
 
 data UnificationResult = Solved | Failed | Dunno
+    deriving Show
 
 unifyLiberally :: Unifiable -> [(a,Equality)] -> (Bindings, [(a,UnificationResult)])
 unifyLiberally uvs eqns = flip contFreshM highest $
@@ -59,7 +60,9 @@ unifyLiberally uvs eqns = flip contFreshM highest $
             Just (uvs',bind') ->
                 if x `solvedBy` bind'
                 then tell [(n,Solved, x)] >> go (uvs',bind') xs
-                else tell [(n,Dunno,  x)] >> go (uvs',bind') xs
+                -- Discard the results of this dunno,
+                -- potentially less complete, but makes the output easier to understand
+                else tell [(n,Dunno,  x)] >> go uvs_bind xs
             Nothing ->
                 tell [(n, Failed, x)] >> go uvs_bind xs
     -- Do not look at solved or failed equations again
@@ -93,11 +96,11 @@ and cases S (s,t) = case (strip s,strip t) of
 cases :: (MonadPlus m, Fresh m) => [Var] -> Bindings -> (Term, Term) -> m ([Var], Bindings)
 cases uvs binds (s,t) = do
     case (strip s, strip t) of
-        ((Var f, ym), (Var g, zn))
+        ((V f, ym), (V g, zn))
             | f `elem` uvs && g `elem` uvs -> flexflex  uvs binds f ym g zn
-        ((Var f, ym), _)
+        ((V f, ym), _)
             | f `elem` uvs                 -> flexrigid uvs binds f ym t
-        (_, (Var g, zn))
+        (_, (V g, zn))
             | g `elem` uvs                 -> flexrigid uvs binds g zn s
         ((a, sm), (b, tn))
             -> rigidrigid uvs binds a sm b tn
@@ -123,19 +126,19 @@ flexflex uvs binds f ym g zn
     , Just ym' <- mapM fromVar ym
     = do
         newName <- fresh (string2Name "uni")
-        let rhs = absTerm ym' (Symb (Var newName) (intersect ym zn))
+        let rhs = absTerm ym' (Symb (V newName) (intersect ym zn))
         let binds' = M.insert f rhs binds
         return (newName:uvs, binds')
-    | f == g = error "flexflex: Non-pattern: What to do?"
+    | f == g = return (uvs, binds) -- non-pattern: Just ignore
     | Just ym' <- mapM fromVar ym
     , Just zn' <- mapM fromVar zn
     = do
         newName <- fresh (string2Name "uni")
-        let rhs1 = absTerm ym' (Symb (Var newName) (intersect ym zn))
-        let rhs2 = absTerm zn' (Symb (Var newName) (intersect ym zn))
+        let rhs1 = absTerm ym' (Symb (V newName) (intersect ym zn))
+        let rhs2 = absTerm zn' (Symb (V newName) (intersect ym zn))
         let binds' = M.insert f rhs1 $ M.insert g rhs2 binds
         return (newName:uvs, binds')
-    | otherwise = error "flexflex: Non-pattern: What to do?"
+    | otherwise = return (uvs, binds) -- non-pattern: Just ignore
 
 {-
 fun occ F S (V G) = (F=G) orelse
@@ -159,7 +162,8 @@ flexrigid uvs binds f ym t
     | occ binds f t
     = mzero
     | Just vs <- mapM fromVar ym
-    = proj vs uvs (M.insert f (absTerm vs t) binds) t
+    = let binds' = M.insert f (absTerm vs t) binds
+      in proj vs uvs binds' t
     | otherwise
     = return (uvs, binds) -- not a pattern, ignoring here
 
@@ -177,23 +181,25 @@ proj w uvs binds s = do
     case strip s' of
         (Lam b, _)
             -> lunbind' b $ \(x,t) -> proj (x:w) uvs binds t
-        (Var v, ss) | v `elem` uvs
+        (V v, ss) | v `elem` uvs
             -> case mapM fromVar ss of
                 Just vs | all (`elem` w) vs -> return (uvs, binds)
                 Just vs -> do
                     newName <- fresh (string2Name "uni")
-                    let rhs = absTerm vs (Symb (Var newName) (ss ++ map Var w))
+                    let rhs = absTerm vs (Symb (V newName) (ss ++ map V w))
                     let binds' = M.insert v rhs binds
                     return (newName:uvs, binds')
                 Nothing -> error "What to do here?"
-        (Var v, ss)
+        (V v, ss)
             -> foldM (uncurry (proj w)) (uvs, binds) ss
                 -- Todo: How to distinguish constansts from bound variables here?
+        (C v, ss)
+            -> foldM (uncurry (proj w)) (uvs, binds) ss
         (Symb _ _, _) -> error "Unreachable"
 
 
 fromVar :: Term -> Maybe Var
-fromVar (Var n) = Just n
+fromVar (V n) = Just n
 fromVar _       = Nothing
 
 {-
@@ -217,7 +223,7 @@ fun devar S t = case strip t of
 -}
 devar :: Fresh m => Bindings -> Term -> m Term
 devar binds t = case strip t of
-    (Var v,ys)
+    (V v,ys)
         | Just t <- M.lookup v binds
         -> redsTerm t ys >>= devar binds
     _   -> return t
@@ -233,15 +239,20 @@ strip t = go t []
         go t             args' = (t, args')
 
 solvedBy :: Equality -> Bindings -> Bool
-solvedBy (t1,t2) b = applyBinding b t1 `aeq` applyBinding b t2
+solvedBy (t1,t2) b =
+    applyBinding b t1 `aeq` applyBinding b t2
 
 applyBinding :: Bindings -> Term -> Term
 applyBinding bindings t = flip contFreshM (firstFree (M.toList bindings,t)) $ go [] t
   where
-    go args (Var v) | Just t <- M.lookup v bindings
-                    = go args t
-    go []   (Var v) = return $ Var v
-    go args (Var v) = Symb (Var v) <$> mapM (go []) args
+    go args (V v) | Just t <- M.lookup v bindings
+                  = go args t
+    go []   (V v) = return $ V v
+    go args (V v) = Symb (V v) <$> mapM (go []) args
+
+    go []   (C v) = return $ C v
+    go args (C v) = Symb (C v) <$> mapM (go []) args
+
 
     go args (Symb t args') = go (args' ++ args) t
 

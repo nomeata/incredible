@@ -20,7 +20,8 @@ type Var = Name Term
 -- This could be made more abstract as in the unification-fd package
 data Term
     = Symb Term [Term]
-    | Var Var
+    | V Var
+    | C Var
     | Lam (Bind Var Term)
     deriving Show
 
@@ -30,8 +31,9 @@ instance Alpha Term
 instance Eq Term where (==) = aeq
 
 instance Subst Term Term where
-   isvar (Var v) = Just (SubstName v)
-   isvar _       = Nothing
+   isvar (V v) = Just (SubstName v)
+   isvar (C v) = Just (SubstName v)
+   isvar _     = Nothing
 
 firstFree :: Alpha a => a -> Integer
 firstFree = (1+) . maximum . (0:) . map anyName2Integer . fvAny
@@ -39,7 +41,13 @@ firstFree = (1+) . maximum . (0:) . map anyName2Integer . fvAny
 type Proposition = Term
 
 absTerm :: [Var] -> Term -> Term
-absTerm vs t = foldr (\v t -> Lam (bind v t)) t vs
+absTerm vs t = foldr mkLam t vs
+
+mkLam :: Var -> Term -> Term
+mkLam v t = Lam (bind v (const2Var [v] t))
+
+const2Var :: [Var] -> Term -> Term
+const2Var vs = substs [(v, V v) | v <- vs]
 
 -- Pretty printer
 
@@ -47,10 +55,11 @@ printTerm :: Proposition -> String
 printTerm p = runLFreshM (prP (0::Int) p) ""
   where
     prP :: Int -> Proposition -> LFreshM (String -> String)
-    prP _ (Var v)     = prN v
-    prP d (Symb (Var f) [a1, a2]) | Just p <- isInFix (name2String f)
+    prP _ (C v) = prN v
+    prP _ (V v) = prN v
+    prP d (Symb (C f) [a1, a2]) | Just p <- isInFix (name2String f)
         = prParens (p < d) $ prP (p+1) a1 <> prN f <> prP p a2
-    prP d (Symb (Var f) [Lam b]) | isQuant (name2String f)
+    prP d (Symb (C f) [Lam b]) | isQuant (name2String f)
         = prParens (1 < d) $ lunbind b $ \(v,t) ->
         prN f <> prN v <> prS "." <> prP 1 t
     prP _ (Symb f args) = prP 4 f <> prS "(" <> prCommas [prP 0 a | a <- args] <> prS ")"
@@ -107,7 +116,7 @@ table = [ [ binary "∧" ["&"]
           ]
         ]
   where
-    binary op alts = Infix ((\a b -> Symb (Var (string2Name op)) [a,b]) <$ l (choice (map string (op:alts)))) AssocLeft
+    binary op alts = Infix ((\a b -> Symb (C (string2Name op)) [a,b]) <$ l (choice (map string (op:alts)))) AssocLeft
 
 quantifiers :: [(Char, [Char])]
 quantifiers =
@@ -117,8 +126,8 @@ quantifiers =
     ]
 
 mkQuant :: String -> Var -> Term -> Term
-mkQuant "λ" n t = Lam (bind n t)
-mkQuant q   n t = Symb (Var (string2Name q)) [Lam (bind n t)]
+mkQuant "λ" n t = mkLam n t
+mkQuant q   n t = Symb (C (string2Name q)) [mkLam n t]
 
 quantP :: Parser String
 quantP = choice [ (q:"") <$ choice (map char (q:a)) | (q,a) <- quantifiers ]
@@ -134,27 +143,23 @@ atomP = choice
         vname <- nameP
         _ <- char '.'
         p <- termP
-        return $ mkQuant q vname p
+        return $ mkQuant q vname $ p
     , between (char '(') (char ')') termP
     , do
-        sym <- nameP
-        option (Var sym) $ between (char '(') (char ')') $ do
-            Symb (Var sym) <$> termP `sepBy1` (char ',')
+        head <- varOrConstP
+        option head $ between (char '(') (char ')') $ do
+            Symb head <$> termP `sepBy1` (char ',')
     ]
   where
-    s n = Symb (Var (string2Name n))
+    s n = Symb (C (string2Name n))
+
+varOrConstP :: Parser Term
+varOrConstP = do
+    -- A hack for the test suite etc: prepending the name of a constant with V
+    -- makes it a variable
+    con <- option C (V <$ (try (string "V ")))
+    n <- nameP
+    return $ con n
 
 nameP :: Rep a => Parser (Name a)
 nameP = string2Name <$> many1 alphaNum
-
-
-
--- Ground terms are terms with no variables, such as the propositions in the
--- task. We no longer encode that invariant in the type system.
-type GroundTerm = Term 
-
-parseGroundTerm :: String -> Either String GroundTerm
-parseGroundTerm = either (Left . show) (Right . fixVar) . parse termP ""
-
-fixVar :: Term -> Term
-fixVar = id -- TODO

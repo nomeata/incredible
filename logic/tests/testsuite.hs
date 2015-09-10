@@ -8,6 +8,7 @@ import Data.String
 import Control.Monad
 import Data.Maybe
 import Unbound.LocallyNameless
+import Control.Arrow
 
 import ShapeChecks
 import Types
@@ -40,11 +41,19 @@ tests = testGroup "Tests"
     ]
 
 parserTests = testGroup "Parsers"
-  [ testCase ("can parse " ++ s) $ assertRight $ parseTerm s
-  | s <- [ "∀x.P(x)"
-         , "!x.P(x)"
-         ]
+  [ testCase ("can parse " ++ f) $ assertParse f t
+  | (f,t) <- [ ("∀x.P(x)", "∀x.P(x)")
+             , ("!x.P(x)", "∀x.P(x)")
+             , ("∃x.P(x)", "∃x.P(x)")
+             , ("?x.P(x)", "∃x.P(x)")
+             ]
   ]
+
+assertParse f t = do
+    let r@(~(Right t')) = parseTerm f
+    assertRight r
+    assertEqual "pretty-printed:" t (printTerm t')
+
 
 cycleTests = testGroup "Cycle detection"
   [ testCase "cycle"    $ findCycles oneBlockLogic proofWithCycle @?= [["c"]]
@@ -66,12 +75,12 @@ unconnectedGoalsTests = testGroup "Unsolved goals"
 
 labelConectionsTests = testGroup "Label Connections"
   [ testCase "complete" $ labelConnections impILogic simpleTask completeProof @?=
-        M.fromList [("c1",Ok $ Var "Prop"),("c2", Ok $ Symb (Var "→") [Var "Prop",Var "Prop"])]
+        M.fromList [("c1",Ok $ C "Prop"),("c2", Ok $ Symb (C "→") [C "Prop", C "Prop"])]
   ]
 
 unificationTests = testGroup "Unification tests"
   [ testCase "unify pred" $
-    assertUnifies ["P"] [("P(x)", "Q(R(x))")]
+    assertUnifies ["P"] [("P(V x)", "Q(R(V x))")]
         [("P", absTerm ["x"] "Q(R(x))")]
   , testCase "unify with ∀" $
     assertUnifies ["R"] [("R", "∀z.P(z)")]
@@ -80,7 +89,7 @@ unificationTests = testGroup "Unification tests"
     assertUnifies ["P","Z"] [("∀z.P(z)", "∀z.Q(R(z))")]
         [("P", absTerm ["x"] "Q(R(x))")]
   , testCase "unify subst under ∀" $
-    assertUnifies ["P","V"] [("P(x)", "Q(R(x))"), ("∀z.P(z)", "∀z.Q(V(z))")]
+    assertUnifies ["P","V"] [("P(V x)", "Q(R(V x))"), ("∀z.P(z)", "∀z.Q(V(z))")]
         [("P", absTerm ["x"] "Q(R(x))"), ("V", absTerm ["x"] "R(x)")]
   {- TODO
   , testCase "∀ escape" $
@@ -131,9 +140,11 @@ unificationTests = testGroup "Unification tests"
         ]
   ]
 
+assertUnifies :: [Var] -> [Equality] -> [(Var, Term)] -> Assertion
 assertUnifies vars eqns expt = do
     let expt' = M.fromList expt
-    let (res,_) = unifyLiberally vars (map ((),) eqns)
+    let eqns' = map (both (const2Var vars)) eqns
+    let (res,_) = unifyLiberally vars (map ((),) eqns')
     unless (res == expt') $ do
         assertFailure $ unlines $
             ["expected: "] ++
@@ -154,13 +165,14 @@ proofWithoutCycle = Proof
 
 impILogic = Context
     (M.fromList
-        [ ("impI", Rule ["A", "B"] ["A", "B"] (M.fromList
-            [ ("in",  Port PTAssumption "B")
-            , ("out", Port PTConclusion "A→B")
-            , ("hyp", Port (PTLocalHyp "in") "A")
+        [ ("impI", Rule f f (M.fromList
+            [ ("in",  Port PTAssumption (const2Var f "B"))
+            , ("out", Port PTConclusion (const2Var f "A→B"))
+            , ("hyp", Port (PTLocalHyp "in") (const2Var f "A"))
             ]))
         ]
     )
+  where f = ["A","B"]
 
 directEscape = Proof
     (M.singleton "b" (Block "impI"))
@@ -212,3 +224,6 @@ assertRight = either assertFailure (const (return ()))
 
 (>:) :: a -> b -> (a, b)
 (>:) = (,)
+
+both :: (a -> b) -> (a, a) -> (b, b)
+both f = f *** f
