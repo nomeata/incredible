@@ -15,7 +15,7 @@ prepare:
 
 docs:
 	cd logic && \
-	cabal haddock --hyperlink-source --html-location='http://hackage.haskell.org/package/$$pkg/docs'  --contents-location='http://hackage.haskell.org/package/$$pkg'
+	cabal haddock --hyperlink-source --html-location='http://hackage.haskell.org/package/$$pkg/docs'
 
 test: all
 	cd logic && \
