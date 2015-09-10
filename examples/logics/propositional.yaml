@@ -110,7 +110,7 @@ rules:
       consumedBy: in
     out:
       type: conclusion
-      proposition: ¬ A
+      proposition: ¬A
 - id: notE
   free: ["A","P"]
   ports:
@@ -119,7 +119,7 @@ rules:
       proposition: A
     in2:
       type: assumption
-      proposition: ¬ A
+      proposition: ¬A
     out:
       type: conclusion
       proposition: P

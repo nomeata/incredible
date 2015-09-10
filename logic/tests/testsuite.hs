@@ -43,6 +43,7 @@ parserTests = testGroup "Parsers"
   [ testCase ("can parse " ++ s) $ assertRight $ parseTerm s
   | s <- [ "∀x.P(x)"
          , "!x.P(x)"
+         , "¬¬P"
          ]
   ]
 

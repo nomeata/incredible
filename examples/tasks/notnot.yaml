@@ -2,4 +2,4 @@ logic: propositional
 assumptions:
 - A
 conclusions:
-- ¬ (¬ A)
+- ¬¬A

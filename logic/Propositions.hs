@@ -105,9 +105,7 @@ termP :: Parser Proposition
 termP =  buildExpressionParser table atomP <?> "proposition"
 
 table :: OperatorTable String () Identity Proposition
-table = [ [ prefix "¬" ["~"]
-          ] 
-        , [ binary "∧" ["&"]
+table = [ [ binary "∧" ["&"]
           , binary "→" ["->"]
           ]
         , [ binary "∨" ["|"]
@@ -115,7 +113,6 @@ table = [ [ prefix "¬" ["~"]
         ]
   where
     binary op alts = Infix ((\a b -> Symb (Var (string2Name op)) [a,b]) <$ l (choice (map string (op:alts)))) AssocLeft
-    prefix op alts = Prefix ((\a -> Symb (Var (string2Name op)) [a]) <$ l (choice (map string (op:alts))))
 
 quantifiers :: [(Char, [Char])]
 quantifiers =
@@ -132,6 +129,10 @@ atomP = choice
     , string "⊤" >> return (s "⊤" [])
     , try (string "False") >> return (s "⊥" [])
     , try (string "True") >> return (s "⊤" [])
+    , do
+        _ <- char '¬' <|> char '~'
+        p <- atomP
+        return $ s "¬" [p]
     , do
         q <- quantP
         vname <- nameP
