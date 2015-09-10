@@ -5,7 +5,7 @@
 
 ./deploy.sh gh-page
 
-cp -r logic/dist/doc gh-page/doc
+cp -r logic/dist/doc/html/incredible-logic/ gh-page/doc
 
 # Prepare an empty directory
 cd gh-page
