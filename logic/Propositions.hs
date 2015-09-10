@@ -61,6 +61,8 @@ printTerm p = runLFreshM (prP (0::Int) p) ""
     prP :: Int -> Proposition -> LFreshM (String -> String)
     prP _ (C v) = prN v
     prP _ (V v) = prN v
+    prP d (App (C f) [a]) | Just p <- isPrefix (name2String f)
+        = prParens (p < d) $ prN f <> prP p a
     prP d (App (C f) [a1, a2]) | Just p <- isInFix (name2String f)
         = prParens (p < d) $ prP (p+1) a1 <> prN f <> prP p a2
     prP d (App (C f) [Lam b]) | isQuant (name2String f)
@@ -95,6 +97,10 @@ isInFix _   = Nothing
 
 isQuant :: String -> Bool
 isQuant = (`elem` words "∃ ∀")
+
+isPrefix :: String -> Maybe Int
+isPrefix "¬" = Just 4
+isPrefix _   = Nothing
 
 -- Parser
 
@@ -142,6 +148,10 @@ atomP = choice
     , string "⊤" >> return (s "⊤" [])
     , try (string "False") >> return (s "⊥" [])
     , try (string "True") >> return (s "⊤" [])
+    , do
+        _ <- char '¬' <|> char '~'
+        p <- atomP
+        return $ s "¬" [p]
     , do
         q <- quantP
         vname <- nameP

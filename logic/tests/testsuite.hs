@@ -46,6 +46,8 @@ parserTests = testGroup "Parsers"
              , ("!x.P(x)", "∀x.P(x)")
              , ("∃x.P(x)", "∃x.P(x)")
              , ("?x.P(x)", "∃x.P(x)")
+             , ("¬¬P", "¬¬P")
+             , ("~¬P", "¬¬P")
              ]
   ]
 
