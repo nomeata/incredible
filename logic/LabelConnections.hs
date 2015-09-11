@@ -62,6 +62,9 @@ labelConnections ctxt task proof =
     unificationVariables :: [Var]
     unificationVariables = concat $ map (fst.snd) renamedBlockData
 
+    scopedVariables :: [Var]
+    scopedVariables = concatMap (concatMap snd . M.elems . snd . snd) renamedBlockData
+
     scopes = calculateScopes ctxt task proof
     scopeMap = M.fromListWith (++) [ (k, [pdom]) | (ks, pdom) <- scopes, k <- ks ]
 
@@ -77,7 +80,8 @@ labelConnections ctxt task proof =
             , v <- sv
             ]
         -- Change free variables to variables, possibly depending on these arguments
-        s = [ (s, mkApps (V s) (map V scopedVars)) | s <- unv ]
+        s = [ (s, mkApps (V s) (map V scopedVars)) | s <- unv ] ++
+            [ (s, V s) | s <- scopedVariables ]
         preparePort (prop, _) = (substs s prop)
 
     propAt NoPort                       = Nothing

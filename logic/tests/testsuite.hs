@@ -137,6 +137,12 @@ unificationTests = testGroup "Unification tests"
         [ "P", "y" ]
         [ "P(c)" >: "f(y)" ] -- here, we can make some progress on P
         [ "P" >: absTerm ["x"] "f(y)"]
+  , testCase "basic pattern-matching" $
+    assertUnifies
+        [ "P1", "P2" ]
+        [ "P1(V c1)" >: "∀x.P2(V c1,x)"]
+        [ "P1" >: absTerm ["c1"] "∀x.P2(c1,x)"]
+
   ]
 
 assertUnifies :: [Var] -> [Equality] -> [(Var, Term)] -> Assertion
