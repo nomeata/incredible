@@ -45,8 +45,19 @@
 		overflow: auto;
             }
 
-	    .debug {
+	    #dialog {
+		border:2px solid grey;
+		background:white;
 		display:none;
+		position: absolute;
+		top:100px;
+		left:0px;
+		right:0px;
+		margin-left:auto;
+		margin-right:auto;
+		width:800px;
+		bottom:100px;
+		overflow: auto;
 	    }
 
 	    h1, h2, h3 {
@@ -64,6 +75,7 @@
       <h1>The Incredible Proof Machine</h1>
 	Load a new task: <select id="taskselect"></select>
 	Load existing proof: <select id="proofselect"><option value=""/></select>
+	<button id="showdialog">Details</button>
         <br/>
 	<div id="errors"></div>
 	<div id="task">
@@ -75,15 +87,19 @@
 
     </div>
 
-        <div id="paper"></div>
+    <div id="paper"></div>
 
-	<div class="debug">
-        Analysis: <button id="update">Update</button>
-        <span id="took"></span>
-        <br/>
-        <textarea  cols=100 rows=20 id="analysis" readonly="readonly">
-        </textarea>
-	</div>
+    <div id="dialog">
+    <div align="right"><button id="closedialog">×</button></div>
+    <span id="took"></span>
+    <br/>
+    <textarea  cols=100 rows=20 id="graph" readonly="readonly"></textarea>
+    <br/>
+    <textarea  cols=100 rows=20 id="proof" readonly="readonly"></textarea>
+    <br/>
+    <textarea  cols=100 rows=20 id="analysis" readonly="readonly"></textarea>
+    </div>
+
 
         <script src="./node_modules/jquery/dist/jquery.min.js"></script>
     <!--

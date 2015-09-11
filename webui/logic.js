@@ -191,7 +191,15 @@ $(function () {
   rescale_paper();
 });
 
-$("#update").click(processGraph);
+$("#showdialog").click(function(){
+  $("#graph").val(JSON.stringify(graph.toJSON(),null,2));
+  $("#proof").val(JSON.stringify(buildProof(graph)));
+  $("#dialog").toggle();
+});
+$("#closedialog").click(function(){
+  $("#dialog").hide()}
+);
+
 graph.on('add remove ', function () { processGraph(); });
 graph.on('change:source change:target', function (model, end) {
   var connection_state = model.get('source').id + model.get('source').port
