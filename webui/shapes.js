@@ -33,160 +33,119 @@ shapes = {};
 
 joint.shapes.incredible = {}
 
+
 /*
- * The followsing is derived from Ports{Model,View}Interface in
- * joint.shapes.basic, for customization
+ * The new way of doing things: No more visual information in the model,
+ * the shape is calculated in the view.
+ * The whole crazy `attrs` feature of JointJS is not used!
  */
-
 joint.shapes.incredible.Generic = joint.shapes.basic.Generic.extend({
-
-  markup: '<g class="rotatable"><g class="scalable"><rect class="body"/></g><text class="label"/><g class="ports"/></g>',
-  portMarkup: '<g class="port port<%= id %>">' +
-//     '<circle class="port-body"/>'  +
-    // pacman open towards left
-  '<path class="port-body" stroke="none" fill="#777" transform="rotate(135)" d="M0,0 l 0 5 a5,5 0 1,1 5,-5 z"/>' +
-  '<text class="port-label"/>' +
-  '</g>',
-
   defaults: joint.util.deepSupplement({
-
     type: 'incredible.Generic',
-    size: {width: 80, height: 40},
+  }, joint.shapes.basic.Generic.prototype.defaults)
+});
 
-    attrs: {
-      '.': {magnet: false},
-      '.body': {
-        width: 150, height: 250,
-        stroke: '#000000'
-      },
-      '.port-body': {
-        r: 10,
-        magnet: true,
-      },
-      text: {
-        'pointer-events': 'none'
-      },
-      '.label': {text: 'Model', 'ref-x': .5, 'ref-y': 10, ref: '.body', 'text-anchor': 'middle', fill: '#000000'},
-      '.port-label': {'font-size': '8px'},
-    }
-
-  }, joint.shapes.basic.Generic.prototype.defaults),
-
-
+joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
   initialize: function () {
-    this.updatePortAttributes();
-    this.on('change:rule change:brokenPorts change:prototypeElement', this.updatePortAttributes, this);
-    this.constructor.__super__.constructor.__super__.initialize.apply(this, arguments);
+    joint.dia.ElementView.prototype.initialize.apply(this, arguments);
+
+    // Listen to some incredible-specific change events
+    this.listenTo(this.model, 'change:brokenPorts', this.update);
   },
 
-  updatePortAttributes: function () {
-    var attrs = {};
+  renderMarkup: function() {
+    var rule = this.model.get('rule');
+    var isPrototype = this.model.get('prototypeElement');
 
-    var ruleObj = this.get('rule');
-    var isPrototype = this.get('prototypeElement');
-    var brokenPorts = this.get('brokenPorts') || {};
+    this.vel.attr('magnet',false);
 
-    attrs['.label'] = {text: ruleObj.id};
+    var group = V("<g/>");
+    this.vel.append(group);
 
-    var rules = ruleObj.ports;
-    var rulesList = _.sortBy(_.map(rules, function (v, i) {return _.extend({id: i}, v);}), 'id');
-    var rulesGroup = _.groupBy(rulesList, "type");
+    var rect = V("<rect fill='#ecf0f1' rx='5' ry='5' width='80' height='30' stroke='#bdc3c7' stroke-opacity='0.5'/>");
+    group.append(rect);
 
-    _.each(rulesGroup, function (thesePorts, portType) {
+    rectBB = rect.bbox(true);
+
+    var text = V("<text class='label' font-family='sans' fill='black'/>");
+    text.text(rule.id);
+    group.append(text);
+    textBB = text.bbox(true);
+    // center text
+    text.translate((rectBB.width - textBB.width)/2, (rectBB.height - textBB.height)/2);
+
+    var ports = rule.ports;
+    var portsList = _.sortBy(_.map(ports, function (v, i) {return _.extend({id: i}, v);}), 'id');
+    var portsGroup = _.groupBy(portsList, "type");
+
+    _.each(portsGroup, function (thesePorts, portType) {
       var total = _.size(thesePorts);
       _.each(thesePorts, function (portDesc, index) {
         var direction = ({assumption: 'in', conclusion: 'out', 'local hypothesis': 'out'})[portType];
-        var selector = '.ports';
+          var pacman = V('<path class="port-body" stroke="none" fill="#777" magnet="true"/>');
+          pacman.attr({port: portDesc.id, direction: direction});
 
-        var portClass = 'port' + portDesc.id;
-        var portSelector = selector + '>.' + portClass;
-        var portLabelSelector = portSelector + '>.port-label';
-        var portBodySelector = portSelector + '>.port-body';
+          group.append(pacman);
 
-        attrs[portBodySelector] = {port: portDesc.id, direction: direction};
-        attrs[portSelector] = {ref: '.body'};
+          if (isPrototype) {
+            var label = V("<text font-family='sans' font-size='8px'/>");
+            label.text(portDesc.proposition);
+            group.append(label);
+            var labelBB = label.bbox(true);
+          }
 
-        if (portType === 'assumption') {
-          attrs[portSelector]['ref-y'] = (index + 0.5) * (1 / total);
-          attrs[portBodySelector].transform = 'rotate(135)';
-          attrs[portLabelSelector] = {dx: -10, y: 5, 'y-alignment': 'middle', 'text-anchor': 'end', fill: '#000000'};
-        } else if (portType === 'conclusion') {
-          attrs[portSelector]['ref-y'] = (index + 0.5) * (1 / total);
-          attrs[portSelector]['ref-dx'] = 0;
-          attrs[portBodySelector].transform = 'rotate(135)';
-          attrs[portBodySelector].d = 'M-5,-5 l 0 5 a5,5 0 1,0 5,-5 z';
-          attrs[portLabelSelector] = {dx: 10, y: 5, 'y-alignment': 'middle', fill: '#000000'};
-        } else if (portType === 'local hypothesis') {
-          attrs[portSelector]['ref-x'] = (index + 0.5) * (1 / total);
-          attrs[portSelector]['ref-dy'] = 1;
-          attrs[portBodySelector].transform = 'rotate(-135)';
-          attrs[portBodySelector].d = 'M-5,-5 l 0 5 a5,5 0 1,0 5,-5 z';
-          attrs[portLabelSelector] = {x: 0, y: 20, 'text-anchor': 'middle', fill: '#000000'};
-        } else {
-          throw new Error("initialize(): Unknown portType");
-        }
+          var labelPad = 7;
 
-        /* This does not work, triggering updatePortAttributes
-         * multiple times seems to break stuff horribly.
-         if (brokenPorts[portDesc.id]) {
-         attrs[portBodySelector].fill = '#F00';
-         }
-         */
-
-        attrs[portLabelSelector].text = portDesc.proposition;
-        if (!isPrototype) {
-          attrs[portLabelSelector].display = 'none';
-        }
+          if (portType === 'assumption') {
+            // put left
+            var y = (index+0.5)/total * rectBB.height;
+            pacman.translate( 0, y );
+            pacman.rotate(135);
+            pacman.attr({d: "M0,0 l 0 5 a5,5 0 1,1 5,-5 z"});
+            if (isPrototype) {
+              label.translate( -labelBB.width - labelPad, y - labelBB.height/2 );
+            }
+          } else if (portType === 'conclusion') {
+            // put right
+            var y = (index+0.5)/total * rectBB.height;
+            pacman.translate( rectBB.width, (index+0.5)/total * rectBB.height );
+            pacman.rotate(135);
+            pacman.attr({d: "M-5,-5 l 0 5 a5,5 0 1,0 5,-5 z"});
+            if (isPrototype) {
+              label.translate( rectBB.width + labelPad, y - labelBB.height/2 );
+            }
+          } else if (portType === 'local hypothesis') {
+            // put below
+            var x = (index+0.5)/total * rectBB.width;
+            pacman.translate( x, rectBB.height);
+            pacman.rotate(225);
+            pacman.attr({d: "M-5,-5 l 0 5 a5,5 0 1,0 5,-5 z"});
+            if (isPrototype) {
+              label.translate( x - labelBB.width/2, rectBB.height + labelPad);
+            }
+          } else {
+            throw new Error("initialize(): Unknown portType");
+          }
       });
     });
-
-    // Silently set `attrs` on the cell so that noone knows the attrs have changed. This makes sure
-    // that, for example, command manager does not register `change:attrs` command but only
-    // the important `change:inPorts`/`change:outPorts` command.
-    this.attr(attrs, {silent: true});
-
-    // Manually call the `processPorts()` method that is normally called on `change:attrs` (that we just made silent).
-    this.processPorts();
-    // Let the outside world (mainly the `ModelView`) know that we're done configuring the `attrs` object.
-    this.trigger('process:ports');
-
-    // Call the `initialize()` of the parent.
-    this.constructor.__super__.constructor.__super__.initialize.apply(this, arguments);
-  }
-
-});
-
-
-joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
-
-  initialize: function () {
-
-    // `Model` emits the `process:ports` whenever it's done configuring the `attrs` object for ports.
-    this.listenTo(this.model, 'process:ports', this.update);
-
-    joint.dia.ElementView.prototype.initialize.apply(this, arguments);
   },
-
   update: function () {
+    // Do our on stuff
+    var rule = this.model.get('rule');
+    var brokenPorts = this.model.get('brokenPorts') || {};
 
-    // First render ports so that `attrs` can be applied to those newly created DOM elements
-    // in `ElementView.prototype.update()`.
-    this.renderPorts();
-    joint.dia.ElementView.prototype.update.apply(this, arguments);
-  },
-
-  renderPorts: function () {
-
-    var $ports = this.$('.ports').empty();
-
-    var portTemplate = _.template(this.model.portMarkup);
-
-    _.each(this.model.ports, function (port, index) {
-      $ports.append(V(portTemplate({id: index, port: port})).node);
+    _.each(this.vel.find(".port-body"), function (port) {
+      if (V(port).attr('port') in brokenPorts) {
+        V(port).attr('fill', '#F00');
+      } else {
+        V(port).attr('fill', '#777');
+      }
     });
+
+    // Just in case we use the attrs feature, let's call the jointjs update function
+    joint.dia.ElementView.prototype.update.apply(this, arguments);
   }
 });
-
 
 // Assumptions and conclusions
 joint.shapes.incredible.ACBlock = joint.shapes.basic.Generic.extend({

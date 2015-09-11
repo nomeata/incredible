@@ -110,13 +110,15 @@ function setupGraph(graph, logic, task) {
     }
     // Is this overly complicated?
     var ElemClass = BaseClass.extend({
-      defaults: joint.util.deepSupplement(
-        {rule: rule},
+      defaults: joint.util.deepSupplement({
+          rule: rule,
+	},
         BaseClass.prototype.defaults)
     });
     var elem = new ElemClass({
       position: {x: 50, y: 25 + 50 * i},
-      prototypeElement: true
+      prototypeElement: true,
+      brokenPorts: {}
     });
     cells.push(elem);
   });
@@ -224,9 +226,7 @@ function processGraph() {
     $.each(graph.getElements(), function (i, el) {
       var rule = el.get('rule');
       if (rule) {
-        $.each(rule.ports, function (p, c) {
-          el.attr('.port' + p + '>.port-body', {fill: '#777'});
-        });
+	el.set('brokenPorts',{});
       }
       if (el.get('conclusion')) {
         el.attr('circle', {fill: '#777'});
@@ -265,7 +265,9 @@ function processGraph() {
     $.each(analysis.unconnectedGoals, function (i, goal) {
       if (goal.block) {
         el = graph.getCell(goal.block);
-        el.attr('.port' + goal.port + '>.port-body', {fill: '#F00'});
+	var bp = _.clone(el.get('brokenPorts'));
+	bp[goal.port] = true;
+	el.set('brokenPorts', bp);
       }
       if (goal.conclusion) {
         conclusionModels[goal.conclusion - 1].attr('circle', {fill: '#F00'});
