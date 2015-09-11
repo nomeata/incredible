@@ -8,7 +8,7 @@ var paper = new joint.dia.Paper({
   gridSize: 1,
   snapLinks: true,
   defaultLink: function (elementView, magnet) {
-    var e = new joint.shapes.logic.Wire();
+    var e = new joint.shapes.incredible.Link();
     e.set('router', {name: 'manhattan'});
     return e;
   },
