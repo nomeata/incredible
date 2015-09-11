@@ -102,14 +102,14 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     var rect = V("<rect class='body' fill='#ecf0f1' rx='5' ry='5' stroke='#bdc3c7' stroke-opacity='0.5'/>");
 
     // Calculate minimum width/height based on number of ports and label length
-    var height = 30;
+    var height = 35;
     var width = 80;
     _.each(portsGroup, function (thesePorts, portType) {
       var total = _.size(thesePorts);
       if (portType == 'local hypothesis') {
-        height = Math.max(height, 20 * total + 10);
+        width = Math.max(width, 20 * total -5);
       } else {
-        width = Math.max(width, 20 * total + 10);
+        height = Math.max(height, 20 * total -5);
       }
     });
     width = Math.max(width, textBB.width + 10);
