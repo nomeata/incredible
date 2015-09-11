@@ -123,9 +123,10 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     _.each(portsGroup, function (thesePorts, portType) {
       var total = _.size(thesePorts);
       _.each(thesePorts, function (portDesc, index) {
-        var direction = ({assumption: 'in', conclusion: 'out', 'local hypothesis': 'out'})[portType];
+          var direction = ({assumption: 'in', conclusion: 'out', 'local hypothesis': 'out'})[portType];
+          var orientation = ({assumption: 'left', conclusion: 'right', 'local hypothesis': 'bottom'})[portType];
           var pacman = V('<path class="port-body" stroke="none" fill="#777" magnet="true"/>');
-          pacman.attr({port: portDesc.id, direction: direction});
+          pacman.attr({port: portDesc.id, direction: direction, orientation: orientation});
 
           group.append(pacman);
 
@@ -227,14 +228,41 @@ joint.shapes.incredible.Link = joint.dia.Link.extend({
         },
 
         // router: { name: 'orthogonal' },
+
+	/*
         router: { name: 'manhattan', args: {
           paddingBox: function () {return {x: -5, y: -5, width: 10, height: 10}},
           startDirections: ['right'],
           endDirections: ['left']
         }},
+	*/
+        router: { name: 'wrappedmanhattan' },
         connector: { name: 'rounded', args: { radius: 10 }}
 
     }, joint.dia.Link.prototype.defaults)
 
 });
+
+
+joint.routers.wrappedmanhattan = (function (){
+  var manhattan = joint.routers.manhattan;
+
+  return function(vertices, opt, linkView) {
+    var startDirections = ['right']; // somewhat sensible default
+    var endDirections = ['left']; // somewhat sensible default
+    if (this.sourceMagnet) {
+      startDirections = [this.sourceMagnet.getAttribute('orientation')];
+    }
+    if (this.targetMagnet) {
+      endDirections = [this.targetMagnet.getAttribute('orientation')];
+    }
+
+    var args = {
+      paddingBox: function () {return {x: -5, y: -5, width: 10, height: 10}},
+      startDirections: startDirections,
+      endDirections: endDirections
+    }
+    return manhattan.call(this, vertices, _.extend({},args,opt), linkView);
+  };
+})();
 
