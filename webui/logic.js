@@ -73,8 +73,6 @@ graph.on('reset', function () {
 var task = examples.tasks.curry1;
 var logic = examples.logics.conjAndImp;
 
-var conclusionModels = [];
-
 function setupGraph(graph, logic, task) {
   var cells = [];
   // Fixed blocks for input and output
@@ -95,7 +93,6 @@ function setupGraph(graph, logic, task) {
       task: task
     });
     cells.push(gate);
-    conclusionModels[i] = gate;
   });
 
   // "Prototype blocks" for each element
@@ -272,7 +269,11 @@ function processGraph() {
 	el.set('brokenPorts', bp);
       }
       if (goal.conclusion) {
-        conclusionModels[goal.conclusion - 1].set('brokenPorts',{in:true});
+        $.each(graph.getElements(), function (i, el) {
+          if (el.get('conclusion') && el.get('conclusion') == goal.conclusion) {
+            el.set('brokenPorts',{in:true});
+          }
+        });
       }
     });
 
