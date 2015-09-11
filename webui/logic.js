@@ -168,13 +168,20 @@ $.each(examples.tasks, function (name, l) {
     $("<option />").val(name).text(name)
   );
 });
+$.each(examples.graphs, function (name, l) {
+  $("#proofselect").append(
+    $("<option />").val(name).text(name)
+  );
+});
 
 $("#taskselect").change(function () { if (this.value) selectTask(this.value); });
+$("#proofselect").change(function () { if (this.value) selectProof(this.value); });
 
 function selectTask(name) {
   task = examples.tasks[name];
   logic = examples.logics[task.logic];
   $("#taskselect").val(name);
+  $("#proofselect").val("");
   $("#assumptions").empty();
   $.each(task.assumptions || [], function (i, el) {
     $("#assumptions").append($("<div>").text(el));
@@ -184,6 +191,13 @@ function selectTask(name) {
     $("#conclusions").append($("<div>").text(el));
   });
   setupGraph(graph, logic, task);
+  processGraph();
+}
+
+function selectProof(name) {
+  proof = examples.graphs[name];
+  selectTask(proof.task);
+  graph.fromJSON(proof);
   processGraph();
 }
 

@@ -1,0 +1,3 @@
+logic: predicate
+conclusions:
+ - ∃x.t(x)→∀x.t(x)

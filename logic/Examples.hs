@@ -14,6 +14,7 @@ data Examples = Examples
  { exampleLogics :: M.Map String Value
  , exampleTasks  :: M.Map String Value
  , exampleProofs :: M.Map String Value
+ , exampleGraphs :: M.Map String Value
  }
 
 instance ToJSON Examples where
@@ -21,6 +22,7 @@ instance ToJSON Examples where
     [ "logics" .= exampleLogics
     , "tasks"  .= exampleTasks
     , "proofs" .= exampleProofs
+    , "graphs" .= exampleGraphs
     ]
 
 readDirectoryOfYamlFiles :: FilePath -> IO (M.Map String Value)
@@ -37,3 +39,4 @@ readExamples :: FilePath -> IO Examples
 readExamples dir = Examples <$> readDirectoryOfYamlFiles (dir </> "logics")
                             <*> readDirectoryOfYamlFiles (dir </> "tasks")
                             <*> readDirectoryOfYamlFiles (dir </> "proofs")
+                            <*> readDirectoryOfYamlFiles (dir </> "graphs")
