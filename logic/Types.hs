@@ -84,6 +84,12 @@ data Proof = Proof
 data ConnLabel = Unconnected | Ok Proposition | Mismatch Proposition Proposition | DunnoLabel Proposition Proposition
  deriving (Eq, Show)
 
+badLabel :: ConnLabel -> Bool
+badLabel (Mismatch {})   = True
+badLabel (DunnoLabel {}) = True
+badLabel (Ok {})         = False
+badLabel Unconnected     = False
+
 data Analysis = Analysis
  { connectionLabels :: M.Map (Key Connection) ConnLabel
  , unconnectedGoals :: [PortSpec]

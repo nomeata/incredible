@@ -28,6 +28,6 @@ incredibleLogic ctxt task proof = do
     badConnections = S.unions
         [ S.fromList (concat cycles)
         , S.fromList (concat escapedHypotheses)
-        , S.fromList [ c | (c, Mismatch {}) <- M.toList connectionLabels]
+        , S.fromList [ c | (c, l) <- M.toList connectionLabels, badLabel l ]
         ]
     qed = null unconnectedGoals && S.null (usedConnections `S.intersection` badConnections)

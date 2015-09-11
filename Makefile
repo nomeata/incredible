@@ -19,7 +19,7 @@ docs:
 
 test: all
 	cd logic && \
-	cabal test
+	cabal test --show-details=streaming
 
 logic/dist-ghcjs/build/js-interface/js-interface.jsexe/all.js: logic/*.hs logic/js/*.hs
 	cd logic && \

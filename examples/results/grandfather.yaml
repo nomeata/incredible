@@ -1,7 +1,7 @@
 {
   "escapedHypotheses": [],
   "unconnectedGoals": [],
-  "qed": true,
+  "qed": false,
   "cycles": [],
   "connectionLabels": {
     "75c24348-1c22-43dd-88b1-9166f3b87c5d": "∃x.r(x)∧r(f(f(x)))",

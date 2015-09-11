@@ -22,7 +22,7 @@ calculateScopes ctxt task proof = scopes
   where
     -- Building a graph for the dom-lt library
 
-    conclusionNodes = take (length (tConclusions task)) [-1..] :: [Node]
+    conclusionNodes = take (length (tConclusions task)) [-1,-2..] :: [Node]
 
     exitNode = 0 :: Node
 
