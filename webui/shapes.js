@@ -65,37 +65,6 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
 
     var isPrototype = this.model.get('prototypeElement');
 
-    this.vel.attr('magnet',false);
-
-    var group = V("<g/>");
-    this.vel.append(group);
-
-    var rect = V("<rect class='body' fill='#ecf0f1' rx='5' ry='5' width='80' height='30' stroke='#bdc3c7' stroke-opacity='0.5'/>");
-    group.append(rect);
-
-
-    var text = V("<text class='label' font-family='sans' fill='black'/>");
-    if (rule) {
-      text.text(rule.id);
-    } else if (assumption) {
-      text.text(task.assumptions[assumption-1]);
-    } else if (conclusion) {
-      text.text(task.conclusions[conclusion-1]);
-    }
-
-    group.append(text);
-    textBB = text.bbox(true);
-
-    // Expand box
-    rectBB = rect.bbox(true);
-    var newWidth = Math.max(rectBB.width, textBB.width+10)
-    var newHeight = Math.max(rectBB.height, textBB.height+10)
-    rect.attr({width: newWidth, height: newHeight});
-    rectBB = rect.bbox(true);
-
-    // center text
-    text.translate((rectBB.width - textBB.width)/2, (rectBB.height - textBB.height)/2);
-
     if (rule) {
       var ports = rule.ports;
       var portsList = _.sortBy(_.map(ports, function (v, i) {return _.extend({id: i}, v);}), 'id');
@@ -111,6 +80,46 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
       }]};
     }
 
+    this.vel.attr('magnet',false);
+
+    var group = V("<g/>");
+    this.vel.append(group);
+
+    var text = V("<text class='label' font-family='sans' fill='black'/>");
+    if (rule) {
+      text.text(rule.id);
+    } else if (assumption) {
+      text.text(task.assumptions[assumption-1]);
+    } else if (conclusion) {
+      text.text(task.conclusions[conclusion-1]);
+    }
+
+    group.append(text);
+    textBB = text.bbox(true);
+    // center text
+    text.translate(- textBB.width/2, - textBB.height/2);
+
+    var rect = V("<rect class='body' fill='#ecf0f1' rx='5' ry='5' stroke='#bdc3c7' stroke-opacity='0.5'/>");
+
+    // Calculate minimum width/height based on number of ports and label length
+    var height = 30;
+    var width = 80;
+    _.each(portsGroup, function (thesePorts, portType) {
+      var total = _.size(thesePorts);
+      if (portType == 'local hypothesis') {
+        height = Math.max(height, 20 * total + 10);
+      } else {
+        width = Math.max(width, 20 * total + 10);
+      }
+    });
+    width = Math.max(width, textBB.width + 10);
+    height = Math.max(height, textBB.height + 10);
+
+    rect.attr({width: width, height: height});
+    rect.translate(-width/2,-height/2);
+    group.prepend(rect);
+
+
     _.each(portsGroup, function (thesePorts, portType) {
       var total = _.size(thesePorts);
       _.each(thesePorts, function (portDesc, index) {
@@ -121,7 +130,7 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
           group.append(pacman);
 
           if (isPrototype) {
-            var label = V("<text font-family='sans' font-size='8px'/>");
+            var label = V("<text font-family='sans' fill='#000' font-size='8px'/>");
             label.text(portDesc.proposition);
             group.append(label);
             var labelBB = label.bbox(true);
@@ -131,30 +140,30 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
 
           if (portType === 'assumption') {
             // put left
-            var y = (index+0.5)/total * rectBB.height;
-            pacman.translate( 0, y );
+            var y = 20*index - 10*(total-1);
+            pacman.translate( -width/2, y);
             pacman.rotate(135);
             pacman.attr({d: "M0,0 l 0 5 a5,5 0 1,1 5,-5 z"});
             if (isPrototype) {
-              label.translate( -labelBB.width - labelPad, y - labelBB.height/2 );
+              label.translate( -width/2 -labelBB.width - labelPad, y - labelBB.height/2 );
             }
           } else if (portType === 'conclusion') {
             // put right
-            var y = (index+0.5)/total * rectBB.height;
-            pacman.translate( rectBB.width, (index+0.5)/total * rectBB.height );
+            var y = 20*index - 10*(total-1);
+            pacman.translate( width/2, y);
             pacman.rotate(135);
             pacman.attr({d: "M-5,-5 l 0 5 a5,5 0 1,0 5,-5 z"});
             if (isPrototype) {
-              label.translate( rectBB.width + labelPad, y - labelBB.height/2 );
+              label.translate( width/2 + labelPad, y - labelBB.height/2 );
             }
           } else if (portType === 'local hypothesis') {
             // put below
-            var x = (index+0.5)/total * rectBB.width;
-            pacman.translate( x, rectBB.height);
+            var x = 20*index - 10*(total-1);
+            pacman.translate( x, height/2);
             pacman.rotate(225);
             pacman.attr({d: "M-5,-5 l 0 5 a5,5 0 1,0 5,-5 z"});
             if (isPrototype) {
-              label.translate( x - labelBB.width/2, rectBB.height + labelPad);
+              label.translate( x - labelBB.width/2, height/2 + labelPad);
             }
           } else {
             throw new Error("initialize(): Unknown portType");
@@ -217,7 +226,8 @@ joint.shapes.incredible.Link = joint.dia.Link.extend({
             '.marker-vertex': { r: 7 }
         },
 
-        router: { name: 'orthogonal' },
+        // router: { name: 'orthogonal' },
+        router: { name: 'manhattan' },
         connector: { name: 'rounded', args: { radius: 10 }}
 
     }, joint.dia.Link.prototype.defaults)

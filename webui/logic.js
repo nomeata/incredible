@@ -5,12 +5,10 @@ var paper = new joint.dia.Paper({
   model: graph,
   width: 1000,
   height: 600,
-  gridSize: 1,
+  gridSize: 10,
   snapLinks: true,
   defaultLink: function (elementView, magnet) {
-    var e = new joint.shapes.incredible.Link();
-    e.set('router', {name: 'manhattan'});
-    return e;
+    return new joint.shapes.incredible.Link();
   },
 
   validateMagnet: function (v, m) {
@@ -83,7 +81,7 @@ function setupGraph(graph, logic, task) {
   $.each(task.assumptions || [], function (i, c) {
     var n = i + 1;
     var gate = new joint.shapes.incredible.Generic({
-      position: {x: 230, y: 30 + 50 * i},
+      position: {x: 270, y: 30 + 50 * i},
       assumption: n,
       task: task
     });
@@ -92,7 +90,7 @@ function setupGraph(graph, logic, task) {
   $.each(task.conclusions || [], function (i, c) {
     var n = i + 1;
     var gate = new joint.shapes.incredible.Generic({
-      position: {x: 550, y: 30 + 50 * i},
+      position: {x: 590, y: 30 + 50 * i},
       conclusion: n,
       task: task
     });
@@ -116,7 +114,7 @@ function setupGraph(graph, logic, task) {
         BaseClass.prototype.defaults)
     });
     var elem = new ElemClass({
-      position: {x: 50, y: 25 + 50 * i},
+      position: {x: 90, y: 25 + 50 * i},
       prototypeElement: true,
       brokenPorts: {}
     });
