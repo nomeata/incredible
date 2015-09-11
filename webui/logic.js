@@ -82,19 +82,19 @@ function setupGraph(graph, logic, task) {
   // Fixed blocks for input and output
   $.each(task.assumptions || [], function (i, c) {
     var n = i + 1;
-    var gate = new joint.shapes.incredible.Assumption({
+    var gate = new joint.shapes.incredible.Generic({
       position: {x: 230, y: 30 + 50 * i},
-      attrs: {text: {text: c}},
-      assumption: n
+      assumption: n,
+      task: task
     });
     cells.push(gate);
   });
   $.each(task.conclusions || [], function (i, c) {
     var n = i + 1;
-    var gate = new joint.shapes.incredible.Conclusion({
+    var gate = new joint.shapes.incredible.Generic({
       position: {x: 550, y: 30 + 50 * i},
-      attrs: {text: {text: c}},
-      conclusion: n
+      conclusion: n,
+      task: task
     });
     cells.push(gate);
     conclusionModels[i] = gate;
@@ -224,13 +224,7 @@ function processGraph() {
 
     // Reset everything
     $.each(graph.getElements(), function (i, el) {
-      var rule = el.get('rule');
-      if (rule) {
-	el.set('brokenPorts',{});
-      }
-      if (el.get('conclusion')) {
-        el.attr('circle', {fill: '#777'});
-      }
+      el.set('brokenPorts',{});
     });
     $.each(graph.getLinks(), function (i, conn) {
       conn.attr({'.connection': {class: 'connection'}});
@@ -270,7 +264,7 @@ function processGraph() {
 	el.set('brokenPorts', bp);
       }
       if (goal.conclusion) {
-        conclusionModels[goal.conclusion - 1].attr('circle', {fill: '#F00'});
+        conclusionModels[goal.conclusion - 1].set('brokenPorts',{in:true});
       }
     });
 

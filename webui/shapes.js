@@ -54,7 +54,12 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
   },
 
   renderMarkup: function() {
+    // These will not all be defined
     var rule = this.model.get('rule');
+    var assumption = this.model.get('assumption');
+    var conclusion = this.model.get('conclusion');
+    var task = this.model.get('task');
+
     var isPrototype = this.model.get('prototypeElement');
 
     this.vel.attr('magnet',false);
@@ -65,18 +70,43 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     var rect = V("<rect fill='#ecf0f1' rx='5' ry='5' width='80' height='30' stroke='#bdc3c7' stroke-opacity='0.5'/>");
     group.append(rect);
 
-    rectBB = rect.bbox(true);
 
     var text = V("<text class='label' font-family='sans' fill='black'/>");
-    text.text(rule.id);
+    if (rule) {
+      text.text(rule.id);
+    } else if (assumption) {
+      text.text(task.assumptions[assumption-1]);
+    } else if (conclusion) {
+      text.text(task.conclusions[conclusion-1]);
+    }
+
     group.append(text);
     textBB = text.bbox(true);
+
+    // Expand box
+    rectBB = rect.bbox(true);
+    var newWidth = Math.max(rectBB.width, textBB.width+10)
+    var newHeight = Math.max(rectBB.height, textBB.height+10)
+    rect.attr({width: newWidth, height: newHeight});
+    rectBB = rect.bbox(true);
+
     // center text
     text.translate((rectBB.width - textBB.width)/2, (rectBB.height - textBB.height)/2);
 
-    var ports = rule.ports;
-    var portsList = _.sortBy(_.map(ports, function (v, i) {return _.extend({id: i}, v);}), 'id');
-    var portsGroup = _.groupBy(portsList, "type");
+    if (rule) {
+      var ports = rule.ports;
+      var portsList = _.sortBy(_.map(ports, function (v, i) {return _.extend({id: i}, v);}), 'id');
+      var portsGroup = _.groupBy(portsList, "type");
+    } else if (assumption) {
+      // Fake port data for assumption and conclusion blocks
+      var portsGroup= {'conclusion': [{
+        id: 'out'
+      }]};
+    } else if (conclusion) {
+      var portsGroup= {'assumption': [{
+        id: 'in'
+      }]};
+    }
 
     _.each(portsGroup, function (thesePorts, portType) {
       var total = _.size(thesePorts);
@@ -146,79 +176,3 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     joint.dia.ElementView.prototype.update.apply(this, arguments);
   }
 });
-
-// Assumptions and conclusions
-joint.shapes.incredible.ACBlock = joint.shapes.basic.Generic.extend({
-
-  type: 'incredible.ACBlock',
-
-  markup: '<g class="rotatable"><g class="scalable"><rect class="body"/></g><path class="wire"/><circle/><text/></g>',
-
-  defaults: joint.util.deepSupplement({
-
-    type: 'logic.IO',
-    size: {width: 60, height: 30},
-    attrs: {
-      '.': {magnet: false},
-      '.body': {fill: 'white', stroke: 'black', 'stroke-width': 2, width: 100, height: 50},
-      '.wire': {ref: '.body', 'ref-y': .5, stroke: 'black'},
-      circle: {r: 7, stroke: 'black', fill: 'transparent', 'stroke-width': 2, magnet: true},
-      text: {
-        fill: 'black',
-        ref: '.body', 'ref-x': .5, 'ref-y': .5, 'y-alignment': 'middle',
-        'text-anchor': 'middle',
-        'font-family': 'sans-serif',
-        'font-size': '12px'
-      }
-    }
-  }),
-
-  initialize: function (options) {
-    this.constructor.__super__.constructor.__super__.initialize.apply(this, arguments);
-    // TODO: resize accoring to the text
-  },
-});
-
-joint.shapes.incredible.ACBlockView = joint.dia.ElementView.extend({
-  update: function () {
-    /* Doesn’t work
-     w = this.$('text')[0].getBBox().width;
-     if (w > 0) {
-     console.log(w);
-     V(this.$('.body').get(0)).attr('width', w);
-     }
-     */
-    joint.dia.ElementView.prototype.update.apply(this, arguments);
-  },
-
-});
-joint.shapes.incredible.AssumptionView = joint.shapes.incredible.ACBlockView
-joint.shapes.incredible.ConclusionView = joint.shapes.incredible.ACBlockView
-
-joint.shapes.incredible.Assumption = joint.shapes.incredible.ACBlock.extend({
-
-  defaults: joint.util.deepSupplement({
-
-    type: 'incredible.Assumption',
-    attrs: {
-      '.wire': {'ref-dx': 0, d: 'M 0 0 L 23 0'},
-      circle: {ref: '.body', 'ref-dx': 30, 'ref-y': 0.5, direction: 'out'},
-    }
-
-  }, joint.shapes.incredible.ACBlock.prototype.defaults),
-});
-
-joint.shapes.incredible.Conclusion = joint.shapes.incredible.ACBlock.extend({
-
-  defaults: joint.util.deepSupplement({
-
-    type: 'incredible.Conclusion',
-    attrs: {
-      '.wire': {'ref-x': 0, d: 'M 0 0 L -23 0'},
-      circle: {ref: '.body', 'ref-x': -30, 'ref-y': 0.5, direction: 'in'},
-    }
-
-  }, joint.shapes.incredible.ACBlock.prototype.defaults)
-
-});
-
