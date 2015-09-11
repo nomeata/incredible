@@ -92,7 +92,7 @@ function setupGraph(graph, logic, task) {
   $.each(task.conclusions || [], function (i, c) {
     var n = i + 1;
     var gate = new joint.shapes.incredible.Conclusion({
-      position: {x: 550, y: 300 + 50 * i},
+      position: {x: 550, y: 30 + 50 * i},
       attrs: {text: {text: c}},
       conclusion: n
     });
