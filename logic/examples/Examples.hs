@@ -8,6 +8,8 @@ import Control.Applicative
 import System.FilePath
 import Control.Monad
 import qualified Data.ByteString as B
+import System.IO
+import System.Exit
 
 
 data Examples = Examples
@@ -31,8 +33,13 @@ readDirectoryOfYamlFiles dir = do
   let yamlFiles = filter ((".yaml" == ) . takeExtension) files
   entries <- forM yamlFiles $ \f -> do
     content <- B.readFile f
-    let value = either error id $ decodeEither content
-    return (dropExtension (takeFileName f), value)
+    case decodeEither' content of
+        Left error -> do
+            hPutStrLn stderr $ "Could not parse " ++ f ++ ":"
+            hPutStrLn stderr $ prettyPrintParseException error
+            exitFailure
+        Right value ->
+            return (dropExtension (takeFileName f), value)
   return $ M.fromList entries
 
 readExamples :: FilePath -> IO Examples
