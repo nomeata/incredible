@@ -230,15 +230,11 @@ function processGraph() {
       conn.attr({'.connection': {class: 'connection'}});
     });
 
-    if (analysis.qed) {
-      conclusionModels.map(function (c) {
-        c.attr({'rect': {'class': 'body qed'}});
-      });
-    } else {
-      conclusionModels.map(function (c) {
-        c.attr({'rect': {'class': 'body'}});
-      });
-    }
+    // We set this simly for all elements, even if only
+    // the view for conclusion elements listens for it
+    $.each(graph.getElements(), function (i, el) {
+      el.set('qed', analysis.qed);
+    });
 
     // Collect errors
     $.each(analysis.cycles, function (i, path) {

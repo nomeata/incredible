@@ -73,35 +73,6 @@
     stroke: none;
 }
 
-.element .highlighted {
-    outline: none;
-    fill: #ecf0f1;
-    stroke: #bdc3c7;
-    cursor: crosshair;
-}
-
-.element .body {
-    fill: #ecf0f1;
-    stroke: #bdc3c7;
-    stroke-opacity: 0.5;
-    transition: all 0.2s;
-}
-
-.element .body.qed {
-    fill: #0F0;
-}
-
-.element circle {
-    /* fill: #fff; overriden via attrs */
-    stroke: #7f8c8d;
-    stroke-opacity: 0.5;
-    stroke-width: 2px;
-}
-
-.element text {
-    fill: #333;
-}
-
 .live .connection {
     stroke: #2ecc71;
     stroke-width: 3px;

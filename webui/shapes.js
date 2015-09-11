@@ -51,6 +51,9 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
 
     // Listen to some incredible-specific change events
     this.listenTo(this.model, 'change:brokenPorts', this.update);
+    if (this.model.get('conclusion')) {
+      this.listenTo(this.model, 'change:qed', this.update);
+    };
   },
 
   renderMarkup: function() {
@@ -67,7 +70,7 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     var group = V("<g/>");
     this.vel.append(group);
 
-    var rect = V("<rect fill='#ecf0f1' rx='5' ry='5' width='80' height='30' stroke='#bdc3c7' stroke-opacity='0.5'/>");
+    var rect = V("<rect class='body' fill='#ecf0f1' rx='5' ry='5' width='80' height='30' stroke='#bdc3c7' stroke-opacity='0.5'/>");
     group.append(rect);
 
 
@@ -161,7 +164,6 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
   },
   update: function () {
     // Do our on stuff
-    var rule = this.model.get('rule');
     var brokenPorts = this.model.get('brokenPorts') || {};
 
     _.each(this.vel.find(".port-body"), function (port) {
@@ -171,6 +173,14 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
         V(port).attr('fill', '#777');
       }
     });
+
+    if (this.model.get('conclusion')) {
+      if (this.model.get('qed')) {
+        V(this.vel.findOne(".body")).attr('fill','#0f0');
+      } else {
+        V(this.vel.findOne(".body")).attr('fill','#ecf0f1');
+      };
+    }
 
     // Just in case we use the attrs feature, let's call the jointjs update function
     joint.dia.ElementView.prototype.update.apply(this, arguments);
