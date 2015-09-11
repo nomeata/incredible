@@ -66,6 +66,7 @@ executable js-interface
 executable bundle-examples
   main-is:           bundle-examples.hs
   other-modules:     Examples
+  hs-source-dirs:    examples
   default-language:  Haskell2010
   if impl(ghcjs)
     buildable: False
@@ -83,8 +84,8 @@ test-suite test
     Haskell2010
   type:
     exitcode-stdio-1.0
-  hs-source-dirs:
-    tests
+  other-modules:     Examples
+  hs-source-dirs: examples, tests
   main-is:
     testsuite.hs
   build-depends:
@@ -97,3 +98,9 @@ test-suite test
     , incredible-logic
     , unbound
     , tagged
+    , bytestring
+    , extra
+    , filepath
+    , yaml
+    , aeson
+    , text

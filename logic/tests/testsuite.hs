@@ -1,14 +1,19 @@
-{-# LANGUAGE OverloadedStrings, TypeSynonymInstances, FlexibleInstances, TupleSections #-}
+{-# LANGUAGE OverloadedStrings, TypeSynonymInstances, FlexibleInstances, TupleSections, RecordWildCards #-}
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
 import Test.Tasty.ExpectedFailure
 import qualified Data.Map as M
+import qualified Data.Text.Encoding as T
+import qualified Data.Text as T
+import Data.Map ((!))
 import Data.String
 import Control.Monad
 import Data.Maybe
 import Unbound.LocallyNameless
 import Control.Arrow
+import Data.Aeson.Types
+import qualified Data.Yaml
 
 import ShapeChecks
 import Types
@@ -16,6 +21,9 @@ import TaggedMap
 import Propositions
 import LabelConnections
 import Unification
+import ConvertAeson
+import Examples
+import Entry
 
 
 -- Hack for here
@@ -28,17 +36,20 @@ instance IsString GroundTerm where
     fromString = either (error . show) id . parseGroundTerm
 -}
 
-main = defaultMain tests
-
-tests :: TestTree
-tests = testGroup "Tests"
-    [ parserTests
-    , cycleTests
-    , escapedHypothesesTests
-    , unconnectedGoalsTests
-    , labelConectionsTests
-    , unificationTests
-    ]
+main = do
+    examples <- readExamples "../examples"
+    -- analysis are not part of the examples, as the latter is also shipped to
+    -- the client.
+    analyses <- readDirectoryOfYamlFiles "../examples/results"
+    defaultMain $ testGroup "Tests"
+        [ parserTests
+        , cycleTests
+        , escapedHypothesesTests
+        , unconnectedGoalsTests
+        , labelConectionsTests
+        , unificationTests
+        , exampleTests examples analyses
+        ]
 
 parserTests = testGroup "Parsers"
   [ testCase ("can parse " ++ f) $ assertParse f t
@@ -52,8 +63,7 @@ parserTests = testGroup "Parsers"
   ]
 
 assertParse f t = do
-    let r@(~(Right t')) = parseTerm f
-    assertRight r
+    t' <- assertRight (parseTerm f)
     assertEqual "pretty-printed:" t (printTerm t')
 
 
@@ -210,8 +220,35 @@ genProp n = do
     return $ App (Var name) args
 -}
 
-assertRight :: Either String a -> Assertion
-assertRight = either assertFailure (const (return ()))
+exampleTests :: Examples -> M.Map String Value -> TestTree
+exampleTests (Examples {..}) exampleAnalyses = testGroup "Examples"
+    [ testCase name $ do
+        result <- assertRight $ incredibleLogic (fromJSON' logic) (fromJSON' task) (fromJSON' proof)
+        assertEqualValues (toJSON result) analysis
+    | (name, analysis) <- M.toList exampleAnalyses
+    , let proof = exampleProofs ! name
+    , let task  = exampleTasks  ! (proof !!! "task")
+    , let logic = exampleLogics ! (task !!! "logic")
+    ]
+  where
+    value !!! field = either error id $ parseEither (withObject "" (.: field)) value
+
+assertEqualValues :: Value -> Value -> Assertion
+assertEqualValues v expt = do
+    unless (v == expt) $ do
+        assertFailure $ unlines $
+            ["expected: "] ++
+            ( map ("    "++) . lines . T.unpack $ T.decodeUtf8 $ Data.Yaml.encode expt ) ++
+            [" but got: "] ++
+            ( map ("    "++) . lines . T.unpack $ T.decodeUtf8 $ Data.Yaml.encode v )
+
+
+fromJSON' :: FromJSON a => Value -> a
+fromJSON' = either error id . parseEither parseJSON
+
+
+assertRight :: Either String a -> IO a
+assertRight = either (assertFailure >> return undefined) return
 
 (>:) :: a -> b -> (a, b)
 (>:) = (,)
