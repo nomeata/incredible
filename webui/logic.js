@@ -63,7 +63,13 @@ function rescale_paper() {
   $("#vertical-separator").each(function() {V(this).attr({y2: h})});
 }
 
-$(window).on('resize', rescale_paper);
+$(window).on('resize load', rescale_paper);
+graph.on('reset', function () {
+  // Vertical line
+  var h = paper.options.height;
+  var line = V('line', {id: "vertical-separator", x1: 200, y1: 0, x2: 200, y2: h, stroke: 'grey'});
+  V(paper.viewport).append(line);
+});
 
 // Diagram setup
 var task = examples.tasks.curry1;
@@ -117,9 +123,7 @@ function setupGraph(graph, logic, task) {
 
   graph.resetCells(cells);
 
-  // Vertical line
-  var line = V('line', {id: "vertical-separator", x1: 200, y1: 5, x2: 200, y2: 400, stroke: 'grey'});
-  V(paper.viewport).append(line);
+  rescale_paper();
 }
 
 function isTrashArea(x, y) {
