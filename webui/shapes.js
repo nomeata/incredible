@@ -227,7 +227,11 @@ joint.shapes.incredible.Link = joint.dia.Link.extend({
         },
 
         // router: { name: 'orthogonal' },
-        router: { name: 'manhattan' },
+        router: { name: 'manhattan', args: {
+          paddingBox: function () {return {x: -5, y: -5, width: 10, height: 10}},
+          startDirections: ['right'],
+          endDirections: ['left']
+        }},
         connector: { name: 'rounded', args: { radius: 10 }}
 
     }, joint.dia.Link.prototype.defaults)
