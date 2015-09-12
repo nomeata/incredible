@@ -33,7 +33,7 @@ incredibleLogic ctxt task proof = do
         ]
     emptyTask (Task [] []) = True
     emptyTask (Task _ _) = False
-    rule = if emptyTask task && null unconnectedGoals && null badConnections
+    rule = if emptyTask task && null unconnectedGoals && S.null badConnections
       then Just (deriveRule ctxt proof connectionLabels)
       else Nothing
     qed = null unconnectedGoals && S.null (usedConnections `S.intersection` badConnections)
