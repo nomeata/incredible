@@ -10,18 +10,12 @@ deriveRule :: Context -> Proof -> M.Map (Key Connection) ConnLabel -> Rule
 deriveRule ctxt proof labels = Rule {ports = rulePorts, localVars = [], freeVars = []}
   where
     portNames = map (Tagged . ("in"++) . show) [1::Integer ..]
-    
+
     connectedPorts = S.fromList $ concat
-      [ [inP, outP]
-      | (_, c) <- M.toList $ connections proof
-      , isConnected c
-      , let (inP @ (BlockPort _ _)) = connFrom c
-      , let (outP @ (BlockPort _ _)) = connTo c ]
+      [ [connFrom c, connTo c] | (_, c) <- M.toList $ connections proof ]
 
     rules = ctxtRules ctxt
 
-    isConnected (Connection (BlockPort _ _) (BlockPort _ _)) = True
-    isConnected _ = False
     openPorts = S.toList $ S.fromList $
       [ (blockKey, portKey)
       | (blockKey, block) <- M.toList $ blocks proof
