@@ -27,7 +27,7 @@ instance FromJSON Rule where
   parseJSON = withObject "rule" $ \o -> do
     f <- varList o "free"
     l <- varList o "local"
-    Rule (l++f) f <$> o .: "ports"
+    Rule (f++l) f <$> o .: "ports"
 
 instance FromJSON Port where
   parseJSON = withObject "port" $ \o -> do
