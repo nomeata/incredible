@@ -29,8 +29,18 @@
 		overflow: auto;
 		text-align: center;
             }
+	    #inferredrule {
+		display:none;
+		position: absolute;
+		top:0px;
+		width:30em;
+		right:0px;
+		padding:1em;
+		overflow: auto;
+		text-align: center;
+            }
 
-	    #task h3 {
+	    #task h3, #inferredrule h3 {
 		padding:1px;
 		margin:0px;
 		text-align: left;
@@ -74,6 +84,7 @@
     <div id="header">
       <h1>The Incredible Proof Machine</h1>
 	Load a new task: <select id="taskselect"></select>
+	<button id="freeproof">Start empty proof</button>
 	Load existing proof: <select id="proofselect"><option value=""/></select>
 	<button id="showdialog">Details</button>
         <br/>
@@ -83,6 +94,11 @@
 	<div id="assumptions"></div>
 	<hr/>
 	<div id="conclusions"></div>
+	</div>
+
+	<div id="inferredrule">
+	<h3>You proved:</h3>
+	<svg xmlns="http://www.w3.org/2000/svg" width="30em" height="100px"></svg>
 	</div>
 
     </div>
