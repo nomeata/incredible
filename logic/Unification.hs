@@ -159,7 +159,7 @@ fun occ F S (V G) = (F=G) orelse
 
 occ :: Alpha b => Bindings -> Name Term -> b -> Bool
 occ binds v t = v `elem` vars || any (maybe False (occ binds v) . (`M.lookup` binds)) vars
-   where vars = fv t
+   where vars = fv t::[Var]
 
 
 {-

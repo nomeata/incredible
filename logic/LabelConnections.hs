@@ -1,4 +1,4 @@
-{-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TupleSections,FlexibleContexts #-}
 module LabelConnections where
 
 import Data.Functor
