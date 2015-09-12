@@ -7,6 +7,7 @@ import Data.Aeson.Types
 import qualified Data.Map as M
 import Control.Applicative
 import Control.Monad
+import Data.List
 
 import Types
 import TaggedMap ()
@@ -26,7 +27,7 @@ instance FromJSON Rule where
   parseJSON = withObject "rule" $ \o -> do
     f <- varList o "free"
     l <- varList o "local"
-    Rule (f++l) f <$> o .: "ports"
+    Rule (l++f) f <$> o .: "ports"
 
 instance FromJSON Port where
   parseJSON = withObject "port" $ \o -> do
@@ -107,13 +108,35 @@ instance FromJSON Proof where
 fromAnalysis :: Analysis -> Value
 fromAnalysis = toJSON
 
+toVarList :: [Var] -> [String]
+toVarList = map name2ExternalString
+
+instance ToJSON Port where
+    toJSON (Port {..}) = object $
+        (case portType of
+            PTAssumption ->         [ "type" .= ("assumption" :: T.Text) ]
+            PTConclusion ->         [ "type" .= ("conclusion" :: T.Text) ]
+            (PTLocalHyp portKey) -> [ "type" .= ("conclusion" :: T.Text)
+                                    , "consumedBy" .= toJSON portKey]
+        ) ++
+        [ "proposition" .= toJSON portProp
+        , "scoped" .= toVarList portScopes
+        ]
+
+instance ToJSON Rule where
+    toJSON (Rule free local ports) = object
+        [ "free"  .= toVarList (free \\ local)
+        , "local" .= toVarList local
+        , "ports" .= ports
+        ]
+
 instance ToJSON Analysis where
     toJSON (Analysis {..}) = object
-        [ "connectionLabels" .= toJSON connectionLabels
-        , "unconnectedGoals" .= toJSON unconnectedGoals
-        , "cycles" .= toJSON cycles
-        , "escapedHypotheses" .= toJSON escapedHypotheses
-        , "qed" .= toJSON qed
+        [ "connectionLabels" .= connectionLabels
+        , "unconnectedGoals" .= unconnectedGoals
+        , "cycles" .= cycles
+        , "escapedHypotheses" .= escapedHypotheses
+        , "qed" .= qed
         ]
 
 instance ToJSON ConnLabel where
