@@ -1,0 +1,1028 @@
+{
+  "task": "exall2allex",
+  "cells": [
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 270,
+        "y": 40
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "assumption": 1,
+      "task": {
+        "conclusions": [
+          "∀y.∃x.P(x,y)"
+        ],
+        "assumptions": [
+          "∃x.∀y.P(x,y)"
+        ],
+        "logic": "predicate"
+      },
+      "id": "688df3d6-fccb-4f7c-88d3-573104389517",
+      "z": 2,
+      "brokenPorts": {},
+      "qed": true,
+      "originalPosition": {
+        "x": 250,
+        "y": 40
+      },
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 900,
+        "y": 40
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "conclusion": 1,
+      "task": {
+        "conclusions": [
+          "∀y.∃x.P(x,y)"
+        ],
+        "assumptions": [
+          "∃x.∀y.P(x,y)"
+        ],
+        "logic": "predicate"
+      },
+      "id": "58a3a27e-72b8-4438-98ee-d5fe71725899",
+      "z": 2,
+      "brokenPorts": {},
+      "qed": true,
+      "originalPosition": {
+        "x": 940,
+        "y": 50
+      },
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 90,
+        "y": 225
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "A",
+          "B"
+        ],
+        "ports": {
+          "in2": {
+            "proposition": "B",
+            "type": "assumption"
+          },
+          "in1": {
+            "proposition": "A",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "A∧B",
+            "type": "conclusion"
+          }
+        },
+        "id": "conjI"
+      },
+      "prototypeElement": true,
+      "brokenPorts": {},
+      "id": "4f1c0af1-dcff-4481-964f-d830f3bf7dc1",
+      "z": 2,
+      "qed": true,
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 90,
+        "y": 275
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "A",
+          "B"
+        ],
+        "ports": {
+          "out1": {
+            "proposition": "A",
+            "type": "conclusion"
+          },
+          "out2": {
+            "proposition": "B",
+            "type": "conclusion"
+          },
+          "in": {
+            "proposition": "A∧B",
+            "type": "assumption"
+          }
+        },
+        "id": "conjE"
+      },
+      "prototypeElement": true,
+      "brokenPorts": {},
+      "id": "919e8b6a-5f40-4dc5-92cc-fd3b58609668",
+      "z": 2,
+      "qed": true,
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 90,
+        "y": 325
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "A",
+          "B"
+        ],
+        "ports": {
+          "in": {
+            "proposition": "B",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "A→B",
+            "type": "conclusion"
+          },
+          "hyp": {
+            "consumedBy": "in",
+            "proposition": "A",
+            "type": "local hypothesis"
+          }
+        },
+        "id": "impI"
+      },
+      "prototypeElement": true,
+      "brokenPorts": {},
+      "id": "8af55a53-e3f7-4cee-8c76-946e3444ee47",
+      "z": 2,
+      "qed": true,
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 90,
+        "y": 375
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "A",
+          "B"
+        ],
+        "ports": {
+          "in2": {
+            "proposition": "A",
+            "type": "assumption"
+          },
+          "in1": {
+            "proposition": "A→B",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "B",
+            "type": "conclusion"
+          }
+        },
+        "id": "impE"
+      },
+      "prototypeElement": true,
+      "brokenPorts": {},
+      "id": "09ac30bb-6e93-4dd4-a6e5-f19e6ae61153",
+      "z": 2,
+      "qed": true,
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 90,
+        "y": 425
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "A",
+          "B"
+        ],
+        "ports": {
+          "in": {
+            "proposition": "A",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "A∨B",
+            "type": "conclusion"
+          }
+        },
+        "id": "disjI1"
+      },
+      "prototypeElement": true,
+      "brokenPorts": {},
+      "id": "103a70f5-f19e-476f-ac44-3c79bb9c5777",
+      "z": 2,
+      "qed": true,
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 90,
+        "y": 475
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "A",
+          "B"
+        ],
+        "ports": {
+          "in": {
+            "proposition": "B",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "A∨B",
+            "type": "conclusion"
+          }
+        },
+        "id": "disjI2"
+      },
+      "prototypeElement": true,
+      "brokenPorts": {},
+      "id": "d44bfd79-c07d-4b06-bbcd-b66527cbe63a",
+      "z": 2,
+      "qed": true,
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 90,
+        "y": 525
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "A",
+          "B",
+          "P"
+        ],
+        "ports": {
+          "hyp1": {
+            "consumedBy": "in1",
+            "proposition": "A",
+            "type": "local hypothesis"
+          },
+          "in": {
+            "proposition": "A∨B",
+            "type": "assumption"
+          },
+          "in2": {
+            "proposition": "P",
+            "type": "assumption"
+          },
+          "hyp2": {
+            "consumedBy": "in2",
+            "proposition": "B",
+            "type": "local hypothesis"
+          },
+          "in1": {
+            "proposition": "P",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "P",
+            "type": "conclusion"
+          }
+        },
+        "id": "disjE"
+      },
+      "prototypeElement": true,
+      "brokenPorts": {},
+      "id": "9c904579-cbb7-4d28-b267-36a79c6e72d6",
+      "z": 2,
+      "qed": true,
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 90,
+        "y": 625
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "P"
+        ],
+        "ports": {
+          "out": {
+            "proposition": "P∨(P→⊥)",
+            "type": "conclusion"
+          }
+        },
+        "id": "TND"
+      },
+      "prototypeElement": true,
+      "brokenPorts": {},
+      "id": "45420c62-297e-441a-9ff1-420e5a77d6e3",
+      "z": 2,
+      "qed": true,
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 90,
+        "y": 575
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "P"
+        ],
+        "ports": {
+          "in": {
+            "proposition": "False",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "P",
+            "type": "conclusion"
+          }
+        },
+        "id": "falseE"
+      },
+      "prototypeElement": true,
+      "brokenPorts": {},
+      "id": "59f2d0e2-b1ef-4f77-8cf6-eca94a24d3ff",
+      "z": 5,
+      "qed": true,
+      "originalPosition": {
+        "x": 90,
+        "y": 575
+      },
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 540,
+        "y": 40
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "P",
+          "Q"
+        ],
+        "local": [
+          "c"
+        ],
+        "ports": {
+          "in2": {
+            "proposition": "Q",
+            "type": "assumption",
+            "scoped": [
+              "c"
+            ]
+          },
+          "in1": {
+            "proposition": "∃x.P(x)",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "Q",
+            "type": "conclusion"
+          },
+          "hyp": {
+            "consumedBy": "in2",
+            "proposition": "P(c)",
+            "type": "local hypothesis"
+          }
+        },
+        "id": "exE"
+      },
+      "prototypeElement": false,
+      "brokenPorts": {},
+      "id": "850f6134-c910-47f6-9577-c511d43953cd",
+      "z": 12,
+      "qed": true,
+      "originalPosition": {
+        "x": 520,
+        "y": 50
+      },
+      "embeds": "",
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "688df3d6-fccb-4f7c-88d3-573104389517",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "out"
+      },
+      "target": {
+        "id": "850f6134-c910-47f6-9577-c511d43953cd",
+        "selector": "g:nth-child(1) > path:nth-child(4)",
+        "port": "in1"
+      },
+      "id": "b7bf03cb-bc71-4a26-b9c7-fc42193f0515",
+      "z": 13,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "∃x.∀y.P(x,y)"
+            }
+          }
+        }
+      ],
+      "connection_state": "688df3d6-fccb-4f7c-88d3-573104389517out850f6134-c910-47f6-9577-c511d43953cdin1",
+      "vertices": [
+        {
+          "x": 450,
+          "y": 40
+        }
+      ],
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "850f6134-c910-47f6-9577-c511d43953cd",
+        "selector": "g:nth-child(1) > path:nth-child(6)",
+        "port": "out"
+      },
+      "target": {
+        "id": "58a3a27e-72b8-4438-98ee-d5fe71725899",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "in"
+      },
+      "id": "21e84149-c425-4e81-a38f-177b98892a0a",
+      "z": 19,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "∀y.∃x.P(x,y)"
+            }
+          }
+        }
+      ],
+      "connection_state": "850f6134-c910-47f6-9577-c511d43953cdout58a3a27e-72b8-4438-98ee-d5fe71725899in",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "850f6134-c910-47f6-9577-c511d43953cd",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "hyp"
+      },
+      "target": {
+        "id": "a489962f-763f-44ce-9437-6fec4c05e0f7",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "in1"
+      },
+      "id": "978c53b5-f8ca-4b5d-ae2b-e8a8ac801c39",
+      "z": 20,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "∀x.P(c₃,x)"
+            }
+          }
+        }
+      ],
+      "connection_state": "850f6134-c910-47f6-9577-c511d43953cdhypa489962f-763f-44ce-9437-6fec4c05e0f7in1",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 90,
+        "y": 75
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "P",
+          "y"
+        ],
+        "ports": {
+          "out2": {
+            "proposition": "P(y)",
+            "type": "conclusion"
+          },
+          "in1": {
+            "proposition": "∀x.P(x)",
+            "type": "assumption"
+          }
+        },
+        "id": "allE"
+      },
+      "prototypeElement": true,
+      "brokenPorts": {},
+      "id": "b0d994be-5bd1-4dfa-8ea4-5f659a046beb",
+      "z": 21,
+      "qed": true,
+      "originalPosition": {
+        "x": 90,
+        "y": 75
+      },
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 610,
+        "y": 290
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "P",
+          "y"
+        ],
+        "ports": {
+          "out2": {
+            "proposition": "P(y)",
+            "type": "conclusion"
+          },
+          "in1": {
+            "proposition": "∀x.P(x)",
+            "type": "assumption"
+          }
+        },
+        "id": "allE"
+      },
+      "prototypeElement": false,
+      "brokenPorts": {},
+      "id": "a489962f-763f-44ce-9437-6fec4c05e0f7",
+      "z": 21,
+      "qed": true,
+      "originalPosition": {
+        "x": 590,
+        "y": 290
+      },
+      "embeds": "",
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 90,
+        "y": 175
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "P",
+          "Q"
+        ],
+        "local": [
+          "c"
+        ],
+        "ports": {
+          "in2": {
+            "proposition": "Q",
+            "type": "assumption",
+            "scoped": [
+              "c"
+            ]
+          },
+          "in1": {
+            "proposition": "∃x.P(x)",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "Q",
+            "type": "conclusion"
+          },
+          "hyp": {
+            "consumedBy": "in2",
+            "proposition": "P(c)",
+            "type": "local hypothesis"
+          }
+        },
+        "id": "exE"
+      },
+      "prototypeElement": true,
+      "brokenPorts": {},
+      "id": "49fa1cd4-c8a9-41a8-827d-c2305ec604dc",
+      "z": 23,
+      "qed": true,
+      "originalPosition": {
+        "x": 90,
+        "y": 175
+      },
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 90,
+        "y": 125
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "P",
+          "y"
+        ],
+        "ports": {
+          "out2": {
+            "proposition": "∃x.P(x)",
+            "type": "conclusion"
+          },
+          "in1": {
+            "proposition": "P(y)",
+            "type": "assumption"
+          }
+        },
+        "id": "exI"
+      },
+      "prototypeElement": true,
+      "brokenPorts": {},
+      "id": "766b516a-61cd-4fbc-b534-4f82019860b6",
+      "z": 24,
+      "qed": true,
+      "originalPosition": {
+        "x": 90,
+        "y": 125
+      },
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 850,
+        "y": 290
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "P",
+          "y"
+        ],
+        "ports": {
+          "out2": {
+            "proposition": "∃x.P(x)",
+            "type": "conclusion"
+          },
+          "in1": {
+            "proposition": "P(y)",
+            "type": "assumption"
+          }
+        },
+        "id": "exI"
+      },
+      "prototypeElement": false,
+      "brokenPorts": {},
+      "id": "2f796fe5-7d4b-4d53-8075-683ad2fcce6f",
+      "z": 24,
+      "qed": true,
+      "originalPosition": {
+        "x": 920,
+        "y": 350
+      },
+      "embeds": "",
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "a489962f-763f-44ce-9437-6fec4c05e0f7",
+        "selector": "g:nth-child(1) > path:nth-child(4)",
+        "port": "out2"
+      },
+      "target": {
+        "id": "2f796fe5-7d4b-4d53-8075-683ad2fcce6f",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "in1"
+      },
+      "id": "56cf3ad0-90f6-4b1d-a2f1-281ce0b622cd",
+      "z": 25,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "P(c₃,c₈)"
+            }
+          }
+        }
+      ],
+      "connection_state": "a489962f-763f-44ce-9437-6fec4c05e0f7out22f796fe5-7d4b-4d53-8075-683ad2fcce6fin1",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "2f796fe5-7d4b-4d53-8075-683ad2fcce6f",
+        "selector": "g:nth-child(1) > path:nth-child(4)",
+        "port": "out2"
+      },
+      "target": {
+        "id": "f1f91d19-8873-4070-be62-b11839058df9",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "in1"
+      },
+      "id": "b63f6a24-8436-4581-b629-10359330442a",
+      "z": 26,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "∃x.P(x,c₈)"
+            }
+          }
+        }
+      ],
+      "connection_state": "2f796fe5-7d4b-4d53-8075-683ad2fcce6fout2f1f91d19-8873-4070-be62-b11839058df9in1",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 90,
+        "y": 25
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "P"
+        ],
+        "local": [
+          "c"
+        ],
+        "ports": {
+          "out2": {
+            "proposition": "∀x.P(x)",
+            "type": "conclusion"
+          },
+          "in1": {
+            "proposition": "P(c)",
+            "type": "assumption",
+            "scoped": [
+              "c"
+            ]
+          }
+        },
+        "id": "allI"
+      },
+      "prototypeElement": true,
+      "brokenPorts": {},
+      "id": "0599c22b-3390-4a60-986d-19c30814f036",
+      "z": 27,
+      "qed": true,
+      "originalPosition": {
+        "x": 90,
+        "y": 25
+      },
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 1030,
+        "y": 260
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "P"
+        ],
+        "local": [
+          "c"
+        ],
+        "ports": {
+          "out2": {
+            "proposition": "∀x.P(x)",
+            "type": "conclusion"
+          },
+          "in1": {
+            "proposition": "P(c)",
+            "type": "assumption",
+            "scoped": [
+              "c"
+            ]
+          }
+        },
+        "id": "allI"
+      },
+      "prototypeElement": false,
+      "brokenPorts": {},
+      "id": "f1f91d19-8873-4070-be62-b11839058df9",
+      "z": 27,
+      "qed": true,
+      "originalPosition": {
+        "x": 1100,
+        "y": 290
+      },
+      "embeds": "",
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "f1f91d19-8873-4070-be62-b11839058df9",
+        "selector": "g:nth-child(1) > path:nth-child(4)",
+        "port": "out2"
+      },
+      "target": {
+        "id": "850f6134-c910-47f6-9577-c511d43953cd",
+        "selector": "g:nth-child(1) > path:nth-child(5)",
+        "port": "in2"
+      },
+      "id": "7f8cbf41-21a8-49f0-abfd-479c48c1796d",
+      "z": 28,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "∀x.∃x₁.P(x₁,x)"
+            }
+          }
+        }
+      ],
+      "connection_state": "f1f91d19-8873-4070-be62-b11839058df9out2850f6134-c910-47f6-9577-c511d43953cdin2",
+      "vertices": [
+        {
+          "x": 470,
+          "y": 150
+        },
+        {
+          "x": 630,
+          "y": 170
+        }
+      ],
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    }
+  ]
+}
