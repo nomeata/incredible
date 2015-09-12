@@ -95,6 +95,7 @@ data Analysis = Analysis
  , unconnectedGoals :: [PortSpec]
  , cycles :: [Cycle]
  , escapedHypotheses :: [Path]
+ , rule :: Maybe Rule
  , qed :: Bool
  }
  deriving Show

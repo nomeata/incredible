@@ -10,6 +10,7 @@ import qualified Data.Set as S
 
 import Types
 import Lint
+import Rules
 import ShapeChecks
 import LabelConnections
 
@@ -30,4 +31,9 @@ incredibleLogic ctxt task proof = do
         , S.fromList (concat escapedHypotheses)
         , S.fromList [ c | (c, l) <- M.toList connectionLabels, badLabel l ]
         ]
+    emptyTask (Task [] []) = True
+    emptyTask (Task _ _) = False
+    rule = if emptyTask task && null unconnectedGoals && null badConnections
+      then Just (deriveRule ctxt proof connectionLabels)
+      else Nothing
     qed = null unconnectedGoals && S.null (usedConnections `S.intersection` badConnections)
