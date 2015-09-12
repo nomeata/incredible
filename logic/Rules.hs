@@ -14,11 +14,14 @@ deriveRule ctxt proof labels = Rule {ports = rulePorts, localVars = [], freeVars
     connectedPorts = S.fromList $ concat
       [ [inP, outP]
       | (_, c) <- M.toList $ connections proof
+      , isConnected c
       , let (inP @ (BlockPort _ _)) = connFrom c
       , let (outP @ (BlockPort _ _)) = connTo c ]
 
     rules = ctxtRules ctxt
 
+    isConnected (Connection (BlockPort _ _) (BlockPort _ _)) = True
+    isConnected _ = False
     openPorts = S.toList $ S.fromList $
       [ (blockKey, portKey)
       | (blockKey, block) <- M.toList $ blocks proof
