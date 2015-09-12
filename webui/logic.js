@@ -252,6 +252,7 @@ function processGraph() {
           var vel = V(el).append(g);
           var blockDesc = ruleToBlockDesc(analysis.rule);
           blockDesc.isPrototype = true;
+          blockDesc.label = '☃';
           renderBlockDescToSVG(g, blockDesc);
           g.scale(1.5);
           gBB = g.bbox(false);
