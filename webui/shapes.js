@@ -1,3 +1,124 @@
+function ruleToBlockDesc(rule) {
+  var ports = rule.ports;
+  var portsList = _.sortBy(_.map(ports, function (v, i) {return _.extend({id: i}, v);}), 'id');
+  var portsGroup = _.groupBy(portsList, "type");
+
+  return {
+    label: rule.id,
+    portsGroup: portsGroup
+  }
+}
+
+function assumptionToBlockDesc(assumption, task) {
+  var portsGroup= {'conclusion': [{
+    id: 'out'
+  }]};
+
+  return {
+    label: task.assumptions[assumption-1],
+    portsGroup: portsGroup
+  }
+}
+
+function conclusionToBlockDesc(conclusion, task) {
+  var portsGroup= {'assumption': [{
+    id: 'in'
+  }]};
+
+  return {
+    label: task.conclusions[conclusion-1],
+    portsGroup: portsGroup
+  }
+}
+
+function renderBlockDescToSVG(el, blockDesc) {
+  el.attr('magnet',false);
+
+  var group = V("<g/>");
+  el.append(group);
+
+  var text = V("<text class='label' font-family='sans' fill='black'/>");
+  text.text(blockDesc.label);
+  group.append(text);
+  textBB = text.bbox(true);
+  // center text
+  text.translate(- textBB.width/2, - textBB.height/2);
+
+  var rect = V("<rect class='body' fill='#ecf0f1' rx='5' ry='5' stroke='#bdc3c7' stroke-opacity='0.5'/>");
+
+  // Calculate minimum width/height based on number of ports and label length
+  var height = 35;
+  var width = 80;
+  _.each(blockDesc.portsGroup, function (thesePorts, portType) {
+    var total = _.size(thesePorts);
+    if (portType == 'local hypothesis') {
+      width = Math.max(width, 20 * total -5);
+    } else {
+      height = Math.max(height, 20 * total -5);
+    }
+  });
+  width = Math.max(width, textBB.width + 10);
+  height = Math.max(height, textBB.height + 10);
+
+  rect.attr({width: width, height: height});
+  rect.translate(-width/2,-height/2);
+  group.prepend(rect);
+
+
+  _.each(blockDesc.portsGroup, function (thesePorts, portType) {
+    var total = _.size(thesePorts);
+    _.each(thesePorts, function (portDesc, index) {
+      var direction = ({assumption: 'in', conclusion: 'out', 'local hypothesis': 'out'})[portType];
+      var orientation = ({assumption: 'left', conclusion: 'right', 'local hypothesis': 'bottom'})[portType];
+      var pacman = V('<path class="port-body" stroke="none" fill="#777" magnet="true"/>');
+      pacman.attr({port: portDesc.id, direction: direction, orientation: orientation});
+
+      group.append(pacman);
+
+      if (blockDesc.isPrototype) {
+        var label = V("<text font-family='sans' fill='#000' font-size='8px'/>");
+        label.text(portDesc.proposition);
+        group.append(label);
+        var labelBB = label.bbox(true);
+      }
+
+      var labelPad = 7;
+
+      if (portType === 'assumption') {
+        // put left
+        var y = 20*index - 10*(total-1);
+        pacman.translate( -width/2, y);
+        pacman.rotate(135);
+        pacman.attr({d: "M0,0 l 0 5 a5,5 0 1,1 5,-5 z"});
+        if (blockDesc.isPrototype) {
+          label.translate( -width/2 -labelBB.width - labelPad, y - labelBB.height/2 );
+        }
+      } else if (portType === 'conclusion') {
+        // put right
+        var y = 20*index - 10*(total-1);
+        pacman.translate( width/2, y);
+        pacman.rotate(135);
+        pacman.attr({d: "M-5,-5 l 0 5 a5,5 0 1,0 5,-5 z"});
+        if (blockDesc.isPrototype) {
+          label.translate( width/2 + labelPad, y - labelBB.height/2 );
+        }
+      } else if (portType === 'local hypothesis') {
+        // put below
+        var x = 20*index - 10*(total-1);
+        pacman.translate( x, height/2);
+        pacman.rotate(225);
+        pacman.attr({d: "M-5,-5 l 0 5 a5,5 0 1,0 5,-5 z"});
+        if (blockDesc.isPrototype) {
+          label.translate( x - labelBB.width/2, height/2 + labelPad);
+        }
+      } else {
+        throw new Error("renderBlockDescToSVG(): Unknown portType");
+      }
+    });
+  });
+}
+
+
 /*
  * Specification for Element representing blocks in the proof:
  *
@@ -62,118 +183,24 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     var assumption = this.model.get('assumption');
     var conclusion = this.model.get('conclusion');
     var task = this.model.get('task');
-
     var isPrototype = this.model.get('prototypeElement');
 
     if (rule) {
-      var ports = rule.ports;
-      var portsList = _.sortBy(_.map(ports, function (v, i) {return _.extend({id: i}, v);}), 'id');
-      var portsGroup = _.groupBy(portsList, "type");
+      var blockDesc = ruleToBlockDesc(rule);
     } else if (assumption) {
-      // Fake port data for assumption and conclusion blocks
-      var portsGroup= {'conclusion': [{
-        id: 'out'
-      }]};
+      var blockDesc = assumptionToBlockDesc(assumption, task);
     } else if (conclusion) {
-      var portsGroup= {'assumption': [{
-        id: 'in'
-      }]};
+      var blockDesc = conclusionToBlockDesc(conclusion, task);
+    } else {
+        throw new Error("renderMarkup(): Unknown block type");
     }
 
-    this.vel.attr('magnet',false);
+    blockDesc.isPrototype = isPrototype;
 
-    var group = V("<g/>");
-    this.vel.append(group);
-
-    var text = V("<text class='label' font-family='sans' fill='black'/>");
-    if (rule) {
-      text.text(rule.id);
-    } else if (assumption) {
-      text.text(task.assumptions[assumption-1]);
-    } else if (conclusion) {
-      text.text(task.conclusions[conclusion-1]);
-    }
-
-    group.append(text);
-    textBB = text.bbox(true);
-    // center text
-    text.translate(- textBB.width/2, - textBB.height/2);
-
-    var rect = V("<rect class='body' fill='#ecf0f1' rx='5' ry='5' stroke='#bdc3c7' stroke-opacity='0.5'/>");
-
-    // Calculate minimum width/height based on number of ports and label length
-    var height = 35;
-    var width = 80;
-    _.each(portsGroup, function (thesePorts, portType) {
-      var total = _.size(thesePorts);
-      if (portType == 'local hypothesis') {
-        width = Math.max(width, 20 * total -5);
-      } else {
-        height = Math.max(height, 20 * total -5);
-      }
-    });
-    width = Math.max(width, textBB.width + 10);
-    height = Math.max(height, textBB.height + 10);
-
-    rect.attr({width: width, height: height});
-    rect.translate(-width/2,-height/2);
-    group.prepend(rect);
-
-
-    _.each(portsGroup, function (thesePorts, portType) {
-      var total = _.size(thesePorts);
-      _.each(thesePorts, function (portDesc, index) {
-          var direction = ({assumption: 'in', conclusion: 'out', 'local hypothesis': 'out'})[portType];
-          var orientation = ({assumption: 'left', conclusion: 'right', 'local hypothesis': 'bottom'})[portType];
-          var pacman = V('<path class="port-body" stroke="none" fill="#777" magnet="true"/>');
-          pacman.attr({port: portDesc.id, direction: direction, orientation: orientation});
-
-          group.append(pacman);
-
-          if (isPrototype) {
-            var label = V("<text font-family='sans' fill='#000' font-size='8px'/>");
-            label.text(portDesc.proposition);
-            group.append(label);
-            var labelBB = label.bbox(true);
-          }
-
-          var labelPad = 7;
-
-          if (portType === 'assumption') {
-            // put left
-            var y = 20*index - 10*(total-1);
-            pacman.translate( -width/2, y);
-            pacman.rotate(135);
-            pacman.attr({d: "M0,0 l 0 5 a5,5 0 1,1 5,-5 z"});
-            if (isPrototype) {
-              label.translate( -width/2 -labelBB.width - labelPad, y - labelBB.height/2 );
-            }
-          } else if (portType === 'conclusion') {
-            // put right
-            var y = 20*index - 10*(total-1);
-            pacman.translate( width/2, y);
-            pacman.rotate(135);
-            pacman.attr({d: "M-5,-5 l 0 5 a5,5 0 1,0 5,-5 z"});
-            if (isPrototype) {
-              label.translate( width/2 + labelPad, y - labelBB.height/2 );
-            }
-          } else if (portType === 'local hypothesis') {
-            // put below
-            var x = 20*index - 10*(total-1);
-            pacman.translate( x, height/2);
-            pacman.rotate(225);
-            pacman.attr({d: "M-5,-5 l 0 5 a5,5 0 1,0 5,-5 z"});
-            if (isPrototype) {
-              label.translate( x - labelBB.width/2, height/2 + labelPad);
-            }
-          } else {
-            throw new Error("initialize(): Unknown portType");
-          }
-      });
-    });
+    renderBlockDescToSVG(this.vel, blockDesc);
   },
   update: function () {
-    // Do our on stuff
+    // Do our own stuff
     var brokenPorts = this.model.get('brokenPorts') || {};
 
     _.each(this.vel.find(".port-body"), function (port) {

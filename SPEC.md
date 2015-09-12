@@ -170,6 +170,8 @@ This data structure describes everything the logic has to tell the UI about a gi
 
         Conversely, even if `unconnectedGoals` is empty, we can have `qed = false`
         if there are other problems.
+      * `rule`: If possible, a `rule` object describing a rule block that
+	abstracts the current proof.
 
 **Example**
 

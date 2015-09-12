@@ -161,6 +161,16 @@ $.each(examples.graphs, function (name, l) {
 
 $("#taskselect").change(function () { if (this.value) selectTask(this.value); });
 $("#proofselect").change(function () { if (this.value) selectProof(this.value); });
+$("#freeproof").click(function () { selectNoTask(); });
+
+function selectNoTask() {
+  $("#taskselect").val("");
+  $("#task").hide();
+  $("#inferredrule").show();
+  task = { };
+  setupGraph(graph, logic, task);
+  processGraph();
+}
 
 function selectTask(name) {
   task = examples.tasks[name];
@@ -175,6 +185,8 @@ function selectTask(name) {
   $.each(task.conclusions || [], function (i, el) {
     $("#conclusions").append($("<div>").text(el));
   });
+  $("#inferredrule").hide();
+  $("#task").show();
   setupGraph(graph, logic, task);
   processGraph();
 }
@@ -223,9 +235,36 @@ function processGraph() {
   if (typeof analysis === 'string' || analysis instanceof String) {
     $("#analysis").val(analysis);
     $("#errors").text(analysis);
+    $("#inferredrule svg").empty();
   } else {
     $("#analysis").val(JSON.stringify(analysis, null, 2));
     $("#errors").empty()
+
+    // mock
+    // analysis.rule = logic.rules[0];
+
+    if ($("#inferredrule").is(':visible')) {
+      if (analysis.rule) {
+        // TODO: Draw the block here
+        $("#inferredrule svg").each(function (n, el) {
+          $(el).empty();
+          var g = V("<g/>");
+          var vel = V(el).append(g);
+          var blockDesc = ruleToBlockDesc(analysis.rule);
+          blockDesc.isPrototype = true;
+          renderBlockDescToSVG(g, blockDesc);
+          g.scale(1.5);
+          gBB = g.bbox(false);
+          g.translate($(el).width()/2, gBB.height/2 + 5)
+          $(el).height(gBB.height + 10);
+        });
+      } else {
+        $("#inferredrule svg").each(function (n, el) {
+          $(el).empty();
+          V(el).append(V("<text fill='black'/>").text("nothing"));
+        });
+      }
+    }
 
     // Reset everything
     $.each(graph.getElements(), function (i, el) {
