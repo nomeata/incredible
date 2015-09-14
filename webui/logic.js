@@ -13,10 +13,6 @@ var paper = new joint.dia.Paper({
     return new joint.shapes.incredible.Link();
   },
 
-  validateMagnet: function (v, m) {
-    return !v.model.get('prototypeElement');
-  },
-
   validateConnection: function (vs, ms, vt, mt, e, vl) {
     //console.log(vs,ms,vt,mt,e,vl);
 
@@ -24,25 +20,7 @@ var paper = new joint.dia.Paper({
       return false;
     }
 
-    if (e === 'target') {
-      if (vt.model.get('prototypeElement')) return false;
-
-      /* Disabled: It may be convenient to temporarily attach
-       * two links to a port
-
-       // check whether the port is being already used
-       var portUsed = _.find(this.model.getLinks(), function (link) {
-
-       return (link.id !== vl.model.id &&
-       link.get('target').id === vt.model.id &&
-       link.get('target').port === mt.getAttribute('port'));
-       });
-       return !portUsed;
-       */
-      return true;
-    } else { // e === 'source'
-      return true;
-    }
+    return true;
   }
 });
 
@@ -54,22 +32,14 @@ function rescale_paper() {
   var paper_w = $("#paper").innerWidth() - 5;
   var paper_h = $("#paper").innerHeight() - 5;
 
-  $("#vertical-separator").each(function() {V(this).attr({y2: 0})});
   var bb = paper.getContentBBox();
 
   var w = Math.max(paper_w, bb.x + bb.width);
   var h = Math.max(paper_h, bb.y + bb.height);
   paper.setDimensions(w, h);
-  $("#vertical-separator").each(function() {V(this).attr({y2: h})});
 }
 
 $(window).on('resize load', rescale_paper);
-graph.on('reset', function () {
-  // Vertical line
-  var h = paper.options.height;
-  var line = V('line', {id: "vertical-separator", x1: 200, y1: 0, x2: 200, y2: h, stroke: 'grey'});
-  V(paper.viewport).append(line);
-});
 
 // Diagram setup
 var task = examples.tasks.curry1;
@@ -81,7 +51,7 @@ function setupGraph(graph, logic, task) {
   $.each(task.assumptions || [], function (i, c) {
     var n = i + 1;
     var gate = new joint.shapes.incredible.Generic({
-      position: {x: 270, y: 30 + 50 * i},
+      position: {x: 120, y: 30 + 50 * i},
       assumption: n,
       task: task
     });
@@ -105,61 +75,57 @@ function setupGraph(graph, logic, task) {
 }
 
 function setupPrototypeElements() {
-  var cells = [];
-  var i = 0;
-  // "Prototype blocks" for each element
+  var blockDescs = [];
   $.each(logic.rules, function (_, rule) {
-    var elem = new joint.shapes.incredible.Generic({
-      rule: rule,
-      position: {x: 90, y: 25 + 50 * i},
-      prototypeElement: true,
-      brokenPorts: {}
-    });
-    cells.push(elem);
-    i = i + 1;
+    var blockDesc = ruleToBlockDesc(rule);
+    blockDesc.isPrototype = true;
+    blockDesc.data = {rule: rule};
+    blockDescs.push(blockDesc)
   });
+  var annBlockDesc = annotationToBlockDesc("P");
+  annBlockDesc.isPrototype = true;
+  annBlockDesc.data = {annotation: "P"};
+  blockDescs.push(annBlockDesc);
 
-  // Prototype annotation block
-  cells.push(new joint.shapes.incredible.Generic({
-    annotation: "P",
-    position: {x: 90, y: 25 + 50 * i},
-    prototypeElement: true,
-    brokenPorts: {}
-  }));
-  i = i + 1;
+  var container = $("#logic");
+  container.empty();
 
-  graph.addCell(cells);
+  $.each(blockDescs, function (_, blockDesc) {
+    var el = $('<svg xmlns="http://www.w3.org/2000/svg" width="300px" height="100px">');
+    container.append(el);
+    var vel = V(el.get(0));
+
+    var g = V("<g/>");
+    vel.append(g);
+    renderBlockDescToSVG(g, blockDesc, false);
+    g.scale(1.5);
+    gBB = g.bbox(false);
+    g.translate($(el).width()/2, -gBB.y + 5)
+
+    $(el).height(gBB.height + 10);
+    $(el).data('elementData', blockDesc.data);
+    $(el).draggable({
+      appendTo: "body",
+      helper: "clone"
+    });
+  });
 }
 
 function isTrashArea(x, y) {
-  return x < 200; // KEEP IN SYNC with visual cues!
+  return x < 0;
 }
 
 paper.on('cell:pointerdown', function (cellView, evt, x, y) {
   var cell = cellView.model;
   if (cell) {
     cell.set('originalPosition', cell.get('position'));
-    if (cell.get('prototypeElement')) {
-      cell.toFront();
-    }
   }
 });
 paper.on('cell:pointerup', function (cellView, evt, x, y) {
   var cell = cellView.model;
   if (cell) {
     var trashCell = isTrashArea(x, y);
-    if (cell.get('prototypeElement')) {
-      if (!trashCell) {
-        // Add a new element
-        var newElem = cell.clone();
-        newElem.set('prototypeElement', false);
-        graph.addCell(newElem);
-      }
-
-      // Reset prototype cell
-      cell.set('position', cell.get('originalPosition'));
-    }
-    else if (trashCell) {
+    if (trashCell) {
       if (cell.get('assumption') || cell.get('conclusion'))
         cell.set('position', cell.get('originalPosition'));
       else
@@ -197,9 +163,6 @@ function with_graph_loading(func) {
   }
 }
 
-$("#taskselect").change(with_graph_loading(function () { if (this.value) selectTask(this.value); }));
-$("#proofselect").change(with_graph_loading (function () { if (this.value) selectProof(this.value); }));
-$("#freeproof").click(with_graph_loading (function () { selectNoTask(); }));
 
 function selectNoTask() {
   $("#taskselect").val("");
@@ -210,9 +173,15 @@ function selectNoTask() {
   processGraph();
 }
 
+function selectLogic(name) {
+  logic = examples.logics[name];
+  setupPrototypeElements();
+};
+
 function selectTask(name) {
   task = examples.tasks[name];
-  logic = examples.logics[task.logic];
+  selectLogic(task.logic);
+
   $("#taskselect").val(name);
   $("#proofselect").val("");
   $("#assumptions").empty();
@@ -232,26 +201,54 @@ function selectProof(name) {
   proof = examples.graphs[name];
   selectTask(proof.task);
   graph.fromJSON(proof);
+
+  // This is mostly for backwards compatibility with old stored graphs, and can
+  // be removed eventually
   $.each(graph.getElements(), function (i, el) {
     if (el.get('prototypeElement')) {el.remove()};
   });
-  setupPrototypeElements();
   processGraph();
 }
 
-$(function () {
+$(function (){
+  $("#taskselect").change(with_graph_loading(function () { if (this.value) selectTask(this.value); }));
+  $("#proofselect").change(with_graph_loading (function () { if (this.value) selectProof(this.value); }));
+  $("#freeproof").click(with_graph_loading (function () { selectNoTask(); }));
+
   selectTask('conjself');
   graph.set('loading', false);
+
+  $("#showdialog").click(function(){
+    $("#graph").val(JSON.stringify(graph.toJSON(),null,2));
+    $("#proof").val(JSON.stringify(buildProof(graph)));
+    $("#dialog").toggle();
+  });
+  $("#closedialog").click(function(){
+    $("#dialog").hide()}
+  );
+
+  $("#inferredrule svg").draggable({
+    appendTo: "body",
+    helper: "clone"
+    // helper: function ()  { return $("<span>Hi</span>") }
+  });
 });
 
-$("#showdialog").click(function(){
-  $("#graph").val(JSON.stringify(graph.toJSON(),null,2));
-  $("#proof").val(JSON.stringify(buildProof(graph)));
-  $("#dialog").toggle();
+$(function (){
+  $("#paper").droppable({
+    drop: function (event, ui) {
+      var data = ui.draggable.data('elementData');
+      if (data) {
+        var pos = paper.clientToLocalPoint({x: event.clientX, y: event.clientY});
+        var elem = new joint.shapes.incredible.Generic(_.extend(data, {
+          position: pos
+        }));
+        graph.addCell(elem);
+      };
+    }
+  });
+
 });
-$("#closedialog").click(function(){
-  $("#dialog").hide()}
-);
 
 graph.on('add remove change:annotation change:loading', function () {
   // Do not process the graph when loading is one, which happens during startup
