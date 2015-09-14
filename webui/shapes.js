@@ -159,9 +159,6 @@ function renderBlockDescToSVG(el, blockDesc, forReal) {
  *   - The cell has an attribute 'conclusion', with the number of the assumption it
  *     represents.
  *
- * Elements with an attribute 'prototypeElement' set to true are not part of the
- * proof, but rather the elements one can drag into the paper.
- *
  * Furthermore, every magnet has an attribute 'direction', which is either "in" or
  * "out". This is used by the UI to make sure wires are connected properly.
  *
@@ -210,7 +207,6 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     var conclusion = this.model.get('conclusion');
     var annotation = this.model.get('annotation');
     var task = this.model.get('task');
-    var isPrototype = this.model.get('prototypeElement');
 
     if (rule) {
       var blockDesc = ruleToBlockDesc(rule);
@@ -223,8 +219,6 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     } else {
         throw new Error("renderMarkup(): Unknown block type");
     }
-
-    blockDesc.isPrototype = isPrototype;
 
     renderBlockDescToSVG(this.vel, blockDesc, true);
   },

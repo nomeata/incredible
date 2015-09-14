@@ -37,19 +37,27 @@
 		right:0px;
 		padding:1em;
 		overflow: auto;
-		text-align: center;
             }
 
 	    #task h3, #inferredrule h3 {
 		padding:1px;
 		margin:0px;
-		text-align: left;
 	    }
+
+            #logic {
+		position: absolute;
+		top:155px;
+		left:0px;
+		width:300px;
+		bottom:0px;
+		overflow: auto;
+		border-right:2px solid grey;
+            }
 
             #paper {
 		position: absolute;
-		top:150px;
-		left:0px;
+		top:155px;
+		left:300px;
 		right:0px;
 		bottom:0px;
 		overflow: auto;
@@ -81,6 +89,10 @@
     </head>
     <body>
 
+    <div id="logic"></div>
+
+    <div id="paper"></div>
+
     <div id="header">
       <h1>The Incredible Proof Machine</h1>
 	Load a new task: <select id="taskselect"></select>
@@ -104,7 +116,6 @@
 
     </div>
 
-    <div id="paper"></div>
 
     <div id="dialog">
     <div style="text-align:right"><button id="closedialog">×</button></div>
@@ -119,6 +130,7 @@
 
 
         <script src="./node_modules/jquery/dist/jquery.min.js"></script>
+	<script src="./vendor/jquery-ui-1.11.4/jquery-ui.min.js"></script>
     <!--
         <script src="./node_modules/lodash/index.js"></script>
         <script src="./node_modules/backbone/backbone-min.js"></script>
