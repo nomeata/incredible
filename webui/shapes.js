@@ -49,8 +49,13 @@ function annotationToBlockDesc(proposition) {
   }
 }
 
-function renderBlockDescToSVG(el, blockDesc) {
-  el.attr('magnet',false);
+function renderBlockDescToSVG(el, blockDesc, forReal) {
+  // forReal: Whether this is going to be used on the paper (in which case the
+  // magnet attributes are set)
+
+  if (forReal){
+    el.attr('magnet',false);
+  }
 
   var group = V("<g/>");
   el.append(group);
@@ -88,7 +93,10 @@ function renderBlockDescToSVG(el, blockDesc) {
     _.each(thesePorts, function (portDesc, index) {
       var direction = ({assumption: 'in', conclusion: 'out', 'local hypothesis': 'out'})[portType];
       var orientation = ({assumption: 'left', conclusion: 'right', 'local hypothesis': 'bottom'})[portType];
-      var pacman = V('<path class="port-body" stroke="none" fill="#777" magnet="true"/>');
+      var pacman = V('<path class="port-body" stroke="none" fill="#777"/>');
+      if (forReal) {
+        pacman.attr('magnet', 'true');
+      }
       pacman.attr({port: portDesc.id, direction: direction, orientation: orientation});
 
       group.append(pacman);
@@ -218,7 +226,7 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
 
     blockDesc.isPrototype = isPrototype;
 
-    renderBlockDescToSVG(this.vel, blockDesc);
+    renderBlockDescToSVG(this.vel, blockDesc, true);
   },
   update: function () {
     // Do our own stuff

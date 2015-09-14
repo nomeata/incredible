@@ -302,7 +302,7 @@ function processGraph() {
           var blockDesc = ruleToBlockDesc(analysis.rule);
           blockDesc.isPrototype = true;
           blockDesc.label = '☃';
-          renderBlockDescToSVG(g, blockDesc);
+          renderBlockDescToSVG(g, blockDesc, false);
           g.scale(1.5);
           gBB = g.bbox(false);
           g.translate($(el).width()/2, gBB.height/2 + 5)
