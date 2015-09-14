@@ -47,13 +47,11 @@ install:
     - test -e $HOME/.ghcjs/*/ghcjs/ghcjs_boot.completed || ghcjs-boot --dev --no-haddock --no-prof
 
     # install dependencies
-    - (  cd logic && cabal-1.22 install --enable-tests --dependencies-only )
-    - (  cd logic && cabal-1.22 install --ghcjs --disable-tests --dependencies-only )
+    - make prepare
 
 script:
     - make
     - ( cd logic && cabal-1.22 test --show-details=streaming )
-    - npm install
     - make docs
 
 after_success:

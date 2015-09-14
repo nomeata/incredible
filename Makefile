@@ -8,7 +8,14 @@ clean:
 	cabal clean && \
 	cabal clean --distdir=dist-ghcjs
 
-prepare:
+vendor:
+	mkdir vendor
+
+js-libs:
+	./install-jslibs.sh
+
+
+prepare: js-libs
 	cd logic && \
 	cabal install --dependencies-only --enable-tests && \
 	cabal install --ghcjs --dependencies-only --disable-tests
