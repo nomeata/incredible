@@ -25,11 +25,12 @@ mkdir $dirname
 cp --parents -v -t $dirname \
 	*.html  \
 	*.js  \
-	./node_modules/jointjs/dist/joint.all.css \
-	./node_modules/jquery/dist/jquery.min.js \
-	./node_modules/lodash/index.js \
-	./node_modules/backbone/backbone-min.js \
-	./node_modules/jointjs/dist/joint.all.js \
+	./vendor/joint.min.css \
+	./vendor/jquery-2.1.4.min.js \
+	./vendor/jquery-ui/jquery-ui.js \
+	./vendor/lodash.min.js \
+	./vendor/backbone-min.js \
+	./vendor/joint.min.js \
 	./webui/*.css \
 	./webui/*.js \
 	./images/*
