@@ -14,12 +14,10 @@ deriveRule ctxt proof labels = Rule {ports = rulePorts, localVars = [], freeVars
     connectedPorts = S.fromList $ concat
       [ [connFrom c, connTo c] | (_, c) <- M.toList $ connections proof ]
 
-    rules = ctxtRules ctxt
-
     openPorts = S.toList $ S.fromList $
       [ (blockKey, portKey)
       | (blockKey, block) <- M.toList $ blocks proof
-      , let rule = rules M.! blockRule block
+      , let rule = block2Rule ctxt block
       , (portKey, blockPort) <- M.toList (ports rule)
       , BlockPort blockKey portKey `S.notMember` connectedPorts
       ] ++
@@ -30,8 +28,8 @@ deriveRule ctxt proof labels = Rule {ports = rulePorts, localVars = [], freeVars
     relabeledPorts = -- TODO relabel!
       [ port
       | (bKey, pKey) <- openPorts
-      , let blockId = (blocks proof M.! bKey)
-      , let block = rules M.! blockRule blockId
-      , let port = (ports block) M.! pKey ]
+      , let block = blocks proof M.! bKey
+      , let rule = block2Rule ctxt block
+      , let port = ports rule M.! pKey ]
 
     rulePorts = M.fromList $ zip portNames relabeledPorts

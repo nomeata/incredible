@@ -1,0 +1,5 @@
+logic: predicate
+assumptions:
+- "∃x.∀y.P(x,y)"
+conclusions:
+- "∀y.∃x.P(x,y)"

@@ -1,4 +1,6 @@
-var graph = new joint.dia.Graph();
+var graph = new joint.dia.Graph({
+  loading: true
+});
 
 var paper = new joint.dia.Paper({
   el: $('#paper'),
@@ -95,8 +97,18 @@ function setupGraph(graph, logic, task) {
     cells.push(gate);
   });
 
+  graph.resetCells(cells);
+
+  setupPrototypeElements();
+
+  rescale_paper();
+}
+
+function setupPrototypeElements() {
+  var cells = [];
+  var i = 0;
   // "Prototype blocks" for each element
-  $.each(logic.rules, function (i, rule) {
+  $.each(logic.rules, function (_, rule) {
     var elem = new joint.shapes.incredible.Generic({
       rule: rule,
       position: {x: 90, y: 25 + 50 * i},
@@ -104,11 +116,19 @@ function setupGraph(graph, logic, task) {
       brokenPorts: {}
     });
     cells.push(elem);
+    i = i + 1;
   });
 
-  graph.resetCells(cells);
+  // Prototype annotation block
+  cells.push(new joint.shapes.incredible.Generic({
+    annotation: "P",
+    position: {x: 90, y: 25 + 50 * i},
+    prototypeElement: true,
+    brokenPorts: {}
+  }));
+  i = i + 1;
 
-  rescale_paper();
+  graph.addCell(cells);
 }
 
 function isTrashArea(x, y) {
@@ -148,6 +168,16 @@ paper.on('cell:pointerup', function (cellView, evt, x, y) {
   }
 });
 
+paper.on('cell:pointerclick', function (cellView, evt, x, y) {
+  var cell = cellView.model;
+  if (cell.get('annotation')) {
+    prop = window.prompt('Input proposition', cell.get('annotation'));
+    if (prop) {
+      cell.set('annotation', prop);
+    }
+  }
+});
+
 $.each(examples.tasks, function (name, l) {
   $("#taskselect").append(
     $("<option />").val(name).text(name)
@@ -159,9 +189,17 @@ $.each(examples.graphs, function (name, l) {
   );
 });
 
-$("#taskselect").change(function () { if (this.value) selectTask(this.value); });
-$("#proofselect").change(function () { if (this.value) selectProof(this.value); });
-$("#freeproof").click(function () { selectNoTask(); });
+function with_graph_loading(func) {
+  return function() {
+    graph.set('loading', true);
+    func.apply(this,arguments);
+    graph.set('loading', false);
+  }
+}
+
+$("#taskselect").change(with_graph_loading(function () { if (this.value) selectTask(this.value); }));
+$("#proofselect").change(with_graph_loading (function () { if (this.value) selectProof(this.value); }));
+$("#freeproof").click(with_graph_loading (function () { selectNoTask(); }));
 
 function selectNoTask() {
   $("#taskselect").val("");
@@ -188,19 +226,22 @@ function selectTask(name) {
   $("#inferredrule").hide();
   $("#task").show();
   setupGraph(graph, logic, task);
-  processGraph();
 }
 
 function selectProof(name) {
   proof = examples.graphs[name];
   selectTask(proof.task);
   graph.fromJSON(proof);
+  $.each(graph.getElements(), function (i, el) {
+    if (el.get('prototypeElement')) {el.remove()};
+  });
+  setupPrototypeElements();
   processGraph();
 }
 
 $(function () {
   selectTask('conjself');
-  rescale_paper();
+  graph.set('loading', false);
 });
 
 $("#showdialog").click(function(){
@@ -212,14 +253,22 @@ $("#closedialog").click(function(){
   $("#dialog").hide()}
 );
 
-graph.on('add remove ', function () { processGraph(); });
+graph.on('add remove change:annotation change:loading', function () {
+  // Do not process the graph when loading is one, which happens during startup
+  // and during batch changes.
+  if (!graph.get('loading')) {
+    processGraph();
+  }
+});
 graph.on('change:source change:target', function (model, end) {
   var connection_state = model.get('source').id + model.get('source').port
     + model.get('target').id + model.get('target').port;
   var connection_state_old = model.get('connection_state');
   if (connection_state != connection_state_old) {
     model.set('connection_state', connection_state);
-    processGraph();
+    if (!graph.get('loading')) {
+      processGraph();
+    }
   }
 });
 
@@ -370,7 +419,14 @@ function buildProof(graph) {
         return;
       }
       proof.blocks[e.id] = {};
-      proof.blocks[e.id]['rule'] = e.get('rule').id;
+      var rule, annotation;
+      if (rule = e.get('rule')) {
+        proof.blocks[e.id].rule = rule.id;
+      } else if (annotation = e.get('annotation')) {
+        proof.blocks[e.id].annotation = annotation;
+      } else {
+        throw new Error("buildProof(): Unknown block type");
+      }
     });
 
   proof.connections = {};

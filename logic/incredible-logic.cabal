@@ -39,6 +39,7 @@ library
                      text,
                      vector,
                      containers,
+                     unordered-containers,
                      transformers,
                      parsec,
                      void,
