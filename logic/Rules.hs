@@ -17,15 +17,25 @@ deriveRule ctxt proof labels = Rule {ports = rulePorts, localVars = [], freeVars
     rules = ctxtRules ctxt
 
     openPorts = S.toList $ S.fromList $
-      [ (blockKey, portKey)
-      | (blockKey, block) <- M.toList $ blocks proof
+      [ (bKey, pKey)
+      | (bKey, block) <- M.toList $ blocks proof
       , let rule = rules M.! blockRule block
-      , (portKey, blockPort) <- M.toList (ports rule)
-      , BlockPort blockKey portKey `S.notMember` connectedPorts
+      , (pKey, _) <- M.toList (ports rule)
+      , BlockPort bKey pKey `S.notMember` connectedPorts
       ] ++
-      [ (b, p)
-      | (cKey, (Connection from to)) <- M.toList $ connections proof
-      , (NoPort, BlockPort b p) <- [(from, to), (to, from)] ]
+      [ (bKey, pKey)
+      | (_, (Connection from to)) <- M.toList $ connections proof
+      , (NoPort, BlockPort bKey pKey) <- [(from, to), (to, from)] ]
+
+    surfaceBlocks = S.fromList $ map fst openPorts
+
+    blockLabels = M.fromList
+      [ (bKey, (pKey, cProp))
+      | (cKey, (Connection from@(BlockPort fromB _) to@(BlockPort toB _))) <- M.toList $ connections proof
+      , fromB `S.member` surfaceBlocks || toB `S.member` surfaceBlocks
+      , let (BlockPort bKey pKey) = if fromB `S.member` surfaceBlocks then from else to
+      , let Ok cProp = labels M.! cKey
+      ]
 
     relabeledPorts = -- TODO relabel!
       [ port
