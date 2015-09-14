@@ -30,7 +30,7 @@ calculateScopes ctxt task proof = scopes
     portSpecs =
         [ BlockPort blockKey portKey
         | (blockKey, block) <- M.toList (blocks proof)
-        , let rule = ctxtRules ctxt M.! blockRule block
+        , let rule = block2Rule ctxt block
         , (portKey, Port {portType = PTAssumption}) <- M.toList (ports rule)
         ]
 
@@ -84,7 +84,7 @@ calculateScopes ctxt task proof = scopes
             tell [(childBlocks childs, ps)]
       where
         block = blocks proof M.! blockKey
-        rule = ctxtRules ctxt M.! blockRule block
+        rule = block2Rule ctxt block
         port = ports rule M.! portKey
 
         childBlocks childs = [ b | Just (Left b) <- concatMap flatten childs ]

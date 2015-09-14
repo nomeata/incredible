@@ -31,6 +31,24 @@ function conclusionToBlockDesc(conclusion, task) {
   }
 }
 
+function annotationToBlockDesc(proposition) {
+  var portsGroup= {
+   'assumption': [{
+     id: 'in',
+     proposition: proposition
+    }],
+   'conclusion': [{
+     id: 'out',
+     proposition: proposition
+    }],
+  };
+
+  return {
+    label: proposition,
+    portsGroup: portsGroup
+  }
+}
+
 function renderBlockDescToSVG(el, blockDesc) {
   el.attr('magnet',false);
 
@@ -171,7 +189,7 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     joint.dia.ElementView.prototype.initialize.apply(this, arguments);
 
     // Listen to some incredible-specific change events
-    this.listenTo(this.model, 'change:brokenPorts', this.update);
+    this.listenTo(this.model, 'change:brokenPorts change:annotation', this.update);
     if (this.model.get('conclusion')) {
       this.listenTo(this.model, 'change:qed', this.update);
     };
@@ -182,6 +200,7 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     var rule = this.model.get('rule');
     var assumption = this.model.get('assumption');
     var conclusion = this.model.get('conclusion');
+    var annotation = this.model.get('annotation');
     var task = this.model.get('task');
     var isPrototype = this.model.get('prototypeElement');
 
@@ -191,6 +210,8 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
       var blockDesc = assumptionToBlockDesc(assumption, task);
     } else if (conclusion) {
       var blockDesc = conclusionToBlockDesc(conclusion, task);
+    } else if (annotation) {
+      var blockDesc = annotationToBlockDesc(annotation);
     } else {
         throw new Error("renderMarkup(): Unknown block type");
     }
@@ -217,6 +238,15 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
       } else {
         V(this.vel.findOne(".body")).attr('fill','#ecf0f1');
       };
+    }
+
+    if (this.model.get('annotation')) {
+      var text = V(this.vel.findOne(".label"));
+      text.text("✎"+this.model.get('annotation'));
+      textBB = text.bbox(true);
+      text.attr('transform', '');
+      // center text
+      text.translate(- textBB.width/2, - textBB.height/2);
     }
 
     // Just in case we use the attrs feature, let's call the jointjs update function

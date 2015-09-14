@@ -61,9 +61,11 @@ data Context = Context
  deriving Show
 
 
-data Block = Block
- { blockRule :: Key Rule
- }
+data Block
+    = AnnotationBlock Proposition
+      -- ^ A block with an annotation (no associated rule)
+    | Block (Key Rule)
+      -- ^ A normal with block with a rule
  deriving Show
 
 data PortSpec = NoPort | AssumptionPort Int | ConclusionPort Int | BlockPort (Key Block) (Key Port)
@@ -101,3 +103,33 @@ data Analysis = Analysis
 
 type Cycle = [Key Connection]
 type Path = [Key Connection]
+
+-- Various accessors
+
+block2Rule :: Context -> Block -> Rule
+block2Rule ctxt (Block rule) = ctxtRules ctxt M.! rule
+block2Rule _    (AnnotationBlock prop) = annotationRule prop
+
+annotationRule :: Proposition -> Rule
+annotationRule prop = Rule
+    { localVars = []
+    , freeVars = []
+    , ports = M.fromList
+        [ (annotationPortIn, Port
+            { portType = PTAssumption
+            , portProp = prop
+            , portScopes = []
+            })
+        , (annotationPortOut, Port
+            { portType = PTConclusion
+            , portProp = prop
+            , portScopes = []
+            })
+        ]
+    }
+
+annotationPortIn :: Key Port
+annotationPortIn = Tagged "in"
+annotationPortOut :: Key Port
+annotationPortOut = Tagged "out"
+

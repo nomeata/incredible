@@ -37,8 +37,7 @@ lint logic _task proof = mconcat
             isAssumption _ = False
     missingRule =
         [ printf "Block \"%s\" references unknown rule \"%s\"" (untag blockKey) (untag ruleKey)
-        | (blockKey, block) <- M.toList (blocks proof)
-        , let ruleKey = blockRule block
+        | (blockKey, Block ruleKey) <- M.toList (blocks proof)
         , ruleKey `M.notMember` ctxtRules logic
         ]
     wrongBlock =
@@ -53,8 +52,7 @@ lint logic _task proof = mconcat
           (untag connKey) (untag portKey) (untag blockKey) (untag ruleKey)
         | (connKey, conn) <- M.toList (connections proof)
         , BlockPort blockKey portKey <- [connFrom conn, connTo conn]
-        , Just block <- return $ M.lookup blockKey (blocks proof)
-        , let ruleKey = blockRule block
+        , Just (Block ruleKey) <- return $ M.lookup blockKey (blocks proof)
         , Just rule <- return $ M.lookup ruleKey (ctxtRules logic)
         , portKey `M.notMember` ports rule
         ]
@@ -63,8 +61,7 @@ lint logic _task proof = mconcat
           (untag connKey) (untag portKey) (untag blockKey)
         | (connKey, conn) <- M.toList (connections proof)
         , BlockPort blockKey portKey <- return $ connFrom conn
-        , Just block <- return $ M.lookup blockKey (blocks proof)
-        , let ruleKey = blockRule block
+        , Just (Block ruleKey) <- return $ M.lookup blockKey (blocks proof)
         , Just rule <- return $ M.lookup ruleKey (ctxtRules logic)
         , Just port <- return $ M.lookup portKey (ports rule)
         , not $ isOk port
@@ -82,8 +79,7 @@ lint logic _task proof = mconcat
           (untag connKey) (untag portKey) (untag blockKey)
         | (connKey, conn) <- M.toList (connections proof)
         , BlockPort blockKey portKey <- return $ connTo conn
-        , Just block <- return $ M.lookup blockKey (blocks proof)
-        , let ruleKey = blockRule block
+        , Just (Block ruleKey) <- return $ M.lookup blockKey (blocks proof)
         , Just rule <- return $ M.lookup ruleKey (ctxtRules logic)
         , Just port <- return $ M.lookup portKey (ports rule)
         , not $ isOk port
