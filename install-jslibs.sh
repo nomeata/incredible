@@ -3,6 +3,7 @@
 set -e
 set -x
 
+test -d vendor || mkdir vendor
 cd vendor
 test -e jquery-2.1.4.min.js ||
 	wget -c http://code.jquery.com/jquery-2.1.4.min.js
