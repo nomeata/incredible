@@ -435,7 +435,7 @@ function isReversed(conn) {
     }
     var rule;
     if (rule = el.get('rule')) {
-      if (rule.ports[e.port].type == "conclusion") {
+      if (rule.ports[e.port].type == "assumption") {
         return true;
       }
     }
