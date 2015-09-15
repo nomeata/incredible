@@ -91,9 +91,9 @@ function setupPrototypeElements() {
   container.empty();
 
   $.each(blockDescs, function (_, blockDesc) {
-    var el = $('<svg xmlns="http://www.w3.org/2000/svg" width="300px" height="100px">');
+    var el = $('<div><svg xmlns="http://www.w3.org/2000/svg" width="300px" height="100px"></div>');
     container.append(el);
-    var vel = V(el.get(0));
+    var vel = V(el.find("svg").get(0));
 
     var g = V("<g/>");
     vel.append(g);
@@ -227,7 +227,7 @@ $(function (){
     $("#dialog").hide()}
   );
 
-  $("#inferredrule svg").draggable({
+  $("#inferredrule #inferredrulewrapper").draggable({
     appendTo: "body",
     helper: "clone"
     // helper: function ()  { return $("<span>Hi</span>") }

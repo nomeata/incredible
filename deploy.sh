@@ -33,7 +33,8 @@ cp --parents -v -t $dirname \
 	./vendor/joint.min.js \
 	./webui/*.css \
 	./webui/*.js \
-	./images/*
+	./images/* \
+	./fonts/*/*
 
 if [ -d ".git" ]
 then

@@ -8,6 +8,7 @@
 
         <link rel="stylesheet" type="text/css" href="./vendor/joint.min.css" />
         <link rel="stylesheet" type="text/css" href="./webui/logic.css" />
+        <link rel="stylesheet" type="text/css" href="./fonts/lintsec_regular_macroman/stylesheet.css" />
 
         <style>
 	    #header {
@@ -15,9 +16,10 @@
 		top:0px;
 		left:0px;
 		right:0px;
-		height:150px;
+		height:115px;
 		overflow: auto;
 		border-bottom: 5px solid grey;
+		padding:15px;
             }
 
 	    #task {
@@ -48,7 +50,7 @@
 
             #logic {
 		position: absolute;
-		top:155px;
+		top:150px;
 		left:0px;
 		width:300px;
 		bottom:0px;
@@ -58,7 +60,7 @@
 
             #paper {
 		position: absolute;
-		top:155px;
+		top:150px;
 		left:300px;
 		right:0px;
 		bottom:0px;
@@ -80,12 +82,20 @@
 		overflow: auto;
 	    }
 
-	    h1, h2, h3 {
+	    h1 {
+	       font-family: 'lintsecregular', Arial, sans-serif;
+	    }
+
+	    h2, h3 {
 		font-family: sans-serif
 	    }
 
 	    #errors {
 		white-space: pre-line;
+	    }
+
+	    .ui-draggable {
+		cursor: move
 	    }
         </style>
     </head>
@@ -113,7 +123,9 @@
 
 	<div id="inferredrule">
 	<h3>You proved:</h3>
+	<div id="inferredrulewrapper">
 	<svg xmlns="http://www.w3.org/2000/svg" width="30em" height="100px"></svg>
+	</div>
 	</div>
 
     </div>
