@@ -361,16 +361,14 @@ function processGraph() {
     for (var connId in analysis.connectionLabels) {
       var lbl = analysis.connectionLabels[connId];
       var conn = graph.getCell(connId);
-      if (lbl.propIn && lbl.propOut) {
+      if (lbl.type == "mismatch" || lbl.type == "dunno") {
         var symbol;
         if (lbl.type == "mismatch")   {symbol = "☠"}
         else if (lbl.type == "dunno") {symbol = "?"}
         else {console.log("Unknown connection label type")}
 
-        if (lbl.type == "mismatch" || lbl.type == "dunno") {
-          // not very nice, see http://stackoverflow.com/questions/32010888
-          conn.attr({'.connection': {class: 'connection error'}});
-        }
+        // not very nice, see http://stackoverflow.com/questions/32010888
+        conn.attr({'.connection': {class: 'connection error'}});
 
         conn.set('labels', [{
           position: .1,
@@ -397,15 +395,19 @@ function processGraph() {
             }
           }
         ]);
-      } else {
+      } else if (lbl.type == "ok") {
         conn.set('labels', [{
           position: .5,
           attrs: {
             text: {
-              text: lbl
+              text: lbl.prop
             }
           }
         }]);
+      } else if (lbl.type == "unconnected") {
+        conn.set('labels', []);
+      } else {
+        throw new Error("processGraph(): Unknown connection label type");
       }
     }
   }
