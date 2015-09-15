@@ -1,3 +1,6 @@
+# According to Robert Price [1961] "The stroke function and natural deduction"
+# the following three rules are independent of another
+# and complete wrt. classical propositional logic.
 rules:
 - id: nandI1
   free: ["A","B"]
