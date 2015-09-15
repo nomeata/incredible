@@ -366,6 +366,12 @@ function processGraph() {
         if (lbl.type == "mismatch")   {symbol = "☠"}
         else if (lbl.type == "dunno") {symbol = "?"}
         else {console.log("Unknown connection label type")}
+
+        if (lbl.type == "mismatch" || lbl.type == "dunno") {
+          // not very nice, see http://stackoverflow.com/questions/32010888
+          conn.attr({'.connection': {class: 'connection error'}});
+        }
+
         conn.set('labels', [{
           position: .1,
           attrs: {
