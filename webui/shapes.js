@@ -44,7 +44,7 @@ function annotationToBlockDesc(proposition) {
   };
 
   return {
-    label: proposition,
+    label: "✎"+proposition,
     portsGroup: portsGroup
   }
 }
@@ -242,6 +242,9 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
       };
     }
 
+    // This is a bit ugly; we usually set the label in the renderMarkup
+    // function, where it also affects the size of the block. How to do it
+    // better?
     if (this.model.get('annotation')) {
       var text = V(this.vel.findOne(".label"));
       text.text("✎"+this.model.get('annotation'));
