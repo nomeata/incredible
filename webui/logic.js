@@ -234,7 +234,8 @@ $(function (){
   });
 });
 
-// Don't wrap 'droppable' in a function, or it won't work with Google Chrome. Why?
+// Don't wrap 'droppable' in $(..), or it won't work with Google Chrome. Why?
+// Who knows...
 $("#paper").droppable({
   drop: function (event, ui) {
     var data = ui.draggable.data('elementData');
