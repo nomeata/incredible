@@ -98,10 +98,10 @@ printTerm p = runLFreshM (prP (0::Int) p) ""
 
 -- Is it infix? What precedences?
 isInFix :: String -> Maybe (Int, OpAssoc)
-isInFix "↑" = Just (4, L)
-isInFix "∧" = Just (3, R)
-isInFix "→" = Just (3, R)
-isInFix "∨" = Just (2, R)
+isInFix "↑" = Just (5, L)
+isInFix "∧" = Just (4, L)
+isInFix "∨" = Just (3, L)
+isInFix "→" = Just (2, R)
 isInFix _   = Nothing
 
 isQuant :: String -> Bool
@@ -128,16 +128,17 @@ termP :: Parser Proposition
 termP =  buildExpressionParser table atomP <?> "proposition"
 
 table :: OperatorTable String () Identity Proposition
-table = [ [ binary "↑" []
+table = [ [ binary "↑" [] AssocLeft
           ]
-        , [ binary "∧" ["&"]
-          , binary "→" ["->"]
+        , [ binary "∧" ["&"] AssocLeft
           ]
-        , [ binary "∨" ["|"]
+        , [ binary "∨" ["|"] AssocLeft
+          ]
+        , [ binary "→" ["->"] AssocRight
           ]
         ]
   where
-    binary op alts = Infix ((\a b -> App (C (string2Name op)) [a,b]) <$ l (choice (map string (op:alts)))) AssocLeft
+    binary op alts assoc = Infix ((\a b -> App (C (string2Name op)) [a,b]) <$ l (choice (map string (op:alts)))) assoc
 
 quantifiers :: [(Char, [Char])]
 quantifiers =

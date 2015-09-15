@@ -7,7 +7,7 @@
               prop: P(c₁₀)
               type: ok
             af8bf578-3982-4855-aaa2-4ddc355f5d85:
-              prop: P(c₁₀)∨P(c₁₀)→⊥
+              prop: P(c₁₀)∨(P(c₁₀)→⊥)
               type: ok
             ebbb1d3b-c8fd-41ae-976d-3a1b476cb562:
               prop: P(c₁₀)
@@ -31,7 +31,7 @@
               prop: ∃x.P(x)→⊥
               type: ok
             251559cd-3068-4377-a351-9a2351d128b1:
-              prop: (∃x.P(x)→⊥)∨(∃x.P(x)→⊥)→⊥
+              prop: (∃x.P(x)→⊥)∨((∃x.P(x)→⊥)→⊥)
               type: ok
             952caeb2-e6d3-4670-9a15-f90d0050ce32:
               prop: P(c₁₀)

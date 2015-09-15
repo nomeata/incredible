@@ -28,13 +28,13 @@
               prop: ∃x.r(x)∧r(f(f(x)))
               type: ok
             52d1f946-3608-4219-8c46-06184ded345a:
-              prop: r(y₃₁)∨r(y₃₁)→⊥
+              prop: r(y₃₁)∨(r(y₃₁)→⊥)
               type: ok
             446d7fee-e1a2-43ad-a72e-f732fd3abab6:
               prop: r(f(f(f(y₃₅(c₁₁)))))
               type: ok
             5145ee63-42fb-4e31-8fb8-ba592cf8e478:
-              prop: r(f(f(y₃₅(c₁₁))))∨r(f(f(y₃₅(c₁₁))))→⊥
+              prop: r(f(f(y₃₅(c₁₁))))∨(r(f(f(y₃₅(c₁₁))))→⊥)
               type: ok
             776a7cbe-0ede-473b-b544-0048fcb127b6:
               prop: r(f(y₃₅(c₁₁)))∧r(f(f(f(y₃₅(c₁₁)))))
@@ -77,7 +77,7 @@
               prop: ∀x.(r(x)→⊥)→r(f(x))
               type: ok
             9e910993-4b0f-4468-9b0b-4ec79144f3aa:
-              prop: r(f(y₃₅(c₁₁)))∨r(f(y₃₅(c₁₁)))→⊥
+              prop: r(f(y₃₅(c₁₁)))∨(r(f(y₃₅(c₁₁)))→⊥)
               type: ok
             ab6d7324-f2b0-45dc-b784-53198fa7d2e4:
               propIn: r(y₃₁)
