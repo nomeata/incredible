@@ -234,20 +234,18 @@ $(function (){
   });
 });
 
-$(function (){
-  $("#paper").droppable({
-    drop: function (event, ui) {
-      var data = ui.draggable.data('elementData');
-      if (data) {
-        var pos = paper.clientToLocalPoint({x: event.clientX, y: event.clientY});
-        var elem = new joint.shapes.incredible.Generic(_.extend(data, {
-          position: pos
-        }));
-        graph.addCell(elem);
-      };
-    }
-  });
-
+// Don't wrap 'droppable' in a function, or it won't work with Google Chrome. Why?
+$("#paper").droppable({
+  drop: function (event, ui) {
+    var data = ui.draggable.data('elementData');
+    if (data) {
+      var pos = paper.clientToLocalPoint({x: event.clientX, y: event.clientY});
+      var elem = new joint.shapes.incredible.Generic(_.extend(data, {
+        position: pos
+      }));
+      graph.addCell(elem);
+    };
+  }
 });
 
 graph.on('add remove change:annotation change:loading', function () {
