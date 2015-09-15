@@ -1,0 +1,38 @@
+rules:
+- id: nandI1
+  free: ["A","B"]
+  ports:
+    in:
+      type: assumption
+      proposition: B↑B
+    hyp:
+      type: local hypothesis
+      consumedBy: in
+      proposition: A
+    out:
+      type: conclusion
+      proposition: A↑B
+- id: nandE1
+  free: ["A","B"]
+  ports:
+    in1:
+      type: assumption
+      proposition: A
+    in2:
+      type: assumption
+      proposition: B↑A
+    out:
+      type: conclusion
+      proposition: B↑B
+- id: nandE2
+  free: ["A", "B"]
+  ports:
+    in1:
+      type: assumption
+      proposition: A
+    in2:
+      type: assumption
+      proposition: ((B↑B)↑A)
+    out:
+      type: conclusion
+      proposition: B

@@ -98,6 +98,7 @@ printTerm p = runLFreshM (prP (0::Int) p) ""
 
 -- Is it infix? What precedences?
 isInFix :: String -> Maybe (Int, OpAssoc)
+isInFix "↑" = Just (4, L)
 isInFix "∧" = Just (3, R)
 isInFix "→" = Just (3, R)
 isInFix "∨" = Just (2, R)
@@ -127,7 +128,9 @@ termP :: Parser Proposition
 termP =  buildExpressionParser table atomP <?> "proposition"
 
 table :: OperatorTable String () Identity Proposition
-table = [ [ binary "∧" ["&"]
+table = [ [ binary "↑" []
+          ]
+        , [ binary "∧" ["&"]
           , binary "→" ["->"]
           ]
         , [ binary "∨" ["|"]
