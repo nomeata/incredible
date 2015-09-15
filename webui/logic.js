@@ -74,41 +74,42 @@ function setupGraph(graph, logic, task) {
   rescale_paper();
 }
 
+function renderBlockDescToDraggable(blockDesc, container) {
+  var el = $('<div><svg xmlns="http://www.w3.org/2000/svg" width="300px" height="100px"></div>');
+  container.append(el);
+  var vel = V(el.find("svg").get(0));
+
+  var g = V("<g/>");
+  vel.append(g);
+  renderBlockDescToSVG(g, blockDesc, false);
+  g.scale(1.5);
+  gBB = g.bbox(false);
+  g.translate($(el).width()/2, -gBB.y + 5)
+
+  $(el).height(gBB.height + 10);
+  $(el).data('elementData', blockDesc.data);
+  $(el).draggable({
+    appendTo: "body",
+    helper: "clone"
+  });
+}
+
 function setupPrototypeElements() {
-  var blockDescs = [];
+  var container = $("#logic");
+  container.empty();
   $.each(logic.rules, function (_, rule) {
     var blockDesc = ruleToBlockDesc(rule);
     blockDesc.isPrototype = true;
     blockDesc.data = {rule: rule};
-    blockDescs.push(blockDesc)
+    renderBlockDescToDraggable(blockDesc, container);
   });
+
+  var container = $("#helpers");
+  container.empty();
   var annBlockDesc = annotationToBlockDesc("P");
   annBlockDesc.isPrototype = true;
   annBlockDesc.data = {annotation: "P"};
-  blockDescs.push(annBlockDesc);
-
-  var container = $("#logic");
-  container.empty();
-
-  $.each(blockDescs, function (_, blockDesc) {
-    var el = $('<div><svg xmlns="http://www.w3.org/2000/svg" width="300px" height="100px"></div>');
-    container.append(el);
-    var vel = V(el.find("svg").get(0));
-
-    var g = V("<g/>");
-    vel.append(g);
-    renderBlockDescToSVG(g, blockDesc, false);
-    g.scale(1.5);
-    gBB = g.bbox(false);
-    g.translate($(el).width()/2, -gBB.y + 5)
-
-    $(el).height(gBB.height + 10);
-    $(el).data('elementData', blockDesc.data);
-    $(el).draggable({
-      appendTo: "body",
-      helper: "clone"
-    });
-  });
+  renderBlockDescToDraggable(annBlockDesc, container);
 }
 
 function isTrashArea(x, y) {
