@@ -18,8 +18,7 @@ import Unbound.LocallyNameless.Fresh
 
 
 labelConnections :: Context -> Task -> Proof -> M.Map (Key Connection) ConnLabel
-labelConnections ctxt task proof =
-    M.mapWithKey instantiate (connections proof)
+labelConnections ctxt task proof = labels
   where
     -- Strategy:
     --  1. For each block in the proof, create a data structure
@@ -102,6 +101,8 @@ labelConnections ctxt task proof =
     resultsMap = M.fromList unificationResults
 
 
+    labels = M.mapWithKey instantiate (connections proof)
+
     instantiate connKey conn = case (propFromMB, propToMB) of
         (Nothing, Nothing) -> Unconnected
         (Just propFrom, Nothing) -> Ok propFrom
@@ -112,5 +113,9 @@ labelConnections ctxt task proof =
             Dunno  -> DunnoLabel propFrom propTo
             Failed -> Mismatch propFrom propTo
       where
-        propFromMB = applyBinding final_bind <$> propAt (connFrom conn)
-        propToMB   = applyBinding final_bind <$> propAt (connTo conn)
+        propFromMB = applyBinding' highest final_bind <$> propAt (connFrom conn)
+        propToMB   = applyBinding' highest final_bind <$> propAt (connTo conn)
+
+    -- It is far to costly to do that in every invocatio to applyBinding below
+    highest = firstFree (M.toList final_bind, map M.elems (M.elems renamedBlockProps))
+

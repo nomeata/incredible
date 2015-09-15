@@ -5,6 +5,8 @@ module Unification
     , Unifiable
     , unifyLiberally
     , applyBinding
+    , applyBinding'
+    , applyBindingM
     , UnificationResult(..)
     ) where
 
@@ -58,8 +60,9 @@ unifyLiberally uvs eqns = flip contFreshM highest $
     go uvs_bind ((n,Dunno,x):xs) = do
         maybe_uvs_bind' <- lift $ runMaybeT (uncurry unif uvs_bind x)
         case maybe_uvs_bind' of
-            Just (uvs',bind') ->
-                if x `solvedBy` bind'
+            Just (uvs',bind') -> do
+                solved <- x `solvedBy` bind'
+                if solved
                 then tell [(n,Solved, x)] >> go (uvs',bind') xs
                 -- Discard the results of this dunno,
                 -- potentially less complete, but makes the output easier to understand
@@ -210,10 +213,6 @@ proj w uvs binds s = do
     recurse = foldM (uncurry (proj w)) (uvs, binds)
 
 
-fromVar :: Term -> Maybe Var
-fromVar (V n) = Just n
-fromVar _       = Nothing
-
 allBoundVar :: Unifiable -> [Term] -> Maybe [Var]
 allBoundVar _   []                         = return []
 allBoundVar uvs (V x:xs) | x `notElem` uvs = (x:) <$> allBoundVar uvs xs
@@ -255,12 +254,18 @@ strip t = go t []
   where go (App t args) args' = go t (args++args')
         go t             args' = (t, args')
 
-solvedBy :: Equality -> Bindings -> Bool
-solvedBy (t1,t2) b =
-    applyBinding b t1 `aeq` applyBinding b t2
+solvedBy :: Fresh m => Equality -> Bindings -> m Bool
+solvedBy (t1,t2) b = liftM2 aeq (applyBindingM b t1) (applyBindingM b t2)
 
+-- | This is slow. If possible, use 'applyBinding'' or 'applyBindingM'
 applyBinding :: Bindings -> Term -> Term
-applyBinding bindings t = flip contFreshM (firstFree (M.toList bindings,t)) $ go [] t
+applyBinding bindings t = applyBinding' (firstFree (M.toList bindings,t)) bindings t
+
+applyBinding' :: Integer -> Bindings -> Term -> Term
+applyBinding' free bindings t = flip contFreshM free $ applyBindingM bindings t
+
+applyBindingM :: Fresh m => Bindings -> Term -> m Term
+applyBindingM bindings t = go [] t
   where
     go args (V v) | Just t <- M.lookup v bindings
                   = go args t
@@ -275,6 +280,10 @@ applyBinding bindings t = flip contFreshM (firstFree (M.toList bindings,t)) $ go
 
     go [] (Lam b) = lunbind' b $ \(v,body) -> Lam . bind v <$> go [] body
     go (x:xs) (Lam b) = lunbind' b $ \(v,body) -> go xs (subst v x body)
+
+    -- This can be dropped once we only support GHC-7.10
+    infixl 4 <$>
+    (<$>) = liftM
 
 lunbind' :: (Fresh m, Alpha p, Alpha t) => Bind p t -> ((p, t) -> m c) -> m c
 lunbind' b c = unbind b >>= c
