@@ -57,7 +57,7 @@ function renderBlockDescToSVG(el, blockDesc, forReal) {
     el.attr('magnet',false);
   }
 
-  var group = V("<g/>");
+  var group = V("<g class='block'/>");
   el.append(group);
 
   var text = V("<text class='label' font-family='sans' fill='black'/>");
