@@ -1,0 +1,1577 @@
+{
+  "loading": false,
+  "cells": [
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 140,
+        "y": 70
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "annotation": "(A->(B->False))->False",
+      "id": "854f2347-970b-4d8c-aee7-7388ebcdbddb",
+      "z": 1,
+      "brokenPorts": {},
+      "qed": true,
+      "originalPosition": {
+        "x": 140,
+        "y": 70
+      },
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {},
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "annotation": "A",
+      "id": "d54e8c71-29c8-442b-a196-9615640ca947",
+      "z": 2,
+      "brokenPorts": {},
+      "qed": true,
+      "originalPosition": {},
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 730,
+        "y": 100
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "A",
+          "B",
+          "P"
+        ],
+        "ports": {
+          "hyp1": {
+            "consumedBy": "in1",
+            "proposition": "A",
+            "type": "local hypothesis"
+          },
+          "in": {
+            "proposition": "A∨B",
+            "type": "assumption"
+          },
+          "in2": {
+            "proposition": "P",
+            "type": "assumption"
+          },
+          "hyp2": {
+            "consumedBy": "in2",
+            "proposition": "B",
+            "type": "local hypothesis"
+          },
+          "in1": {
+            "proposition": "P",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "P",
+            "type": "conclusion"
+          }
+        },
+        "id": "disjE"
+      },
+      "id": "86461378-e14c-4a9d-8309-bb25fc86ed88",
+      "z": 3,
+      "brokenPorts": {},
+      "qed": true,
+      "originalPosition": {},
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {},
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "P"
+        ],
+        "ports": {
+          "out": {
+            "proposition": "P∨(P→⊥)",
+            "type": "conclusion"
+          }
+        },
+        "id": "TND"
+      },
+      "id": "072b15fa-eb3f-4e24-890b-0b3787b27d1a",
+      "z": 4,
+      "brokenPorts": {},
+      "qed": true,
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "072b15fa-eb3f-4e24-890b-0b3787b27d1a",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "out"
+      },
+      "target": {
+        "id": "86461378-e14c-4a9d-8309-bb25fc86ed88",
+        "selector": "g:nth-child(1) > path:nth-child(5)",
+        "port": "in"
+      },
+      "id": "c8077947-e0e4-45ef-9a82-a0c6e558a655",
+      "z": 5,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "A∨A→⊥"
+            }
+          }
+        }
+      ],
+      "connection_state": "072b15fa-eb3f-4e24-890b-0b3787b27d1aout86461378-e14c-4a9d-8309-bb25fc86ed88in",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "86461378-e14c-4a9d-8309-bb25fc86ed88",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "hyp1"
+      },
+      "target": {
+        "id": "86461378-e14c-4a9d-8309-bb25fc86ed88",
+        "selector": "g:nth-child(1) > path:nth-child(6)",
+        "port": "in1"
+      },
+      "id": "7f2d4571-ff9e-4eac-b404-818fba381a22",
+      "z": 6,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "A"
+            }
+          }
+        }
+      ],
+      "connection_state": "86461378-e14c-4a9d-8309-bb25fc86ed88hyp186461378-e14c-4a9d-8309-bb25fc86ed88in1",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "86461378-e14c-4a9d-8309-bb25fc86ed88",
+        "selector": "g:nth-child(1) > path:nth-child(8)",
+        "port": "out"
+      },
+      "target": {
+        "id": "d54e8c71-29c8-442b-a196-9615640ca947",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "in"
+      },
+      "id": "1b2e5eda-57e0-4adb-9441-ecaeb647a048",
+      "z": 7,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "A"
+            }
+          }
+        }
+      ],
+      "connection_state": "86461378-e14c-4a9d-8309-bb25fc86ed88outd54e8c71-29c8-442b-a196-9615640ca947in",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 560,
+        "y": 110
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "P"
+        ],
+        "ports": {
+          "in": {
+            "proposition": "False",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "P",
+            "type": "conclusion"
+          }
+        },
+        "id": "falseE"
+      },
+      "id": "9973b427-c76a-492c-8539-aa21ca0c157e",
+      "z": 8,
+      "brokenPorts": {},
+      "qed": true,
+      "originalPosition": {},
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "9973b427-c76a-492c-8539-aa21ca0c157e",
+        "selector": "g:nth-child(1) > path:nth-child(4)",
+        "port": "out"
+      },
+      "target": {
+        "id": "86461378-e14c-4a9d-8309-bb25fc86ed88",
+        "selector": "g:nth-child(1) > path:nth-child(7)",
+        "port": "in2"
+      },
+      "id": "cd9baa20-d9ed-4965-897a-ccb99ccdc332",
+      "z": 9,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "A"
+            }
+          }
+        }
+      ],
+      "connection_state": "9973b427-c76a-492c-8539-aa21ca0c157eout86461378-e14c-4a9d-8309-bb25fc86ed88in2",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "86461378-e14c-4a9d-8309-bb25fc86ed88",
+        "selector": "g:nth-child(1) > path:nth-child(4)",
+        "port": "hyp2"
+      },
+      "target": {
+        "id": "60b1146b-75cf-4dad-9502-9ac3d039a5f5",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "in1"
+      },
+      "id": "57618fce-869d-4cdc-ab24-dddb11dab1db",
+      "z": 10,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "A→⊥"
+            }
+          }
+        }
+      ],
+      "connection_state": "86461378-e14c-4a9d-8309-bb25fc86ed88hyp260b1146b-75cf-4dad-9502-9ac3d039a5f5in1",
+      "vertices": [
+        {
+          "x": 10,
+          "y": 210
+        }
+      ],
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {},
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "A",
+          "B"
+        ],
+        "ports": {
+          "in2": {
+            "proposition": "A",
+            "type": "assumption"
+          },
+          "in1": {
+            "proposition": "A→B",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "B",
+            "type": "conclusion"
+          }
+        },
+        "id": "impE"
+      },
+      "id": "673884d4-f640-4233-b06e-ba27f6ec10a9",
+      "z": 11,
+      "brokenPorts": {},
+      "qed": true,
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "673884d4-f640-4233-b06e-ba27f6ec10a9",
+        "selector": "g:nth-child(1) > path:nth-child(5)",
+        "port": "out"
+      },
+      "target": {
+        "id": "9973b427-c76a-492c-8539-aa21ca0c157e",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "in"
+      },
+      "id": "8d5571b1-9bc4-4387-9c82-14a7b1dabd26",
+      "z": 12,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "⊥"
+            }
+          }
+        }
+      ],
+      "connection_state": "673884d4-f640-4233-b06e-ba27f6ec10a9out9973b427-c76a-492c-8539-aa21ca0c157ein",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "854f2347-970b-4d8c-aee7-7388ebcdbddb",
+        "selector": "g:nth-child(1) > path:nth-child(4)",
+        "port": "out"
+      },
+      "target": {
+        "id": "673884d4-f640-4233-b06e-ba27f6ec10a9",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "in1"
+      },
+      "id": "ceb62521-6773-43dd-bf10-b402de0744fb",
+      "z": 13,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "(A→B→⊥)→⊥"
+            }
+          }
+        }
+      ],
+      "connection_state": "854f2347-970b-4d8c-aee7-7388ebcdbddbout673884d4-f640-4233-b06e-ba27f6ec10a9in1",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 320,
+        "y": 140
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "A",
+          "B"
+        ],
+        "ports": {
+          "in": {
+            "proposition": "B",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "A→B",
+            "type": "conclusion"
+          },
+          "hyp": {
+            "consumedBy": "in",
+            "proposition": "A",
+            "type": "local hypothesis"
+          }
+        },
+        "id": "impI"
+      },
+      "id": "bf63dab6-17cc-408b-80bd-a60aed2689d0",
+      "z": 14,
+      "brokenPorts": {},
+      "qed": true,
+      "originalPosition": {
+        "x": 310,
+        "y": 170
+      },
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "bf63dab6-17cc-408b-80bd-a60aed2689d0",
+        "selector": "g:nth-child(1) > path:nth-child(5)",
+        "port": "out"
+      },
+      "target": {
+        "id": "673884d4-f640-4233-b06e-ba27f6ec10a9",
+        "selector": "g:nth-child(1) > path:nth-child(4)",
+        "port": "in2"
+      },
+      "id": "cc5172d2-b4a3-43b3-b94a-dd2689097dea",
+      "z": 15,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "A→B→⊥"
+            }
+          }
+        }
+      ],
+      "connection_state": "bf63dab6-17cc-408b-80bd-a60aed2689d0out673884d4-f640-4233-b06e-ba27f6ec10a9in2",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "bf63dab6-17cc-408b-80bd-a60aed2689d0",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "hyp"
+      },
+      "target": {
+        "id": "60b1146b-75cf-4dad-9502-9ac3d039a5f5",
+        "selector": "g:nth-child(1) > path:nth-child(4)",
+        "port": "in2"
+      },
+      "id": "849b8c7a-0ba7-417b-8e4c-e946f7fd97fc",
+      "z": 16,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "A"
+            }
+          }
+        }
+      ],
+      "connection_state": "bf63dab6-17cc-408b-80bd-a60aed2689d0hyp60b1146b-75cf-4dad-9502-9ac3d039a5f5in2",
+      "vertices": [
+        {
+          "x": 190,
+          "y": 190
+        }
+      ],
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 200,
+        "y": 140
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "P"
+        ],
+        "ports": {
+          "in": {
+            "proposition": "False",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "P",
+            "type": "conclusion"
+          }
+        },
+        "id": "falseE"
+      },
+      "id": "445b761b-61a5-4e4b-968f-a2c5beac474a",
+      "z": 20,
+      "brokenPorts": {},
+      "qed": true,
+      "originalPosition": {
+        "x": 170,
+        "y": 150
+      },
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "445b761b-61a5-4e4b-968f-a2c5beac474a",
+        "selector": "g:nth-child(1) > path:nth-child(4)",
+        "port": "out"
+      },
+      "target": {
+        "id": "bf63dab6-17cc-408b-80bd-a60aed2689d0",
+        "selector": "g:nth-child(1) > path:nth-child(4)",
+        "port": "in"
+      },
+      "id": "52c6312b-ee19-4e1b-809a-49d4b8a54293",
+      "z": 21,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "B→⊥"
+            }
+          }
+        }
+      ],
+      "connection_state": "445b761b-61a5-4e4b-968f-a2c5beac474aoutbf63dab6-17cc-408b-80bd-a60aed2689d0in",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 80,
+        "y": 140
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "A",
+          "B"
+        ],
+        "ports": {
+          "in2": {
+            "proposition": "A",
+            "type": "assumption"
+          },
+          "in1": {
+            "proposition": "A→B",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "B",
+            "type": "conclusion"
+          }
+        },
+        "id": "impE"
+      },
+      "id": "60b1146b-75cf-4dad-9502-9ac3d039a5f5",
+      "z": 22,
+      "brokenPorts": {},
+      "qed": true,
+      "originalPosition": {
+        "x": 70,
+        "y": 180
+      },
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "60b1146b-75cf-4dad-9502-9ac3d039a5f5",
+        "selector": "g:nth-child(1) > path:nth-child(5)",
+        "port": "out"
+      },
+      "target": {
+        "id": "445b761b-61a5-4e4b-968f-a2c5beac474a",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "in"
+      },
+      "id": "f5e714d0-8ade-4abc-baaf-3da186c5f0b4",
+      "z": 23,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "⊥"
+            }
+          }
+        }
+      ],
+      "connection_state": "60b1146b-75cf-4dad-9502-9ac3d039a5f5out445b761b-61a5-4e4b-968f-a2c5beac474ain",
+      "vertices": [],
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 940,
+        "y": 260
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "annotation": "B",
+      "id": "7b17a1bd-729d-429c-bfeb-e058e4942bb2",
+      "z": 24,
+      "brokenPorts": {},
+      "qed": true,
+      "originalPosition": {},
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 650,
+        "y": 230
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "P"
+        ],
+        "ports": {
+          "out": {
+            "proposition": "P∨(P→⊥)",
+            "type": "conclusion"
+          }
+        },
+        "id": "TND"
+      },
+      "id": "c28e5398-55d4-412e-aa7a-3b5d169e7171",
+      "z": 25,
+      "brokenPorts": {},
+      "qed": true,
+      "originalPosition": {},
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {},
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "A",
+          "B",
+          "P"
+        ],
+        "ports": {
+          "hyp1": {
+            "consumedBy": "in1",
+            "proposition": "A",
+            "type": "local hypothesis"
+          },
+          "in": {
+            "proposition": "A∨B",
+            "type": "assumption"
+          },
+          "in2": {
+            "proposition": "P",
+            "type": "assumption"
+          },
+          "hyp2": {
+            "consumedBy": "in2",
+            "proposition": "B",
+            "type": "local hypothesis"
+          },
+          "in1": {
+            "proposition": "P",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "P",
+            "type": "conclusion"
+          }
+        },
+        "id": "disjE"
+      },
+      "id": "1f48c282-43fd-4542-aec8-45a02e72cbfc",
+      "z": 26,
+      "brokenPorts": {},
+      "qed": true,
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "c28e5398-55d4-412e-aa7a-3b5d169e7171",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "out"
+      },
+      "target": {
+        "id": "1f48c282-43fd-4542-aec8-45a02e72cbfc",
+        "selector": "g:nth-child(1) > path:nth-child(5)",
+        "port": "in"
+      },
+      "id": "69f86eed-ef22-430b-ba38-b36f6b366267",
+      "z": 27,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "B∨B→⊥"
+            }
+          }
+        }
+      ],
+      "connection_state": "c28e5398-55d4-412e-aa7a-3b5d169e7171out1f48c282-43fd-4542-aec8-45a02e72cbfcin",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "1f48c282-43fd-4542-aec8-45a02e72cbfc",
+        "selector": "g:nth-child(1) > path:nth-child(8)",
+        "port": "out"
+      },
+      "target": {
+        "id": "7b17a1bd-729d-429c-bfeb-e058e4942bb2",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "in"
+      },
+      "id": "f1ae0c6d-8be8-44c1-b848-6d4d6acf87c6",
+      "z": 28,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "B"
+            }
+          }
+        }
+      ],
+      "connection_state": "1f48c282-43fd-4542-aec8-45a02e72cbfcout7b17a1bd-729d-429c-bfeb-e058e4942bb2in",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "1f48c282-43fd-4542-aec8-45a02e72cbfc",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "hyp1"
+      },
+      "target": {
+        "id": "1f48c282-43fd-4542-aec8-45a02e72cbfc",
+        "selector": "g:nth-child(1) > path:nth-child(6)",
+        "port": "in1"
+      },
+      "id": "a2255a97-403b-4ea5-abd3-80457eb22625",
+      "z": 29,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "B"
+            }
+          }
+        }
+      ],
+      "connection_state": "1f48c282-43fd-4542-aec8-45a02e72cbfchyp11f48c282-43fd-4542-aec8-45a02e72cbfcin1",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {},
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "P"
+        ],
+        "ports": {
+          "in": {
+            "proposition": "False",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "P",
+            "type": "conclusion"
+          }
+        },
+        "id": "falseE"
+      },
+      "id": "2f3e9647-609d-41b6-8113-8580b55895b2",
+      "z": 30,
+      "brokenPorts": {},
+      "qed": true,
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "2f3e9647-609d-41b6-8113-8580b55895b2",
+        "selector": "g:nth-child(1) > path:nth-child(4)",
+        "port": "out"
+      },
+      "target": {
+        "id": "1f48c282-43fd-4542-aec8-45a02e72cbfc",
+        "selector": "g:nth-child(1) > path:nth-child(7)",
+        "port": "in2"
+      },
+      "id": "4f941f66-f8a0-423f-95fa-5a33e9275b64",
+      "z": 31,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "B"
+            }
+          }
+        }
+      ],
+      "connection_state": "2f3e9647-609d-41b6-8113-8580b55895b2out1f48c282-43fd-4542-aec8-45a02e72cbfcin2",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 480,
+        "y": 310
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "A",
+          "B"
+        ],
+        "ports": {
+          "in2": {
+            "proposition": "A",
+            "type": "assumption"
+          },
+          "in1": {
+            "proposition": "A→B",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "B",
+            "type": "conclusion"
+          }
+        },
+        "id": "impE"
+      },
+      "id": "b5878dc8-d786-454c-bd92-c932800ac37d",
+      "z": 32,
+      "brokenPorts": {},
+      "qed": true,
+      "originalPosition": {
+        "x": 480,
+        "y": 310
+      },
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "b5878dc8-d786-454c-bd92-c932800ac37d",
+        "selector": "g:nth-child(1) > path:nth-child(5)",
+        "port": "out"
+      },
+      "target": {
+        "id": "2f3e9647-609d-41b6-8113-8580b55895b2",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "in"
+      },
+      "id": "33f33e98-3dde-4d6d-8f18-8970217a0612",
+      "z": 33,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "⊥"
+            }
+          }
+        }
+      ],
+      "connection_state": "b5878dc8-d786-454c-bd92-c932800ac37dout2f3e9647-609d-41b6-8113-8580b55895b2in",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "854f2347-970b-4d8c-aee7-7388ebcdbddb",
+        "selector": "g:nth-child(1) > path:nth-child(4)",
+        "port": "out"
+      },
+      "target": {
+        "id": "b5878dc8-d786-454c-bd92-c932800ac37d",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "in1"
+      },
+      "id": "c845af55-828a-4e81-b1cb-b84c80723f98",
+      "z": 34,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "(A→B→⊥)→⊥"
+            }
+          }
+        }
+      ],
+      "connection_state": "854f2347-970b-4d8c-aee7-7388ebcdbddboutb5878dc8-d786-454c-bd92-c932800ac37din1",
+      "vertices": [
+        {
+          "x": 380,
+          "y": 180
+        }
+      ],
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {},
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "A",
+          "B"
+        ],
+        "ports": {
+          "in": {
+            "proposition": "B",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "A→B",
+            "type": "conclusion"
+          },
+          "hyp": {
+            "consumedBy": "in",
+            "proposition": "A",
+            "type": "local hypothesis"
+          }
+        },
+        "id": "impI"
+      },
+      "id": "6aee27b5-0bf5-4932-b8cd-51b359585de6",
+      "z": 35,
+      "brokenPorts": {},
+      "qed": true,
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "6aee27b5-0bf5-4932-b8cd-51b359585de6",
+        "selector": "g:nth-child(1) > path:nth-child(5)",
+        "port": "out"
+      },
+      "target": {
+        "id": "b5878dc8-d786-454c-bd92-c932800ac37d",
+        "selector": "g:nth-child(1) > path:nth-child(4)",
+        "port": "in2"
+      },
+      "id": "701945f4-79d0-4f3c-b7c4-a40fb7ed9a32",
+      "z": 36,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "A→B→⊥"
+            }
+          }
+        }
+      ],
+      "connection_state": "6aee27b5-0bf5-4932-b8cd-51b359585de6outb5878dc8-d786-454c-bd92-c932800ac37din2",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {},
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "A",
+          "B"
+        ],
+        "ports": {
+          "in": {
+            "proposition": "B",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "A→B",
+            "type": "conclusion"
+          },
+          "hyp": {
+            "consumedBy": "in",
+            "proposition": "A",
+            "type": "local hypothesis"
+          }
+        },
+        "id": "impI"
+      },
+      "id": "3a2ec25c-647c-4a46-9f70-cfd9f549a800",
+      "z": 37,
+      "brokenPorts": {},
+      "qed": true,
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "3a2ec25c-647c-4a46-9f70-cfd9f549a800",
+        "selector": "g:nth-child(1) > path:nth-child(5)",
+        "port": "out"
+      },
+      "target": {
+        "id": "6aee27b5-0bf5-4932-b8cd-51b359585de6",
+        "selector": "g:nth-child(1) > path:nth-child(4)",
+        "port": "in"
+      },
+      "id": "f57b6e31-d993-432d-868b-ea64c78d573c",
+      "z": 38,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "B→⊥"
+            }
+          }
+        }
+      ],
+      "connection_state": "3a2ec25c-647c-4a46-9f70-cfd9f549a800out6aee27b5-0bf5-4932-b8cd-51b359585de6in",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {
+        "x": 90,
+        "y": 330
+      },
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "P"
+        ],
+        "ports": {
+          "in": {
+            "proposition": "False",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "P",
+            "type": "conclusion"
+          }
+        },
+        "id": "falseE"
+      },
+      "id": "cfc1feb1-0afd-4f5c-9bc8-97654998e1f5",
+      "z": 39,
+      "brokenPorts": {},
+      "qed": true,
+      "originalPosition": {},
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "cfc1feb1-0afd-4f5c-9bc8-97654998e1f5",
+        "selector": "g:nth-child(1) > path:nth-child(4)",
+        "port": "out"
+      },
+      "target": {
+        "id": "3a2ec25c-647c-4a46-9f70-cfd9f549a800",
+        "selector": "g:nth-child(1) > path:nth-child(4)",
+        "port": "in"
+      },
+      "id": "7fb6baae-f8c1-4b04-a6d2-c2e7f7a604b9",
+      "z": 40,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "⊥"
+            }
+          }
+        }
+      ],
+      "connection_state": "cfc1feb1-0afd-4f5c-9bc8-97654998e1f5out3a2ec25c-647c-4a46-9f70-cfd9f549a800in",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Generic",
+      "position": {},
+      "size": {
+        "width": 1,
+        "height": 1
+      },
+      "angle": 0,
+      "rule": {
+        "free": [
+          "A",
+          "B"
+        ],
+        "ports": {
+          "in2": {
+            "proposition": "A",
+            "type": "assumption"
+          },
+          "in1": {
+            "proposition": "A→B",
+            "type": "assumption"
+          },
+          "out": {
+            "proposition": "B",
+            "type": "conclusion"
+          }
+        },
+        "id": "impE"
+      },
+      "id": "190e460c-e564-442c-bfd1-e5a19b79ac96",
+      "z": 41,
+      "brokenPorts": {},
+      "qed": true,
+      "attrs": {}
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "190e460c-e564-442c-bfd1-e5a19b79ac96",
+        "selector": "g:nth-child(1) > path:nth-child(5)",
+        "port": "out"
+      },
+      "target": {
+        "id": "cfc1feb1-0afd-4f5c-9bc8-97654998e1f5",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "in"
+      },
+      "id": "ca33e3d5-c90a-41e7-92fb-44f90d0c720b",
+      "z": 42,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "⊥"
+            }
+          }
+        }
+      ],
+      "connection_state": "190e460c-e564-442c-bfd1-e5a19b79ac96outcfc1feb1-0afd-4f5c-9bc8-97654998e1f5in",
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "3a2ec25c-647c-4a46-9f70-cfd9f549a800",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "hyp"
+      },
+      "target": {
+        "id": "190e460c-e564-442c-bfd1-e5a19b79ac96",
+        "selector": "g:nth-child(1) > path:nth-child(4)",
+        "port": "in2"
+      },
+      "id": "cb5f1fc5-7af7-4cf0-ba8a-4e730b0eb6b4",
+      "z": 43,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "B"
+            }
+          }
+        }
+      ],
+      "connection_state": "3a2ec25c-647c-4a46-9f70-cfd9f549a800hyp190e460c-e564-442c-bfd1-e5a19b79ac96in2",
+      "vertices": [
+        {
+          "x": 100,
+          "y": 460
+        }
+      ],
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    },
+    {
+      "type": "incredible.Link",
+      "router": {
+        "name": "wrappedmanhattan"
+      },
+      "connector": {
+        "name": "rounded",
+        "args": {
+          "radius": 10
+        }
+      },
+      "source": {
+        "id": "1f48c282-43fd-4542-aec8-45a02e72cbfc",
+        "selector": "g:nth-child(1) > path:nth-child(4)",
+        "port": "hyp2"
+      },
+      "target": {
+        "id": "190e460c-e564-442c-bfd1-e5a19b79ac96",
+        "selector": "g:nth-child(1) > path:nth-child(3)",
+        "port": "in1"
+      },
+      "id": "1c5b2c20-3c54-41ef-873d-c4edbb1c52b2",
+      "z": 44,
+      "labels": [
+        {
+          "position": 0.5,
+          "attrs": {
+            "text": {
+              "text": "B→⊥"
+            }
+          }
+        }
+      ],
+      "connection_state": "1f48c282-43fd-4542-aec8-45a02e72cbfchyp2190e460c-e564-442c-bfd1-e5a19b79ac96in1",
+      "vertices": [
+        {
+          "x": 20,
+          "y": 490
+        }
+      ],
+      "attrs": {
+        ".connection": {
+          "class": "connection"
+        }
+      }
+    }
+  ]
+}
