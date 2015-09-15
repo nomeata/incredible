@@ -26,6 +26,10 @@ data Term
 
 $(derive [''Term])
 
+data OpAssoc
+    = L
+    | R
+
 instance Alpha Term
 instance Eq Term where (==) = aeq
 
@@ -67,8 +71,8 @@ printTerm p = runLFreshM (prP (0::Int) p) ""
     prP _ (V v) = prN v
     prP d (App (C f) [a]) | Just p <- isPrefix (name2String f)
         = prParens (p < d) $ prN f <> prP p a
-    prP d (App (C f) [a1, a2]) | Just p <- isInFix (name2String f)
-        = prParens (p < d) $ prP (p+1) a1 <> prN f <> prP p a2
+    prP d (App (C f) [a1, a2]) | Just (p,assoc) <- isInFix (name2String f)
+        = prParens (p < d) $ prP (case assoc of {R -> p+1; L -> p}) a1 <> prN f <> prP (case assoc of {R -> p; L -> (p+1)}) a2
     prP d (App (C f) [Lam b]) | isQuant (name2String f)
         = prParens (1 < d) $ lunbind b $ \(v,t) ->
         prN f <> prN v <> prS "." <> prP 1 t
@@ -93,10 +97,10 @@ printTerm p = runLFreshM (prP (0::Int) p) ""
 
 
 -- Is it infix? What precedences?
-isInFix :: String -> Maybe Int
-isInFix "∧" = Just 3
-isInFix "→" = Just 3
-isInFix "∨" = Just 2
+isInFix :: String -> Maybe (Int, OpAssoc)
+isInFix "∧" = Just (3, R)
+isInFix "→" = Just (3, R)
+isInFix "∨" = Just (2, R)
 isInFix _   = Nothing
 
 isQuant :: String -> Bool
