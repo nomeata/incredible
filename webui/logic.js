@@ -370,8 +370,14 @@ function processGraph() {
         // not very nice, see http://stackoverflow.com/questions/32010888
         conn.attr({'.connection': {class: 'connection error'}});
 
+        if (isReversed(conn)) {
+          f = function (pos) {return pos};
+        } else {
+          f = function (pos) {return 1-pos};
+        }
+
         conn.set('labels', [{
-          position: .1,
+          position: f(.1),
           attrs: {
             text: {
               text: lbl.propIn
@@ -379,7 +385,7 @@ function processGraph() {
           }
         },
           {
-            position: .5,
+            position: f(.5),
             attrs: {
               text: {
                 text: symbol
@@ -387,7 +393,7 @@ function processGraph() {
             }
           },
           {
-            position: .9,
+            position: f(.9),
             attrs: {
               text: {
                 text: lbl.propOut
@@ -411,6 +417,51 @@ function processGraph() {
       }
     }
   }
+}
+
+function isReversed(conn) {
+  // A connection is reversed if its source is an "in" magnet, or the target an
+  // "out" magnet.
+  var e = conn.get('source')
+  if (e.id) {
+    var el = graph.getCell(e.id);
+    if (el.get('conclusion')) {
+      return true;
+    }
+    if (el.get('annotation')) {
+      if (e.port == "in") {
+        return true;
+      }
+    }
+    var rule;
+    if (rule = el.get('rule')) {
+      if (rule.ports[e.port].type == "conclusion") {
+        return true;
+      }
+    }
+  }
+  var e = conn.get('target')
+  if (e.id) {
+    var el = graph.getCell(e.id);
+    if (el.get('assumption')) {
+      return true;
+    }
+    if (el.get('annotation')) {
+      if (e.port == "out") {
+        return true;
+      }
+    }
+    var rule;
+    if (rule = el.get('rule')) {
+      if (rule.ports[e.port].type == "conclusion") {
+        return true;
+      }
+      if (rule.ports[e.port].type == "local hypothesis") {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 function buildProof(graph) {
@@ -437,8 +488,13 @@ function buildProof(graph) {
   graph.getLinks().map(
     function (l, i) {
       var con = {};
-      con.from = makeConnEnd(graph, l.get('source'));
-      con.to = makeConnEnd(graph, l.get('target'));
+      if (isReversed(l)){
+        con.to =   makeConnEnd(graph, l.get('source'));
+        con.from = makeConnEnd(graph, l.get('target'));
+      } else {
+        con.from = makeConnEnd(graph, l.get('source'));
+        con.to =   makeConnEnd(graph, l.get('target'));
+      }
       proof.connections[l.id] = con;
     });
   return proof;
