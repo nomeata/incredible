@@ -1,6 +1,11 @@
 function ruleToBlockDesc(rule) {
   var ports = rule.ports;
-  var portsList = _.sortBy(_.map(ports, function (v, i) {return _.extend({id: i}, v);}), 'id');
+  var portsList = _.sortBy(_.map(ports, function (v, i) {
+    return { id: i,
+             proposition: incredibleFormatTerm(v.proposition),
+             type: v.type
+           }
+  }), 'id');
   var portsGroup = _.groupBy(portsList, "type");
 
   var desc = rule.desc || { label: rule.id };
@@ -44,11 +49,11 @@ function annotationToBlockDesc(proposition) {
   var portsGroup= {
    'assumption': [{
      id: 'in',
-     proposition: proposition
+     proposition: incredibleFormatTerm(proposition)
     }],
    'conclusion': [{
      id: 'out',
-     proposition: proposition
+     proposition: incredibleFormatTerm(proposition)
     }],
   };
 
@@ -196,7 +201,7 @@ function renderBlockDescToSVG(el, blockDesc, forReal) {
           label.translate( x - labelBB.width/2, height/2 + labelPad);
         }
       } else {
-        throw new Error("renderBlockDescToSVG(): Unknown portType");
+        throw new Error("renderBlockDescToSVG(): Unknown portType " + portType);
       }
     });
   });

@@ -194,11 +194,11 @@ function selectTask(name) {
   $("#proofselect").val("");
   $("#assumptions").empty();
   $.each(task.assumptions || [], function (i, el) {
-    $("#assumptions").append($("<div>").text(el));
+    $("#assumptions").append($("<div>").text(incredibleFormatTerm(el)));
   });
   $("#conclusions").empty();
   $.each(task.conclusions || [], function (i, el) {
-    $("#conclusions").append($("<div>").text(el));
+    $("#conclusions").append($("<div>").text(incredibleFormatTerm(el)));
   });
   $("#inferredrule").hide();
   $("#task").show();
