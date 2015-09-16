@@ -161,6 +161,7 @@ function with_graph_loading(func) {
     graph.set('loading', true);
     func.apply(this,arguments);
     graph.set('loading', false);
+    processGraph();
   }
 }
 
@@ -200,15 +201,25 @@ function selectTask(name) {
 
 function selectProof(name) {
   proof = examples.graphs[name];
-  selectTask(proof.task);
-  graph.fromJSON(proof);
+  proof.loading = true;
 
+  if (proof.task) {
+    selectTask(proof.task);
+  } else if (proof.logic) {
+    selectLogic(proof.logic);
+    selectNoTask();
+  } else {
+    throw new Error("selectProof: Neither task nor logic: " + name);
+  }
+
+  graph.fromJSON(proof);
+  console.log(graph.getElements());
   // This is mostly for backwards compatibility with old stored graphs, and can
   // be removed eventually
   $.each(graph.getElements(), function (i, el) {
     if (el.get('prototypeElement')) {el.remove()};
   });
-  processGraph();
+
 }
 
 $(function (){
