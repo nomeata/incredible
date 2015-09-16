@@ -14,3 +14,13 @@ function incredibleLogic(context, task, proof) {
         return tmp.error;
     }
 }
+
+function incredibleFormatTerm(input) {
+    var tmp = {"prop": input};
+    incredibleFormatTerm_(tmp);
+    if (tmp.error) {
+        return null;
+    } else {
+        return tmp.result;
+    }
+}
