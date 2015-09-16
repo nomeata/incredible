@@ -297,7 +297,7 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
       }
     });
 
-    V(this.vel).toggleClass('selected', this.model.get('selected'));
+    V(this.vel).toggleClass('selected', !!this.model.get('selected'));
 
     if (this.model.get('conclusion')) {
       if (this.model.get('qed')) {
