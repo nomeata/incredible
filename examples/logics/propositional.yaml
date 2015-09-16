@@ -1,6 +1,8 @@
 rules:
 - id: conjI
   free: ["A","B"]
+  desc:
+    intro: ∧
   ports:
     in1:
       type: assumption
@@ -13,6 +15,8 @@ rules:
       proposition: A∧B
 - id: conjE
   free: ["A","B"]
+  desc:
+    elim: ∧
   ports:
     in:
       type: assumption
@@ -24,6 +28,8 @@ rules:
       type: conclusion
       proposition: B
 - id: impI
+  desc:
+    intro: →
   free: ["A","B"]
   ports:
     hyp:
@@ -37,6 +43,8 @@ rules:
       type: conclusion
       proposition: A→B
 - id: impE
+  desc:
+    elim: →
   free: ["A","B"]
   ports:
     in1:
@@ -49,6 +57,8 @@ rules:
       type: conclusion
       proposition: B
 - id: disjI1
+  desc:
+    intro: ·∨
   free: ["A","B"]
   ports:
     in:
@@ -58,6 +68,8 @@ rules:
       type: conclusion
       proposition: A∨B
 - id: disjI2
+  desc:
+    intro: ∨·
   free: ["A","B"]
   ports:
     in:
@@ -67,6 +79,8 @@ rules:
       type: conclusion
       proposition: A∨B
 - id: disjE
+  desc:
+    elim: ∨
   free: ["A","B","P"]
   ports:
     in:
@@ -90,15 +104,19 @@ rules:
       type: conclusion
       proposition: P
 - id: falseE
+  desc:
+    elim: ⊥
   free: ["P"]
   ports:
     in:
       type: assumption
-      proposition: "False"
+      proposition: "⊥"
     out:
       type: conclusion
       proposition: P
 - id: notI
+  desc:
+    intro: ¬
   free: ["A"]
   ports:
     in:
@@ -112,6 +130,8 @@ rules:
       type: conclusion
       proposition: ¬A
 - id: notE
+  desc:
+    elim: ¬
   free: ["A","P"]
   ports:
     in1:

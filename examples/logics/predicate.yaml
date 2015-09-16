@@ -1,5 +1,7 @@
 rules:
 - id: allI
+  desc:
+    intro: ∀
   free: ["P"]
   local: ["c"]
   ports:
@@ -11,6 +13,8 @@ rules:
       type: conclusion
       proposition: ∀x.P(x)
 - id: allE
+  desc:
+    elim: ∀
   free: ["P","y"]
   ports:
     in1:
@@ -20,6 +24,8 @@ rules:
       type: conclusion
       proposition: P(y)
 - id: exI
+  desc:
+    intro: ∃
   free: ["P", "y"]
   ports:
     in1:
@@ -29,6 +35,8 @@ rules:
       type: conclusion
       proposition: ∃x.P(x)
 - id: exE
+  desc:
+    elim: ∃
   free: ["P","Q"]
   local: ["c"]
   ports:
@@ -48,6 +56,8 @@ rules:
       proposition: Q
 - id: conjI
   free: ["A","B"]
+  desc:
+    intro: ∧
   ports:
     in1:
       type: assumption
@@ -60,6 +70,8 @@ rules:
       proposition: A∧B
 - id: conjE
   free: ["A","B"]
+  desc:
+    elim: ∧
   ports:
     in:
       type: assumption
@@ -71,6 +83,8 @@ rules:
       type: conclusion
       proposition: B
 - id: impI
+  desc:
+    intro: →
   free: ["A","B"]
   ports:
     hyp:
@@ -84,6 +98,8 @@ rules:
       type: conclusion
       proposition: A→B
 - id: impE
+  desc:
+    elim: →
   free: ["A","B"]
   ports:
     in1:
@@ -96,6 +112,8 @@ rules:
       type: conclusion
       proposition: B
 - id: disjI1
+  desc:
+    intro: ·∨
   free: ["A","B"]
   ports:
     in:
@@ -105,6 +123,8 @@ rules:
       type: conclusion
       proposition: A∨B
 - id: disjI2
+  desc:
+    intro: ∨·
   free: ["A","B"]
   ports:
     in:
@@ -114,6 +134,8 @@ rules:
       type: conclusion
       proposition: A∨B
 - id: disjE
+  desc:
+    elim: ∨
   free: ["A","B","P"]
   ports:
     in:
@@ -137,14 +159,46 @@ rules:
       type: conclusion
       proposition: P
 - id: falseE
+  desc:
+    elim: ⊥
   free: ["P"]
   ports:
     in:
       type: assumption
-      proposition: "False"
+      proposition: "⊥"
     out:
       type: conclusion
       proposition: P
+- id: notI
+  desc:
+    intro: ¬
+  free: ["A"]
+  ports:
+    in:
+      type: assumption
+      proposition: "False"
+    hyp:
+      type: local hypothesis
+      proposition: A
+      consumedBy: in
+    out:
+      type: conclusion
+      proposition: ¬A
+- id: notE
+  desc:
+    elim: ¬
+  free: ["A","P"]
+  ports:
+    in1:
+      type: assumption
+      proposition: A
+    in2:
+      type: assumption
+      proposition: ¬A
+    out:
+      type: conclusion
+      proposition: P
+
 - id: TND
   free: ["P"]
   ports:

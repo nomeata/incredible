@@ -3,8 +3,10 @@ function ruleToBlockDesc(rule) {
   var portsList = _.sortBy(_.map(ports, function (v, i) {return _.extend({id: i}, v);}), 'id');
   var portsGroup = _.groupBy(portsList, "type");
 
+  var desc = rule.desc || { label: rule.id };
+
   return {
-    label: rule.id,
+    desc: desc,
     portsGroup: portsGroup,
     canRemove: true
   }
@@ -16,7 +18,9 @@ function assumptionToBlockDesc(assumption, task) {
   }]};
 
   return {
-    label: task.assumptions[assumption-1],
+    desc: {
+      label: task.assumptions[assumption-1]
+    },
     portsGroup: portsGroup,
     canRemove: false
   }
@@ -28,7 +32,9 @@ function conclusionToBlockDesc(conclusion, task) {
   }]};
 
   return {
-    label: task.conclusions[conclusion-1],
+    desc: {
+      label: task.conclusions[conclusion-1]
+    },
     portsGroup: portsGroup,
     canRemove: false
   }
@@ -47,9 +53,47 @@ function annotationToBlockDesc(proposition) {
   };
 
   return {
-    label: "✎"+proposition,
+    desc: { label: "✎"+proposition },
     portsGroup: portsGroup,
     canRemove: true
+  }
+}
+
+
+// Renders the content of the block (usually label, but might be something fancy)
+// and returns its width and height. The latter is used to resize the frame,
+// and hence to position the ports.
+function renderDesc(desc, group) {
+  if (desc.label) {
+    var text = V("<text class='label' font-family='sans' fill='black'/>");
+    text.text(desc.label);
+    group.append(text);
+    textBB = text.bbox(true);
+    // center text
+    text.translate(- textBB.width/2, - textBB.height/2);
+    return textBB;
+  } else if (desc.intro) {
+    var text = V("<text class='label' font-family='sans' fill='black'/>");
+    text.text(desc.intro);
+    group.append(text);
+    textBB = text.bbox(true);
+    // center text
+    text.translate(- textBB.width/2, - textBB.height/2);
+    // shove to the right
+    text.translate(20, 0);
+    return {width: textBB.width + 40, height: textBB.height};
+  } else if (desc.elim) {
+    var text = V("<text class='label' font-family='sans' fill='black'/>");
+    text.text(desc.elim);
+    group.append(text);
+    textBB = text.bbox(true);
+    // center text
+    text.translate(- textBB.width/2, - textBB.height/2);
+    // shove to the left
+    text.translate(-20, 0);
+    return {width: textBB.width + 40, height: textBB.height};
+  } else {
+    throw Error("renderDesc: Unknown label desc " + JSON.stringify(desc));
   }
 }
 
@@ -64,12 +108,9 @@ function renderBlockDescToSVG(el, blockDesc, forReal) {
   var group = V("<g class='block'/>");
   el.append(group);
 
-  var text = V("<text class='label' font-family='sans' fill='black'/>");
-  text.text(blockDesc.label);
-  group.append(text);
-  textBB = text.bbox(true);
-  // center text
-  text.translate(- textBB.width/2, - textBB.height/2);
+
+  var textBB = renderDesc(blockDesc.desc, group);
+
 
   var rect = V("<rect class='body' fill='#ecf0f1' rx='5' ry='5' stroke='#bdc3c7' stroke-opacity='0.5'/>");
 
