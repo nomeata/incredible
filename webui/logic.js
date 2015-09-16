@@ -219,7 +219,6 @@ function selectProof(name) {
   }
 
   graph.fromJSON(proof);
-  console.log(graph.getElements());
   // This is mostly for backwards compatibility with old stored graphs, and can
   // be removed eventually
   $.each(graph.getElements(), function (i, el) {
@@ -273,6 +272,22 @@ $("#paper").droppable({
     };
   }
 });
+
+graph.on('change:position', function (model, pos1, options) {
+  if (options.derivedMove) { return; }
+
+  if (model.get('selected')) {
+    var dx = options.tx;
+    var dy = options.ty;
+    if (dx == 0 && dy == 0) { return; }
+
+    $.each(graph.getElements(), function (i, el) {
+      if (el.get('selected') && el != model) {
+        el.translate(dx,dy, { derivedMove : true })
+      }
+    });
+  }
+})
 
 graph.on('add remove change:annotation change:loading', function () {
   // Do not process the graph when loading is one, which happens during startup
