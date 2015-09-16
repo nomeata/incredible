@@ -117,6 +117,8 @@ function setupPrototypeElements() {
 paper.on('cell:pointerdown', function (cellView, evt, x, y) {
   var cell = cellView.model;
 
+  if (evt.shiftKey) { return; }
+
   // Check if this was a click on a delete element
   // This assumes that all visible elements of the delete SVG are direct childs
   // of a <g> element with event="remove" set
@@ -127,12 +129,27 @@ paper.on('cell:pointerdown', function (cellView, evt, x, y) {
   }
 });
 
+paper.on('blank:pointerclick', function (evt, x, y) {
+  if (evt.shiftKey) {
+    // ignore
+  } else {
+    $.each(graph.getElements(), function (i, el) {
+      el.set('selected', false);
+    });
+  }
+});
+
 paper.on('cell:pointerclick', function (cellView, evt, x, y) {
   var cell = cellView.model;
 
   if (evt.shiftKey) {
     cell.set('selected', ! cell.get('selected'));
   } else {
+    // Deselect everything
+    $.each(graph.getElements(), function (i, el) {
+      el.set('selected', false);
+    });
+
     if (cell.get('annotation')) {
       var done = false;
       var prmpt = 'Input proposition';
