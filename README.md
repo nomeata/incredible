@@ -54,25 +54,11 @@ Alternatively, if you do not want to hack on these parts of the project, but sim
     wget http://nomeata.github.io/incredible-demo/logic.js -O logic.js
     wget http://nomeata.github.io/incredible-demo/examples.js -O examples.js
 
-
 You can check that this part is working by opening `text-ui.html` in your browser.
 
 ## Installing JavaScript dependencies
 
-The JavaScript part of the project uses a few external libraries. These are most easily obtained using npm.
-
-  * Install npm, either using `apt-get install npm` or [by other
-    means](http://blog.npmjs.org/post/85484771375/how-to-install-npm)
-  * Run `npm install` 
-    If you run into the problem `sh: 1: node: not found` on Debian/Ubuntu,
-    then `apt-get install nodejs-legacy` should help.
-    [explanation](http://stackoverflow.com/a/21171188/2361979)
-  * Open `index.html`
-
-## Creating logic images
-
-To create an image, draw it in Inkscape and save it as SVG (make sure that the graphic is inside the "paper" frame).
-To convert it to Base64-encoding, you can use a website such as http://b64.io/
+The JavaScript part of the project uses a few external libraries. To obtain these, run `./install-jslib.sh`.
 
 ## Continuous integration
 
