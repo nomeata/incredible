@@ -90,3 +90,50 @@
 .element.live text {
     fill: #ffffff;
 }
+
+
+/* Custom incredible rules */
+.ui-draggable {
+    cursor: move
+}
+
+.block:hover .body {
+    fill:white;
+}
+.port-body[magnet=true]:hover {
+    fill:black;
+}
+
+.block .tool-remove {
+   opacity: 0;
+   cursor: pointer;
+}
+.block:hover .tool-remove {
+   opacity: 1;
+}
+
+.block .tool-remove circle {
+    fill: white;
+    stroke: #ccc;
+    stroke-width: 1px;
+    stroke-opacity: .5;
+}
+
+.block .tool-remove:hover circle {
+    fill: #e74c3c;
+    stroke: #c0392b;
+}
+
+.block .tool-remove path {
+    fill: white;
+    stroke: #ccc;
+}
+
+.block .tool-remove circle {
+    transition: fill 1s;
+}
+
+.block .tool-remove:hover path {
+    stroke: none;
+}
+

@@ -100,6 +100,7 @@ function setupPrototypeElements() {
   $.each(logic.rules, function (_, rule) {
     var blockDesc = ruleToBlockDesc(rule);
     blockDesc.isPrototype = true;
+    blockDesc.canRemove = false;
     blockDesc.data = {rule: rule};
     renderBlockDescToDraggable(blockDesc, container);
   });
@@ -108,35 +109,27 @@ function setupPrototypeElements() {
   container.empty();
   var annBlockDesc = annotationToBlockDesc("P");
   annBlockDesc.isPrototype = true;
+  annBlockDesc.canRemove = false;
   annBlockDesc.data = {annotation: "P"};
   renderBlockDescToDraggable(annBlockDesc, container);
 }
 
-function isTrashArea(x, y) {
-  return x < 0;
-}
-
 paper.on('cell:pointerdown', function (cellView, evt, x, y) {
   var cell = cellView.model;
-  if (cell) {
-    cell.set('originalPosition', cell.get('position'));
-  }
-});
-paper.on('cell:pointerup', function (cellView, evt, x, y) {
-  var cell = cellView.model;
-  if (cell) {
-    var trashCell = isTrashArea(x, y);
-    if (trashCell) {
-      if (cell.get('assumption') || cell.get('conclusion'))
-        cell.set('position', cell.get('originalPosition'));
-      else
-        cell.remove();
-    }
+
+  // Check if this was a click on a delete element
+  // This assumes that all visible elements of the delete SVG are direct childs
+  // of a <g> element with event="remove" set
+  var targetParentEvent = evt.target.parentNode.getAttribute('event');
+  if (targetParentEvent && targetParentEvent == "remove" ) {
+    cell.remove();
+    return;
   }
 });
 
 paper.on('cell:pointerclick', function (cellView, evt, x, y) {
   var cell = cellView.model;
+
   if (cell.get('annotation')) {
     prop = window.prompt('Input proposition', cell.get('annotation'));
     if (prop) {
@@ -308,6 +301,7 @@ function processGraph() {
           var g = V("<g/>");
           var vel = V(el).append(g);
           var blockDesc = ruleToBlockDesc(analysis.rule);
+          blockDesc.canRemove = false;
           blockDesc.isPrototype = true;
           blockDesc.label = '☃';
           renderBlockDescToSVG(g, blockDesc, false);

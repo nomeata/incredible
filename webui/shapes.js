@@ -5,7 +5,8 @@ function ruleToBlockDesc(rule) {
 
   return {
     label: rule.id,
-    portsGroup: portsGroup
+    portsGroup: portsGroup,
+    canRemove: true
   }
 }
 
@@ -16,7 +17,8 @@ function assumptionToBlockDesc(assumption, task) {
 
   return {
     label: task.assumptions[assumption-1],
-    portsGroup: portsGroup
+    portsGroup: portsGroup,
+    canRemove: false
   }
 }
 
@@ -27,7 +29,8 @@ function conclusionToBlockDesc(conclusion, task) {
 
   return {
     label: task.conclusions[conclusion-1],
-    portsGroup: portsGroup
+    portsGroup: portsGroup,
+    canRemove: false
   }
 }
 
@@ -45,7 +48,8 @@ function annotationToBlockDesc(proposition) {
 
   return {
     label: "✎"+proposition,
-    portsGroup: portsGroup
+    portsGroup: portsGroup,
+    canRemove: true
   }
 }
 
@@ -106,6 +110,19 @@ function renderBlockDescToSVG(el, blockDesc, forReal) {
         label.text(portDesc.proposition);
         group.append(label);
         var labelBB = label.bbox(true);
+      }
+
+      if (blockDesc.canRemove) {
+        markup = [
+          '<g class="tool-remove" event="remove">',
+          '<circle r="11" />',
+          '<path transform="scale(.8) translate(-16, -16)" d="M24.778,21.419 19.276,15.917 24.777,10.415 21.949,7.585 16.447,13.087 10.945,7.585 8.117,10.415 13.618,15.917 8.116,21.419 10.946,24.248 16.447,18.746 21.948,24.248z"/>',
+          '<title>Remove element.</title>',
+          '</g>',
+        ].join('');
+        var tool = V(markup);
+        tool.translate(width/2 - 20, -height/2);
+        group.append(tool);
       }
 
       var labelPad = 7;
