@@ -22,14 +22,6 @@
 		padding:15px;
             }
 
-	    #task {
-		position: absolute;
-		top:0px;
-		width:30em;
-		right:0px;
-		padding:1em;
-		overflow: auto;
-            }
 	    #task #assumptions, #task #conclusions {
 		text-align: center;
 	    }
@@ -52,10 +44,11 @@
 		position: absolute;
 		top:150px;
 		left:0px;
-		width:300px;
+		width:268px;
 		bottom:0px;
 		overflow: auto;
 		border-right:2px solid grey;
+                padding:15px;
             }
 
             #paper {
@@ -104,6 +97,12 @@
     <body>
 
     <div id="leftpane">
+      <div id="task">
+	<h3>Current task:</h3>
+	<div id="assumptions"></div>
+	<hr/>
+	<div id="conclusions"></div>
+      </div>
       <h3>Logikbausteine:</h3>
       <div id="logic"></div>
       <h3>Hilfsbausteine:</h3>
@@ -125,12 +124,6 @@
         <!-- <label><input type="checkbox" id="unify" checked="checked" /> Run unification</label> -->
         <br/>
 	<div id="errors"></div>
-	<div id="task">
-	<h3>Current task:</h3>
-	<div id="assumptions"></div>
-	<hr/>
-	<div id="conclusions"></div>
-	</div>
 
 	<div id="inferredrule">
 	<h3>You proved:</h3>
