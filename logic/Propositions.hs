@@ -114,7 +114,7 @@ isPrefix _   = Nothing
 -- Parser
 
 parseTerm :: String -> Either String Proposition
-parseTerm = either (Left . show) Right . parse (between (return ()) eof termP) ""
+parseTerm = either (Left . show) Right . parse (between spaces eof termP) ""
 
 -- For Testing and GHCi
 readTerm :: String -> Proposition
@@ -122,7 +122,7 @@ readTerm = either (error . show) id . parseTerm
 
 -- lexeme
 l :: Parser a -> Parser a
-l = between (return ()) spaces
+l = (<* spaces)
 
 termP :: Parser Proposition
 termP =  buildExpressionParser table atomP <?> "proposition"
@@ -152,41 +152,43 @@ mkQuant "λ" n t = mkLam n t
 mkQuant q   n t = App (C (string2Name q)) [mkLam n t]
 
 quantP :: Parser String
-quantP = choice [ (q:"") <$ choice (map char (q:a)) | (q,a) <- quantifiers ]
+quantP = l $ choice [ (q:"") <$ choice (map char (q:a)) | (q,a) <- quantifiers ]
 
 atomP :: Parser Proposition
 atomP = choice
-    [ string "⊥" >> return (c "⊥")
-    , string "⊤" >> return (c "⊤")
-    , try (string "False") >> return (c "⊥")
-    , try (string "True") >> return (c "⊤")
+    [ l $ string "⊥" >> return (c "⊥")
+    , l $ string "⊤" >> return (c "⊤")
+    , l $ try (string "False") >> return (c "⊥")
+    , l $ try (string "True") >> return (c "⊤")
     , do
-        _ <- char '¬' <|> char '~'
+        _ <- l $ char '¬' <|> char '~'
         p <- atomP
         return $ s "¬" [p]
     , do
         q <- quantP
         vname <- nameP
-        _ <- char '.'
+        _ <- l $ char '.'
         p <- termP
         return $ mkQuant q vname $ p
-    , between (char '(') (char ')') termP
+    , parenthesized termP
     , do
         head <- varOrConstP
-        option head $ between (char '(') (char ')') $ do
-            App head <$> termP `sepBy1` (char ',')
+        option head $ parenthesized $ do
+            App head <$> termP `sepBy1` (l $ char ',')
     ]
   where
     c n = C (string2Name n)
     s n = App (c n)
 
+    parenthesized = between (l $ char '(') (l $ char ')')
+
 varOrConstP :: Parser Term
 varOrConstP = do
     -- A hack for the test suite etc: prepending the name of a constant with V
     -- makes it a variable
-    con <- option C (V <$ (try (string "V ")))
+    con <- option C (l $ V <$ (try (string "V ")))
     n <- nameP
     return $ con n
 
 nameP :: Rep a => Parser (Name a)
-nameP = string2Name <$> many1 alphaNum
+nameP = l $ string2Name <$> many1 alphaNum
