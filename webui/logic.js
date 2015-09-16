@@ -131,9 +131,22 @@ paper.on('cell:pointerclick', function (cellView, evt, x, y) {
   var cell = cellView.model;
 
   if (cell.get('annotation')) {
-    prop = window.prompt('Input proposition', cell.get('annotation'));
-    if (prop) {
-      cell.set('annotation', prop);
+    var done = false;
+    var prmpt = 'Input proposition';
+    var val = cell.get('annotation');
+    while (!done) {
+      val = window.prompt(prmpt, val);
+      if (val) {
+        var prettyPrinted = incredibleFormatTerm(val);
+        if (prettyPrinted) {
+          done = true;
+          cell.set('annotation', prettyPrinted);
+        } else {
+          prmpt = 'Could not parse, please try again:';
+        }
+      } else {
+        done = true;
+      }
     }
   }
 });
