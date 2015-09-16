@@ -130,22 +130,26 @@ paper.on('cell:pointerdown', function (cellView, evt, x, y) {
 paper.on('cell:pointerclick', function (cellView, evt, x, y) {
   var cell = cellView.model;
 
-  if (cell.get('annotation')) {
-    var done = false;
-    var prmpt = 'Input proposition';
-    var val = cell.get('annotation');
-    while (!done) {
-      val = window.prompt(prmpt, val);
-      if (val) {
-        var prettyPrinted = incredibleFormatTerm(val);
-        if (prettyPrinted) {
-          done = true;
-          cell.set('annotation', prettyPrinted);
+  if (evt.shiftKey) {
+    cell.set('selected', ! cell.get('selected'));
+  } else {
+    if (cell.get('annotation')) {
+      var done = false;
+      var prmpt = 'Input proposition';
+      var val = cell.get('annotation');
+      while (!done) {
+        val = window.prompt(prmpt, val);
+        if (val) {
+          var prettyPrinted = incredibleFormatTerm(val);
+          if (prettyPrinted) {
+            done = true;
+            cell.set('annotation', prettyPrinted);
+          } else {
+            prmpt = 'Could not parse, please try again:';
+          }
         } else {
-          prmpt = 'Could not parse, please try again:';
+          done = true;
         }
-      } else {
-        done = true;
       }
     }
   }

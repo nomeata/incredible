@@ -257,7 +257,7 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     joint.dia.ElementView.prototype.initialize.apply(this, arguments);
 
     // Listen to some incredible-specific change events
-    this.listenTo(this.model, 'change:brokenPorts change:annotation', this.update);
+    this.listenTo(this.model, 'change:brokenPorts change:selected change:annotation', this.update);
     if (this.model.get('conclusion')) {
       this.listenTo(this.model, 'change:qed', this.update);
     };
@@ -296,6 +296,8 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
         V(port).attr('fill', '#777');
       }
     });
+
+    V(this.vel).toggleClass('selected', this.model.get('selected'));
 
     if (this.model.get('conclusion')) {
       if (this.model.get('qed')) {
