@@ -67,7 +67,7 @@
 		overflow: auto;
             }
 
-	    #dialog {
+	    #dialog, #help {
 		border:2px solid grey;
 		background:white;
 		display:none;
@@ -80,6 +80,11 @@
 		width:800px;
 		bottom:100px;
 		overflow: auto;
+		padding:15px;
+	    }
+
+	    .incrediblefont {
+	       font-family: 'lintsecregular', Arial, sans-serif;
 	    }
 
 	    h1 {
@@ -116,6 +121,7 @@
 	<button id="freeproof">Start empty proof</button>
 	Load existing proof: <select id="proofselect"><option value="" label=""></option></select>
 	<button id="showdialog">Details</button>
+	<button id="showhelp">Help</button>
         <!-- <label><input type="checkbox" id="unify" checked="checked" /> Run unification</label> -->
         <br/>
 	<div id="errors"></div>
@@ -145,6 +151,31 @@
     <textarea  cols=100 rows=20 id="proof" readonly="readonly"></textarea>
     <br/>
     <textarea  cols=100 rows=20 id="analysis" readonly="readonly"></textarea>
+    </div>
+
+    <div id="help">
+    <div style="text-align:right"><button id="closehelp">×</button></div>
+    <h2>Welcome to <span class="incrediblefont">The Incredible Proof Machine</span></h2>
+
+    <h3>What is this?</h3>
+    <p>
+    This is a tool to perform proofs in various logics (e.g. propositional, predicate logic) visually: You simply add blocks that represent the various proofs steps, connect them properly, and if the conclusion turns green, then you have created a complete proof!
+    </p>
+
+    <h3>Why is this?</h3>
+    <p>
+    <span class="incrediblefont">The Incredible Proof Machine</span> was created to convey the fun and joy of doing proofs, especially in a computer aided way, without first having to learn the syntax of a “real” thereom prover like <a href="http://isabelle.in.tum.de/">Isabelle</a>.
+    </p>
+
+    <h3>Who did this?</h3>
+    <p>
+    Mostly <a href="http://www.joachim-breitner.de/">Joachim Breitner</a>, with valuable help from <a href="https://github.com/nomeata/incredible/graphs/contributors">some colleagues and friends</a>.
+    </p>
+
+    <h3>Can I help?</h3>
+    <p>
+    Most certainly! Everything is Free Software, so you can jump right in, <a href="https://github.com/nomeata/incredible">fetch the code</a> and start contributing. The more people contribute, the more incredible the <span class="incrediblefont">The Incredible Proof Machine</span> becomes.
+    </p>
     </div>
 
 

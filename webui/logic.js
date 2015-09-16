@@ -232,6 +232,13 @@ $(function (){
     $("#dialog").hide()}
   );
 
+  $("#showhelp").click(function(){
+    $("#help").toggle();
+  });
+  $("#closehelp").click(function(){
+    $("#help").hide()}
+  );
+
   $("#inferredrule #inferredrulewrapper").draggable({
     appendTo: "body",
     helper: "clone"
