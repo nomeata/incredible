@@ -156,10 +156,10 @@ quantP = choice [ (q:"") <$ choice (map char (q:a)) | (q,a) <- quantifiers ]
 
 atomP :: Parser Proposition
 atomP = choice
-    [ string "⊥" >> return (s "⊥" [])
-    , string "⊤" >> return (s "⊤" [])
-    , try (string "False") >> return (s "⊥" [])
-    , try (string "True") >> return (s "⊤" [])
+    [ string "⊥" >> return (c "⊥")
+    , string "⊤" >> return (c "⊤")
+    , try (string "False") >> return (c "⊥")
+    , try (string "True") >> return (c "⊤")
     , do
         _ <- char '¬' <|> char '~'
         p <- atomP
@@ -177,7 +177,8 @@ atomP = choice
             App head <$> termP `sepBy1` (char ',')
     ]
   where
-    s n = App (C (string2Name n))
+    c n = C (string2Name n)
+    s n = App (c n)
 
 varOrConstP :: Parser Term
 varOrConstP = do
