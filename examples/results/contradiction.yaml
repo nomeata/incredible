@@ -1,14 +1,14 @@
-          cycles: []
-          connectionLabels:
-            4b856f88-917b-4927-b00a-5f62c6cc27c5:
-              prop: P₄∨(P₄→⊥)
-              type: ok
-            a9c737c3-9a54-4279-85f4-865b5ff87c3f:
-              prop: P₄
-              type: ok
-            43a6c217-70ae-446b-b328-590bbba66edd:
-              prop: P₄
-              type: ok
-          escapedHypotheses: []
-          unconnectedGoals: []
-          qed: true
+cycles: []
+connectionLabels:
+  4b856f88-917b-4927-b00a-5f62c6cc27c5:
+    prop: P₃∨(P₃→⊥)
+    type: ok
+  a9c737c3-9a54-4279-85f4-865b5ff87c3f:
+    prop: P₃
+    type: ok
+  43a6c217-70ae-446b-b328-590bbba66edd:
+    prop: P₃
+    type: ok
+escapedHypotheses: []
+unconnectedGoals: []
+qed: true

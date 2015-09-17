@@ -4,9 +4,7 @@ module LabelConnections where
 import Data.Functor
 import qualified Data.Map as M
 import Data.Map ((!))
-import Data.Tagged -- because unbound does not handle Tag :-(
 --import Debug.Trace
-import Control.Arrow
 
 import Types
 import Unification
@@ -14,67 +12,61 @@ import Propositions
 import Scopes
 
 import Unbound.LocallyNameless
-import Unbound.LocallyNameless.Fresh
 
 
 labelConnections :: Context -> Task -> Proof -> M.Map (Key Connection) ConnLabel
 labelConnections ctxt task proof = labels
   where
+
     -- Strategy:
-    --  1. For each block in the proof, create a data structure
-    --     (Bind [block-local var]  ([unification variabes], [(port name, proposition)]))
-    --     (a.k.a BlockData)  to abstract over these.
-    --  2. Apply unbind to each of them, to get unique names for them:
-    --     [(port name, proposition)]
-    --  3. Calculate scopes, and give scoped bound variables as arguments to
+    --  1. For each block, look up the rule data and localize the variables
+    --     according to the blockNum.
+    --  2. Calculate scopes, and give scoped bound variables as arguments to
     --     free variables
     --  3. Look at each connection, turn this into equations
     --     [(proposition, proposition)], and pass them to the unification module
     --  4. Get back a substiution, apply it to the data structure from step 2
     --  5. For each connection, calculate the ConnLabel
 
-    closedBlockData :: [(Key Block, Bind [Var] ([Var], [(String, (Term, [Var]))]))]
-    closedBlockData =
-        [ (blockKey, bind l (f, portList))
-        | (blockKey, block) <- M.toList (blocks proof)
-        , let rule = block2Rule ctxt block
-              l = localVars rule
-              f = freeVars rule
-              portList =
-                [ (untag pk, (portProp p, portScopes p))
-                | (pk,p) <- M.toList $ ports rule
-                ]
-        ]
-
-    -- Is it ok to limit runFreshM to this, or does the whole function have to
-    -- live in FreshM?
-    renamedBlockData :: [(Key Block, ([Var], M.Map (Key Port) (Term, [Var])))]
-    renamedBlockData = flip contFreshM i $
-         mapM go closedBlockData
+    renamedBlockData :: M.Map (Key Block) ([Var], M.Map (Key Port) (Term, [Var]))
+    renamedBlockData = M.map go (blocks proof)
       where
-        i = firstFree $ map snd closedBlockData
-        go (blockKey, boundBlockData) = do
-            (_,(uvs,portList)) <- unbind boundBlockData
-            return (blockKey, (uvs, M.fromList (map (first Tagged) portList)))
-    renamedBlockMap = M.fromList renamedBlockData
+        go block = (f', ports')
+          where
+            rule = block2Rule ctxt block
+
+            l = localVars rule
+            num = fromIntegral $ blockNum block
+
+            localize :: Var -> Var
+            localize n = makeName (name2String n) num
+            s = [(n, V (localize n)) | n <- l ]
+
+            f' = map localize (freeVars rule)
+            ports' = M.map goPort (ports rule)
+              where
+                goPort p = (prop', scopes')
+                  where
+                    prop'   = substs s (portProp p)
+                    scopes' = map localize (portScopes p)
 
     unificationVariables :: [Var]
-    unificationVariables = concat $ map (fst.snd) renamedBlockData
+    unificationVariables = concat $ map fst $ M.elems renamedBlockData
 
     scopedVariables :: [Var]
-    scopedVariables = concatMap (concatMap snd . M.elems . snd . snd) renamedBlockData
+    scopedVariables = concatMap (concatMap snd . M.elems . snd) $ M.elems renamedBlockData
 
     scopes = calculateScopes ctxt task proof
     scopeMap = M.fromListWith (++) [ (k, [pdom]) | (ks, pdom) <- scopes, k <- ks ]
 
     renamedBlockProps :: M.Map (Key Block) (M.Map (Key Port) Term)
-    renamedBlockProps = M.mapWithKey prepareBlock renamedBlockMap
+    renamedBlockProps = M.mapWithKey prepareBlock renamedBlockData
 
     prepareBlock blockKey (unv, ports) = M.map preparePort ports
       where
         scopedVars = [ v
             | BlockPort pdBlockKey pdPortKey <- M.findWithDefault [] blockKey scopeMap
-            , Just (_,ports) <- return $ M.lookup pdBlockKey renamedBlockMap
+            , Just (_,ports) <- return $ M.lookup pdBlockKey renamedBlockData
             , let (_,sv) = ports M.! pdPortKey
             , v <- sv
             ]

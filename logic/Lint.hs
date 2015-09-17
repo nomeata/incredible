@@ -24,7 +24,7 @@ type Lints = [String]
 
 lint :: Context -> Task -> Proof -> Lints
 lint logic _task proof = mconcat
-    [ wrongLocalHyps, missingRule, wrongBlock, wrongPort, wrongSourceType, wrongTargetType, nonUniqueBlockNums ]
+    [ wrongLocalHyps, missingRule, wrongBlock, wrongPort, wrongSourceType, wrongTargetType, nonUniqueBlockNums, nonPositiveBlockNums ]
   where
     wrongLocalHyps =
         [ printf "local hypothesis \"%s\" of rule \"%s\" has an invalid consumedBy field \"%s\""
@@ -91,6 +91,13 @@ lint logic _task proof = mconcat
         ]
       where isOk (Port PTAssumption _ _) = True
             isOk _ = False
+
+    nonPositiveBlockNums
+        = [ printf "Block number %d of block %s is not positive" n (untag bk)
+          | (bk, b) <- M.toList (blocks proof)
+          , let n = blockNum b
+          , n <= 0
+          ]
 
     nonUniqueBlockNums
         = [ printf "Block number %d assigned %d times." n c | (n,c) <- M.toList bad ]
