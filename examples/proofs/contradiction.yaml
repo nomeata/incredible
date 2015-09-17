@@ -1,0 +1,30 @@
+task: empty
+blocks:
+  57f30f92-545b-4e25-940a-af2dac1bad23:
+    rule: disjE
+  fb5a5f57-5358-4f3e-8b12-c825da640797:
+    rule: TND
+  d306aebd-4b16-406c-81b7-d658cd4e010a:
+    rule: falseE
+connections:
+  4b856f88-917b-4927-b00a-5f62c6cc27c5:
+    to:
+      block: 57f30f92-545b-4e25-940a-af2dac1bad23
+      port: in
+    from:
+      block: fb5a5f57-5358-4f3e-8b12-c825da640797
+      port: out
+  a9c737c3-9a54-4279-85f4-865b5ff87c3f:
+    to:
+      block: 57f30f92-545b-4e25-940a-af2dac1bad23
+      port: in2
+    from:
+      block: d306aebd-4b16-406c-81b7-d658cd4e010a
+      port: out
+  43a6c217-70ae-446b-b328-590bbba66edd:
+    to:
+      block: 57f30f92-545b-4e25-940a-af2dac1bad23
+      port: in1
+    from:
+      block: 57f30f92-545b-4e25-940a-af2dac1bad23
+      port: hyp1
