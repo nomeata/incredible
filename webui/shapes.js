@@ -2,7 +2,7 @@ function ruleToBlockDesc(rule) {
   var ports = rule.ports;
   var portsList = _.sortBy(_.map(ports, function (v, i) {
     return { id: i,
-             proposition: incredibleFormatTerm(v.proposition),
+             proposition: v.proposition,
              type: v.type
            }
   }), 'id');

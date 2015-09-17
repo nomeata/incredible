@@ -204,11 +204,24 @@ function selectNoTask() {
 
 function selectLogic(name) {
   logic = examples.logics[name];
+
+  // Normalize the input here
+  $.each(logic.rules, function (_,r) {
+    $.each(r.ports, function (_,p) {
+      p.proposition = incredibleFormatTerm(p.proposition)
+    });
+  });
+
   setupPrototypeElements();
 };
 
 function selectTask(name) {
   task = examples.tasks[name];
+
+  // Normalize the input here
+  task.assumptions = (task.assumptions || []).map(incredibleFormatTerm);
+  task.conclusions = (task.conclusions || []).map(incredibleFormatTerm);
+
   selectLogic(task.logic);
 
   $("#taskselect").val(name);
