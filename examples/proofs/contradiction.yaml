@@ -2,10 +2,13 @@ task: empty
 blocks:
   57f30f92-545b-4e25-940a-af2dac1bad23:
     rule: disjE
+    number: 1
   fb5a5f57-5358-4f3e-8b12-c825da640797:
     rule: TND
+    number: 2
   d306aebd-4b16-406c-81b7-d658cd4e010a:
     rule: falseE
+    number: 3
 connections:
   4b856f88-917b-4927-b00a-5f62c6cc27c5:
     to:

@@ -168,11 +168,11 @@ oneBlockLogic = Context
     (M.singleton "r" (Rule ["A"] ["A"] (M.fromList ["in" >: Port PTAssumption "A" [], "out" >: Port PTConclusion "A" []])))
 
 proofWithCycle = Proof
-    (M.singleton "b" (Block "r"))
+    (M.singleton "b" (Block 1 "r"))
     (M.singleton "c" (Connection (BlockPort "b" "out") (BlockPort "b" "in")))
 
 proofWithoutCycle = Proof
-    (M.singleton "b" (Block "r"))
+    (M.singleton "b" (Block 1 "r"))
     (M.singleton "c" (Connection (BlockPort "b" "out") (ConclusionPort 1)))
 
 impILogic :: Context
@@ -188,18 +188,18 @@ impILogic = Context
   where f = ["A","B"]
 
 directEscape = Proof
-    (M.singleton "b" (Block "impI"))
+    (M.singleton "b" (Block 1 "impI"))
     (M.singleton "c" (Connection (BlockPort "b" "hyp") (ConclusionPort 1)))
 
 noEscape = Proof
-    (M.singleton "b" (Block "impI"))
+    (M.singleton "b" (Block 1 "impI"))
     (M.fromList
         [ ("c",  (Connection (BlockPort "b" "hyp") (BlockPort "b" "in")))
         , ("c2", (Connection (BlockPort "b" "out") (ConclusionPort 1)))
         ])
 
 indirectEscape = Proof
-    (M.fromList [("b", Block "impI"), ("b2", Block "impI")])
+    (M.fromList [("b", Block 1 "impI"), ("b2", Block 2 "impI")])
     (M.fromList
         [ ("c",  (Connection (BlockPort "b" "hyp") (BlockPort "b2" "in")))
         , ("c2", (Connection (BlockPort "b2" "out") (ConclusionPort 1)))
@@ -210,10 +210,10 @@ simpleTask = Task [] ["Prop→Prop"]
 emptyProof = Proof M.empty M.empty
 
 partialProof = Proof
-    (M.fromList [("b", Block "impI")])
+    (M.fromList [("b", Block 1 "impI")])
     (M.fromList [("c", (Connection (BlockPort "b" "out") (ConclusionPort 1)))])
 completeProof = Proof
-    (M.fromList [("b", Block "impI")])
+    (M.fromList [("b", Block 1 "impI")])
     (M.fromList [ ("c1", (Connection (BlockPort "b" "hyp") (BlockPort "b" "in")))
                 , ("c2", (Connection (BlockPort "b" "out") (ConclusionPort 1)))])
 
@@ -258,9 +258,11 @@ assertEqualValues v expt = do
 fromJSON' :: FromJSON a => Value -> a
 fromJSON' = either error id . parseEither parseJSON
 
+assertFailure' :: String -> IO a
+assertFailure' s = assertFailure s >> return (error "unrechable")
 
 assertRight :: Either String a -> IO a
-assertRight = either (assertFailure >> return undefined) return
+assertRight = either assertFailure' return
 
 (>:) :: a -> b -> (a, b)
 (>:) = (,)

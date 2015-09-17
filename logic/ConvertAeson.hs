@@ -86,8 +86,8 @@ toProof = parseEither parseJSON
 
 instance FromJSON Block where
   parseJSON = withObject "block" $ \o ->
-    if | "rule"       `HM.member` o -> Block <$> o .: "rule"
-       | "annotation" `HM.member` o -> AnnotationBlock <$> o .: "annotation"
+    if | "rule"       `HM.member` o -> Block <$> o.: "number" <*> o .: "rule"
+       | "annotation" `HM.member` o -> AnnotationBlock <$> o.: "number" <*> o .: "annotation"
 
 
 instance FromJSON Connection where

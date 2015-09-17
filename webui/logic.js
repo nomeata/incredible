@@ -566,15 +566,17 @@ function buildProof(graph) {
       if (e.get('assumption') || e.get('conclusion') || e.get('prototypeElement')) {
         return;
       }
-      proof.blocks[e.id] = {};
+      block = {}
       var rule, annotation;
       if (rule = e.get('rule')) {
-        proof.blocks[e.id].rule = rule.id;
+        block.rule = rule.id;
       } else if (annotation = e.get('annotation')) {
-        proof.blocks[e.id].annotation = annotation;
+        block.annotation = annotation;
       } else {
         throw new Error("buildProof(): Unknown block type");
       }
+      block.number = e.get('number');
+      proof.blocks[e.id] = block;
     });
 
   proof.connections = {};
