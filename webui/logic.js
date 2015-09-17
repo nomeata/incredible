@@ -253,9 +253,6 @@ $(function (){
   $("#proofselect").change(with_graph_loading (function () { if (this.value) selectProof(this.value); }));
   $("#freeproof").click(with_graph_loading (function () { selectNoTask(); }));
 
-  selectTask('conjself');
-  graph.set('loading', false);
-
   $("#showdialog").click(function(){
     $("#graph").val(JSON.stringify(graph.toJSON(),null,2));
     $("#proof").val(JSON.stringify(buildProof(graph)));
@@ -277,21 +274,22 @@ $(function (){
     helper: "clone"
     // helper: function ()  { return $("<span>Hi</span>") }
   });
-});
 
-// Don't wrap 'droppable' in $(..), or it won't work with Google Chrome. Why?
-// Who knows...
-$("#paper").droppable({
-  drop: function (event, ui) {
-    var data = ui.draggable.data('elementData');
-    if (data) {
-      var pos = paper.clientToLocalPoint({x: event.clientX, y: event.clientY});
-      var elem = new joint.shapes.incredible.Generic(_.extend(data, {
-        position: pos
-      }));
-      graph.addCell(elem);
-    };
-  }
+  $("#paper").droppable({
+    drop: function (event, ui) {
+      var data = ui.draggable.data('elementData');
+      if (data) {
+        var pos = paper.clientToLocalPoint({x: event.clientX, y: event.clientY});
+        var elem = new joint.shapes.incredible.Generic(_.extend(data, {
+          position: pos
+        }));
+        graph.addCell(elem);
+      };
+    }
+  });
+
+  selectTask('conjself');
+  graph.set('loading', false);
 });
 
 graph.on('change:position', function (model, pos1, options) {
