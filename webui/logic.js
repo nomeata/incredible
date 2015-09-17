@@ -53,7 +53,8 @@ function setupGraph(graph, logic, task) {
     var gate = new joint.shapes.incredible.Generic({
       position: {x: 120, y: 30 + 50 * i},
       assumption: n,
-      task: task
+      task: task,
+      number: cells.length + 1
     });
     cells.push(gate);
   });
@@ -62,7 +63,8 @@ function setupGraph(graph, logic, task) {
     var gate = new joint.shapes.incredible.Generic({
       position: {x: 590, y: 30 + 50 * i},
       conclusion: n,
-      task: task
+      task: task,
+      number: cells.length + 1
     });
     cells.push(gate);
   });
@@ -261,6 +263,23 @@ function selectProof(name) {
 
 }
 
+function blockNumberMap() {
+  var numberMap = {};
+  $.each(graph.getElements(), function (i, el) {
+    if (el.get('number')) {
+      numberMap[el.get('number')] = el
+    }
+  });
+  return numberMap;
+}
+
+function nextFreeBlockNumber() {
+  var numberMap = blockNumberMap();
+  var n=1;
+  while (numberMap[n]) {n+=1};
+  return n;
+}
+
 $(function (){
   $("#taskselect").change(with_graph_loading(function () { if (this.value) selectTask(this.value); }));
   $("#proofselect").change(with_graph_loading (function () { if (this.value) selectProof(this.value); }));
@@ -294,7 +313,8 @@ $(function (){
       if (data) {
         var pos = paper.clientToLocalPoint({x: event.clientX, y: event.clientY});
         var elem = new joint.shapes.incredible.Generic(_.extend(data, {
-          position: pos
+          position: pos,
+          number: nextFreeBlockNumber()
         }));
         graph.addCell(elem);
       };

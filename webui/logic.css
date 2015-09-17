@@ -97,6 +97,12 @@
     cursor: move
 }
 
+.block .number {
+    fill: #000;
+    opacity: 0.5;
+    font-size: 6px;
+}
+
 .block:hover .body {
     fill:white;
 }

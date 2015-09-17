@@ -3,7 +3,7 @@ function ruleToBlockDesc(rule) {
   var portsList = _.sortBy(_.map(ports, function (v, i) {
     return { id: i,
              proposition: v.proposition,
-             type: v.type
+             type: v.type,
            }
   }), 'id');
   var portsGroup = _.groupBy(portsList, "type");
@@ -116,7 +116,6 @@ function renderBlockDescToSVG(el, blockDesc, forReal) {
 
   var textBB = renderDesc(blockDesc.desc, group);
 
-
   var rect = V("<rect class='body' fill='#ecf0f1' rx='5' ry='5' stroke='#bdc3c7' stroke-opacity='0.5'/>");
 
   // Calculate minimum width/height based on number of ports and label length
@@ -136,6 +135,16 @@ function renderBlockDescToSVG(el, blockDesc, forReal) {
   rect.attr({width: width, height: height});
   rect.translate(-width/2,-height/2);
   group.prepend(rect);
+
+
+  if (blockDesc.number) {
+    var numberLabel = V('<text class="number"></text>');
+    numberLabel.text(blockDesc.number.toString());
+    group.append(numberLabel);
+    bb = numberLabel.bbox(true);
+    // lower right corner
+    numberLabel.translate(- bb.width + width/2 - 5, -bb.height + height/2 - 1);
+  }
 
 
   _.each(blockDesc.portsGroup, function (thesePorts, portType) {
@@ -270,6 +279,7 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     var conclusion = this.model.get('conclusion');
     var annotation = this.model.get('annotation');
     var task = this.model.get('task');
+    var number = this.model.get('number');
 
     if (rule) {
       var blockDesc = ruleToBlockDesc(rule);
@@ -282,6 +292,7 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     } else {
         throw new Error("renderMarkup(): Unknown block type");
     }
+    blockDesc.number = number;
 
     renderBlockDescToSVG(this.vel, blockDesc, true);
   },
