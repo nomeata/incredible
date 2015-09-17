@@ -433,9 +433,9 @@ function processGraph() {
         conn.attr({'.connection': {class: 'connection error'}});
 
         if (isReversed(conn)) {
-          f = function (pos) {return pos};
-        } else {
           f = function (pos) {return 1-pos};
+        } else {
+          f = function (pos) {return pos};
         }
 
         conn.set('labels', [{
