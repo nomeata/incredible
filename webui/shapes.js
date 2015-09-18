@@ -69,46 +69,29 @@ function annotationToBlockDesc(proposition) {
 // and returns its width and height. The latter is used to resize the frame,
 // and hence to position the ports.
 function renderDesc(desc, group) {
+  var text;
   if (desc.label) {
-    var text = V("<text class='label' font-family='sans' fill='black'/>");
+    text = V("<text class='label center' font-family='sans' fill='black'/>");
     text.text(desc.label);
-    group.append(text);
-    textBB = text.bbox(true);
-    // center text
-    text.translate(- textBB.width/2, - textBB.height/2);
-    return textBB;
   } else if (desc.intro) {
-    var text = V("<text class='label' font-family='sans' fill='black'/>");
+    text = V("<text class='label left' font-family='sans' fill='black'/>");
     text.text(desc.intro);
-    group.append(text);
-    textBB = text.bbox(true);
-    // center text
-    text.translate(- textBB.width/2, - textBB.height/2);
-    // shove to the right
-    text.translate(20, 0);
-    return {width: textBB.width + 40, height: textBB.height};
   } else if (desc.elim) {
-    var text = V("<text class='label' font-family='sans' fill='black'/>");
+    text = V("<text class='label right' font-family='sans' fill='black'/>");
     text.text(desc.elim);
-    group.append(text);
-    textBB = text.bbox(true);
-    // center text
-    text.translate(- textBB.width/2, - textBB.height/2);
-    // shove to the left
-    text.translate(-20, 0);
-    return {width: textBB.width + 40, height: textBB.height};
   } else {
     throw Error("renderDesc: Unknown label desc " + JSON.stringify(desc));
   }
+  group.append(text);
 }
 
 
 function looksLikeImpI(blockDesc) {
-  console.log(blockDesc);
-  return
-    ((blockDesc.portsGroup['local hypothesis']||[]).length == 1 &&
-     (blockDesc.portsGroup['assumption']||[]).length == 1 &&
-     (blockDesc.portsGroup['conclusion']||[]).length == 1);
+  // Support not complete
+  return false;
+  return (blockDesc.portsGroup['local hypothesis']||[]).length == 1 &&
+         (blockDesc.portsGroup['assumption']||[]).length == 1 &&
+         (blockDesc.portsGroup['conclusion']||[]).length == 1
 }
 
 function impILikePath(opts) {
@@ -249,6 +232,29 @@ function updateSizes(el, blockDesc) {
 }
 
 function updateSizesRegular(el, blockDesc) {
+  // Get label size and position
+  var text = el.findOne(".label");
+  var textBB = text.bbox(true);
+  if (text.hasClass("center")) {
+    text
+      .attr('transform','')
+      .translate(- textBB.width/2, - textBB.height/2);
+  } else if (text.hasClass("left")) {
+    text
+      .attr('transform', '')
+      .translate(- textBB.width/2, - textBB.height/2)
+      .translate(-20, 0);
+    textBB.width = textBB.width + 40;
+  } else if (text.hasClass("right")) {
+    text
+      .attr('transform', '')
+      .translate(- textBB.width/2, - textBB.height/2)
+      .translate(20, 0);
+    textBB.width = textBB.width + 40;
+  } else {
+    throw Error("renderDesc: Unknown label class");
+  }
+
   // Calculate minimum width/height based on number of ports and label length
   var height = 35;
   var width = 80;
@@ -265,16 +271,19 @@ function updateSizesRegular(el, blockDesc) {
 
   el.findOne("rect.body")
     .attr({width: width, height: height})
+    .attr('transform','')
     .translate(-width/2,-height/2);
 
   if (blockDesc.number) {
     // lower right corner
     el.findOne(".number")
+      .attr('transform','')
       .translate(- bb.width + width/2 - 5, -bb.height + height/2 - 1);
   }
 
   if (blockDesc.canRemove) {
     el.findOne(".tool-remove")
+      .attr('transform','')
       .translate(width/2 - 20, -height/2);
   }
 
@@ -292,7 +301,9 @@ function updateSizesRegular(el, blockDesc) {
         pos.x = 20*index - 10*(total-1);
         pos.y = height/2;
       }
-      el.findOne(".port-wrap-" + portDesc.id).translate(pos.x, pos.y);
+      el.findOne(".port-wrap-" + portDesc.id)
+        .attr('transform','')
+        .translate(pos.x, pos.y);
     });
   });
 }
@@ -398,7 +409,7 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     };
   },
 
-  renderMarkup: function() {
+  getBlockDesc: function () {
     // These will not all be defined
     var rule = this.model.get('rule');
     var assumption = this.model.get('assumption');
@@ -420,8 +431,13 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     }
     blockDesc.number = number;
 
-    renderBlockDescToSVG(this.vel, blockDesc, true);
+    return blockDesc;
   },
+
+  renderMarkup: function() {
+    renderBlockDescToSVG(this.vel, this.getBlockDesc(), true);
+  },
+
   update: function () {
     // Do our own stuff
     var brokenPorts = this.model.get('brokenPorts') || {};
@@ -448,16 +464,13 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
       };
     }
 
-    // This is a bit ugly; we usually set the label in the renderMarkup
-    // function, where it also affects the size of the block. How to do it
-    // better?
     if (this.model.get('annotation')) {
-      var text = V(this.vel.findOne(".label"));
-      text.text("✎"+this.model.get('annotation'));
-      textBB = text.bbox(true);
-      text.attr('transform', '');
-      // center text
-      text.translate(- textBB.width/2, - textBB.height/2);
+      var textV = V(this.vel.findOne(".label"));
+      var text = "✎"+this.model.get('annotation');
+      if (textV.text() != text) {
+        textV.text(text);
+        updateSizes(this.vel, this.getBlockDesc());
+      }
     }
 
     // Just in case we use the attrs feature, let's call the jointjs update function
