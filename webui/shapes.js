@@ -4,6 +4,7 @@ function ruleToBlockDesc(rule) {
     return { id: i,
              proposition: v.proposition,
              type: v.type,
+             consumedBy: v.consumedBy, // may be undefined
            }
   }), 'id');
   var portsGroup = _.groupBy(portsList, "type");
@@ -189,15 +190,18 @@ function updateSizesSchieblehre1(el, blockDesc) {
 
   el.findOne("path.body").attr('d', pathDataSchieblehre1(impIConfig));
 
-  // The single assumption
-  el.findOne(".port-wrap-" + blockDesc.portsGroup['local hypothesis'][0].id)
+  // The single hypothesis
+  var hyp = blockDesc.portsGroup['local hypothesis'][0]
+  el.findOne(".port-wrap-" + hyp.id)
     .translate(-impIConfig.innerWidth/2, -10);
 
   // Find the conclusion for the single as for that
-  var localAssumption = blockDesc.portsGroup['assumption'][0];
+  var localAssumption =
+    _.find(blockDesc.portsGroup['assumption'],
+             function (pd) {return pd.id == hyp.consumedBy});
   var otherAssumptions =
     _.filter(blockDesc.portsGroup['assumption'],
-             function (pd) {return pd.id != localAssumption.id});
+             function (pd) {return pd.id != hyp.consumedBy});
 
   el.findOne(".port-wrap-" + localAssumption.id)
     .translate(impIConfig.innerWidth/2, -10);
