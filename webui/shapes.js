@@ -286,18 +286,6 @@ function renderBlockDescToSVG(el, blockDesc, forReal) {
   var group = V("<g class='block'/>");
   el.append(group);
 
-  if (blockDesc.canRemove) {
-    markup = [
-      '<g class="tool-remove" event="remove">',
-      '<circle r="11" />',
-      '<path transform="scale(.8) translate(-16, -16)" d="M24.778,21.419 19.276,15.917 24.777,10.415 21.949,7.585 16.447,13.087 10.945,7.585 8.117,10.415 13.618,15.917 8.116,21.419 10.946,24.248 16.447,18.746 21.948,24.248z"/>',
-      '<title>Remove element.</title>',
-      '</g>',
-    ].join('');
-    var tool = V(markup);
-    group.append(tool);
-  }
-
   if (blockDesc.number) {
     var numberLabel = V('<text class="number"></text>');
     numberLabel.text(blockDesc.number.toString());
@@ -312,6 +300,19 @@ function renderBlockDescToSVG(el, blockDesc, forReal) {
   } else {
     renderRegularBlock(group, blockDesc, forReal);
   }
+
+  if (blockDesc.canRemove) {
+    markup = [
+      '<g class="tool-remove" event="remove">',
+      '<circle r="11" />',
+      '<path transform="scale(.8) translate(-16, -16)" d="M24.778,21.419 19.276,15.917 24.777,10.415 21.949,7.585 16.447,13.087 10.945,7.585 8.117,10.415 13.618,15.917 8.116,21.419 10.946,24.248 16.447,18.746 21.948,24.248z"/>',
+      '<title>Remove element.</title>',
+      '</g>',
+    ].join('');
+    var tool = V(markup);
+    group.append(tool);
+  }
+
 
   updateSizes(el, blockDesc);
 }
