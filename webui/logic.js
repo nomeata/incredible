@@ -326,27 +326,27 @@ $(function (){
 });
 
 paper.on('element:schieblehre',function(cellView, direction, dx, dy) {
+  var basewidth0 = cellView.model.get('schieblehrebasewidth') || 0;
+  var basewidth1 = basewidth0;
   if (direction == "resize-left") {
-    var oldWidth = cellView.model.get('schieblehrebasewidthLeft') || 0;
-    cellView.model.set('schieblehrebasewidthLeft', oldWidth - dx);
+    basewidth1 -= dx;
   } else if (direction == "resize-right") {
-    var oldWidth = cellView.model.get('schieblehrebasewidthRight') || 0;
-    cellView.model.set('schieblehrebasewidthRight', oldWidth + dx);
+    basewidth1 += dx;
   } else {
     throw Error("element:schieblehre: Unknown direction " + direction)
   }
+  cellView.model.set('schieblehrebasewidth', basewidth1);
+  var width0 = cellView.model.get('schieblehrewidth') || 0;
+  var width1 = Math.max(0, g.snapToGrid(basewidth1, paper.options.gridSize));
+  if (width0 != width1) {
+    cellView.model.set('schieblehrewidth', width1);
+    // Move center accordingly
+    if (direction == "resize-left") {
+      cellView.model.translate(width0 - width1, 0, {ui: true});
+    }
+  }
 });
 
-
-// By passing the data through another property we avoid redraws
-// when the change is actually not present, due to the grid size.
-graph.on('change:schieblehrebasewidthRight', function (model, width, options) {
-  model.set('schieblehrewidthRight', Math.max(0, g.snapToGrid(width, paper.options.gridSize)));
-});
-
-graph.on('change:schieblehrebasewidthLeft', function (model, width, options) {
-  model.set('schieblehrewidthLeft', Math.max(0, g.snapToGrid(width, paper.options.gridSize)));
-});
 
 graph.on('change:position', function (model, pos1, options) {
   if (options.derivedMove) { return; }

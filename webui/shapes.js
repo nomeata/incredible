@@ -154,8 +154,8 @@ function updateSizesSchieblehre1(el, blockDesc) {
   // Minimum sizes
   impIConfig = {
     leftWidth: 10,
-    innerWidthLeft:  20+(blockDesc.schieblehrewidthLeft||0),
-    innerWidthRight: 20+(blockDesc.schieblehrewidthRight||0),
+    innerWidthLeft:  20,
+    innerWidthRight: 20+(blockDesc.schieblehrewidth||0),
     rightWidth: 10,
     leftHeight: 30,
     rightHeight: 30,
@@ -505,8 +505,8 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     if (this.model.get('conclusion')) {
       this.listenTo(this.model, 'change:qed', this.update);
     };
-    this.listenTo(this.model, 'change:schieblehrewidthLeft', this.updateSizes);
-    this.listenTo(this.model, 'change:schieblehrewidthRight', this.updateSizes);
+    this.listenTo(this.model, 'change:schieblehrewidth', this.updateSizes);
+    this.listenTo(this.model, 'change:schieblehrewidth', this.updateSizes);
   },
 
   getBlockDesc: function () {
@@ -531,8 +531,7 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     }
     blockDesc.number = number;
 
-    blockDesc.schieblehrewidthLeft = this.model.get('schieblehrewidthLeft');
-    blockDesc.schieblehrewidthRight = this.model.get('schieblehrewidthRight');
+    blockDesc.schieblehrewidth = this.model.get('schieblehrewidth');
 
     return blockDesc;
   },
