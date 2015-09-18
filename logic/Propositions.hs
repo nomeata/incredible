@@ -26,6 +26,10 @@ data Term
 
 $(derive [''Term])
 
+data OpAssoc
+    = L
+    | R
+
 instance Alpha Term
 instance Eq Term where (==) = aeq
 
@@ -67,8 +71,8 @@ printTerm p = runLFreshM (prP (0::Int) p) ""
     prP _ (V v) = prN v
     prP d (App (C f) [a]) | Just p <- isPrefix (name2String f)
         = prParens (p < d) $ prN f <> prP p a
-    prP d (App (C f) [a1, a2]) | Just p <- isInFix (name2String f)
-        = prParens (p < d) $ prP (p+1) a1 <> prN f <> prP p a2
+    prP d (App (C f) [a1, a2]) | Just (p,assoc) <- isInFix (name2String f)
+        = prParens (p < d) $ prP (case assoc of {R -> p+1; L -> p}) a1 <> prN f <> prP (case assoc of {R -> p; L -> (p+1)}) a2
     prP d (App (C f) [Lam b]) | isQuant (name2String f)
         = prParens (1 < d) $ lunbind b $ \(v,t) ->
         prN f <> prN v <> prS "." <> prP 1 t
@@ -93,10 +97,11 @@ printTerm p = runLFreshM (prP (0::Int) p) ""
 
 
 -- Is it infix? What precedences?
-isInFix :: String -> Maybe Int
-isInFix "∧" = Just 3
-isInFix "→" = Just 3
-isInFix "∨" = Just 2
+isInFix :: String -> Maybe (Int, OpAssoc)
+isInFix "↑" = Just (5, L)
+isInFix "∧" = Just (4, L)
+isInFix "∨" = Just (3, L)
+isInFix "→" = Just (2, R)
 isInFix _   = Nothing
 
 isQuant :: String -> Bool
@@ -109,7 +114,7 @@ isPrefix _   = Nothing
 -- Parser
 
 parseTerm :: String -> Either String Proposition
-parseTerm = either (Left . show) Right . parse (between (return ()) eof termP) ""
+parseTerm = either (Left . show) Right . parse (between spaces eof termP) ""
 
 -- For Testing and GHCi
 readTerm :: String -> Proposition
@@ -117,20 +122,23 @@ readTerm = either (error . show) id . parseTerm
 
 -- lexeme
 l :: Parser a -> Parser a
-l = between (return ()) spaces
+l = (<* spaces)
 
 termP :: Parser Proposition
 termP =  buildExpressionParser table atomP <?> "proposition"
 
 table :: OperatorTable String () Identity Proposition
-table = [ [ binary "∧" ["&"]
-          , binary "→" ["->"]
+table = [ [ binary "↑" [] AssocLeft
           ]
-        , [ binary "∨" ["|"]
+        , [ binary "∧" ["&"] AssocLeft
+          ]
+        , [ binary "∨" ["|"] AssocLeft
+          ]
+        , [ binary "→" ["->"] AssocRight
           ]
         ]
   where
-    binary op alts = Infix ((\a b -> App (C (string2Name op)) [a,b]) <$ l (choice (map string (op:alts)))) AssocLeft
+    binary op alts assoc = Infix ((\a b -> App (C (string2Name op)) [a,b]) <$ l (choice (map string (op:alts)))) assoc
 
 quantifiers :: [(Char, [Char])]
 quantifiers =
@@ -144,40 +152,43 @@ mkQuant "λ" n t = mkLam n t
 mkQuant q   n t = App (C (string2Name q)) [mkLam n t]
 
 quantP :: Parser String
-quantP = choice [ (q:"") <$ choice (map char (q:a)) | (q,a) <- quantifiers ]
+quantP = l $ choice [ (q:"") <$ choice (map char (q:a)) | (q,a) <- quantifiers ]
 
 atomP :: Parser Proposition
 atomP = choice
-    [ string "⊥" >> return (s "⊥" [])
-    , string "⊤" >> return (s "⊤" [])
-    , try (string "False") >> return (s "⊥" [])
-    , try (string "True") >> return (s "⊤" [])
+    [ l $ string "⊥" >> return (c "⊥")
+    , l $ string "⊤" >> return (c "⊤")
+    , l $ try (string "False") >> return (c "⊥")
+    , l $ try (string "True") >> return (c "⊤")
     , do
-        _ <- char '¬' <|> char '~'
+        _ <- l $ char '¬' <|> char '~'
         p <- atomP
         return $ s "¬" [p]
     , do
         q <- quantP
         vname <- nameP
-        _ <- char '.'
+        _ <- l $ char '.'
         p <- termP
         return $ mkQuant q vname $ p
-    , between (char '(') (char ')') termP
+    , parenthesized termP
     , do
         head <- varOrConstP
-        option head $ between (char '(') (char ')') $ do
-            App head <$> termP `sepBy1` (char ',')
+        option head $ parenthesized $ do
+            App head <$> termP `sepBy1` (l $ char ',')
     ]
   where
-    s n = App (C (string2Name n))
+    c n = C (string2Name n)
+    s n = App (c n)
+
+    parenthesized = between (l $ char '(') (l $ char ')')
 
 varOrConstP :: Parser Term
 varOrConstP = do
     -- A hack for the test suite etc: prepending the name of a constant with V
     -- makes it a variable
-    con <- option C (V <$ (try (string "V ")))
+    con <- option C (l $ V <$ (try (string "V ")))
     n <- nameP
     return $ con n
 
 nameP :: Rep a => Parser (Name a)
-nameP = string2Name <$> many1 alphaNum
+nameP = l $ string2Name <$> many1 alphaNum

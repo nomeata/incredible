@@ -1,10 +1,11 @@
-{-# LANGUAGE OverloadedStrings, RecordWildCards, TypeSynonymInstances, FlexibleInstances #-}
+{-# LANGUAGE OverloadedStrings, RecordWildCards, TypeSynonymInstances, FlexibleInstances, MultiWayIf #-}
 module ConvertAeson (toContext, toTask, toProof, fromAnalysis) where
 
 import qualified Data.Vector as V
 import qualified Data.Text as T
 import Data.Aeson.Types
 import qualified Data.Map as M
+import qualified Data.HashMap.Strict as HM
 import Control.Applicative
 import Control.Monad
 import Data.List
@@ -27,7 +28,7 @@ instance FromJSON Rule where
   parseJSON = withObject "rule" $ \o -> do
     f <- varList o "free"
     l <- varList o "local"
-    Rule (l++f) f <$> o .: "ports"
+    Rule (f++l) f <$> o .: "ports"
 
 instance FromJSON Port where
   parseJSON = withObject "port" $ \o -> do
@@ -84,21 +85,21 @@ toProof :: Value -> Either String Proof
 toProof = parseEither parseJSON
 
 instance FromJSON Block where
-  parseJSON = withObject "block" $ \o -> do
-    Block <$> o .: "rule"
+  parseJSON = withObject "block" $ \o ->
+    if | "rule"       `HM.member` o -> Block <$> o.: "number" <*> o .: "rule"
+       | "annotation" `HM.member` o -> AnnotationBlock <$> o.: "number" <*> o .: "annotation"
+
 
 instance FromJSON Connection where
   parseJSON = withObject "block" $ \o -> do
     Connection <$> o .: "from" <*> o .: "to"
 
 instance FromJSON PortSpec where
- parseJSON = withObject "port spec" $ \o -> msum
-    [ AssumptionPort <$> o .: "assumption"
-    , ConclusionPort <$> o .: "conclusion"
-    , BlockPort <$> o .: "block" <*> o .: "port"
-    , pure NoPort
-    ]
-
+ parseJSON = withObject "port spec" $ \o ->
+    if | "assumption" `HM.member` o -> AssumptionPort <$> o .: "assumption"
+       | "conclusion" `HM.member` o -> ConclusionPort <$> o .: "conclusion"
+       | "block"      `HM.member` o -> BlockPort <$> o .: "block" <*> o .: "port"
+       | otherwise                  -> return NoPort
 
 instance FromJSON Proof where
   parseJSON = withObject "proof" $ \o -> do
@@ -140,8 +141,10 @@ instance ToJSON Analysis where
         ]
 
 instance ToJSON ConnLabel where
-    toJSON Unconnected = object []
-    toJSON (Ok prop) = toJSON prop
+    toJSON Unconnected = object
+        [ "type" .= ("unconnected" :: T.Text) ]
+    toJSON (Ok prop) = object
+        [ "prop"   .= prop, "type" .= ("ok" :: T.Text) ]
     toJSON (Mismatch prop1 prop2) = object
         [ "propIn" .= prop1, "propOut" .= prop2, "type" .= ("mismatch"::T.Text) ]
     toJSON (DunnoLabel prop1 prop2) = object

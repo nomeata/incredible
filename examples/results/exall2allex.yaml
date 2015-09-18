@@ -1,0 +1,23 @@
+cycles: []
+connectionLabels:
+  978c53b5-f8ca-4b5d-ae2b-e8a8ac801c39:
+    prop: ∀x.P(c₂,x)
+    type: ok
+  56cf3ad0-90f6-4b1d-a2f1-281ce0b622cd:
+    prop: P(c₂,c₄)
+    type: ok
+  b7bf03cb-bc71-4a26-b9c7-fc42193f0515:
+    prop: ∃x.∀y.P(x,y)
+    type: ok
+  7f8cbf41-21a8-49f0-abfd-479c48c1796d:
+    prop: ∀x.∃x₁.P(x₁,x)
+    type: ok
+  21e84149-c425-4e81-a38f-177b98892a0a:
+    prop: ∀y.∃x.P(x,y)
+    type: ok
+  b63f6a24-8436-4581-b629-10359330442a:
+    prop: ∃x.P(x,c₄)
+    type: ok
+escapedHypotheses: []
+unconnectedGoals: []
+qed: true

@@ -1,0 +1,6 @@
+logic: nand
+assumptions:
+- A↑B
+conclusions:
+- B↑A
+

@@ -1,0 +1,12 @@
+@font-face {
+    font-family: 'lintsecregular';
+    src: url('Lintsec-webfont.eot');
+    src: url('Lintsec-webfont.eot?#iefix') format('embedded-opentype'),
+         url('Lintsec-webfont.woff') format('woff'),
+         url('Lintsec-webfont.ttf') format('truetype'),
+         url('Lintsec-webfont.svg#lintsecregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+

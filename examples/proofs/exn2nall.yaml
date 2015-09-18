@@ -1,0 +1,72 @@
+task: exn2nall
+blocks:
+  ef29c782-c9d6-42aa-a603-1161da2a7e61:
+    rule: allE
+    number: 1
+  523926cf-6951-4042-8862-f02fa6981eac:
+    rule: impE
+    number: 2
+  f4ba46ae-7a55-40cf-afa2-019b45391cdd:
+    rule: falseE
+    number: 3
+  1ce4002a-8e8b-429c-9ee0-7cc002532298:
+    rule: impI
+    number: 4
+  2404bdaa-1c2d-4283-9005-69f3d8c67920:
+    rule: exE
+    number: 5
+connections:
+  d0ae041d-7605-45b5-a0bc-9a263d1f6cd6:
+    to:
+      block: 523926cf-6951-4042-8862-f02fa6981eac
+      port: in2
+    from:
+      block: ef29c782-c9d6-42aa-a603-1161da2a7e61
+      port: out2
+  2d7dc28e-ce45-4dd0-acf1-56d37238a378:
+    to:
+      block: f4ba46ae-7a55-40cf-afa2-019b45391cdd
+      port: in
+    from:
+      block: 523926cf-6951-4042-8862-f02fa6981eac
+      port: out
+  90f26c5b-d8fd-4b5b-bd45-1ce06f265147:
+    to:
+      block: 2404bdaa-1c2d-4283-9005-69f3d8c67920
+      port: in2
+    from:
+      block: f4ba46ae-7a55-40cf-afa2-019b45391cdd
+      port: out
+  9c1ab767-4585-45b7-be9c-36fa5906744b:
+    to:
+      conclusion: 1
+    from:
+      block: 1ce4002a-8e8b-429c-9ee0-7cc002532298
+      port: out
+  1e757bee-f07d-41cd-8256-fd0adf099ff8:
+    to:
+      block: ef29c782-c9d6-42aa-a603-1161da2a7e61
+      port: in1
+    from:
+      block: 1ce4002a-8e8b-429c-9ee0-7cc002532298
+      port: hyp
+  e8b9c01e-5f08-4240-8c88-acd5d84b0b46:
+    to:
+      block: 1ce4002a-8e8b-429c-9ee0-7cc002532298
+      port: in
+    from:
+      block: 2404bdaa-1c2d-4283-9005-69f3d8c67920
+      port: out
+  fdfdfd0c-94cd-4c6d-ba82-a7948c50f657:
+    to:
+      block: 2404bdaa-1c2d-4283-9005-69f3d8c67920
+      port: in1
+    from:
+      assumption: 1
+  e3c92d34-70e9-43eb-9688-22dc5f7951f2:
+    to:
+      block: 523926cf-6951-4042-8862-f02fa6981eac
+      port: in1
+    from:
+      block: 2404bdaa-1c2d-4283-9005-69f3d8c67920
+      port: hyp

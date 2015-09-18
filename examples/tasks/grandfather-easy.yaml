@@ -1,0 +1,6 @@
+logic: extended_predicate
+assumptions:
+ - (∀x.(r(x)))|((∀x.(r(x)))→⊥)
+ - ∀x.(r(x)→⊥)->r(f(x))
+conclusions:
+ - ∃x.(r(x)∧r(f(f(x))))

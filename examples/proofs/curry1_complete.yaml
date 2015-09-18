@@ -3,12 +3,16 @@ task:
 blocks:
   b2:
     rule: impE
+    number: 1
   b3:
     rule: impI
+    number: 2
   b1:
     rule: conjI
+    number: 3
   b4:
     rule: impI
+    number: 4
 connections:
   c1:
     from:
