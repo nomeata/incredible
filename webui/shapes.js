@@ -102,6 +102,109 @@ function renderDesc(desc, group) {
   }
 }
 
+
+function looksLikeImpI(blockDesc) {
+  console.log(blockDesc);
+  return
+    ((blockDesc.portsGroup['local hypothesis']||[]).length == 1 &&
+     (blockDesc.portsGroup['assumption']||[]).length == 1 &&
+     (blockDesc.portsGroup['conclusion']||[]).length == 1);
+}
+
+function impILikePath(opts) {
+  var start = opts.leftWidth + opts.innerWidth/2;
+  var h = function(x) { return "h" + x };
+  var v = function(x) { return "v" + x };
+  var tr = "a 5 5 0 0 1 5 -5";
+  var tb = "a 5 5 0 0 1 5 5";
+  var tl = "a 5 5 0 0 1 -5 5";
+  var tu = "a 5 5 0 0 1 -5 -5";
+  return path = [
+    "M" + (-start) + " 10", // left edge, vertical center. Not sure why 10 is needed here?
+    v(-17.5 - 5),
+    tr,
+    h(opts.leftWidth-5-5),
+    tb,
+    v(17.5 - 5),
+    v(3.5),
+    h(opts.innerWidth),
+    v(-3.5),
+    v(-(17.5 - 5)),
+    tr,
+    h(opts.rightWidth -5 - 5),
+    tb,
+    v(17.5 -5),
+    v(17.5 -5),
+    tl,
+    h(-(opts.rightWidth -5)),
+    h(-opts.innerWidth),
+    h(-(opts.leftWidth -5)),
+    tu,
+    v(-17.5 -5),
+    "Z"
+    ].join(" ");
+}
+
+function renderImpILikeBlock(group, blockDesc, forReal) {
+  pathV = V("<path class='body' fill='#ecf0f1'  stroke='#bdc3c7' stroke-opacity='0.5'/>")
+  group.append(pathV);
+
+  addPort(group, blockDesc.portsGroup['assumption'][0],
+    'in', 'left', forReal, blockDesc.isPrototype);
+  addPort(group, blockDesc.portsGroup['local hypothesis'][0],
+    'out', 'right', forReal, blockDesc.isPrototype);
+  addPort(group, blockDesc.portsGroup['conclusion'][0],
+    'out', 'right', forReal, blockDesc.isPrototype);
+
+  /*
+  addPort(group, blockDesc.portsGroup['assumption'][0],
+    {x:impIConfig.innerWidth/2, y:-10}, 'in', 'left', forReal, blockDesc.isPrototype);
+  addPort(group, blockDesc.portsGroup['local hypothesis'][0],
+    {x:-impIConfig.innerWidth/2, y:-10}, 'out', 'right', forReal, blockDesc.isPrototype);
+  addPort(group, blockDesc.portsGroup['conclusion'][0],
+    {x:impIConfig.innerWidth/2 + impIConfig.rightWidth, y:0}, 'out', 'right', forReal, blockDesc.isPrototype);
+  */
+}
+
+function updateSizesImpI(el, blockDesc) {
+  impIConfig = {
+    leftWidth: 10,
+    innerWidth: 50,
+    rightWidth: 40
+  };
+  el.findOne("path.body").attr('d', impILikePath(impIConfig));
+
+  el.findOne(".port-wrap-" + blockDesc.portsGroup['local hypothesis'][0].id)
+    .translate(-impIConfig.innerWidth/2, -10);
+  el.findOne(".port-wrap-" + blockDesc.portsGroup['assumption'][0].id)
+    .translate(impIConfig.innerWidth/2, -10);
+  el.findOne(".port-wrap-" + blockDesc.portsGroup['conclusion'][0].id)
+    .translate(impIConfig.innerWidth/2 + impIConfig.rightWidth, 0);
+}
+
+
+function renderRegularBlock(group, blockDesc, forReal) {
+  var textBB = renderDesc(blockDesc.desc, group);
+
+  var rect = V("<rect class='body' fill='#ecf0f1' rx='5' ry='5' stroke='#bdc3c7' stroke-opacity='0.5'/>");
+  group.prepend(rect);
+
+  if (blockDesc.number) {
+    var numberLabel = V('<text class="number"></text>');
+    numberLabel.text(blockDesc.number.toString());
+    group.append(numberLabel);
+    bb = numberLabel.bbox(true);
+  }
+
+  _.each(blockDesc.portsGroup, function (thesePorts, portType) {
+    _.each(thesePorts, function (portDesc, index) {
+      var direction = ({assumption: 'in', conclusion: 'out', 'local hypothesis': 'out'})[portType];
+      var orientation = ({assumption: 'left', conclusion: 'right', 'local hypothesis': 'bottom'})[portType];
+      addPort(group, portDesc, direction, orientation, forReal, blockDesc.isPrototype);
+    });
+  });
+}
+
 function renderBlockDescToSVG(el, blockDesc, forReal) {
   // forReal: Whether this is going to be used on the paper (in which case the
   // magnet attributes are set)
@@ -113,11 +216,39 @@ function renderBlockDescToSVG(el, blockDesc, forReal) {
   var group = V("<g class='block'/>");
   el.append(group);
 
+  if (blockDesc.canRemove) {
+    markup = [
+      '<g class="tool-remove" event="remove">',
+      '<circle r="11" />',
+      '<path transform="scale(.8) translate(-16, -16)" d="M24.778,21.419 19.276,15.917 24.777,10.415 21.949,7.585 16.447,13.087 10.945,7.585 8.117,10.415 13.618,15.917 8.116,21.419 10.946,24.248 16.447,18.746 21.948,24.248z"/>',
+      '<title>Remove element.</title>',
+      '</g>',
+    ].join('');
+    var tool = V(markup);
+    group.append(tool);
+  }
 
-  var textBB = renderDesc(blockDesc.desc, group);
+  // Some special cases
+  if (looksLikeImpI(blockDesc)) {
+    renderImpILikeBlock(group, blockDesc, forReal);
+  } else {
+    renderRegularBlock(group, blockDesc, forReal);
+  }
 
-  var rect = V("<rect class='body' fill='#ecf0f1' rx='5' ry='5' stroke='#bdc3c7' stroke-opacity='0.5'/>");
+  updateSizes(el, blockDesc);
+}
 
+
+function updateSizes(el, blockDesc) {
+  // Some special cases
+  if (looksLikeImpI(blockDesc)) {
+    updateSizesImpI(el, blockDesc);
+  } else {
+    updateSizesRegular(el, blockDesc);
+  }
+}
+
+function updateSizesRegular(el, blockDesc) {
   // Calculate minimum width/height based on number of ports and label length
   var height = 35;
   var width = 80;
@@ -132,88 +263,83 @@ function renderBlockDescToSVG(el, blockDesc, forReal) {
   width = Math.max(width, textBB.width + 10);
   height = Math.max(height, textBB.height + 10);
 
-  rect.attr({width: width, height: height});
-  rect.translate(-width/2,-height/2);
-  group.prepend(rect);
-
+  el.findOne("rect.body")
+    .attr({width: width, height: height})
+    .translate(-width/2,-height/2);
 
   if (blockDesc.number) {
-    var numberLabel = V('<text class="number"></text>');
-    numberLabel.text(blockDesc.number.toString());
-    group.append(numberLabel);
-    bb = numberLabel.bbox(true);
     // lower right corner
-    numberLabel.translate(- bb.width + width/2 - 5, -bb.height + height/2 - 1);
+    el.findOne(".number")
+      .translate(- bb.width + width/2 - 5, -bb.height + height/2 - 1);
   }
 
+  if (blockDesc.canRemove) {
+    el.findOne(".tool-remove")
+      .translate(width/2 - 20, -height/2);
+  }
 
   _.each(blockDesc.portsGroup, function (thesePorts, portType) {
     var total = _.size(thesePorts);
     _.each(thesePorts, function (portDesc, index) {
-      var direction = ({assumption: 'in', conclusion: 'out', 'local hypothesis': 'out'})[portType];
-      var orientation = ({assumption: 'left', conclusion: 'right', 'local hypothesis': 'bottom'})[portType];
-      var pacman = V('<path class="port-body" stroke="none" fill="#777"/>');
-      if (forReal) {
-        pacman.attr('magnet', 'true');
+      var pos = {};
+      if (portType == "assumption") {
+        pos.x = -width/2;
+        pos.y = 20*index - 10*(total-1);
+      } else if (portType == "conclusion") {
+        pos.x = width/2;
+        pos.y = 20*index - 10*(total-1);
+      } else if (portType == "local hypothesis") {
+        pos.x = 20*index - 10*(total-1);
+        pos.y = height/2;
       }
-      pacman.attr({port: portDesc.id, direction: direction, orientation: orientation});
-
-      group.append(pacman);
-
-      if (blockDesc.isPrototype) {
-        var label = V("<text font-family='sans' fill='#000' font-size='8px'/>");
-        label.text(portDesc.proposition);
-        group.append(label);
-        var labelBB = label.bbox(true);
-      }
-
-      if (blockDesc.canRemove) {
-        markup = [
-          '<g class="tool-remove" event="remove">',
-          '<circle r="11" />',
-          '<path transform="scale(.8) translate(-16, -16)" d="M24.778,21.419 19.276,15.917 24.777,10.415 21.949,7.585 16.447,13.087 10.945,7.585 8.117,10.415 13.618,15.917 8.116,21.419 10.946,24.248 16.447,18.746 21.948,24.248z"/>',
-          '<title>Remove element.</title>',
-          '</g>',
-        ].join('');
-        var tool = V(markup);
-        tool.translate(width/2 - 20, -height/2);
-        group.append(tool);
-      }
-
-      var labelPad = 7;
-
-      if (portType === 'assumption') {
-        // put left
-        var y = 20*index - 10*(total-1);
-        pacman.translate( -width/2, y);
-        pacman.rotate(135);
-        pacman.attr({d: "M0,0 l 0 5 a5,5 0 1,1 5,-5 z"});
-        if (blockDesc.isPrototype) {
-          label.translate( -width/2 -labelBB.width - labelPad, y - labelBB.height/2 );
-        }
-      } else if (portType === 'conclusion') {
-        // put right
-        var y = 20*index - 10*(total-1);
-        pacman.translate( width/2, y);
-        pacman.rotate(135);
-        pacman.attr({d: "M-5,-5 l 0 5 a5,5 0 1,0 5,-5 z"});
-        if (blockDesc.isPrototype) {
-          label.translate( width/2 + labelPad, y - labelBB.height/2 );
-        }
-      } else if (portType === 'local hypothesis') {
-        // put below
-        var x = 20*index - 10*(total-1);
-        pacman.translate( x, height/2);
-        pacman.rotate(225);
-        pacman.attr({d: "M-5,-5 l 0 5 a5,5 0 1,0 5,-5 z"});
-        if (blockDesc.isPrototype) {
-          label.translate( x - labelBB.width/2, height/2 + labelPad);
-        }
-      } else {
-        throw new Error("renderBlockDescToSVG(): Unknown portType " + portType);
-      }
+      el.findOne(".port-wrap-" + portDesc.id).translate(pos.x, pos.y);
     });
   });
+}
+
+function addPort(group, portDesc, direction, orientation, forReal, isPrototype) {
+  var g = V('<g/>');
+  g.attr('class', 'port-wrap-' + portDesc.id);
+  group.append(g);
+  var pacman = V('<path class="port-body" stroke="none" fill="#777"/>');
+  if (forReal) {
+    pacman.attr('magnet', 'true');
+  }
+  pacman.attr({port: portDesc.id, direction: direction, orientation: orientation});
+  g.append(pacman);
+
+  if (isPrototype) {
+    var label = V("<text font-family='sans' fill='#000' font-size='8px'/>");
+    label.text(portDesc.proposition);
+    g.append(label);
+    var labelBB = label.bbox(true);
+  }
+
+  if (direction === "in") {
+    pacman.attr({d: "M0,0 l 0 5 a5,5 0 1,1 5,-5 z"});
+  } else if (direction === "out") {
+    pacman.attr({d: "M-5,-5 l 0 5 a5,5 0 1,0 5,-5 z"});
+  }
+
+  var labelPad = 7;
+  if (orientation === 'left') {
+    pacman.rotate(135);
+    if (isPrototype) {
+      label.translate( -labelBB.width - labelPad, - labelBB.height/2 );
+    }
+  } else if (orientation === 'right') {
+    pacman.rotate(135);
+    if (isPrototype) {
+      label.translate( labelPad, - labelBB.height/2 );
+    }
+  } else if (orientation === 'bottom') {
+    pacman.rotate(225);
+    if (isPrototype) {
+      label.translate(- labelBB.width/2, labelPad);
+    }
+  } else {
+    throw new Error("renderBlockDescToSVG(): Unknown orientation " + orientation);
+  }
 }
 
 
