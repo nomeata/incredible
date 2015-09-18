@@ -542,17 +542,13 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
 
     var cellView = this;
     function resizeSchieblehre(e) {
-      var init = {};
-      init.x = e.pageX;
-      init.y = e.pageY;
+      var pos0 = paper.clientToLocalPoint({x: e.pageX, y: e.pageY});
       var action = V(e.target).attr('event');
 
       document.onmousemove = function(e){
-        var dX = e.pageX - init.x;
-        var dY = e.pageY - init.y;
-        cellView.notify('element:schieblehre', action, dX, dY);
-        init.x = e.pageX;
-        init.y = e.pageY;
+        var pos1 = paper.clientToLocalPoint({x: e.pageX, y: e.pageY});
+        cellView.notify('element:schieblehre', action, pos1.x - pos0.x, pos1.y - pos0.y);
+        pos0 = pos1;
       };
 
       document.onmouseup = function(e){
@@ -570,7 +566,7 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
   },
 
   updateSizes: function () {
-      updateSizes(this.vel, this.getBlockDesc());
+    updateSizes(this.vel, this.getBlockDesc());
   },
 
   update: function () {
