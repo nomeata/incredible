@@ -86,14 +86,12 @@ function renderDesc(desc, group) {
 }
 
 
-function looksLikeImpI(blockDesc) {
+function looksLikeSchieblehre1(blockDesc) {
   // Support not complete
-  return (blockDesc.portsGroup['local hypothesis']||[]).length == 1 &&
-         (blockDesc.portsGroup['assumption']||[]).length == 1 &&
-         (blockDesc.portsGroup['conclusion']||[]).length == 1
+  return (blockDesc.portsGroup['local hypothesis']||[]).length == 1;
 }
 
-function impILikePath(opts) {
+function pathDataSchieblehre1(opts) {
   var start = opts.leftWidth + opts.innerWidth/2;
   var h = function(x) { return "h" + x };
   var v = function(x) { return "v" + x };
@@ -101,21 +99,24 @@ function impILikePath(opts) {
   var tb = "a 5 5 0 0 1 5 5";
   var tl = "a 5 5 0 0 1 -5 5";
   var tu = "a 5 5 0 0 1 -5 -5";
+  // height above the zero line
+  var extraHeightL = opts.leftHeight - 15 + 2.5;
+  var extraHeightR = opts.rightHeight - 15 + 2.5;
   return path = [
-    "M" + (-start) + " 10", // left edge, vertical center. Not sure why 10 is needed here?
-    v(-17.5 - 5),
+    "M" + (-start) + " 0", // left edge, vertical center
+    v(-(extraHeightL - 5)),
     tr,
     h(opts.leftWidth-5-5),
     tb,
-    v(17.5 - 5),
+    v(extraHeightL - 5),
     v(3.5),
     h(opts.innerWidth),
     v(-3.5),
-    v(-(17.5 - 5)),
+    v(-(extraHeightR - 5)),
     tr,
     h(opts.rightWidth -5 - 5),
     tb,
-    v(17.5 -5),
+    v(extraHeightR -5),
     v(17.5 -5),
     tl,
     h(-(opts.rightWidth -5)),
@@ -127,34 +128,45 @@ function impILikePath(opts) {
     ].join(" ");
 }
 
-function renderImpILikeBlock(group, blockDesc, forReal) {
+function renderSchieblehre1(group, blockDesc, forReal) {
   pathV = V("<path class='body' fill='#ecf0f1'  stroke='#bdc3c7' stroke-opacity='0.5'/>")
   group.prepend(pathV);
 
-  addPort(group, blockDesc.portsGroup['assumption'][0],
-    'in', 'left', forReal, blockDesc.isPrototype);
-  addPort(group, blockDesc.portsGroup['local hypothesis'][0],
-    'out', 'right', forReal, blockDesc.isPrototype);
-  addPort(group, blockDesc.portsGroup['conclusion'][0],
-    'out', 'right', forReal, blockDesc.isPrototype);
+  var hyp = blockDesc.portsGroup['local hypothesis'][0];
+
+  _.each(blockDesc.portsGroup, function (thesePorts, portType) {
+    _.each(thesePorts, function (portDesc, index) {
+      var direction = ({assumption: 'in', conclusion: 'out', 'local hypothesis': 'out'})[portType];
+      var orientation = ({assumption: 'left', conclusion: 'right', 'local hypothesis': 'right'})[portType];
+      addPort(group, portDesc, direction, orientation, forReal, blockDesc.isPrototype);
+    });
+  });
 }
 
-function updateSizesImpI(el, blockDesc) {
+function updateSizesSchieblehre1(el, blockDesc) {
   // Minimum sizes
   impIConfig = {
     leftWidth: 10,
     innerWidth: 40,
-    rightWidth: 10
+    rightWidth: 10,
+    leftHeight: 30,
+    rightHeight: 30,
   };
+
+  impIConfig.leftHeight = Math.max(impIConfig.leftHeight,
+    (blockDesc.portsGroup['assumption'].length - 2) * 20 + 10);
+      // - 2 as one assumption belongs to the local hypothesis
+  impIConfig.rightHeight = Math.max(impIConfig.rightHeight,
+    (blockDesc.portsGroup['conclusion'].length - 1) * 20 + 10);
 
   // Get label size and position
   var text = el.findOne(".label");
   var textBB = text.bbox(true);
   var shift;
   if (text.hasClass("left")) {
-    impIConfig.leftWidth = Math.max(impIConfig.leftWidth, textBB.width + 10)
+    impIConfig.leftWidth = Math.max(impIConfig.leftWidth, textBB.width + 10, 30)
   } else if (text.hasClass("right") || text.hasClass("center")) {
-    impIConfig.rightWidth = Math.max(impIConfig.rightWidth, textBB.width + 10)
+    impIConfig.rightWidth = Math.max(impIConfig.rightWidth, textBB.width + 10, 30)
   } else {
     throw Error("updateSizesImpI: Unknown label class");
   }
@@ -175,14 +187,33 @@ function updateSizesImpI(el, blockDesc) {
     throw Error("updateSizesImpI: Unknown label class");
   }
 
-  el.findOne("path.body").attr('d', impILikePath(impIConfig));
+  el.findOne("path.body").attr('d', pathDataSchieblehre1(impIConfig));
 
+  // The single assumption
   el.findOne(".port-wrap-" + blockDesc.portsGroup['local hypothesis'][0].id)
     .translate(-impIConfig.innerWidth/2, -10);
-  el.findOne(".port-wrap-" + blockDesc.portsGroup['assumption'][0].id)
+
+  // Find the conclusion for the single as for that
+  var localAssumption = blockDesc.portsGroup['assumption'][0];
+  var otherAssumptions =
+    _.filter(blockDesc.portsGroup['assumption'],
+             function (pd) {return pd.id != localAssumption.id});
+
+  el.findOne(".port-wrap-" + localAssumption.id)
     .translate(impIConfig.innerWidth/2, -10);
-  el.findOne(".port-wrap-" + blockDesc.portsGroup['conclusion'][0].id)
-    .translate(impIConfig.innerWidth/2 + impIConfig.rightWidth, 0);
+
+  var base = otherAssumptions.length > 1 ? 10 : 0;
+  _.each(otherAssumptions, function (portDesc, index) {
+    el.findOne(".port-wrap-" + portDesc.id)
+      .translate(-impIConfig.innerWidth/2 - impIConfig.leftWidth,
+        base - 20 * index);
+  });
+  var base = (blockDesc.portsGroup['conclusion'].length > 1) ? 10 : 0;
+  _.each(blockDesc.portsGroup['conclusion'], function (portDesc, index) {
+    el.findOne(".port-wrap-" + portDesc.id)
+      .translate(impIConfig.innerWidth/2 + impIConfig.rightWidth,
+        base - 20 * index);
+  });
 
   if (blockDesc.number) {
     number = el.findOne(".number");
@@ -247,8 +278,8 @@ function renderBlockDescToSVG(el, blockDesc, forReal) {
   renderDesc(blockDesc.desc, group);
 
   // Some special cases
-  if (looksLikeImpI(blockDesc)) {
-    renderImpILikeBlock(group, blockDesc, forReal);
+  if (looksLikeSchieblehre1(blockDesc)) {
+    renderSchieblehre1(group, blockDesc, forReal);
   } else {
     renderRegularBlock(group, blockDesc, forReal);
   }
@@ -259,8 +290,8 @@ function renderBlockDescToSVG(el, blockDesc, forReal) {
 
 function updateSizes(el, blockDesc) {
   // Some special cases
-  if (looksLikeImpI(blockDesc)) {
-    updateSizesImpI(el, blockDesc);
+  if (looksLikeSchieblehre1(blockDesc)) {
+    updateSizesSchieblehre1(el, blockDesc);
   } else {
     updateSizesRegular(el, blockDesc);
   }
