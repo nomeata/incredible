@@ -313,7 +313,7 @@ $(function (){
       if (data) {
         var pos = paper.clientToLocalPoint({x: event.clientX, y: event.clientY});
         var elem = new joint.shapes.incredible.Generic(_.extend(data, {
-          position: pos,
+          position: g.point(pos.x, pos.y).snapToGrid(paper.options.gridSize),
           number: nextFreeBlockNumber()
         }));
         graph.addCell(elem);
