@@ -542,11 +542,17 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
 
     var cellView = this;
     function resizeSchieblehre(e) {
-      var pos0 = paper.clientToLocalPoint({x: e.pageX, y: e.pageY});
+      var svgPoint = paper.svg.createSVGPoint();
+      svgPoint.x = e.pageX;
+      svgPoint.y = e.pageY;
+      var pos0 = svgPoint.matrixTransform(paper.viewport.getCTM().inverse());
       var action = V(e.target).attr('event');
 
       document.onmousemove = function(e){
-        var pos1 = paper.clientToLocalPoint({x: e.pageX, y: e.pageY});
+        var svgPoint = paper.svg.createSVGPoint();
+        svgPoint.x = e.pageX;
+        svgPoint.y = e.pageY;
+        var pos1 = svgPoint.matrixTransform(paper.viewport.getCTM().inverse());
         cellView.notify('element:schieblehre', action, pos1.x - pos0.x, pos1.y - pos0.y);
         pos0 = pos1;
       };
