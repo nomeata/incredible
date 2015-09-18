@@ -11,6 +11,7 @@ import qualified Data.Set as S
 import Types
 import Lint
 import Rules
+import Analysis
 import ShapeChecks
 import LabelConnections
 
@@ -21,7 +22,12 @@ incredibleLogic ctxt task proof = do
   where
     usedConnections = findUsedConnections ctxt task proof
 
-    connectionLabels = labelConnections ctxt task proof
+    (renamedBlockProps, unificationVariables) = prepare ctxt task proof
+
+    (final_bind, unificationResults) = analyse task proof renamedBlockProps unificationVariables
+
+    connectionLabels = labelConnections task proof renamedBlockProps final_bind unificationResults
+
     unconnectedGoals = findUnconnectedGoals ctxt task proof
     cycles = findCycles ctxt proof
     escapedHypotheses = findEscapedHypotheses ctxt proof

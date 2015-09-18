@@ -8,14 +8,10 @@ import Unification
 import Analysis
 
 
-labelConnections :: Context -> Task -> Proof -> M.Map (Key Connection) ConnLabel
-labelConnections ctxt task proof =
+labelConnections :: Task -> Proof -> BlockProps -> Bindings -> [(Key Connection, UnificationResult)] -> M.Map (Key Connection) ConnLabel
+labelConnections task proof renamedBlockProps final_bind unificationResults =
     M.mapWithKey instantiate (connections proof)
   where
-    (renamedBlockProps, unificationVariables) = prepare ctxt task proof
-
-    (final_bind, unificationResults) = analyse task proof renamedBlockProps unificationVariables
-
     resultsMap :: M.Map (Key Connection) UnificationResult
     resultsMap = M.fromList unificationResults
 

@@ -24,6 +24,7 @@ import Unification
 import ConvertAeson
 import Examples
 import Entry
+import Analysis
 
 
 -- Hack for here
@@ -46,7 +47,7 @@ main = do
         , cycleTests
         , escapedHypothesesTests
         , unconnectedGoalsTests
-        , labelConectionsTests
+        , labelConnectionsTests
         , unificationTests
         , exampleTests examples analyses
         ]
@@ -88,10 +89,13 @@ unconnectedGoalsTests = testGroup "Unsolved goals"
   , testCase "complete"  $ findUnconnectedGoals impILogic simpleTask completeProof @?= []
   ]
 
-labelConectionsTests = testGroup "Label Connections"
-  [ testCase "complete" $ labelConnections impILogic simpleTask completeProof @?=
+labelConnectionsTests = testGroup "Label Connections"
+  [ testCase "complete" $ labelConnections simpleTask completeProof renamedBlockProps final_bind unificationResults @?=
         M.fromList [("c1",Ok $ C "Prop"),("c2", Ok $ App (C "→") [C "Prop", C "Prop"])]
   ]
+  where
+    (renamedBlockProps, unificationVariables) = prepare impILogic simpleTask completeProof
+    (final_bind, unificationResults) = analyse simpleTask completeProof renamedBlockProps unificationVariables
 
 unificationTests = testGroup "Unification tests"
   [ testCase "unify pred" $
