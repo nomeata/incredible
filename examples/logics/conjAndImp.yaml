@@ -1,4 +1,46 @@
 rules:
+- id: foo
+  desc:
+    intro: "!"
+  free: ["A","B"]
+  ports:
+    hyp:
+      type: local hypothesis
+      consumedBy: in
+      proposition: A
+    in:
+      type: assumption
+      proposition: B
+    hyp2:
+      type: local hypothesis
+      consumedBy: in2
+      proposition: A
+    in2:
+      type: assumption
+      proposition: B
+    out:
+      type: conclusion
+      proposition: A→B
+    out2:
+      type: assumption
+      proposition: A→B
+    out3:
+      type: assumption
+      proposition: A→B
+- id: conjI
+  desc:
+    intro: ∧
+  free: ["A","B"]
+  ports:
+    in1:
+      type: assumption
+      proposition: A
+    in2:
+      type: assumption
+      proposition: B
+    out:
+      type: conclusion
+      proposition: A∧B
 - id: conjI
   desc:
     intro: ∧

@@ -88,8 +88,10 @@ function renderDesc(desc, group) {
 
 
 function looksLikeSchieblehre1(blockDesc) {
-  // Support not complete
   return (blockDesc.portsGroup['local hypothesis']||[]).length == 1;
+}
+function looksLikeSchieblehre2(blockDesc) {
+  return (blockDesc.portsGroup['local hypothesis']||[]).length == 2;
 }
 
 function pathDataSchieblehre1(opts) {
@@ -129,15 +131,53 @@ function pathDataSchieblehre1(opts) {
     ].join(" ");
 }
 
+function pathDataSchieblehre2(opts) {
+  var start = -opts.leftWidth - opts.innerWidthLeft;
+  var h = function(x) { return "h" + x };
+  var v = function(x) { return "v" + x };
+  var tr = "a 5 5 0 0 1 5 -5";
+  var tb = "a 5 5 0 0 1 5 5";
+  var tl = "a 5 5 0 0 1 -5 5";
+  var tu = "a 5 5 0 0 1 -5 -5";
+  // height above the zero line
+  var extraHeightL = opts.leftHeight/2 + 2.5;
+  var extraHeightR = opts.rightHeight/2 + 2.5;
+  return path = [
+    "M" + start + " 0", // left edge, vertical center
+    v(-(extraHeightL - 5)),
+    tr,
+    h(opts.leftWidth-5-5),
+    tb,
+    v(extraHeightL - 5 - 3.5),
+    h(opts.innerWidthLeft),
+    h(opts.innerWidthRight),
+    v(-(extraHeightR - 5 - 3.5)),
+    tr,
+    h(opts.rightWidth -5 - 5),
+    tb,
+    v(extraHeightR -5),
+    v(extraHeightR -5),
+    tl,
+    h(-(opts.rightWidth -5 - 5)),
+    tu,
+    v(-(extraHeightR - 5 - 3.5)),
+    h(-(opts.innerWidthRight)),
+    h(-(opts.innerWidthLeft)),
+    v(extraHeightL - 5 - 3.5),
+    tl,
+    h(-(opts.leftWidth-5-5)),
+    tu,
+    v(-(extraHeightL - 5)),
+    "Z"
+    ].join(" ");
+}
 
-function renderSchieblehre1(group, blockDesc, forReal) {
+function renderSchieblehre(group, blockDesc, forReal) {
   var handlerLeft = V("<rect class='resize-left' opacity='0' event='resize-left'/>");
   var handlerRight = V("<rect class='resize-right' opacity='0' event='resize-right'/>");
   group.append(handlerLeft);
   group.append(handlerRight);
   group.prepend(V("<path class='body' fill='#ecf0f1'  stroke='#bdc3c7' stroke-opacity='0.5'/>"));
-
-  var hyp = blockDesc.portsGroup['local hypothesis'][0];
 
   _.each(blockDesc.portsGroup, function (thesePorts, portType) {
     _.each(thesePorts, function (portDesc, index) {
@@ -147,6 +187,7 @@ function renderSchieblehre1(group, blockDesc, forReal) {
     });
   });
 }
+
 
 function updateSizesSchieblehre1(el, blockDesc) {
   // Minimum sizes
@@ -260,6 +301,131 @@ function updateSizesSchieblehre1(el, blockDesc) {
   }
 }
 
+function updateSizesSchieblehre2(el, blockDesc) {
+  // Minimum sizes
+  impIConfig = {
+    leftWidth: 10,
+    innerWidthLeft:  20,
+    innerWidthRight: 20+(blockDesc.schieblehrewidth||0),
+    rightWidth: 10,
+    leftHeight: 30,
+    rightHeight: 30,
+  };
+
+  impIConfig.leftHeight = Math.max(impIConfig.leftHeight,
+    (blockDesc.portsGroup['assumption'].length - 3) * 20 + 10);
+      // - 3 as two assumptions belong to the local hypotheses
+  impIConfig.rightHeight = Math.max(impIConfig.rightHeight,
+    (blockDesc.portsGroup['conclusion'].length - 1) * 20 + 10);
+
+  // Get label size and position
+  var text = el.findOne(".label");
+  var textBB = text.bbox(true);
+  var shift;
+  if (text.hasClass("left")) {
+    impIConfig.leftWidth = Math.max(impIConfig.leftWidth, textBB.width + 10, 30)
+  } else if (text.hasClass("right") || text.hasClass("center")) {
+    impIConfig.rightWidth = Math.max(impIConfig.rightWidth, textBB.width + 10, 30)
+  } else {
+    throw Error("updateSizesImpI: Unknown label class");
+  }
+  impIConfig.leftWidth = Math.ceil(impIConfig.leftWidth / 10) * 10;
+  impIConfig.rightWidth = Math.ceil(impIConfig.rightWidth / 10) * 10;
+
+  if (text.hasClass("left")) {
+    text
+      .attr('transform','')
+      .translate(- textBB.width/2, - textBB.height/2)
+      .translate(- impIConfig.innerWidthLeft - impIConfig.leftWidth/2, 0);
+  } else if (text.hasClass("right") || text.hasClass("center")) {
+    text
+      .attr('transform','')
+      .translate(- textBB.width/2, - textBB.height/2)
+      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth/2, 0);
+  } else {
+    throw Error("updateSizesImpI: Unknown label class");
+  }
+
+  el.findOne("path.body").attr('d', pathDataSchieblehre2(impIConfig));
+
+  if (!blockDesc.isPrototype) {
+    el.findOne("rect.resize-left")
+      .attr('transform','')
+      .attr({width: impIConfig.leftWidth, height: impIConfig.leftHeight})
+      .translate(-impIConfig.innerWidthLeft - impIConfig.leftWidth,
+                 -impIConfig.leftHeight/2);
+    el.findOne("rect.resize-right")
+      .attr('transform','')
+      .attr({width: impIConfig.rightWidth, height: impIConfig.rightHeight})
+      .translate( impIConfig.innerWidthRight,
+                 -impIConfig.rightHeight/2);
+  }
+
+  // The first hypothesis
+  var hyp1 = blockDesc.portsGroup['local hypothesis'][0]
+  el.findOne(".port-wrap-" + hyp1.id)
+    .attr('transform','')
+    .translate(-impIConfig.innerWidthLeft, -10);
+  // The second hypothesis
+  var hyp2 = blockDesc.portsGroup['local hypothesis'][1]
+  el.findOne(".port-wrap-" + hyp2.id)
+    .attr('transform','')
+    .translate(-impIConfig.innerWidthLeft, 10);
+
+  // Find the conclusion for the single as for that
+  var localAssumption1 =
+    _.find(blockDesc.portsGroup['assumption'],
+             function (pd) {return pd.id == hyp1.consumedBy});
+  var localAssumption2 =
+    _.find(blockDesc.portsGroup['assumption'],
+             function (pd) {return pd.id == hyp2.consumedBy});
+  var otherAssumptions =
+    _.filter(blockDesc.portsGroup['assumption'],
+             function (pd) {return pd.id != hyp1.consumedBy && pd.id != hyp2.consumedBy});
+
+  el.findOne(".port-wrap-" + localAssumption1.id)
+    .attr('transform','')
+    .translate(impIConfig.innerWidthRight, -10);
+
+  el.findOne(".port-wrap-" + localAssumption2.id)
+    .attr('transform','')
+    .translate(impIConfig.innerWidthRight, 10);
+
+  var base = 10 * (otherAssumptions.length-1);
+  _.each(otherAssumptions, function (portDesc, index) {
+    el.findOne(".port-wrap-" + portDesc.id)
+      .attr('transform','')
+      .translate(-impIConfig.innerWidthLeft - impIConfig.leftWidth,
+        base - 20 * index);
+  });
+  var base = 10 * (blockDesc.portsGroup['conclusion'].length - 1);
+  _.each(blockDesc.portsGroup['conclusion'], function (portDesc, index) {
+    el.findOne(".port-wrap-" + portDesc.id)
+      .attr('transform','')
+      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth,
+        base - 20 * index);
+  });
+
+  if (blockDesc.number) {
+    number = el.findOne(".number");
+    var bb = number.bbox(true);
+    number
+      .attr('transform','')
+      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth - bb.width - 5, 17.5 - bb.height - 1);
+  }
+
+  if (blockDesc.canRemove) {
+    el.findOne(".tool-remove")
+      .attr('transform','')
+      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth - 10, -35/2);
+  }
+
+  // Make sure these asymmetric blocks are still nicely aligned in the logic view
+  if (blockDesc.isPrototype) {
+    el.findOne(".block").translate((impIConfig.leftWidth - impIConfig.rightWidth)/2);
+  }
+}
+
 
 function renderRegularBlock(group, blockDesc, forReal) {
   var rect = V("<rect class='body' fill='#ecf0f1' rx='5' ry='5' stroke='#bdc3c7' stroke-opacity='0.5'/>");
@@ -294,7 +460,9 @@ function renderBlockDescToSVG(el, blockDesc, forReal) {
 
   // Some special cases
   if (looksLikeSchieblehre1(blockDesc)) {
-    renderSchieblehre1(group, blockDesc, forReal);
+    renderSchieblehre(group, blockDesc, forReal);
+  } else if (looksLikeSchieblehre2(blockDesc)) {
+    renderSchieblehre(group, blockDesc, forReal);
   } else {
     renderRegularBlock(group, blockDesc, forReal);
   }
@@ -320,6 +488,8 @@ function updateSizes(el, blockDesc) {
   // Some special cases
   if (looksLikeSchieblehre1(blockDesc)) {
     updateSizesSchieblehre1(el, blockDesc);
+  } else if (looksLikeSchieblehre2(blockDesc)) {
+    updateSizesSchieblehre2(el, blockDesc);
   } else {
     updateSizesRegular(el, blockDesc);
   }
