@@ -77,7 +77,7 @@ function setupGraph(graph, logic, task) {
 }
 
 function renderBlockDescToDraggable(blockDesc, container) {
-  var el = $('<div><svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"></div>');
+  var el = $('<div><svg xmlns="http://www.w3.org/2000/svg"></div>');
   container.append(el);
   var vel = V(el.find("svg").get(0));
 
@@ -88,7 +88,7 @@ function renderBlockDescToDraggable(blockDesc, container) {
   gBB = g.bbox(false);
   g.translate($(el).width()/2, -gBB.y + 5)
 
-  $(el).height(gBB.height + 10);
+  vel.attr({'width': container.width(), 'height': gBB.height + 10 });
   $(el).data('elementData', blockDesc.data);
   $(el).draggable({
     appendTo: "body",
