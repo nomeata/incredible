@@ -74,10 +74,10 @@ function renderDesc(desc, group) {
     text = V("<text class='label center' font-family='sans' fill='black'/>");
     text.text(desc.label);
   } else if (desc.intro) {
-    text = V("<text class='label left' font-family='sans' fill='black'/>");
+    text = V("<text class='label right' font-family='sans' fill='black'/>");
     text.text(desc.intro);
   } else if (desc.elim) {
-    text = V("<text class='label right' font-family='sans' fill='black'/>");
+    text = V("<text class='label left' font-family='sans' fill='black'/>");
     text.text(desc.elim);
   } else {
     throw Error("renderDesc: Unknown label desc " + JSON.stringify(desc));
@@ -88,7 +88,6 @@ function renderDesc(desc, group) {
 
 function looksLikeImpI(blockDesc) {
   // Support not complete
-  return false;
   return (blockDesc.portsGroup['local hypothesis']||[]).length == 1 &&
          (blockDesc.portsGroup['assumption']||[]).length == 1 &&
          (blockDesc.portsGroup['conclusion']||[]).length == 1
@@ -130,7 +129,7 @@ function impILikePath(opts) {
 
 function renderImpILikeBlock(group, blockDesc, forReal) {
   pathV = V("<path class='body' fill='#ecf0f1'  stroke='#bdc3c7' stroke-opacity='0.5'/>")
-  group.append(pathV);
+  group.prepend(pathV);
 
   addPort(group, blockDesc.portsGroup['assumption'][0],
     'in', 'left', forReal, blockDesc.isPrototype);
@@ -138,23 +137,44 @@ function renderImpILikeBlock(group, blockDesc, forReal) {
     'out', 'right', forReal, blockDesc.isPrototype);
   addPort(group, blockDesc.portsGroup['conclusion'][0],
     'out', 'right', forReal, blockDesc.isPrototype);
-
-  /*
-  addPort(group, blockDesc.portsGroup['assumption'][0],
-    {x:impIConfig.innerWidth/2, y:-10}, 'in', 'left', forReal, blockDesc.isPrototype);
-  addPort(group, blockDesc.portsGroup['local hypothesis'][0],
-    {x:-impIConfig.innerWidth/2, y:-10}, 'out', 'right', forReal, blockDesc.isPrototype);
-  addPort(group, blockDesc.portsGroup['conclusion'][0],
-    {x:impIConfig.innerWidth/2 + impIConfig.rightWidth, y:0}, 'out', 'right', forReal, blockDesc.isPrototype);
-  */
 }
 
 function updateSizesImpI(el, blockDesc) {
+  // Minimum sizes
   impIConfig = {
     leftWidth: 10,
-    innerWidth: 50,
-    rightWidth: 40
+    innerWidth: 40,
+    rightWidth: 10
   };
+
+  // Get label size and position
+  var text = el.findOne(".label");
+  var textBB = text.bbox(true);
+  var shift;
+  if (text.hasClass("left")) {
+    impIConfig.leftWidth = Math.max(impIConfig.leftWidth, textBB.width + 10)
+  } else if (text.hasClass("right") || text.hasClass("center")) {
+    impIConfig.rightWidth = Math.max(impIConfig.rightWidth, textBB.width + 10)
+  } else {
+    throw Error("updateSizesImpI: Unknown label class");
+  }
+  impIConfig.leftWidth = Math.ceil(impIConfig.leftWidth / 10) * 10;
+  impIConfig.rightWidth = Math.ceil(impIConfig.rightWidth / 10) * 10;
+
+  if (text.hasClass("left")) {
+    text
+      .attr('transform','')
+      .translate(- textBB.width/2, - textBB.height/2)
+      .translate(- impIConfig.innerWidth/2 - impIConfig.leftWidth/2, 0);
+  } else if (text.hasClass("right") || text.hasClass("center")) {
+    text
+      .attr('transform','')
+      .translate(- textBB.width/2, - textBB.height/2)
+      .translate(impIConfig.innerWidth/2 + impIConfig.rightWidth/2, 0);
+  } else {
+    throw Error("updateSizesImpI: Unknown label class");
+  }
+
   el.findOne("path.body").attr('d', impILikePath(impIConfig));
 
   el.findOne(".port-wrap-" + blockDesc.portsGroup['local hypothesis'][0].id)
@@ -163,22 +183,29 @@ function updateSizesImpI(el, blockDesc) {
     .translate(impIConfig.innerWidth/2, -10);
   el.findOne(".port-wrap-" + blockDesc.portsGroup['conclusion'][0].id)
     .translate(impIConfig.innerWidth/2 + impIConfig.rightWidth, 0);
+
+  if (blockDesc.number) {
+    number = el.findOne(".number");
+    var bb = number.bbox(true);
+    number
+      .attr('transform','')
+      .translate(impIConfig.innerWidth/2 + impIConfig.rightWidth - bb.width - 5, 17.5 - bb.height - 1);
+  }
+
+  if (blockDesc.canRemove) {
+    el.findOne(".tool-remove")
+      .attr('transform','')
+      .translate(impIConfig.innerWidth/2 + impIConfig.rightWidth - 10, -35/2);
+  }
+
+  // Make sure these asymmetric blocks are still nicely aligned in the logic view
+  el.findOne(".block").translate((impIConfig.leftWidth - impIConfig.rightWidth)/2);
 }
 
 
 function renderRegularBlock(group, blockDesc, forReal) {
-  var textBB = renderDesc(blockDesc.desc, group);
-
   var rect = V("<rect class='body' fill='#ecf0f1' rx='5' ry='5' stroke='#bdc3c7' stroke-opacity='0.5'/>");
   group.prepend(rect);
-
-  if (blockDesc.number) {
-    var numberLabel = V('<text class="number"></text>');
-    numberLabel.text(blockDesc.number.toString());
-    group.append(numberLabel);
-    bb = numberLabel.bbox(true);
-  }
-
   _.each(blockDesc.portsGroup, function (thesePorts, portType) {
     _.each(thesePorts, function (portDesc, index) {
       var direction = ({assumption: 'in', conclusion: 'out', 'local hypothesis': 'out'})[portType];
@@ -210,6 +237,14 @@ function renderBlockDescToSVG(el, blockDesc, forReal) {
     var tool = V(markup);
     group.append(tool);
   }
+
+  if (blockDesc.number) {
+    var numberLabel = V('<text class="number"></text>');
+    numberLabel.text(blockDesc.number.toString());
+    group.append(numberLabel);
+  }
+
+  renderDesc(blockDesc.desc, group);
 
   // Some special cases
   if (looksLikeImpI(blockDesc)) {
@@ -268,6 +303,7 @@ function updateSizesRegular(el, blockDesc) {
   });
   width = Math.max(width, textBB.width + 10);
   height = Math.max(height, textBB.height + 10);
+  width = Math.ceil(width / 10) * 10;
 
   el.findOne("rect.body")
     .attr({width: width, height: height})
@@ -276,7 +312,9 @@ function updateSizesRegular(el, blockDesc) {
 
   if (blockDesc.number) {
     // lower right corner
-    el.findOne(".number")
+    number = el.findOne(".number");
+    var bb = number.bbox(true);
+    number
       .attr('transform','')
       .translate(- bb.width + width/2 - 5, -bb.height + height/2 - 1);
   }
