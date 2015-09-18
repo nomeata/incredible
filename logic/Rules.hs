@@ -29,13 +29,17 @@ deriveRule ctxt proof labels = Rule {ports = rulePorts, localVars = [], freeVars
 
     surfaceBlocks = S.fromList $ map fst openPorts
 
-    blockLabels = M.fromListWith M.union
+    blockLabels = M.fromListWith M.union $
       [ (bKey, M.fromList [(pKey, cProp)])
-      | (cKey, (Connection from@(BlockPort fromB _) to@(BlockPort toB _))) <- M.toList $ connections proof
-      , fromB `S.member` surfaceBlocks || toB `S.member` surfaceBlocks
-      , let (BlockPort bKey pKey) = if fromB `S.member` surfaceBlocks then from else to
-      , let Ok cProp = labels M.! cKey
-      ]
+      | (cKey, (Connection from@(BlockPort fromB _) _)) <- M.toList $ connections proof
+      , fromB `S.member` surfaceBlocks
+      , let (BlockPort bKey pKey) = from
+      , let Ok cProp = labels M.! cKey ] ++
+      [ (bKey, M.fromList [(pKey, cProp)])
+      | (cKey, (Connection _ to@(BlockPort toB _))) <- M.toList $ connections proof
+      , toB `S.member` surfaceBlocks
+      , let (BlockPort bKey pKey) = to
+      , let Ok cProp = labels M.! cKey ]
 
     relabeledPorts = concat
       [ ports
