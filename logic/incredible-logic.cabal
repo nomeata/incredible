@@ -33,7 +33,8 @@ library
                      Unification,
                      Scopes,
                      ConvertAeson,
-                     Rules
+                     Rules,
+                     Analysis
   build-depends:     base >=4.7 && <4.9,
                      aeson,
                      text,
