@@ -93,7 +93,7 @@ function looksLikeSchieblehre1(blockDesc) {
 }
 
 function pathDataSchieblehre1(opts) {
-  var start = opts.leftWidth + opts.innerWidth/2;
+  var start = -opts.leftWidth - opts.innerWidthLeft;
   var h = function(x) { return "h" + x };
   var v = function(x) { return "v" + x };
   var tr = "a 5 5 0 0 1 5 -5";
@@ -104,14 +104,15 @@ function pathDataSchieblehre1(opts) {
   var extraHeightL = opts.leftHeight - 15 + 2.5;
   var extraHeightR = opts.rightHeight - 15 + 2.5;
   return path = [
-    "M" + (-start) + " 0", // left edge, vertical center
+    "M" + start + " 0", // left edge, vertical center
     v(-(extraHeightL - 5)),
     tr,
     h(opts.leftWidth-5-5),
     tb,
     v(extraHeightL - 5),
     v(3.5),
-    h(opts.innerWidth),
+    h(opts.innerWidthLeft),
+    h(opts.innerWidthRight),
     v(-3.5),
     v(-(extraHeightR - 5)),
     tr,
@@ -121,7 +122,8 @@ function pathDataSchieblehre1(opts) {
     v(17.5 -5),
     tl,
     h(-(opts.rightWidth -5)),
-    h(-opts.innerWidth),
+    h(-opts.innerWidthRight),
+    h(-opts.innerWidthLeft),
     h(-(opts.leftWidth -5)),
     tu,
     v(-17.5 -5),
@@ -129,9 +131,13 @@ function pathDataSchieblehre1(opts) {
     ].join(" ");
 }
 
+
 function renderSchieblehre1(group, blockDesc, forReal) {
-  pathV = V("<path class='body' fill='#ecf0f1'  stroke='#bdc3c7' stroke-opacity='0.5'/>")
-  group.prepend(pathV);
+  var handlerLeft = V("<rect class='resize-left' opacity='0' event='resize-left'/>");
+  var handlerRight = V("<rect class='resize-right' opacity='0' event='resize-right'/>");
+  group.append(handlerLeft);
+  group.append(handlerRight);
+  group.prepend(V("<path class='body' fill='#ecf0f1'  stroke='#bdc3c7' stroke-opacity='0.5'/>"));
 
   var hyp = blockDesc.portsGroup['local hypothesis'][0];
 
@@ -148,7 +154,8 @@ function updateSizesSchieblehre1(el, blockDesc) {
   // Minimum sizes
   impIConfig = {
     leftWidth: 10,
-    innerWidth: 40,
+    innerWidthLeft:  20+(blockDesc.schieblehrewidthLeft||0),
+    innerWidthRight: 20+(blockDesc.schieblehrewidthRight||0),
     rightWidth: 10,
     leftHeight: 30,
     rightHeight: 30,
@@ -178,22 +185,35 @@ function updateSizesSchieblehre1(el, blockDesc) {
     text
       .attr('transform','')
       .translate(- textBB.width/2, - textBB.height/2)
-      .translate(- impIConfig.innerWidth/2 - impIConfig.leftWidth/2, 0);
+      .translate(- impIConfig.innerWidthLeft - impIConfig.leftWidth/2, 0);
   } else if (text.hasClass("right") || text.hasClass("center")) {
     text
       .attr('transform','')
       .translate(- textBB.width/2, - textBB.height/2)
-      .translate(impIConfig.innerWidth/2 + impIConfig.rightWidth/2, 0);
+      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth/2, 0);
   } else {
     throw Error("updateSizesImpI: Unknown label class");
   }
 
   el.findOne("path.body").attr('d', pathDataSchieblehre1(impIConfig));
+  if (!blockDesc.isPrototype) {
+    el.findOne("rect.resize-left")
+      .attr('transform','')
+      .attr({width: impIConfig.leftWidth, height: impIConfig.leftHeight})
+      .translate(-impIConfig.innerWidthLeft - impIConfig.leftWidth,
+                 -impIConfig.leftHeight + 15);
+    el.findOne("rect.resize-right")
+      .attr('transform','')
+      .attr({width: impIConfig.rightWidth, height: impIConfig.rightHeight})
+      .translate( impIConfig.innerWidthRight,
+                 -impIConfig.rightHeight + 15);
+  }
 
   // The single hypothesis
   var hyp = blockDesc.portsGroup['local hypothesis'][0]
   el.findOne(".port-wrap-" + hyp.id)
-    .translate(-impIConfig.innerWidth/2, -10);
+    .attr('transform','')
+    .translate(-impIConfig.innerWidthLeft, -10);
 
   // Find the conclusion for the single as for that
   var localAssumption =
@@ -204,18 +224,21 @@ function updateSizesSchieblehre1(el, blockDesc) {
              function (pd) {return pd.id != hyp.consumedBy});
 
   el.findOne(".port-wrap-" + localAssumption.id)
-    .translate(impIConfig.innerWidth/2, -10);
+    .attr('transform','')
+    .translate(impIConfig.innerWidthRight, -10);
 
   var base = otherAssumptions.length > 1 ? 10 : 0;
   _.each(otherAssumptions, function (portDesc, index) {
     el.findOne(".port-wrap-" + portDesc.id)
-      .translate(-impIConfig.innerWidth/2 - impIConfig.leftWidth,
+      .attr('transform','')
+      .translate(-impIConfig.innerWidthLeft - impIConfig.leftWidth,
         base - 20 * index);
   });
   var base = (blockDesc.portsGroup['conclusion'].length > 1) ? 10 : 0;
   _.each(blockDesc.portsGroup['conclusion'], function (portDesc, index) {
     el.findOne(".port-wrap-" + portDesc.id)
-      .translate(impIConfig.innerWidth/2 + impIConfig.rightWidth,
+      .attr('transform','')
+      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth,
         base - 20 * index);
   });
 
@@ -224,17 +247,19 @@ function updateSizesSchieblehre1(el, blockDesc) {
     var bb = number.bbox(true);
     number
       .attr('transform','')
-      .translate(impIConfig.innerWidth/2 + impIConfig.rightWidth - bb.width - 5, 17.5 - bb.height - 1);
+      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth - bb.width - 5, 17.5 - bb.height - 1);
   }
 
   if (blockDesc.canRemove) {
     el.findOne(".tool-remove")
       .attr('transform','')
-      .translate(impIConfig.innerWidth/2 + impIConfig.rightWidth - 10, -35/2);
+      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth - 10, -35/2);
   }
 
   // Make sure these asymmetric blocks are still nicely aligned in the logic view
-  el.findOne(".block").translate((impIConfig.leftWidth - impIConfig.rightWidth)/2);
+  if (blockDesc.isPrototype) {
+    el.findOne(".block").translate((impIConfig.leftWidth - impIConfig.rightWidth)/2);
+  }
 }
 
 
@@ -480,6 +505,8 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     if (this.model.get('conclusion')) {
       this.listenTo(this.model, 'change:qed', this.update);
     };
+    this.listenTo(this.model, 'change:schieblehrewidthLeft', this.updateSizes);
+    this.listenTo(this.model, 'change:schieblehrewidthRight', this.updateSizes);
   },
 
   getBlockDesc: function () {
@@ -504,11 +531,46 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     }
     blockDesc.number = number;
 
+    blockDesc.schieblehrewidthLeft = this.model.get('schieblehrewidthLeft');
+    blockDesc.schieblehrewidthRight = this.model.get('schieblehrewidthRight');
+
     return blockDesc;
   },
 
   renderMarkup: function() {
     renderBlockDescToSVG(this.vel, this.getBlockDesc(), true);
+
+    var cellView = this;
+    function resizeSchieblehre(e) {
+      var init = {};
+      init.x = e.pageX;
+      init.y = e.pageY;
+      var action = V(e.target).attr('event');
+
+      document.onmousemove = function(e){
+        var dX = e.pageX - init.x;
+        var dY = e.pageY - init.y;
+        cellView.notify('element:schieblehre', action, dX, dY);
+        init.x = e.pageX;
+        init.y = e.pageY;
+      };
+
+      document.onmouseup = function(e){
+        document.onmousemove = null;
+        document.onmouseup = null;
+      };
+      e.stopPropagation();
+    }
+    _.each(this.vel.find(".resize-left"), function (vel) {
+      vel.node.addEventListener("mousedown", resizeSchieblehre);
+    });
+    _.each(this.vel.find(".resize-right"), function (vel) {
+      vel.node.addEventListener("mousedown", resizeSchieblehre);
+    });
+  },
+
+  updateSizes: function () {
+      updateSizes(this.vel, this.getBlockDesc());
   },
 
   update: function () {

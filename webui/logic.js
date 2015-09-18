@@ -325,6 +325,29 @@ $(function (){
   graph.set('loading', false);
 });
 
+paper.on('element:schieblehre',function(cellView, direction, dx, dy) {
+  if (direction == "resize-left") {
+    var oldWidth = cellView.model.get('schieblehrebasewidthLeft') || 0;
+    cellView.model.set('schieblehrebasewidthLeft', oldWidth - dx);
+  } else if (direction == "resize-right") {
+    var oldWidth = cellView.model.get('schieblehrebasewidthRight') || 0;
+    cellView.model.set('schieblehrebasewidthRight', oldWidth + dx);
+  } else {
+    throw Error("element:schieblehre: Unknown direction " + direction)
+  }
+});
+
+
+// By passing the data through another property we avoid redraws
+// when the change is actually not present, due to the grid size.
+graph.on('change:schieblehrebasewidthRight', function (model, width, options) {
+  model.set('schieblehrewidthRight', Math.max(0, g.snapToGrid(width, paper.options.gridSize)));
+});
+
+graph.on('change:schieblehrebasewidthLeft', function (model, width, options) {
+  model.set('schieblehrewidthLeft', Math.max(0, g.snapToGrid(width, paper.options.gridSize)));
+});
+
 graph.on('change:position', function (model, pos1, options) {
   if (options.derivedMove) { return; }
 

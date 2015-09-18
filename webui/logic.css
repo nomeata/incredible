@@ -97,6 +97,12 @@
     cursor: move
 }
 
+.block .resize-left {
+    cursor: ew-resize
+}
+.block .resize-right {
+    cursor: ew-resize
+}
 .block .number {
     fill: #000;
     opacity: 0.5;
