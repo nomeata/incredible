@@ -1,6 +1,8 @@
 module Rules where
 
 import Types
+import Propositions
+import Unification
 import Data.Tagged
 
 import qualified Data.Map as M
@@ -27,19 +29,46 @@ deriveRule ctxt proof labels = Rule {ports = rulePorts, localVars = [], freeVars
 
     surfaceBlocks = S.fromList $ map fst openPorts
 
-    blockLabels = M.fromList
-      [ (bKey, (pKey, cProp))
+    blockLabels = M.fromListWith M.union
+      [ (bKey, M.fromList [(pKey, cProp)])
       | (cKey, (Connection from@(BlockPort fromB _) to@(BlockPort toB _))) <- M.toList $ connections proof
       , fromB `S.member` surfaceBlocks || toB `S.member` surfaceBlocks
       , let (BlockPort bKey pKey) = if fromB `S.member` surfaceBlocks then from else to
       , let Ok cProp = labels M.! cKey
       ]
 
-    relabeledPorts = -- TODO relabel!
-      [ port
+    relabeledPorts = concat
+      [ ports
+      | bKey <- S.toList surfaceBlocks
+      , let ports = relabelPorts ctxt (blocks proof M.! bKey) (blockLabels M.! bKey) (map snd $ filter (\(a, _) -> a == bKey) openPorts) ]
+
+    dummyPorts =
+      [ p
       | (bKey, pKey) <- openPorts
-      , let block = blocks proof M.! bKey
-      , let rule = block2Rule ctxt block
-      , let port = ports rule M.! pKey ]
+      , let p = (ports (block2Rule ctxt (blocks proof M.! bKey))) M.! pKey ]
 
     rulePorts = M.fromList $ zip portNames relabeledPorts
+
+relabelPorts :: Context -> Block -> M.Map (Key Port) Proposition -> [Key Port] -> [Port]
+relabelPorts ctxt block labels openPorts =
+  [ port
+  | pKey <- openPorts
+  , let rule = block2Rule ctxt block
+  , let Port typ prop scopes = (ports rule) M.! pKey
+  , let port = Port typ (applyBinding bind prop) scopes ]
+ where
+  varsAndEqs =
+    [ (vars, (pKey, (portProp, labelProp)))
+    | (pKey, labelProp) <- M.toList labels
+    , let rule = block2Rule ctxt block
+    , let Port _ portProp _ = (ports rule) M.! pKey
+    , let vars = concat [ localVars rule, allVars labelProp ] ]
+  vars = concat $ map fst varsAndEqs
+  equations = map snd varsAndEqs
+  (bind, _) = unifyLiberally vars equations
+
+allVars :: Term -> [Var]
+allVars (C _) = []
+allVars (V var) = [var]
+allVars (App _ args) = concat (map allVars args)
+--allVars (Lam (Bind _ args)) = concat (map allVars args)
