@@ -2,9 +2,11 @@
 module LabelConnections where
 
 import qualified Data.Map as M
+import Data.Map ((!))
 
 import Types
 import Unification
+import Propositions
 import Analysis
 
 
@@ -25,5 +27,8 @@ labelConnections task proof renamedBlockProps final_bind unificationResults =
             Dunno  -> DunnoLabel propFrom propTo
             Failed -> Mismatch propFrom propTo
       where
-        propFromMB = applyBinding final_bind <$> propAt task renamedBlockProps (connFrom conn)
-        propToMB   = applyBinding final_bind <$> propAt task renamedBlockProps (connTo conn)
+        propFromMB = applyBinding' highest final_bind <$> propAt task renamedBlockProps (connFrom conn)
+        propToMB   = applyBinding' highest final_bind <$> propAt task renamedBlockProps (connTo conn)
+
+    -- It is far to costly to do that in every invocatio to applyBinding below
+    highest = firstFree (M.toList final_bind, map M.elems (M.elems renamedBlockProps))

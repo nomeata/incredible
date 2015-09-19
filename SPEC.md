@@ -150,9 +150,11 @@ This data structure describes everything the logic has to tell the UI about a gi
 
   * `analysis`: Object with a bunch of fields:
 
-      * `connectionLabels`: Map from connection keys to either
-          - propositions (strings), for those connections where a proposition could be inferred or
-          - objects with field `propIn` and `propOut`, where unification failed.
+      * `connectionLabels`: Map from connection keys to objects with a
+          - field `type`, which is either `ok`, `unconnected`, `dunno` or `mismatch`,
+          - a field `prop`, with the proposition on that connection (only for `type == ok`),
+          - fields `propIn` and `propOut`, with the failed or partial
+            unification result on either end.
       * `unconnectedGoals`: A list of ports references (see above) of type
         assumption that need to be connected before the proof is complete.
       * `cycles`: A list of cycles, where every cycle is a list of connection

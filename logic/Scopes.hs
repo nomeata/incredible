@@ -43,7 +43,8 @@ calculateScopes ctxt task proof = scopes
     graph = IM.fromList $
         [ (obj2node M.! (Left blockKey), findSuccs blockKey) | blockKey <- M.keys (blocks proof) ] ++
         [ (obj2node M.! (Right ps), IS.singleton (obj2node M.! Left blockKey)) | ps@(BlockPort blockKey _) <- portSpecs ] ++
-        [ (c,IS.singleton exitNode) | c <- conclusionNodes ]
+        [ (c,IS.singleton exitNode) | c <- conclusionNodes ] ++
+        [ (exitNode, IS.empty) ]
 
     findSuccs :: Key Block -> IS.IntSet
     findSuccs blockKey = IS.fromList $ fakeExit $ catMaybes $

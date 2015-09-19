@@ -2,31 +2,40 @@
   "task": "beer",
   "blocks": {
     "202f6e6f-e804-4b30-9248-b523e49d10d7": {
-      "rule": "disjE"
+      "rule": "disjE",
+      "number": 1
     },
     "413b5c61-ceb9-4625-af38-fddc86634fb5": {
-      "rule": "TND"
+      "rule": "TND",
+      "number": 2
     },
     "96e1fce4-cd45-47bc-abfc-986634dbd1c7": {
-      "rule": "impI"
+      "rule": "impI",
+      "number": 3
     },
     "b9bef4b3-48d4-4d43-a0f7-102b14a3b8bf": {
-      "rule": "exI"
+      "rule": "exI",
+      "number": 4
     },
     "6de72240-ae2d-4ad6-a7b5-40363128d7e0": {
-      "rule": "exI"
+      "rule": "exI",
+      "number": 5
     },
     "d1b34a7a-ca0d-4e11-9f96-afb9689c3380": {
-      "rule": "impI"
+      "rule": "impI",
+      "number": 6
     },
     "ae19a252-39d4-4375-b6d9-21eb4afed322": {
-      "rule": "falseE"
+      "rule": "falseE",
+      "number": 7
     },
     "2408506a-6eac-4bed-95c1-67e9c0aa2d4b": {
-      "rule": "impE"
+      "rule": "impE",
+      "number": 8
     },
     "1a4821ea-9e08-49e5-8c74-89ec4bb6fc11": {
-      "rule": "allI"
+      "rule": "allI",
+      "number": 9
     }
   },
   "connections": {

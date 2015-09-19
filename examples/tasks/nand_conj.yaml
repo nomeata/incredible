@@ -1,0 +1,7 @@
+logic: nand
+assumptions:
+- A
+- B
+conclusions:
+- (A↑B)↑(A↑B)
+

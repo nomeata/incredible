@@ -1,23 +1,50 @@
-{
-  "escapedHypotheses": [],
-  "unconnectedGoals": [],
-  "qed": true,
-  "cycles": [],
-  "connectionLabels": {
-    "763b7303-d3ea-4794-a3af-bccee85d07b5": "⊥",
-    "d704fa22-f2a4-4113-a130-c6f0b67d9828": "∃x.P(x)→⊥",
-    "87075f94-fd73-4b67-a22c-825bda645d15": "P(c₁₀)→⊥",
-    "952caeb2-e6d3-4670-9a15-f90d0050ce32": "P(c₁₀)",
-    "251559cd-3068-4377-a351-9a2351d128b1": "(∃x.P(x)→⊥)∨(∃x.P(x)→⊥)→⊥",
-    "dae4c9ee-b890-4f4e-b588-8e5d8cf9d8e0": "(∃x.P(x)→⊥)→⊥",
-    "da557bbe-d09b-4dd3-a5d2-4737f4815fa5": "∃x.P(x)→⊥",
-    "60e8086c-f1a1-4cd4-9780-80faaff2f399": "(∀x.P(x))→⊥",
-    "191c645b-b86d-4779-bd99-3f76cc233a81": "∃x.P(x)→⊥",
-    "af8bf578-3982-4855-aaa2-4ddc355f5d85": "P(c₁₀)∨P(c₁₀)→⊥",
-    "239cd049-236f-4381-bb75-01fc001a0715": "P(c₁₀)",
-    "ebbb1d3b-c8fd-41ae-976d-3a1b476cb562": "P(c₁₀)",
-    "52b9c8e1-d807-4530-93f8-2139a6a30810": "∀x.P(x)",
-    "49cfb84f-9f67-4063-8ecf-81b15c28afb7": "⊥",
-    "42636562-25db-4150-b250-0803ece82322": "∃x.P(x)→⊥"
-  }
-}
+cycles: []
+connectionLabels:
+  191c645b-b86d-4779-bd99-3f76cc233a81:
+    prop: ∃x.P(x)→⊥
+    type: ok
+  239cd049-236f-4381-bb75-01fc001a0715:
+    prop: P(c₇)
+    type: ok
+  af8bf578-3982-4855-aaa2-4ddc355f5d85:
+    prop: P(c₇)∨(P(c₇)→⊥)
+    type: ok
+  ebbb1d3b-c8fd-41ae-976d-3a1b476cb562:
+    prop: P(c₇)
+    type: ok
+  49cfb84f-9f67-4063-8ecf-81b15c28afb7:
+    prop: ⊥
+    type: ok
+  52b9c8e1-d807-4530-93f8-2139a6a30810:
+    prop: ∀x.P(x)
+    type: ok
+  42636562-25db-4150-b250-0803ece82322:
+    prop: ∃x.P(x)→⊥
+    type: ok
+  763b7303-d3ea-4794-a3af-bccee85d07b5:
+    prop: ⊥
+    type: ok
+  87075f94-fd73-4b67-a22c-825bda645d15:
+    prop: P(c₇)→⊥
+    type: ok
+  d704fa22-f2a4-4113-a130-c6f0b67d9828:
+    prop: ∃x.P(x)→⊥
+    type: ok
+  251559cd-3068-4377-a351-9a2351d128b1:
+    prop: (∃x.P(x)→⊥)∨((∃x.P(x)→⊥)→⊥)
+    type: ok
+  952caeb2-e6d3-4670-9a15-f90d0050ce32:
+    prop: P(c₇)
+    type: ok
+  dae4c9ee-b890-4f4e-b588-8e5d8cf9d8e0:
+    prop: (∃x.P(x)→⊥)→⊥
+    type: ok
+  da557bbe-d09b-4dd3-a5d2-4737f4815fa5:
+    prop: ∃x.P(x)→⊥
+    type: ok
+  60e8086c-f1a1-4cd4-9780-80faaff2f399:
+    prop: (∀x.P(x))→⊥
+    type: ok
+escapedHypotheses: []
+unconnectedGoals: []
+qed: true

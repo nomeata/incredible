@@ -24,7 +24,7 @@ type Lints = [String]
 
 lint :: Context -> Task -> Proof -> Lints
 lint logic _task proof = mconcat
-    [ wrongLocalHyps, missingRule, wrongBlock, wrongPort, wrongSourceType, wrongTargetType ]
+    [ wrongLocalHyps, missingRule, wrongBlock, wrongPort, wrongSourceType, wrongTargetType, nonUniqueBlockNums, nonPositiveBlockNums ]
   where
     wrongLocalHyps =
         [ printf "local hypothesis \"%s\" of rule \"%s\" has an invalid consumedBy field \"%s\""
@@ -37,7 +37,7 @@ lint logic _task proof = mconcat
             isAssumption _ = False
     missingRule =
         [ printf "Block \"%s\" references unknown rule \"%s\"" (untag blockKey) (untag ruleKey)
-        | (blockKey, Block ruleKey) <- M.toList (blocks proof)
+        | (blockKey, Block _ ruleKey) <- M.toList (blocks proof)
         , ruleKey `M.notMember` ctxtRules logic
         ]
     wrongBlock =
@@ -52,7 +52,7 @@ lint logic _task proof = mconcat
           (untag connKey) (untag portKey) (untag blockKey) (untag ruleKey)
         | (connKey, conn) <- M.toList (connections proof)
         , BlockPort blockKey portKey <- [connFrom conn, connTo conn]
-        , Just (Block ruleKey) <- return $ M.lookup blockKey (blocks proof)
+        , Just (Block _ ruleKey) <- return $ M.lookup blockKey (blocks proof)
         , Just rule <- return $ M.lookup ruleKey (ctxtRules logic)
         , portKey `M.notMember` ports rule
         ]
@@ -61,7 +61,7 @@ lint logic _task proof = mconcat
           (untag connKey) (untag portKey) (untag blockKey)
         | (connKey, conn) <- M.toList (connections proof)
         , BlockPort blockKey portKey <- return $ connFrom conn
-        , Just (Block ruleKey) <- return $ M.lookup blockKey (blocks proof)
+        , Just (Block _ ruleKey) <- return $ M.lookup blockKey (blocks proof)
         , Just rule <- return $ M.lookup ruleKey (ctxtRules logic)
         , Just port <- return $ M.lookup portKey (ports rule)
         , not $ isOk port
@@ -79,7 +79,7 @@ lint logic _task proof = mconcat
           (untag connKey) (untag portKey) (untag blockKey)
         | (connKey, conn) <- M.toList (connections proof)
         , BlockPort blockKey portKey <- return $ connTo conn
-        , Just (Block ruleKey) <- return $ M.lookup blockKey (blocks proof)
+        , Just (Block _ ruleKey) <- return $ M.lookup blockKey (blocks proof)
         , Just rule <- return $ M.lookup ruleKey (ctxtRules logic)
         , Just port <- return $ M.lookup portKey (ports rule)
         , not $ isOk port
@@ -91,6 +91,20 @@ lint logic _task proof = mconcat
         ]
       where isOk (Port PTAssumption _ _) = True
             isOk _ = False
+
+    nonPositiveBlockNums
+        = [ printf "Block number %d of block %s is not positive" n (untag bk)
+          | (bk, b) <- M.toList (blocks proof)
+          , let n = blockNum b
+          , n <= 0
+          ]
+
+    nonUniqueBlockNums
+        = [ printf "Block number %d assigned %d times." n c | (n,c) <- M.toList bad ]
+      where
+        bad = M.filter (>1) $
+              M.fromListWith (+) $
+              [ (blockNum b ,(1::Int)) | b <- M.elems (blocks proof) ]
 
 
 lintsToEither :: Lints -> Either String ()

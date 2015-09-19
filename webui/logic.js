@@ -53,7 +53,8 @@ function setupGraph(graph, logic, task) {
     var gate = new joint.shapes.incredible.Generic({
       position: {x: 120, y: 30 + 50 * i},
       assumption: n,
-      task: task
+      task: task,
+      number: cells.length + 1
     });
     cells.push(gate);
   });
@@ -62,7 +63,8 @@ function setupGraph(graph, logic, task) {
     var gate = new joint.shapes.incredible.Generic({
       position: {x: 590, y: 30 + 50 * i},
       conclusion: n,
-      task: task
+      task: task,
+      number: cells.length + 1
     });
     cells.push(gate);
   });
@@ -74,72 +76,100 @@ function setupGraph(graph, logic, task) {
   rescale_paper();
 }
 
-function setupPrototypeElements() {
-  var blockDescs = [];
-  $.each(logic.rules, function (_, rule) {
-    var blockDesc = ruleToBlockDesc(rule);
-    blockDesc.isPrototype = true;
-    blockDesc.data = {rule: rule};
-    blockDescs.push(blockDesc)
-  });
-  var annBlockDesc = annotationToBlockDesc("P");
-  annBlockDesc.isPrototype = true;
-  annBlockDesc.data = {annotation: "P"};
-  blockDescs.push(annBlockDesc);
+function renderBlockDescToDraggable(blockDesc, container) {
+  var el = $('<div><svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"></div>');
+  container.append(el);
+  var vel = V(el.find("svg").get(0));
 
-  var container = $("#logic");
-  container.empty();
+  var g = V("<g/>");
+  vel.append(g);
+  renderBlockDescToSVG(g, blockDesc, false);
+  g.scale(1.5);
+  gBB = g.bbox(false);
+  g.translate($(el).width()/2, -gBB.y + 5)
 
-  $.each(blockDescs, function (_, blockDesc) {
-    var el = $('<svg xmlns="http://www.w3.org/2000/svg" width="300px" height="100px">');
-    container.append(el);
-    var vel = V(el.get(0));
-
-    var g = V("<g/>");
-    vel.append(g);
-    renderBlockDescToSVG(g, blockDesc, false);
-    g.scale(1.5);
-    gBB = g.bbox(false);
-    g.translate($(el).width()/2, -gBB.y + 5)
-
-    $(el).height(gBB.height + 10);
-    $(el).data('elementData', blockDesc.data);
-    $(el).draggable({
-      appendTo: "body",
-      helper: "clone"
-    });
+  $(el).height(gBB.height + 10);
+  $(el).data('elementData', blockDesc.data);
+  $(el).draggable({
+    appendTo: "body",
+    helper: "clone"
   });
 }
 
-function isTrashArea(x, y) {
-  return x < 0;
+function setupPrototypeElements() {
+  var container = $("#logic");
+  container.empty();
+  $.each(logic.rules, function (_, rule) {
+    var blockDesc = ruleToBlockDesc(rule);
+    blockDesc.isPrototype = true;
+    blockDesc.canRemove = false;
+    blockDesc.data = {rule: rule};
+    renderBlockDescToDraggable(blockDesc, container);
+  });
+
+  var container = $("#helpers");
+  container.empty();
+  var annBlockDesc = annotationToBlockDesc("P");
+  annBlockDesc.isPrototype = true;
+  annBlockDesc.canRemove = false;
+  annBlockDesc.data = {annotation: "P"};
+  renderBlockDescToDraggable(annBlockDesc, container);
 }
 
 paper.on('cell:pointerdown', function (cellView, evt, x, y) {
   var cell = cellView.model;
-  if (cell) {
-    cell.set('originalPosition', cell.get('position'));
+
+  if (evt.shiftKey) { return; }
+
+  // Check if this was a click on a delete element
+  // This assumes that all visible elements of the delete SVG are direct childs
+  // of a <g> element with event="remove" set
+  var targetParentEvent = evt.target.parentNode.getAttribute('event');
+  if (targetParentEvent && targetParentEvent == "remove" ) {
+    cell.remove();
+    return;
   }
 });
-paper.on('cell:pointerup', function (cellView, evt, x, y) {
-  var cell = cellView.model;
-  if (cell) {
-    var trashCell = isTrashArea(x, y);
-    if (trashCell) {
-      if (cell.get('assumption') || cell.get('conclusion'))
-        cell.set('position', cell.get('originalPosition'));
-      else
-        cell.remove();
-    }
+
+paper.on('blank:pointerclick', function (evt, x, y) {
+  if (evt.shiftKey) {
+    // ignore
+  } else {
+    $.each(graph.getElements(), function (i, el) {
+      el.set('selected', false);
+    });
   }
 });
 
 paper.on('cell:pointerclick', function (cellView, evt, x, y) {
   var cell = cellView.model;
-  if (cell.get('annotation')) {
-    prop = window.prompt('Input proposition', cell.get('annotation'));
-    if (prop) {
-      cell.set('annotation', prop);
+
+  if (evt.shiftKey) {
+    cell.set('selected', ! cell.get('selected'));
+  } else {
+    // Deselect everything
+    $.each(graph.getElements(), function (i, el) {
+      el.set('selected', false);
+    });
+
+    if (cell.get('annotation')) {
+      var done = false;
+      var prmpt = 'Input proposition';
+      var val = cell.get('annotation');
+      while (!done) {
+        val = window.prompt(prmpt, val);
+        if (val) {
+          var prettyPrinted = incredibleFormatTerm(val);
+          if (prettyPrinted) {
+            done = true;
+            cell.set('annotation', prettyPrinted);
+          } else {
+            prmpt = 'Could not parse, please try again:';
+          }
+        } else {
+          done = true;
+        }
+      }
     }
   }
 });
@@ -160,6 +190,7 @@ function with_graph_loading(func) {
     graph.set('loading', true);
     func.apply(this,arguments);
     graph.set('loading', false);
+    processGraph();
   }
 }
 
@@ -175,22 +206,35 @@ function selectNoTask() {
 
 function selectLogic(name) {
   logic = examples.logics[name];
+
+  // Normalize the input here
+  $.each(logic.rules, function (_,r) {
+    $.each(r.ports, function (_,p) {
+      p.proposition = incredibleFormatTerm(p.proposition)
+    });
+  });
+
   setupPrototypeElements();
 };
 
 function selectTask(name) {
   task = examples.tasks[name];
+
+  // Normalize the input here
+  task.assumptions = (task.assumptions || []).map(incredibleFormatTerm);
+  task.conclusions = (task.conclusions || []).map(incredibleFormatTerm);
+
   selectLogic(task.logic);
 
   $("#taskselect").val(name);
   $("#proofselect").val("");
   $("#assumptions").empty();
   $.each(task.assumptions || [], function (i, el) {
-    $("#assumptions").append($("<div>").text(el));
+    $("#assumptions").append($("<div>").text(incredibleFormatTerm(el)));
   });
   $("#conclusions").empty();
   $.each(task.conclusions || [], function (i, el) {
-    $("#conclusions").append($("<div>").text(el));
+    $("#conclusions").append($("<div>").text(incredibleFormatTerm(el)));
   });
   $("#inferredrule").hide();
   $("#task").show();
@@ -199,24 +243,47 @@ function selectTask(name) {
 
 function selectProof(name) {
   proof = examples.graphs[name];
-  selectTask(proof.task);
-  graph.fromJSON(proof);
+  proof.loading = true;
 
+  if (proof.task) {
+    selectTask(proof.task);
+  } else if (proof.logic) {
+    selectLogic(proof.logic);
+    selectNoTask();
+  } else {
+    throw new Error("selectProof: Neither task nor logic: " + name);
+  }
+
+  graph.fromJSON(proof);
   // This is mostly for backwards compatibility with old stored graphs, and can
   // be removed eventually
   $.each(graph.getElements(), function (i, el) {
     if (el.get('prototypeElement')) {el.remove()};
   });
-  processGraph();
+
+}
+
+function blockNumberMap() {
+  var numberMap = {};
+  $.each(graph.getElements(), function (i, el) {
+    if (el.get('number')) {
+      numberMap[el.get('number')] = el
+    }
+  });
+  return numberMap;
+}
+
+function nextFreeBlockNumber() {
+  var numberMap = blockNumberMap();
+  var n=1;
+  while (numberMap[n]) {n+=1};
+  return n;
 }
 
 $(function (){
   $("#taskselect").change(with_graph_loading(function () { if (this.value) selectTask(this.value); }));
   $("#proofselect").change(with_graph_loading (function () { if (this.value) selectProof(this.value); }));
   $("#freeproof").click(with_graph_loading (function () { selectNoTask(); }));
-
-  selectTask('conjself');
-  graph.set('loading', false);
 
   $("#showdialog").click(function(){
     $("#graph").val(JSON.stringify(graph.toJSON(),null,2));
@@ -227,28 +294,52 @@ $(function (){
     $("#dialog").hide()}
   );
 
-  $("#inferredrule svg").draggable({
+  $("#showhelp").click(function(){
+    $("#help").toggle();
+  });
+  $("#closehelp").click(function(){
+    $("#help").hide()}
+  );
+
+  $("#inferredrule #inferredrulewrapper").draggable({
     appendTo: "body",
     helper: "clone"
     // helper: function ()  { return $("<span>Hi</span>") }
   });
-});
 
-$(function (){
   $("#paper").droppable({
     drop: function (event, ui) {
       var data = ui.draggable.data('elementData');
       if (data) {
         var pos = paper.clientToLocalPoint({x: event.clientX, y: event.clientY});
         var elem = new joint.shapes.incredible.Generic(_.extend(data, {
-          position: pos
+          position: g.point(pos.x, pos.y).snapToGrid(paper.options.gridSize),
+          number: nextFreeBlockNumber()
         }));
         graph.addCell(elem);
       };
     }
   });
 
+  selectTask('conjself');
+  graph.set('loading', false);
 });
+
+graph.on('change:position', function (model, pos1, options) {
+  if (options.derivedMove) { return; }
+
+  if (model.get('selected')) {
+    var dx = options.tx;
+    var dy = options.ty;
+    if (dx == 0 && dy == 0) { return; }
+
+    $.each(graph.getElements(), function (i, el) {
+      if (el.get('selected') && el != model) {
+        el.translate(dx,dy, { derivedMove : true })
+      }
+    });
+  }
+})
 
 graph.on('add remove change:annotation change:loading', function () {
   // Do not process the graph when loading is one, which happens during startup
@@ -297,6 +388,7 @@ function processGraph() {
           var g = V("<g/>");
           var vel = V(el).append(g);
           var blockDesc = ruleToBlockDesc(analysis.rule);
+          blockDesc.canRemove = false;
           blockDesc.isPrototype = true;
           blockDesc.label = '☃';
           renderBlockDescToSVG(g, blockDesc, false);
@@ -362,13 +454,23 @@ function processGraph() {
     for (var connId in analysis.connectionLabels) {
       var lbl = analysis.connectionLabels[connId];
       var conn = graph.getCell(connId);
-      if (lbl.propIn && lbl.propOut) {
+      if (lbl.type == "mismatch" || lbl.type == "dunno") {
         var symbol;
         if (lbl.type == "mismatch")   {symbol = "☠"}
         else if (lbl.type == "dunno") {symbol = "?"}
         else {console.log("Unknown connection label type")}
+
+        // not very nice, see http://stackoverflow.com/questions/32010888
+        conn.attr({'.connection': {class: 'connection error'}});
+
+        if (isReversed(conn)) {
+          f = function (pos) {return 1-pos};
+        } else {
+          f = function (pos) {return pos};
+        }
+
         conn.set('labels', [{
-          position: .1,
+          position: f(.1),
           attrs: {
             text: {
               text: lbl.propIn
@@ -376,7 +478,7 @@ function processGraph() {
           }
         },
           {
-            position: .5,
+            position: f(.5),
             attrs: {
               text: {
                 text: symbol
@@ -384,7 +486,7 @@ function processGraph() {
             }
           },
           {
-            position: .9,
+            position: f(.9),
             attrs: {
               text: {
                 text: lbl.propOut
@@ -392,18 +494,67 @@ function processGraph() {
             }
           }
         ]);
-      } else {
+      } else if (lbl.type == "ok") {
         conn.set('labels', [{
           position: .5,
           attrs: {
             text: {
-              text: lbl
+              text: lbl.prop
             }
           }
         }]);
+      } else if (lbl.type == "unconnected") {
+        conn.set('labels', []);
+      } else {
+        throw new Error("processGraph(): Unknown connection label type");
       }
     }
   }
+}
+
+function isReversed(conn) {
+  // A connection is reversed if its source is an "in" magnet, or the target an
+  // "out" magnet.
+  var e = conn.get('source')
+  if (e.id) {
+    var el = graph.getCell(e.id);
+    if (el.get('conclusion')) {
+      return true;
+    }
+    if (el.get('annotation')) {
+      if (e.port == "in") {
+        return true;
+      }
+    }
+    var rule;
+    if (rule = el.get('rule')) {
+      if (rule.ports[e.port].type == "assumption") {
+        return true;
+      }
+    }
+  }
+  var e = conn.get('target')
+  if (e.id) {
+    var el = graph.getCell(e.id);
+    if (el.get('assumption')) {
+      return true;
+    }
+    if (el.get('annotation')) {
+      if (e.port == "out") {
+        return true;
+      }
+    }
+    var rule;
+    if (rule = el.get('rule')) {
+      if (rule.ports[e.port].type == "conclusion") {
+        return true;
+      }
+      if (rule.ports[e.port].type == "local hypothesis") {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 function buildProof(graph) {
@@ -415,23 +566,30 @@ function buildProof(graph) {
       if (e.get('assumption') || e.get('conclusion') || e.get('prototypeElement')) {
         return;
       }
-      proof.blocks[e.id] = {};
+      block = {}
       var rule, annotation;
       if (rule = e.get('rule')) {
-        proof.blocks[e.id].rule = rule.id;
+        block.rule = rule.id;
       } else if (annotation = e.get('annotation')) {
-        proof.blocks[e.id].annotation = annotation;
+        block.annotation = annotation;
       } else {
         throw new Error("buildProof(): Unknown block type");
       }
+      block.number = e.get('number');
+      proof.blocks[e.id] = block;
     });
 
   proof.connections = {};
   graph.getLinks().map(
     function (l, i) {
       var con = {};
-      con.from = makeConnEnd(graph, l.get('source'));
-      con.to = makeConnEnd(graph, l.get('target'));
+      if (isReversed(l)){
+        con.to =   makeConnEnd(graph, l.get('source'));
+        con.from = makeConnEnd(graph, l.get('target'));
+      } else {
+        con.from = makeConnEnd(graph, l.get('source'));
+        con.to =   makeConnEnd(graph, l.get('target'));
+      }
       proof.connections[l.id] = con;
     });
   return proof;

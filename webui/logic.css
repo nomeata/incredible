@@ -90,3 +90,63 @@
 .element.live text {
     fill: #ffffff;
 }
+
+
+/* Custom incredible rules */
+.ui-draggable {
+    cursor: move
+}
+
+.block .number {
+    fill: #000;
+    opacity: 0.5;
+    font-size: 6px;
+}
+
+.block:hover .body {
+    fill:white;
+}
+
+.selected .block .body {
+    stroke:blue;
+    stroke-opacity:1;
+}
+
+
+.port-body[magnet=true]:hover {
+    fill:black;
+}
+
+.block .tool-remove {
+   opacity: 0;
+   cursor: pointer;
+}
+.block:hover .tool-remove {
+   opacity: 1;
+}
+
+.block .tool-remove circle {
+    fill: white;
+    stroke: #ccc;
+    stroke-width: 1px;
+    stroke-opacity: .5;
+}
+
+.block .tool-remove:hover circle {
+    fill: #e74c3c;
+    stroke: #c0392b;
+}
+
+.block .tool-remove path {
+    fill: white;
+    stroke: #ccc;
+}
+
+.block .tool-remove circle {
+    transition: fill 1s;
+}
+
+.block .tool-remove:hover path {
+    stroke: none;
+}
+

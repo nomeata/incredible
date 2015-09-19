@@ -61,10 +61,13 @@ data Context = Context
  deriving Show
 
 
+
+type BlockNum = Int
+
 data Block
-    = AnnotationBlock Proposition
+    = AnnotationBlock BlockNum Proposition
       -- ^ A block with an annotation (no associated rule)
-    | Block (Key Rule)
+    | Block BlockNum (Key Rule)
       -- ^ A normal with block with a rule
  deriving Show
 
@@ -107,9 +110,13 @@ type Path = [Key Connection]
 
 -- Various accessors
 
+blockNum :: Block -> BlockNum
+blockNum (AnnotationBlock n _) = n
+blockNum (Block n _) = n
+
 block2Rule :: Context -> Block -> Rule
-block2Rule ctxt (Block rule) = ctxtRules ctxt M.! rule
-block2Rule _    (AnnotationBlock prop) = annotationRule prop
+block2Rule ctxt (Block _ rule) = ctxtRules ctxt M.! rule
+block2Rule _    (AnnotationBlock _ prop) = annotationRule prop
 
 annotationRule :: Proposition -> Rule
 annotationRule prop = Rule

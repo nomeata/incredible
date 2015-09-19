@@ -8,6 +8,7 @@
 
         <link rel="stylesheet" type="text/css" href="./vendor/joint.min.css" />
         <link rel="stylesheet" type="text/css" href="./webui/logic.css" />
+        <link rel="stylesheet" type="text/css" href="./fonts/lintsec_regular_macroman/stylesheet.css" />
 
         <style>
 	    #header {
@@ -15,20 +16,15 @@
 		top:0px;
 		left:0px;
 		right:0px;
-		height:150px;
+		height:115px;
 		overflow: auto;
 		border-bottom: 5px solid grey;
+		padding:15px;
             }
 
-	    #task {
-		position: absolute;
-		top:0px;
-		width:30em;
-		right:0px;
-		padding:1em;
-		overflow: auto;
+	    #task #assumptions, #task #conclusions {
 		text-align: center;
-            }
+	    }
 	    #inferredrule {
 		display:none;
 		position: absolute;
@@ -44,26 +40,27 @@
 		margin:0px;
 	    }
 
-            #logic {
+            #leftpane {
 		position: absolute;
-		top:155px;
+		top:150px;
 		left:0px;
-		width:300px;
+		width:268px;
 		bottom:0px;
 		overflow: auto;
 		border-right:2px solid grey;
+                padding:15px;
             }
 
             #paper {
 		position: absolute;
-		top:155px;
+		top:150px;
 		left:300px;
 		right:0px;
 		bottom:0px;
 		overflow: auto;
             }
 
-	    #dialog {
+	    #dialog, #help {
 		border:2px solid grey;
 		background:white;
 		display:none;
@@ -76,20 +73,44 @@
 		width:800px;
 		bottom:100px;
 		overflow: auto;
+		padding:15px;
 	    }
 
-	    h1, h2, h3 {
+	    .incrediblefont {
+	       font-family: 'lintsecregular', Arial, sans-serif;
+	    }
+
+	    h1 {
+	       font-family: 'lintsecregular', Arial, sans-serif;
+	    }
+
+	    h2, h3 {
 		font-family: sans-serif
 	    }
 
 	    #errors {
 		white-space: pre-line;
 	    }
+
         </style>
     </head>
     <body>
 
-    <div id="logic"></div>
+    <div id="leftpane">
+      <div id="task">
+	<h3>Current task:</h3>
+	<div id="assumptions"></div>
+	<hr/>
+	<div id="conclusions"></div>
+      </div>
+      <h3>Logikbausteine:</h3>
+      <div id="logic"></div>
+      <h3>Hilfsbausteine:</h3>
+      <div id="helpers"></div>
+      <h3>Eigene Bausteine:</h3>
+      <div id="custom"></div>
+    </div>
+
 
     <div id="paper"></div>
 
@@ -99,19 +120,16 @@
 	<button id="freeproof">Start empty proof</button>
 	Load existing proof: <select id="proofselect"><option value="" label=""></option></select>
 	<button id="showdialog">Details</button>
+	<button id="showhelp">Help</button>
         <!-- <label><input type="checkbox" id="unify" checked="checked" /> Run unification</label> -->
         <br/>
 	<div id="errors"></div>
-	<div id="task">
-	<h3>Current task:</h3>
-	<div id="assumptions"></div>
-	<hr/>
-	<div id="conclusions"></div>
-	</div>
 
 	<div id="inferredrule">
 	<h3>You proved:</h3>
+	<div id="inferredrulewrapper">
 	<svg xmlns="http://www.w3.org/2000/svg" width="30em" height="100px"></svg>
+	</div>
 	</div>
 
     </div>
@@ -126,6 +144,31 @@
     <textarea  cols=100 rows=20 id="proof" readonly="readonly"></textarea>
     <br/>
     <textarea  cols=100 rows=20 id="analysis" readonly="readonly"></textarea>
+    </div>
+
+    <div id="help">
+    <div style="text-align:right"><button id="closehelp">×</button></div>
+    <h2>Welcome to <span class="incrediblefont">The Incredible Proof Machine</span></h2>
+
+    <h3>What is this?</h3>
+    <p>
+    This is a tool to perform proofs in various logics (e.g. propositional, predicate logic) visually: You simply add blocks that represent the various proofs steps, connect them properly, and if the conclusion turns green, then you have created a complete proof!
+    </p>
+
+    <h3>Why is this?</h3>
+    <p>
+    <span class="incrediblefont">The Incredible Proof Machine</span> was created to convey the fun and joy of doing proofs, especially in a computer aided way, without first having to learn the syntax of a “real” thereom prover like <a href="http://isabelle.in.tum.de/">Isabelle</a>.
+    </p>
+
+    <h3>Who did this?</h3>
+    <p>
+    Mostly <a href="http://www.joachim-breitner.de/">Joachim Breitner</a>, with valuable help from <a href="https://github.com/nomeata/incredible/graphs/contributors">some colleagues and friends</a>.
+    </p>
+
+    <h3>Can I help?</h3>
+    <p>
+    Most certainly! Everything is Free Software, so you can jump right in, <a href="https://github.com/nomeata/incredible">fetch the code</a> and start contributing. The more people contribute, the more incredible the <span class="incrediblefont">The Incredible Proof Machine</span> becomes.
+    </p>
     </div>
 
 

@@ -1,8 +1,53 @@
 rules:
+- id: allI
+  free: ["P"]
+  local: ["c"]
+  ports:
+    in1:
+      type: assumption
+      proposition: P(c)
+      scoped: ["c"]
+    out2:
+      type: conclusion
+      proposition: ∀x.P(x)
+- id: allE
+  free: ["P","y"]
+  ports:
+    in1:
+      type: assumption
+      proposition: ∀x.P(x)
+    out2:
+      type: conclusion
+      proposition: P(y)
+- id: exI
+  free: ["P", "y"]
+  ports:
+    in1:
+      type: assumption
+      proposition: P(y)
+    out2:
+      type: conclusion
+      proposition: ∃x.P(x)
+- id: exE
+  free: ["P","Q"]
+  local: ["c"]
+  ports:
+    in1:
+      type: assumption
+      proposition: ∃x.P(x)
+    in2:
+      type: assumption
+      proposition: Q
+      scoped: ["c"]
+    hyp:
+      type: local hypothesis
+      proposition: P(c)
+      consumedBy: in2
+    out:
+      type: conclusion
+      proposition: Q
 - id: conjI
   free: ["A","B"]
-  desc:
-    intro: ∧
   ports:
     in1:
       type: assumption
@@ -15,8 +60,6 @@ rules:
       proposition: A∧B
 - id: conjE
   free: ["A","B"]
-  desc:
-    elim: ∧
   ports:
     in:
       type: assumption
@@ -28,8 +71,6 @@ rules:
       type: conclusion
       proposition: B
 - id: impI
-  desc:
-    intro: →
   free: ["A","B"]
   ports:
     hyp:
@@ -43,8 +84,6 @@ rules:
       type: conclusion
       proposition: A→B
 - id: impE
-  desc:
-    elim: →
   free: ["A","B"]
   ports:
     in1:
@@ -57,8 +96,6 @@ rules:
       type: conclusion
       proposition: B
 - id: disjI1
-  desc:
-    intro: ·∨
   free: ["A","B"]
   ports:
     in:
@@ -68,8 +105,6 @@ rules:
       type: conclusion
       proposition: A∨B
 - id: disjI2
-  desc:
-    intro: ∨·
   free: ["A","B"]
   ports:
     in:
@@ -79,8 +114,6 @@ rules:
       type: conclusion
       proposition: A∨B
 - id: disjE
-  desc:
-    elim: ∨
   free: ["A","B","P"]
   ports:
     in:
@@ -104,42 +137,27 @@ rules:
       type: conclusion
       proposition: P
 - id: falseE
-  desc:
-    elim: ⊥
   free: ["P"]
   ports:
     in:
       type: assumption
-      proposition: "⊥"
+      proposition: "False"
     out:
       type: conclusion
       proposition: P
-- id: notI
-  desc:
-    intro: ¬
-  free: ["A"]
+- id: TND
+  free: ["P"]
+  ports:
+    out:
+      type: conclusion
+      proposition: "P∨(P→⊥)"
+- id: deMorgan42
+  free: ["P"]
   ports:
     in:
       type: assumption
-      proposition: "False"
-    hyp:
-      type: local hypothesis
-      proposition: A
-      consumedBy: in
+      proposition: "(∀x.P(x))→⊥"
     out:
       type: conclusion
-      proposition: ¬A
-- id: notE
-  desc:
-    elim: ¬
-  free: ["A","P"]
-  ports:
-    in1:
-      type: assumption
-      proposition: A
-    in2:
-      type: assumption
-      proposition: ¬A
-    out:
-      type: conclusion
-      proposition: P
+      proposition: "∃x.(P(x)→⊥)"
+

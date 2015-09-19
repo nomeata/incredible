@@ -86,8 +86,8 @@ toProof = parseEither parseJSON
 
 instance FromJSON Block where
   parseJSON = withObject "block" $ \o ->
-    if | "rule"       `HM.member` o -> Block <$> o .: "rule"
-       | "annotation" `HM.member` o -> AnnotationBlock <$> o .: "annotation"
+    if | "rule"       `HM.member` o -> Block <$> o.: "number" <*> o .: "rule"
+       | "annotation" `HM.member` o -> AnnotationBlock <$> o.: "number" <*> o .: "annotation"
 
 
 instance FromJSON Connection where
@@ -142,8 +142,10 @@ instance ToJSON Analysis where
         ]
 
 instance ToJSON ConnLabel where
-    toJSON Unconnected = object []
-    toJSON (Ok prop) = toJSON prop
+    toJSON Unconnected = object
+        [ "type" .= ("unconnected" :: T.Text) ]
+    toJSON (Ok prop) = object
+        [ "prop"   .= prop, "type" .= ("ok" :: T.Text) ]
     toJSON (Mismatch prop1 prop2) = object
         [ "propIn" .= prop1, "propOut" .= prop2, "type" .= ("mismatch"::T.Text) ]
     toJSON (DunnoLabel prop1 prop2) = object

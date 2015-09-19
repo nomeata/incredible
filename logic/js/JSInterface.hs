@@ -6,10 +6,14 @@ import GHCJS.Types
 
 import ConvertJS
 import Entry
+import Propositions
 
 
 foreign import javascript unsafe "incredibleLogic_ = $1"
     js_set_logic :: JSFun a -> IO ()
+
+foreign import javascript unsafe "incredibleFormatTerm_ = $1"
+    js_set_formatter :: JSFun a -> IO ()
 
 main = do
     callback <- syncCallback1 NeverRetain False $ \o -> do
@@ -28,4 +32,13 @@ main = do
                 setProp "analysis" rawAnalysis o
 
     js_set_logic callback
+
+
+    callback <- syncCallback1 NeverRetain False $ \o -> do
+        prop <- getProp "prop" o
+        case parseTerm (fromJSString prop) of
+            Left e -> setProp "error" (toJSString e) o
+            Right term -> setProp "result" (toJSString (printTerm term)) o
+
+    js_set_formatter callback
 
