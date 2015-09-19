@@ -1,8 +1,8 @@
 {-# LANGUAGE TupleSections,FlexibleContexts #-}
 module LabelConnections where
 
+import Data.Functor
 import qualified Data.Map as M
-import Data.Map ((!))
 
 import Types
 import Unification

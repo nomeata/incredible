@@ -1,7 +1,6 @@
 {-# LANGUAGE TupleSections,FlexibleContexts #-}
 module Analysis where
 
-import Data.Functor
 import qualified Data.Map as M
 import Data.Map ((!))
 import Data.Tagged -- because unbound does not handle Tag :-(
