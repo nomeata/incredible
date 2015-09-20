@@ -390,7 +390,7 @@ function processGraph() {
           var blockDesc = ruleToBlockDesc(analysis.rule);
           blockDesc.canRemove = false;
           blockDesc.isPrototype = true;
-          blockDesc.label = '☃';
+          blockDesc.desc = {label: '☃'};
           renderBlockDescToSVG(g, blockDesc, false);
           g.scale(1.5);
           gBB = g.bbox(false);
