@@ -326,7 +326,8 @@ $(function (){
 });
 
 paper.on('element:schieblehre',function(cellView, direction, dx, dy) {
-  var basewidth0 = cellView.model.get('schieblehrebasewidth') || 40;
+  var basewidth0 = cellView.model.get('schieblehrebasewidth');
+  if (basewidth0 === undefined) { basewidth0 = 40; }
   var basewidth1 = basewidth0;
   if (direction == "resize-left") {
     basewidth1 -= dx;
