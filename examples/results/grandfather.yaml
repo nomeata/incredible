@@ -100,4 +100,5 @@ connectionLabels:
     type: ok
 escapedHypotheses: []
 unconnectedGoals: []
+rule: null
 qed: false

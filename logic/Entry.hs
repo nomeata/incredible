@@ -38,8 +38,8 @@ incredibleLogic ctxt task proof = do
         , S.fromList [ c | (c, l) <- M.toList connectionLabels, badLabel l ]
         ]
     emptyTask (Task [] []) = True
-    emptyTask (Task _ _) = True
-    rule = if emptyTask task && {-null unconnectedGoals &&-} S.null badConnections
+    emptyTask (Task _ _) = False
+    rule = if emptyTask task && null unconnectedGoals && S.null badConnections
       then Just (deriveRule ctxt proof final_bind)
       else Nothing
     qed = null unconnectedGoals && S.null (usedConnections `S.intersection` badConnections)
