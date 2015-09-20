@@ -158,7 +158,7 @@ unificationTests = testGroup "Unification tests"
   ]
 
 ruleExportTest = testGroup "Rule export"
-  [ testCase "single block export" $ deriveRule oneBlockLogic oneBlockProof bindingAB @?= renamedRule ]
+  [ testCase "single block renaming" $ deriveRule oneBlockLogic emptyTask oneBlockProof blockProps bindingAB @?= renamedRule ]
 
 assertUnifies :: [Var] -> [Equality] -> [(Var, Term)] -> Assertion
 assertUnifies vars eqns expt = do
@@ -172,15 +172,21 @@ assertUnifies vars eqns expt = do
             [" but got: "] ++
             map (\(k,v) -> "    " ++ show k ++ ": " ++ printTerm v) (M.toList res)
 
+emptyTask :: Task
+emptyTask = Task [] []
+
 oneBlockLogic :: Context
 oneBlockLogic = Context
-    (M.singleton "r" (Rule ["A"] ["A"] (M.fromList ["in" >: Port PTAssumption (V "A") [], "out" >: Port PTConclusion "A" []])))
+    (M.singleton "r" (Rule ["A"] ["A"] (M.fromList ["in" >: Port PTAssumption "A" [], "out" >: Port PTConclusion "A" []])))
 
 oneBlockProof = Proof
     (M.singleton "b" (Block 1 "r"))
     M.empty
 
-renamedRule = Rule ["A"] ["A"] (M.fromList ["in1" >: Port PTAssumption (V "B") [], "in2" >: Port PTConclusion "A" []])
+renamedRule = Rule ["B"] ["B"] (M.fromList ["in1" >: Port PTAssumption "B" [], "in2" >: Port PTConclusion "B" []])
+
+blockProps :: BlockProps
+blockProps = M.singleton "b" $ M.fromList ["in" >: (V "A"), "out" >: (V "A")]
 
 bindingAB :: Bindings
 bindingAB = M.singleton "A" (V "B")

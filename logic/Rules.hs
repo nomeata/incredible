@@ -1,14 +1,15 @@
 module Rules where
 
 import Types
+import Analysis
 import Unification
 import Data.Tagged
 
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-deriveRule :: Context -> Proof -> Bindings -> Rule
-deriveRule ctxt proof bindings = Rule {ports = rulePorts, localVars = [], freeVars = []}
+deriveRule :: Context -> Task -> Proof -> BlockProps -> Bindings -> Rule
+deriveRule ctxt task proof renamedBlockProps bindings = Rule {ports = rulePorts, localVars = [], freeVars = []}
   where
     portNames = map (Tagged . ("in"++) . show) [1::Integer ..]
 
@@ -31,7 +32,7 @@ deriveRule ctxt proof bindings = Rule {ports = rulePorts, localVars = [], freeVa
     relabeledPorts = concat
       [ ports
       | bKey <- S.toList surfaceBlocks
-      , let ports = relabelPorts ctxt (blocks proof M.! bKey) bindings (map snd $ filter (\(a, _) -> a == bKey) openPorts) ]
+      , let ports = relabelPorts task renamedBlockProps bKey (block2Rule ctxt $ blocks proof M.! bKey) bindings (map snd $ filter (\(a, _) -> a == bKey) openPorts) ]
 
     dummyPorts =
       [ p
@@ -40,17 +41,17 @@ deriveRule ctxt proof bindings = Rule {ports = rulePorts, localVars = [], freeVa
 
     rulePorts = M.fromList $ zip portNames relabeledPorts
 
-relabelPorts :: Context -> Block -> Bindings -> [Key Port] -> [Port]
-relabelPorts ctxt block binds openPorts =
+relabelPorts :: Task -> BlockProps -> Key Block -> Rule -> Bindings -> [Key Port] -> [Port]
+relabelPorts task renamedBlockProps bKey rule binds openPorts =
   [ port
   | pKey <- openPorts
-  , let rule = block2Rule ctxt block
-  , let Port typ prop scopes = (ports rule) M.! pKey
+  , let Port typ _ scopes = (ports rule) M.! pKey
+  , let Just prop = propAt task renamedBlockProps (BlockPort bKey pKey)
   , let port = Port typ (applyBinding binds prop) scopes ]
 
 -- This is obviously dumb, needed for testsuite
 equivalent :: Rule -> Rule -> Bool
-equivalent r1 r2 = False
+equivalent _ _ = False
 
 instance Eq Rule where
   x == y = equivalent x y
