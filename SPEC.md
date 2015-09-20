@@ -1,5 +1,40 @@
 This file specifies some fundamental data types of The Incredible Proof Machine.
 
+Propositions and Names
+----------------------
+
+A proposition is an untyped lambda expression, consisting of constants, variables,
+function application (with multiple arguments) and lambda abstraction (with one
+variable).
+
+Constants and variables share the same namespace (the implementation uses the
+`Name` type from the `unbound` package here). The concrete syntax does not
+distinguish between them! The parser will turn anything bound by a lambda
+abstraction into a variable, but the others are returned as constants.
+
+Later in the code, where we know what names are actually variables (such as the
+free and scoped variables in a rule), these are turned into variables. Look for
+uses of the `substs` function in `LabelConnections`!
+
+The actual unification algorithm distinguishes three kind of variables:
+
+ * Constants
+ * Free variables
+ * Bound variables
+
+It allows instantiations of free variables to include any constant (in other
+word: constants need to have global scope), but not on bound variables.
+Therefore, also in `LabelConnections`, those variables with limited scope (e.g.
+from an `impI` rule) are treated as bound variables, and are added to all free
+variables as additional arguments.
+
+The code in `Unification` distinguishes free and bound variables via an
+explicit argument that lists all free variables.
+
+I believe that it could be said that we bring our formulas into a form where the
+quantifier prefix is `∀c₁,...,cₙ ∃f₁,...,fₙ, ∀b₁,...,bₙ.
+
+
 Logic
 -----
 
