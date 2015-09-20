@@ -47,3 +47,10 @@ relabelPorts ctxt block binds openPorts =
   , let rule = block2Rule ctxt block
   , let Port typ prop scopes = (ports rule) M.! pKey
   , let port = Port typ (applyBinding binds prop) scopes ]
+
+-- This is obviously dumb, needed for testsuite
+equivalent :: Rule -> Rule -> Bool
+equivalent r1 r2 = False
+
+instance Eq Rule where
+  x == y = equivalent x y

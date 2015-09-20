@@ -25,6 +25,7 @@ import ConvertAeson
 import Examples
 import Entry
 import Analysis
+import Rules
 
 
 -- Hack for here
@@ -49,6 +50,7 @@ main = do
         , unconnectedGoalsTests
         , labelConnectionsTests
         , unificationTests
+        , ruleExportTest
         , exampleTests examples analyses
         ]
 
@@ -155,6 +157,9 @@ unificationTests = testGroup "Unification tests"
 
   ]
 
+ruleExportTest = testGroup "Rule export"
+  [ testCase "single block export" $ deriveRule oneBlockLogic oneBlockProof bindingAB @?= renamedRule ]
+
 assertUnifies :: [Var] -> [Equality] -> [(Var, Term)] -> Assertion
 assertUnifies vars eqns expt = do
     let expt' = M.fromList $ map (second (const2Var vars)) expt
@@ -169,7 +174,16 @@ assertUnifies vars eqns expt = do
 
 oneBlockLogic :: Context
 oneBlockLogic = Context
-    (M.singleton "r" (Rule ["A"] ["A"] (M.fromList ["in" >: Port PTAssumption "A" [], "out" >: Port PTConclusion "A" []])))
+    (M.singleton "r" (Rule ["A"] ["A"] (M.fromList ["in" >: Port PTAssumption (V "A") [], "out" >: Port PTConclusion "A" []])))
+
+oneBlockProof = Proof
+    (M.singleton "b" (Block 1 "r"))
+    M.empty
+
+renamedRule = Rule ["A"] ["A"] (M.fromList ["in1" >: Port PTAssumption (V "B") [], "in2" >: Port PTConclusion "A" []])
+
+bindingAB :: Bindings
+bindingAB = M.singleton "A" (V "B")
 
 proofWithCycle = Proof
     (M.singleton "b" (Block 1 "r"))
