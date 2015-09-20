@@ -4,13 +4,13 @@ connectionLabels:
     prop: ∃x.P(x)→⊥
     type: ok
   239cd049-236f-4381-bb75-01fc001a0715:
-    prop: P(c₇)
+    prop: P(c₁₀)
     type: ok
   af8bf578-3982-4855-aaa2-4ddc355f5d85:
-    prop: P(c₇)∨(P(c₇)→⊥)
+    prop: P(c₁₀)∨(P(c₁₀)→⊥)
     type: ok
   ebbb1d3b-c8fd-41ae-976d-3a1b476cb562:
-    prop: P(c₇)
+    prop: P(c₁₀)
     type: ok
   49cfb84f-9f67-4063-8ecf-81b15c28afb7:
     prop: ⊥
@@ -25,7 +25,7 @@ connectionLabels:
     prop: ⊥
     type: ok
   87075f94-fd73-4b67-a22c-825bda645d15:
-    prop: P(c₇)→⊥
+    prop: P(c₁₀)→⊥
     type: ok
   d704fa22-f2a4-4113-a130-c6f0b67d9828:
     prop: ∃x.P(x)→⊥
@@ -34,7 +34,7 @@ connectionLabels:
     prop: (∃x.P(x)→⊥)∨((∃x.P(x)→⊥)→⊥)
     type: ok
   952caeb2-e6d3-4670-9a15-f90d0050ce32:
-    prop: P(c₇)
+    prop: P(c₁₀)
     type: ok
   dae4c9ee-b890-4f4e-b588-8e5d8cf9d8e0:
     prop: (∃x.P(x)→⊥)→⊥
@@ -45,7 +45,7 @@ connectionLabels:
   60e8086c-f1a1-4cd4-9780-80faaff2f399:
     prop: (∀x.P(x))→⊥
     type: ok
+rule: null
 escapedHypotheses: []
 unconnectedGoals: []
-rule: null
 qed: true
