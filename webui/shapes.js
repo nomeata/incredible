@@ -190,15 +190,23 @@ function renderSchieblehre(group, blockDesc, forReal) {
 
 
 function updateSizesSchieblehre1(el, blockDesc) {
+  var defaultSchieblehreWidth = (blockDesc.isPrototype ? 0 : 40);
+
   // Minimum sizes
-  impIConfig = {
+  var impIConfig = {
     leftWidth: 10,
     innerWidthLeft:  20,
-    innerWidthRight: 20+(blockDesc.schieblehrewidth||0),
+    innerWidthRight: 20,
     rightWidth: 10,
     leftHeight: 30,
     rightHeight: 30,
   };
+
+  if (blockDesc.schieblehrewidth === undefined) {
+    impIConfig.innerWidthRight += defaultSchieblehreWidth
+  } else {
+    impIConfig.innerWidthRight += blockDesc.schieblehrewidth
+  }
 
   impIConfig.leftHeight = Math.max(impIConfig.leftHeight,
     (blockDesc.portsGroup['assumption'].length - 2) * 20 + 10);
@@ -302,15 +310,23 @@ function updateSizesSchieblehre1(el, blockDesc) {
 }
 
 function updateSizesSchieblehre2(el, blockDesc) {
+  var defaultSchieblehreWidth = (blockDesc.isPrototype ? 0 : 40);
+
   // Minimum sizes
-  impIConfig = {
+  var impIConfig = {
     leftWidth: 10,
     innerWidthLeft:  20,
-    innerWidthRight: 20+(blockDesc.schieblehrewidth||0),
+    innerWidthRight: 20,
     rightWidth: 10,
     leftHeight: 30,
     rightHeight: 30,
   };
+
+  if (blockDesc.schieblehrewidth === undefined) {
+    impIConfig.innerWidthRight += defaultSchieblehreWidth
+  } else {
+    impIConfig.innerWidthRight += blockDesc.schieblehrewidth
+  }
 
   impIConfig.leftHeight = Math.max(impIConfig.leftHeight,
     (blockDesc.portsGroup['assumption'].length - 3) * 20 + 10);

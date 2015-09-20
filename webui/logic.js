@@ -326,7 +326,7 @@ $(function (){
 });
 
 paper.on('element:schieblehre',function(cellView, direction, dx, dy) {
-  var basewidth0 = cellView.model.get('schieblehrebasewidth') || 0;
+  var basewidth0 = cellView.model.get('schieblehrebasewidth') || 40;
   var basewidth1 = basewidth0;
   if (direction == "resize-left") {
     basewidth1 -= dx;
@@ -336,7 +336,8 @@ paper.on('element:schieblehre',function(cellView, direction, dx, dy) {
     throw Error("element:schieblehre: Unknown direction " + direction)
   }
   cellView.model.set('schieblehrebasewidth', basewidth1);
-  var width0 = cellView.model.get('schieblehrewidth') || 0;
+  var width0 = cellView.model.get('schieblehrewidth');
+  if (width0 === undefined) { width0 = 40; }
   var width1 = Math.max(0, g.snapToGrid(basewidth1, paper.options.gridSize));
   if (width0 != width1) {
     cellView.model.set('schieblehrewidth', width1);
