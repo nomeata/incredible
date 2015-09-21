@@ -371,7 +371,7 @@ function taskFromText(text) {
   var now = 'assumptions';
   var ok = true;
   $.each(lines, function (i, l) {
-    if (l.match(/^-+$/)){
+    if (l.match(/^[–─–_-]+$/)){
       now = 'conclusions';
     } else {
       var prop = incredibleFormatTerm(l);
