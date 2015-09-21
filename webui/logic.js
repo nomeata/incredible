@@ -1,13 +1,12 @@
 // Some global variables
-var mode = {}; // Where does the current task come from?
+var task_desc; // A string describing the current task
 var task; // The current task
 var logic; // The current logic
 
 sessions.custom = {tasks: []};
 
-// What tasks of the session were solved
-var session_solved = {};
-var session_saved = {};
+var tasks_saved = {};
+var tasks_solved = {};
 
 
 var graph = new joint.dia.Graph({
@@ -203,17 +202,17 @@ function with_graph_loading(func) {
 }
 
 function saveTask() {
-  if (mode.hasOwnProperty('session')) {
-    session_saved[mode.session] = session_saved[mode.session] || {};
-    session_saved[mode.session][mode.task] = _.omit(graph.toJSON(), 'loading');
+  if (task_desc) {
+    tasks_saved[task_desc] = _.omit(graph.toJSON(), 'loading');
+    tasks_solved[task_desc] = graph.get('qed');
     saveSession()
   }
 }
 
 function saveSession() {
   localStorage["incredible-session"] = JSON.stringify({
-    saved: session_saved,
-    solved: session_solved,
+    saved: tasks_saved,
+    solved: tasks_solved,
     custom: sessions.custom
   });
 }
@@ -221,8 +220,8 @@ function saveSession() {
 function loadSession() {
   if (localStorage["incredible-session"]) {
     var stored = JSON.parse(localStorage["incredible-session"]);
-    session_saved  = stored.saved || {};
-    session_solved = stored.solved || {};
+    tasks_saved = stored.saved || {};
+    tasks_solved = stored.solved || {};
     sessions.custom = stored.custom || {tasks: []};
   }
 }
@@ -280,24 +279,25 @@ function loadTask(thisTask) {
 }
 
 
+function taskToDesc(logic, task) {
+  return JSON.stringify([logic, task.assumptions, task.conclusions]);
+}
+
 function selectSessionTask(evt) {
   saveTask();
 
-  mode = {
-    session: $(evt.currentTarget).data('session'),
-    task: $(evt.currentTarget).data('task')
-  }
-  var session = sessions[mode.session];
-  var thisTask = session.tasks[mode.task];
+  var session = sessions[$(evt.currentTarget).data('session')];
+  var thisTask = session.tasks[$(evt.currentTarget).data('task')];
+
+  task_desc = $(evt.currentTarget).data('desc');
 
   selectLogic(session.logic, session["visible-rules"]);
 
   setupPrototypeElements();
 
   loadTask(thisTask);
-  var saved_graph = (session_saved[mode.session]||{})[mode.task];
-  if (saved_graph) {
-    graph.fromJSON(saved_graph);
+  if (tasks_saved[task_desc]) {
+    graph.fromJSON(tasks_saved[task_desc]);
   }
   $("#taskdialog").hide();
 }
@@ -350,8 +350,8 @@ function setupTaskSelection() {
     var container = $("<div>").addClass("tasklist").appendTo("#sessiontasks");
     $.each(session.tasks, function (j,thisTask) {
       taskToHTML(thisTask)
-        .data({session: i, task: j})
-        .addClass("sessiontask-" + i + "-" + j)
+        .addClass("sessiontask")
+        .data({session: i, task: j, desc: taskToDesc(session.logic||'predicate', thisTask)})
         .on('click', with_graph_loading(selectSessionTask))
         .appendTo(container)
     });
@@ -359,8 +359,8 @@ function setupTaskSelection() {
 
   $.each(sessions.custom.tasks, function (j,thisTask) {
     taskToHTML(thisTask)
-      .data({session: 'custom', task: j})
-      .addClass("sessiontask-" + 'custom' + "-" + j)
+      .addClass("sessiontask")
+      .data({session: 'custom', task: j, desc: taskToDesc(sessions.custom.logic||'predicate', thisTask)})
       .on('click', with_graph_loading(selectSessionTask))
       .insertBefore("#customtask")
   });
@@ -371,10 +371,11 @@ function setupTaskSelection() {
       var j = sessions.custom.tasks.length;
       sessions.custom.tasks.push(thisTask);
       taskToHTML(thisTask)
-        .data({session: 'custom', task: j})
-        .addClass("sessiontask-" + 'custom' + "-" + j)
+        .addClass("sessiontask")
+        .data({session: 'custom', task: j, desc: taskToDesc(sessions.custom.logic||'predicate', thisTask)})
         .on('click', with_graph_loading(selectSessionTask))
         .insertBefore("#customtask");
+      updateTaskSelectionInfo(); // A bit overhead re-doing all of them, but that’s ok, I hope
       saveSession();
     } else {
       alert('Sorry, could not understand this task');
@@ -406,18 +407,27 @@ function taskFromText(text) {
   }
 }
 
-function showTaskSelection() {
-  $.each(session_solved, function (i, solved) {
-    $.each(solved, function (j,_) {
-      $(".sessiontask-" + i + "-" + j).addClass('solved');
+function updateTaskSelectionInfo() {
+  var lookupmap = {};
+  $(".sessiontask").each(function (i,t) {
+    var desc = $(t).data('desc');
+    lookupmap[desc] = lookupmap[desc]||[];
+    lookupmap[desc].push(t);
+  });
+  $.each(tasks_saved, function (desc, proof) {
+    $.each(lookupmap[desc]||[], function (i,t) {
+      $(t).addClass('attempted');
     });
   });
-  $.each(session_saved, function (i, attempted) {
-    $.each(attempted, function (j,_) {
-      $(".sessiontask-" + i + "-" + j).addClass('attempted');
+  $.each(tasks_solved, function (desc, qed) {
+    $.each(lookupmap[desc]||[], function (i,t) {
+      $(t).toggleClass('solved', qed);
     });
   });
+}
 
+function showTaskSelection() {
+  updateTaskSelectionInfo();
   $("#taskdialog").show();
 }
 
@@ -575,11 +585,8 @@ function processGraph() {
     $("#analysis").val(JSON.stringify(analysis, null, 2));
     $("#errors").empty()
 
-    if (mode.hasOwnProperty('session')) {
-      if (analysis.qed) {
-        session_solved[mode.session] = session_solved[mode.session] || {};
-        session_solved[mode.session][mode.task] = true;
-      }
+    if (task_desc) {
+      tasks_solved[task_desc] = analysis.qed;
     }
 
     // mock
@@ -622,6 +629,9 @@ function processGraph() {
     $.each(graph.getElements(), function (i, el) {
       el.set('qed', analysis.qed);
     });
+    // We _also_ set it on the graph itself, so that the status of a serialized
+    // task is immediately visible.
+    graph.set('qed', analysis.qed);
 
     // Collect errors
     $.each(analysis.cycles, function (i, path) {
