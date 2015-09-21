@@ -237,9 +237,14 @@ function selectNoTask() {
   processGraph();
 }
 
-function selectLogic(name) {
-  logic = examples.logics[name];
+function selectLogic(name, visible) {
+  logic = _.clone(examples.logics[name || 'predicate']);
 
+  if (visible) {
+    logic.rules = _.filter(logic.rules, function (r) {
+      return _.includes(visible, r.id);
+    });
+  }
   // Normalize the input here
   $.each(logic.rules, function (_,r) {
     $.each(r.ports, function (_,p) {
@@ -285,12 +290,7 @@ function selectSessionTask(evt) {
   var session = sessions[mode.session];
   var thisTask = session.tasks[mode.task];
 
-  logic = _.clone(examples.logics[session.logic || 'predicate']);
-  if (session["visible-rules"]) {
-    logic.rules = _.filter(logic.rules, function (r) {
-      return _.includes(session["visible-rules"], r.id);
-    });
-  }
+  selectLogic(session.logic, session["visible-rules"]);
 
   setupPrototypeElements();
 
