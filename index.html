@@ -43,10 +43,9 @@
 		text-align: center;
             }
             .inferencerule {
-                width: 13em;
+                width: 200px;
                 padding: 4px;
                 margin: 0 1em 1em 1em;
-                display: inline-block;
             }
             .inferencerule ul {
                 display: block;
@@ -78,8 +77,25 @@
                 flex-wrap: wrap;
                 /* justify-content: space-between;
                    ^ not a good idea, see http://stackoverflow.com/questions/1637797 */
-                align-items: baseline;
+                align-items: center;
 	    }
+
+            #customtask {
+                width: 200px;
+                padding: 4px;
+                margin: 0 1em 1em 1em;
+                text-align: center;
+            }
+            #customtask textarea {
+                width: 100%;
+                height: 80px;
+                display: inline-block;
+                font-family: sans-serif;
+                text-align: center;
+            }
+            #customtask button {
+                width: 100%;
+            }
 
             #leftpane {
 		position: absolute;
@@ -188,7 +204,14 @@
 
     <div id="taskdialog">
     <h2>What do you want to proof today?</h2>
-
+    <div id="sessiontasks"></div>
+    <h3>Eigene Aufgaben</h3>
+    <div id="customtasks" class="tasklist">
+    <div id="customtask">
+    <textarea>A&#10;----------&#10;A</textarea>
+    <button id="addcustomtask">Add</button>
+    </div>
+    </div>
     </div>
 
     <div id="help">

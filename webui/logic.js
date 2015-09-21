@@ -3,6 +3,8 @@ var mode = {}; // Where does the current task come from?
 var task; // The current task
 var logic; // The current logic
 
+sessions.custom = {logic: 'predicate', tasks: []};
+
 // What tasks of the session were solved
 var session_solved = {};
 var session_saved = {};
@@ -336,8 +338,8 @@ $(function () {
 
 function setupTaskSelection() {
   $.each(sessions, function (i,session) {
-    $("#taskdialog").append($("<h3>").text(session.name));
-    var container = $("<div>").addClass("tasklist").appendTo("#taskdialog");
+    $("<h3>").text(session.name).appendTo("#sessiontasks");
+    var container = $("<div>").addClass("tasklist").appendTo("#sessiontasks");
     $.each(session.tasks, function (j,thisTask) {
       taskToHTML(thisTask)
         .data({session: i, task: j})
@@ -346,6 +348,45 @@ function setupTaskSelection() {
         .appendTo(container)
     });
   });
+
+  $("#customtask #addcustomtask").on('click', function (){
+    var thisTask = taskFromText($("#customtask textarea").val());
+    if (thisTask) {
+      var j = sessions.custom.tasks.length;
+      sessions.custom.tasks.push(thisTask);
+      taskToHTML(thisTask)
+        .data({session: 'custom', task: j})
+        .addClass("sessiontask-" + 'custom' + "-" + j)
+        .on('click', with_graph_loading(selectSessionTask))
+        .insertBefore("#customtask")
+    } else {
+      alert('Sorry, could not understand this task');
+    }
+  });
+}
+
+function taskFromText(text) {
+  var lines = text.match(/[^\r\n]+/g);
+  var task = {assumptions: [], conclusions: []};
+  var now = 'assumptions';
+  var ok = true;
+  $.each(lines, function (i, l) {
+    if (l.match(/^-+$/)){
+      now = 'conclusions';
+    } else {
+      var prop = incredibleFormatTerm(l);
+      if (prop) {
+        task[now].push(l);
+      } else {
+        ok = false;
+      }
+    }
+  });
+  if (ok && now == 'conclusions') {
+    return task;
+  } else {
+    return
+  }
 }
 
 function showTaskSelection() {
