@@ -460,8 +460,14 @@ $(function (){
   );
 
   $("#reset").click(function(){
+    $(window).off("unload"); /* Otherwise we’d just save it again */
     localStorage.removeItem("incredible-session");
     window.location.reload(false);
+  });
+
+  $(window).unload(function () {
+    saveTask();
+    saveSession();
   });
 
   $("#inferredrule #inferredrulewrapper").draggable({
