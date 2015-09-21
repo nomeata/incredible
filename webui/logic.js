@@ -460,9 +460,11 @@ $(function (){
   );
 
   $("#reset").click(function(){
-    $(window).off("unload"); /* Otherwise we’d just save it again */
-    localStorage.removeItem("incredible-session");
-    window.location.reload(false);
+    if (window.confirm("Are you sure you want to remove all saved data (proofs, custom tasks, custom blocks)?")) {
+      $(window).off("unload"); /* Otherwise we’d just save it again */
+      localStorage.removeItem("incredible-session");
+      window.location.reload(false);
+    }
   });
 
   $(window).on('unload', function () {
