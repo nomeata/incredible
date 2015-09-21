@@ -1,3 +1,13 @@
+// Some global variables
+var mode = {}; // Where does the current task come from?
+var task; // The current task
+var logic; // The current logic
+
+// What tasks of the session were solved
+var session_solved = {};
+var session_saved = {};
+
+
 var graph = new joint.dia.Graph({
   loading: true
 });
@@ -27,7 +37,6 @@ var paper = new joint.dia.Paper({
 // zoom the viewport by 50%
 paper.scale(1.5, 1.5);
 
-
 function rescale_paper() {
   var paper_w = $("#paper").innerWidth() - 5;
   var paper_h = $("#paper").innerHeight() - 5;
@@ -41,9 +50,6 @@ function rescale_paper() {
 
 $(window).on('resize load', rescale_paper);
 
-// Diagram setup
-var task = examples.tasks.curry1;
-var logic = examples.logics.conjAndImp;
 
 function setupGraph(graph, logic, task) {
   var cells = [];
@@ -194,11 +200,18 @@ function with_graph_loading(func) {
   }
 }
 
+function saveTask() {
+  if (mode.hasOwnProperty('session')) {
+    session_saved[mode.session] = session_saved[mode.session] || {};
+    session_saved[mode.session][mode.task] = graph.toJSON();
+  }
+}
 
 function selectNoTask() {
   $("#taskselect").val("");
   $("#task").hide();
   $("#inferredrule").show();
+  saveTask();
   task = { };
   setupGraph(graph, logic, task);
   processGraph();
@@ -217,36 +230,65 @@ function selectLogic(name) {
   setupPrototypeElements();
 };
 
-function selectTask(name) {
-  task = examples.tasks[name];
+function selectNamedTask(name) {
+  saveTask();
+  selectLogic(examples.tasks[name].logic);
+  loadTask(examples.tasks[name]);
+  $("#taskselect").val(name);
+}
+
+function loadTask(thisTask) {
+  task = thisTask;
 
   // Normalize the input here
   task.assumptions = (task.assumptions || []).map(incredibleFormatTerm);
   task.conclusions = (task.conclusions || []).map(incredibleFormatTerm);
 
-  selectLogic(task.logic);
-
-  $("#taskselect").val(name);
   $("#proofselect").val("");
-  $("#assumptions").empty();
-  $.each(task.assumptions || [], function (i, el) {
-    $("#assumptions").append($("<div>").text(incredibleFormatTerm(el)));
-  });
-  $("#conclusions").empty();
-  $.each(task.conclusions || [], function (i, el) {
-    $("#conclusions").append($("<div>").text(incredibleFormatTerm(el)));
-  });
+
+  $("#taskwrap")
+    .empty()
+    .append(taskToHTML(task))
+    .show();
   $("#inferredrule").hide();
-  $("#task").show();
   setupGraph(graph, logic, task);
 }
+
+
+function selectSessionTask(evt) {
+  saveTask();
+
+  mode = {
+    session: $(evt.currentTarget).data('session'),
+    task: $(evt.currentTarget).data('task')
+  }
+  var session = sessions[mode.session];
+  var thisTask = session.tasks[mode.task];
+
+  logic = _.clone(examples.logics[session.logic]);
+  if (session["visible-rules"]) {
+    logic.rules = _.filter(logic.rules, function (r) {
+      return _.includes(session["visible-rules"], r.id);
+    });
+  }
+
+  setupPrototypeElements();
+
+  loadTask(thisTask);
+  var saved_graph = (session_saved[mode.session]||{})[mode.task];
+  if (saved_graph) {
+    graph.fromJSON(saved_graph);
+  }
+  $("#taskdialog").hide();
+}
+
 
 function selectProof(name) {
   proof = examples.graphs[name];
   proof.loading = true;
 
   if (proof.task) {
-    selectTask(proof.task);
+    selectNamedTask(proof.task);
   } else if (proof.logic) {
     selectLogic(proof.logic);
     selectNoTask();
@@ -260,7 +302,54 @@ function selectProof(name) {
   $.each(graph.getElements(), function (i, el) {
     if (el.get('prototypeElement')) {el.remove()};
   });
+  proof.set('loading', false);
+}
 
+function taskToHTML(task) {
+  d1 = $("<div>");
+  $.each(task.assumptions || [], function (i, el) {
+    d1.append($("<div>").text(incredibleFormatTerm(el)));
+  });
+  d2 = $("<div>");
+  $.each(task.conclusions || [], function (i, el) {
+    d2.append($("<div>").text(incredibleFormatTerm(el)));
+  });
+ return $("<div class='inferencerule'>").append(d1, $("<hr/>"), d2);
+}
+
+$(function () {
+  $("#switchtask").on('click', function () {
+    saveTask(); // to update session_saved
+    $.each(session_solved, function (i, solved) {
+      $.each(solved, function (j,_) {
+        $(".sessiontask-" + i + "-" + j).addClass('solved');
+      });
+    });
+    $.each(session_saved, function (i, attempted) {
+      $.each(attempted, function (j,_) {
+        $(".sessiontask-" + i + "-" + j).addClass('attempted');
+      });
+    });
+    $("#taskdialog").show();
+  });
+});
+
+function setupTaskSelection() {
+  $.each(sessions, function (i,session) {
+    $("#taskdialog").append($("<h3>").text(session.name));
+    $.each(session.tasks, function (j,thisTask) {
+      $("#taskdialog").append(
+        taskToHTML(thisTask)
+          .data({session: i, task: j})
+          .addClass("sessiontask-" + i + "-" + j)
+          .on('click', with_graph_loading(selectSessionTask))
+      );
+    });
+  });
+}
+
+function showTaskSelection() {
+  $("#taskdialog").show();
 }
 
 function blockNumberMap() {
@@ -281,7 +370,7 @@ function nextFreeBlockNumber() {
 }
 
 $(function (){
-  $("#taskselect").change(with_graph_loading(function () { if (this.value) selectTask(this.value); }));
+  $("#taskselect").change(with_graph_loading(function () { if (this.value) selectNamedTask(this.value); }));
   $("#proofselect").change(with_graph_loading (function () { if (this.value) selectProof(this.value); }));
   $("#freeproof").click(with_graph_loading (function () { selectNoTask(); }));
 
@@ -321,8 +410,8 @@ $(function (){
     }
   });
 
-  selectTask('conjself');
-  graph.set('loading', false);
+  setupTaskSelection();
+  showTaskSelection();
 });
 
 paper.on('element:schieblehre',function(cellView, direction, dx, dy) {
@@ -402,12 +491,18 @@ function processGraph() {
     $("#analysis").val(JSON.stringify(analysis, null, 2));
     $("#errors").empty()
 
+    if (mode.hasOwnProperty('session')) {
+      if (analysis.qed) {
+        session_solved[mode.session] = session_solved[mode.session] || {};
+        session_solved[mode.session][mode.task] = true;
+      }
+    }
+
     // mock
     // analysis.rule = logic.rules[0];
 
     if ($("#inferredrule").is(':visible')) {
       if (analysis.rule) {
-        // TODO: Draw the block here
         $("#inferredrule svg").each(function (n, el) {
           $(el).empty();
           var g = V("<g/>");

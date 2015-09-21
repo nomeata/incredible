@@ -11,6 +11,10 @@
         <link rel="stylesheet" type="text/css" href="./fonts/lintsec_regular_macroman/stylesheet.css" />
 
         <style>
+            body {
+                font-family: sans-serif;
+            }
+
 	    #header {
 		position: absolute;
 		top:0px;
@@ -35,10 +39,31 @@
 		overflow: auto;
             }
 
-	    #task h3, #inferredrule h3 {
-		padding:1px;
-		margin:0px;
-	    }
+            #taskwrap {
+		text-align: center;
+            }
+            .inferencerule {
+                width: 13em;
+                padding: 2px;
+                margin: 0 1em 1em 1em;
+                display: inline-block;
+            }
+            .inferencerule > div {
+		text-align: center;
+            }
+            #taskdialog .inferencerule.attempted {
+                background: wheat;
+            }
+            #taskdialog .inferencerule.solved {
+                background: #0f0;
+            }
+            #taskdialog .inferencerule {
+                border: 1px solid lightgray;
+                cursor: pointer;
+            }
+            #taskdialog .inferencerule:hover{
+                border: 1px solid black;
+            }
 
             #leftpane {
 		position: absolute;
@@ -60,7 +85,7 @@
 		overflow: auto;
             }
 
-	    #dialog, #help {
+	    #dialog, #help, #taskdialog {
 		border:2px solid grey;
 		background:white;
 		display:none;
@@ -70,7 +95,7 @@
 		right:0px;
 		margin-left:auto;
 		margin-right:auto;
-		width:800px;
+		width:1000px;
 		bottom:100px;
 		overflow: auto;
 		padding:15px;
@@ -99,9 +124,8 @@
     <div id="leftpane">
       <div id="task">
 	<h3>Current task:</h3>
-	<div id="assumptions"></div>
-	<hr/>
-	<div id="conclusions"></div>
+        <div id="taskwrap"></div>
+        <button id="switchtask">Switch task...</button>
       </div>
       <h3>Logikbausteine:</h3>
       <div id="logic"></div>
@@ -146,6 +170,11 @@
     <textarea  cols=100 rows=20 id="analysis" readonly="readonly"></textarea>
     </div>
 
+    <div id="taskdialog">
+    <h2>What do you want to proof today?</h2>
+
+    </div>
+
     <div id="help">
     <div style="text-align:right"><button id="closehelp">×</button></div>
     <h2>Welcome to <span class="incrediblefont">The Incredible Proof Machine</span></h2>
@@ -180,6 +209,7 @@
 
         <script src="./logic.js"></script>
         <script src="./examples.js"></script>
+        <script src="./sessions.js"></script>
         <script src="./webui/shapes.js"></script>
         <script src="./webui/logic.js"></script>
 
