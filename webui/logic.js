@@ -306,13 +306,13 @@ function selectProof(name) {
 }
 
 function taskToHTML(task) {
-  d1 = $("<div class='assumptions'>");
+  d1 = $("<ul class='assumptions'>");
   $.each(task.assumptions || [], function (i, el) {
-    d1.append($("<div>").text(incredibleFormatTerm(el)));
+    d1.append($("<li>").text(incredibleFormatTerm(el)));
   });
-  d2 = $("<div class='conclusions'>");
+  d2 = $("<ul class='conclusions'>");
   $.each(task.conclusions || [], function (i, el) {
-    d2.append($("<div>").text(incredibleFormatTerm(el)));
+    d2.append($("<li>").text(incredibleFormatTerm(el)));
   });
  return $("<div class='inferencerule'>").append(d1, $("<hr/>"), d2);
 }
