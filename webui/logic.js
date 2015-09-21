@@ -465,7 +465,7 @@ $(function (){
     window.location.reload(false);
   });
 
-  $(window).unload(function () {
+  $(window).on('unload', function () {
     saveTask();
     saveSession();
   });
