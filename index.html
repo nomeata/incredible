@@ -7,6 +7,7 @@
         <title>The Incredible Proof Machine</title>
 
         <link rel="stylesheet" type="text/css" href="./vendor/joint.min.css" />
+        <link rel="stylesheet" type="text/css" href="./webui/loader.css" />
         <link rel="stylesheet" type="text/css" href="./webui/logic.css" />
         <link rel="stylesheet" type="text/css" href="./fonts/lintsec_regular_macroman/stylesheet.css" />
 
@@ -14,6 +15,16 @@
             body {
                 font-family: sans-serif;
             }
+
+	    #loading {
+		position: absolute;
+		top:0px;
+		left:0px;
+		right:0px;
+		bottom:0px;
+		/* background: lightgray; */
+		/* ^ too much flickering if loading is quick */
+	    }
 
 	    #header {
 		position: absolute;
@@ -239,8 +250,13 @@
     </p>
     </div>
 
+    <div id="loading">
+	<div class="signal"></div>
+    </div>
+
 
         <script src="./vendor/jquery-2.1.4.min.js"></script>
+        <script type="text/javascript">$.holdReady( true );</script>
 	<script src="./vendor/jquery-ui/jquery-ui.js"></script>
         <script src="./vendor/lodash.min.js"></script>
         <script src="./vendor/backbone-min.js"></script>

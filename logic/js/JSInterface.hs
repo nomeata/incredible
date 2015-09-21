@@ -3,6 +3,8 @@ import Control.Monad
 import GHCJS.Marshal
 import GHCJS.Foreign
 import GHCJS.Types
+import System.IO
+import Control.Concurrent
 
 import ConvertJS
 import Entry
@@ -15,7 +17,13 @@ foreign import javascript unsafe "incredibleLogic_ = $1"
 foreign import javascript unsafe "incredibleFormatTerm_ = $1"
     js_set_formatter :: JSFun a -> IO ()
 
+foreign import javascript unsafe "$.holdReady(false)"
+    js_unblock_jquery :: IO ()
+
 main = do
+    putStr "Haskell logic core starting..."
+    hFlush stdout
+
     callback <- syncCallback1 NeverRetain False $ \o -> do
         rawContext <- getProp "context" o
         rawTask <- getProp "task" o
@@ -42,3 +50,5 @@ main = do
 
     js_set_formatter callback
 
+    putStr "Haskell logic core callbacks initialized."
+    js_unblock_jquery

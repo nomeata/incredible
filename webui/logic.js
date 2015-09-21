@@ -332,7 +332,7 @@ $(function () {
         $(".sessiontask-" + i + "-" + j).addClass('attempted');
       });
     });
-    $("#taskdialog").show();
+    showTaskSelection();
   });
 });
 
@@ -453,6 +453,7 @@ $(function (){
 
   setupTaskSelection();
   showTaskSelection();
+  $("#loading").fadeOut({duration: 500});
 });
 
 paper.on('element:schieblehre',function(cellView, direction, dx, dy) {
