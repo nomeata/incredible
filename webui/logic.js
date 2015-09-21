@@ -3,7 +3,7 @@ var mode = {}; // Where does the current task come from?
 var task; // The current task
 var logic; // The current logic
 
-sessions.custom = {logic: 'predicate', tasks: []};
+sessions.custom = {tasks: []};
 
 // What tasks of the session were solved
 var session_solved = {};
@@ -205,7 +205,25 @@ function with_graph_loading(func) {
 function saveTask() {
   if (mode.hasOwnProperty('session')) {
     session_saved[mode.session] = session_saved[mode.session] || {};
-    session_saved[mode.session][mode.task] = graph.toJSON();
+    session_saved[mode.session][mode.task] = _.omit(graph.toJSON(), 'loading');
+    saveSession()
+  }
+}
+
+function saveSession() {
+  localStorage["incredible-session"] = JSON.stringify({
+    saved: session_saved,
+    solved: session_solved,
+    custom: sessions.custom
+  });
+}
+
+function loadSession() {
+  if (localStorage["incredible-session"]) {
+    var stored = JSON.parse(localStorage["incredible-session"]);
+    session_saved  = stored.saved || {};
+    session_solved = stored.solved || {};
+    sessions.custom = stored.custom || {tasks: []};
   }
 }
 
@@ -267,7 +285,7 @@ function selectSessionTask(evt) {
   var session = sessions[mode.session];
   var thisTask = session.tasks[mode.task];
 
-  logic = _.clone(examples.logics[session.logic]);
+  logic = _.clone(examples.logics[session.logic || 'predicate']);
   if (session["visible-rules"]) {
     logic.rules = _.filter(logic.rules, function (r) {
       return _.includes(session["visible-rules"], r.id);
@@ -322,16 +340,6 @@ function taskToHTML(task) {
 $(function () {
   $("#switchtask").on('click', function () {
     saveTask(); // to update session_saved
-    $.each(session_solved, function (i, solved) {
-      $.each(solved, function (j,_) {
-        $(".sessiontask-" + i + "-" + j).addClass('solved');
-      });
-    });
-    $.each(session_saved, function (i, attempted) {
-      $.each(attempted, function (j,_) {
-        $(".sessiontask-" + i + "-" + j).addClass('attempted');
-      });
-    });
     showTaskSelection();
   });
 });
@@ -349,6 +357,14 @@ function setupTaskSelection() {
     });
   });
 
+  $.each(sessions.custom.tasks, function (j,thisTask) {
+    taskToHTML(thisTask)
+      .data({session: 'custom', task: j})
+      .addClass("sessiontask-" + 'custom' + "-" + j)
+      .on('click', with_graph_loading(selectSessionTask))
+      .insertBefore("#customtask")
+  });
+
   $("#customtask #addcustomtask").on('click', function (){
     var thisTask = taskFromText($("#customtask textarea").val());
     if (thisTask) {
@@ -358,7 +374,8 @@ function setupTaskSelection() {
         .data({session: 'custom', task: j})
         .addClass("sessiontask-" + 'custom' + "-" + j)
         .on('click', with_graph_loading(selectSessionTask))
-        .insertBefore("#customtask")
+        .insertBefore("#customtask");
+      saveSession();
     } else {
       alert('Sorry, could not understand this task');
     }
@@ -390,6 +407,17 @@ function taskFromText(text) {
 }
 
 function showTaskSelection() {
+  $.each(session_solved, function (i, solved) {
+    $.each(solved, function (j,_) {
+      $(".sessiontask-" + i + "-" + j).addClass('solved');
+    });
+  });
+  $.each(session_saved, function (i, attempted) {
+    $.each(attempted, function (j,_) {
+      $(".sessiontask-" + i + "-" + j).addClass('attempted');
+    });
+  });
+
   $("#taskdialog").show();
 }
 
@@ -431,6 +459,11 @@ $(function (){
     $("#help").hide()}
   );
 
+  $("#reset").click(function(){
+    localStorage.removeItem("incredible-session");
+    window.location.reload(false);
+  });
+
   $("#inferredrule #inferredrulewrapper").draggable({
     appendTo: "body",
     helper: "clone"
@@ -451,6 +484,7 @@ $(function (){
     }
   });
 
+  loadSession();
   setupTaskSelection();
   showTaskSelection();
   $("#loading").fadeOut({duration: 500});
