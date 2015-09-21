@@ -40,8 +40,10 @@
     conclusions: ["B"]
   - assumptions: ["A","A→A"]
     conclusions: ["A"]
-  - assumptions: ["A","A→B","A→C"]
-    conclusions: ["A"]
+  - assumptions: ["A","A→B","B→C"]
+    conclusions: ["C"]
+  - assumptions: ["A","A→B","A→C","C→D", "B→D"]
+    conclusions: ["D"]
 - name: Lektion 3
   logic: predicate
   tasks:
