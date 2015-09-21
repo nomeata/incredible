@@ -1,4 +1,4 @@
-targets := logic.js examples.js
+targets := logic.js examples.js sessions.js
 
 all: ${targets}
 
