@@ -299,7 +299,15 @@ function selectSessionTask(evt) {
   if (tasks_saved[task_desc]) {
     graph.fromJSON(tasks_saved[task_desc]);
   }
-  $("#taskdialog").hide();
+
+  // Start the animation at the end
+  /*
+  $("#taskdialog").animate({top: "100%", overflow:"hidden"}, {
+    duration: 800,
+    complete: function() {$(this).hide()},
+  });
+  */
+  $("#taskdialog").hide("slide", {direction:"down"}, 800);
 }
 
 
@@ -428,7 +436,7 @@ function updateTaskSelectionInfo() {
 
 function showTaskSelection() {
   updateTaskSelectionInfo();
-  $("#taskdialog").show();
+  $("#taskdialog").show("slide", {direction:"down"}, 800);
 }
 
 function blockNumberMap() {

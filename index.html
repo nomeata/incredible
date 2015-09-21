@@ -41,7 +41,7 @@
 		top:0px;
 		left:0px;
 		right:0px;
-		height:75px;
+		height:80px;
 		overflow: auto;
 		border-bottom: 5px solid grey;
 		padding:10px;
@@ -161,14 +161,30 @@
 	    }
 
 	    #taskdialog {
+		border-top: 5px solid grey;
 		position: absolute;
+		margin:0px;
 		top:100px;
 		left:0px;
 		right:0px;
 		bottom:0px;
 		background:white;
+		overflow: auto;
 		padding:15px;
 
+	    }
+
+	    #taskbottombar {
+		text-align:center;
+		border-top: 5px solid grey;
+		position: absolute;
+		margin:0px;
+		left:0px;
+		right:0px;
+		bottom:0px;
+		height: 20px;
+		background:white;
+		padding: 5px;
 	    }
 
 	    .incrediblefont {
@@ -195,7 +211,6 @@
       <div id="task">
 	<h3>Current task:</h3>
         <div id="taskwrap"></div>
-        <button id="switchtask">Switch task...</button>
       </div>
       <h3>Logikbausteine:</h3>
       <div id="logic"></div>
@@ -244,6 +259,10 @@
     <textarea  cols=100 rows=20 id="analysis" readonly="readonly"></textarea>
     </div>
 
+    <div id="taskbottombar">
+        <button id="switchtask">Switch task...</button>
+    </div>
+
     <div id="taskdialog">
     <h2>What do you want to prove today?</h2>
     <div id="sessiontasks"></div>
@@ -255,6 +274,7 @@
     </div>
     </div>
     </div>
+
 
     <div id="help">
     <div style="text-align:right"><button id="closehelp">×</button></div>
