@@ -65,6 +65,14 @@
                 border: 1px solid black;
             }
 
+	    .tasklist {
+                display: flex;
+                flex-wrap: wrap;
+                /* justify-content: space-between;
+                   ^ not a good idea, see http://stackoverflow.com/questions/1637797 */
+                align-items: baseline;
+	    }
+
             #leftpane {
 		position: absolute;
 		top:150px;

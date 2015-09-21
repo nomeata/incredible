@@ -306,11 +306,11 @@ function selectProof(name) {
 }
 
 function taskToHTML(task) {
-  d1 = $("<div>");
+  d1 = $("<div class='assumptions'>");
   $.each(task.assumptions || [], function (i, el) {
     d1.append($("<div>").text(incredibleFormatTerm(el)));
   });
-  d2 = $("<div>");
+  d2 = $("<div class='conclusions'>");
   $.each(task.conclusions || [], function (i, el) {
     d2.append($("<div>").text(incredibleFormatTerm(el)));
   });
@@ -337,13 +337,13 @@ $(function () {
 function setupTaskSelection() {
   $.each(sessions, function (i,session) {
     $("#taskdialog").append($("<h3>").text(session.name));
+    var container = $("<div>").addClass("tasklist").appendTo("#taskdialog");
     $.each(session.tasks, function (j,thisTask) {
-      $("#taskdialog").append(
-        taskToHTML(thisTask)
-          .data({session: i, task: j})
-          .addClass("sessiontask-" + i + "-" + j)
-          .on('click', with_graph_loading(selectSessionTask))
-      );
+      taskToHTML(thisTask)
+        .data({session: i, task: j})
+        .addClass("sessiontask-" + i + "-" + j)
+        .on('click', with_graph_loading(selectSessionTask))
+        .appendTo(container)
     });
   });
 }
