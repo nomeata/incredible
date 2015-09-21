@@ -31,10 +31,11 @@
 		top:0px;
 		left:0px;
 		right:0px;
-		height:115px;
+		height:65px;
 		overflow: auto;
 		border-bottom: 5px solid grey;
 		padding:15px;
+		text-align: center;
             }
 
 	    #task #assumptions, #task #conclusions {
@@ -110,7 +111,7 @@
 
             #leftpane {
 		position: absolute;
-		top:150px;
+		top:100px;
 		left:0px;
 		width:268px;
 		bottom:0px;
@@ -119,9 +120,14 @@
                 padding:15px;
             }
 
+	    #devtools {
+		margin-top: 6em;
+		color: gray;
+	    }
+
             #paper {
 		position: absolute;
-		top:150px;
+		top:100px;
 		left:300px;
 		right:0px;
 		bottom:0px;
@@ -146,7 +152,7 @@
 
 	    #taskdialog {
 		position: absolute;
-		top:150px;
+		top:100px;
 		left:0px;
 		right:0px;
 		bottom:0px;
@@ -187,6 +193,19 @@
       <div id="helpers"></div>
       <h3>Eigene Bausteine:</h3>
       <div id="custom"></div>
+
+      <div id="devtools">
+      <h3>Entwicklertools:</h3>
+	Example tasks: <select id="taskselect"></select><br/>
+	<button id="freeproof">Start empty proof</button><br/>
+	Example proofs: <select id="proofselect"><option value="" label=""></option></select><br/>
+	<button id="showdialog">Details</button>
+	<button id="reset" title="Forget all stored data">Reset</button>
+	<button id="showhelp">Help</button><br/>
+	<div id="errors"></div>
+
+        <!-- <label><input type="checkbox" id="unify" checked="checked" /> Run unification</label> -->
+     </div>
     </div>
 
 
@@ -194,16 +213,6 @@
 
     <div id="header">
       <h1>The Incredible Proof Machine</h1>
-	Load a new task: <select id="taskselect"></select>
-	<button id="freeproof">Start empty proof</button>
-	Load existing proof: <select id="proofselect"><option value="" label=""></option></select>
-	<button id="showdialog">Details</button>
-	<button id="reset" title="Forget all stored data">Reset</button>
-	<button id="showhelp">Help</button>
-        <!-- <label><input type="checkbox" id="unify" checked="checked" /> Run unification</label> -->
-        <br/>
-	<div id="errors"></div>
-
 	<div id="inferredrule">
 	<h3>You proved:</h3>
 	<div id="inferredrulewrapper">
