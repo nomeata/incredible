@@ -194,10 +194,13 @@ $.each(examples.graphs, function (name, l) {
 
 function with_graph_loading(func) {
   return function() {
+    // Doesn't actually work
+    // $("#loading").show();
     graph.set('loading', true);
     func.apply(this,arguments);
     graph.set('loading', false);
     processGraph();
+    // $("#loading").hide();
   }
 }
 
@@ -832,4 +835,15 @@ function makeConnEnd(graph, x) {
     ret.port = x.port;
   }
   return ret;
+}
+
+// time arg is in milliseconds
+// Use only to simulate heave calculations!
+// from http://stackoverflow.com/a/3048834/946226
+function fakedelay(time) {
+  var d1 = new Date();
+  var d2 = new Date();
+  while (d2.valueOf() < d1.valueOf() + time) {
+    d2 = new Date();
+  }
 }
