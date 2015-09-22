@@ -50,13 +50,9 @@ function selectSessionTask(evt) {
   }
 
   // Start the animation at the end
-  /*
-  $("#taskdialog").animate({top: "100%", overflow:"hidden"}, {
-    duration: 800,
-    complete: function() {$(this).hide()},
+  $("#taskdialog").hide("slide", {direction:"down"}, 800, function () {
+    $("#taskbottombar").show("slide", {direction:"down"}, 100);
   });
-  */
-  $("#taskdialog").hide("slide", {direction:"down"}, 800);
 }
 
 function taskToHTML(task) {
@@ -72,7 +68,7 @@ function taskToHTML(task) {
 }
 
 $(function () {
-  $("#switchtask").on('click', function () {
+  $("#taskbottombar").on('click', function () {
     saveTask(); // to update session_saved
     showTaskSelection();
   });
@@ -162,7 +158,9 @@ function updateTaskSelectionInfo() {
 
 function showTaskSelection() {
   updateTaskSelectionInfo();
-  $("#taskdialog").show("slide", {direction:"down"}, 800);
+  $("#taskbottombar").hide("slide", {direction: "down"}, 100, function () {
+    $("#taskdialog").show("slide", {direction:"down"}, 800);
+  });
 }
 
 $(function (){
