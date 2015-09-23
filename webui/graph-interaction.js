@@ -80,7 +80,7 @@ $(function() {
 
       if (cell.get('annotation')) {
         var done = false;
-        var prmpt = 'Input proposition';
+        var prmpt = i18n.t('Input proposition');
         var val = cell.get('annotation');
         while (!done) {
           val = window.prompt(prmpt, val);
@@ -90,7 +90,7 @@ $(function() {
               done = true;
               cell.set('annotation', prettyPrinted);
             } else {
-              prmpt = 'Could not parse, please try again:';
+              prmpt = i18n.t('Could not parse, please try again:');
             }
           } else {
             done = true;

@@ -149,13 +149,13 @@
 		background:white;
 		display:none;
 		position: absolute;
-		top:100px;
+		top:120px;
 		left:0px;
 		right:0px;
 		margin-left:auto;
 		margin-right:auto;
 		width:1000px;
-		bottom:100px;
+		bottom:120px;
 		overflow: auto;
 		padding:15px;
 	    }
@@ -213,18 +213,18 @@
 
     <div id="leftpane">
       <div id="task">
-	<h3>Current task:</h3>
+	<h3 data-i18n>Current task:</h3>
         <div id="taskwrap"></div>
       </div>
-      <h3>Logikbausteine:</h3>
+      <h3 data-i18n>Logics blocks:</h3>
       <div id="logic"></div>
-      <h3>Hilfsbausteine:</h3>
+      <h3 data-i18n>Helper blocks:</h3>
       <div id="helpers"></div>
-      <h3>Eigene Bausteine:</h3>
+      <h3 data-i18n>Custom blocks:</h3>
       <div id="custom"></div>
 
       <div id="devtools">
-      <h3>Entwicklertools:</h3>
+      <h3 data-i18n>Developers tools</h3>
 	Example tasks: <select id="taskselect"></select><br/>
 	<button id="freeproof">Start empty proof</button><br/>
 	Example proofs: <select id="proofselect"><option value="" label=""></option></select><br/>
@@ -243,7 +243,7 @@
     <div id="header">
       <h1>The Incredible Proof Machin<span class="e">e</span></h1>
 	<div id="inferredrule">
-	<h3>You proved:</h3>
+	<h3 data-i18n>You proved:</h3>
 	<div id="inferredrulewrapper">
 	<svg xmlns="http://www.w3.org/2000/svg" width="30em" height="100px"></svg>
 	</div>
@@ -263,18 +263,16 @@
     <textarea  cols=100 rows=20 id="analysis" readonly="readonly"></textarea>
     </div>
 
-    <div id="taskbottombar">
-        switch task...
-    </div>
+    <div id="taskbottombar" data-i18n="switch">switch task...</div>
 
     <div id="taskdialog">
-    <h2>What do you want to prove today?</h2>
+    <h2 data-i18n>What do you want to prove today?</h2>
     <div id="sessiontasks"></div>
-    <h3>Eigene Aufgaben</h3>
+    <h3 data-i18n>Custom tasks</h3>
     <div id="customtasks" class="tasklist">
     <div id="customtask">
     <textarea>A&#10;────────────&#10;A</textarea>
-    <button id="addcustomtask">Add</button>
+    <button id="addcustomtask" data-i18n>Add</button>
     </div>
     </div>
     </div>
@@ -312,6 +310,8 @@
 
         <script src="./vendor/jquery-2.1.4.min.js"></script>
         <script type="text/javascript">$.holdReady( true );</script>
+        <script src="./vendor/i18next-1.10.1.min.js"></script>
+        <script src="./webui/i18n.js"></script>
 	<script src="./vendor/jquery-ui/jquery-ui.js"></script>
         <script src="./vendor/lodash.min.js"></script>
         <script src="./vendor/backbone-min.js"></script>

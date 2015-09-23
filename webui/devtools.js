@@ -71,7 +71,7 @@ $(function (){
   );
 
   $("#reset").click(function(){
-    if (window.confirm("Are you sure you want to remove all saved data (proofs, custom tasks, custom blocks)?")) {
+    if (window.confirm(i18n.t("confirm-reset"))) {
       $(window).off("unload"); /* Otherwise we’d just save it again */
       localStorage.removeItem("incredible-session");
       window.location.reload(false);

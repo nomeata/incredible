@@ -108,7 +108,7 @@ function setupTaskSelection() {
       updateTaskSelectionInfo(); // A bit overhead re-doing all of them, but that’s ok, I hope
       saveSession();
     } else {
-      alert('Sorry, could not understand this task');
+      alert(i18n.t('task-parse-error'));
     }
   });
 }

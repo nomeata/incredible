@@ -97,7 +97,7 @@ function processGraph() {
       } else {
         $("#inferredrule svg").each(function (n, el) {
           $(el).empty();
-          V(el).append(V("<text fill='black'/>").text("nothing"));
+          V(el).append(V("<text fill='black'/>").text(i18n.t('nothing')));
         });
       }
     }
@@ -158,7 +158,7 @@ function processGraph() {
         var symbol;
         if (lbl.type == "mismatch")   {symbol = "☠"}
         else if (lbl.type == "dunno") {symbol = "?"}
-        else {console.log("Unknown connection label type")}
+        else {throw Error("processGraph: Unknown connection label type")}
 
         // not very nice, see http://stackoverflow.com/questions/32010888
         conn.attr({'.connection': {class: 'connection error'}});
