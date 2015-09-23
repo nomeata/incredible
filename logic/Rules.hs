@@ -8,8 +8,9 @@ import Data.Tagged
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-deriveRule :: Context -> Task -> Proof -> BlockProps -> Bindings -> Rule
-deriveRule ctxt task proof renamedBlockProps bindings = Rule {ports = rulePorts, localVars = [], freeVars = []}
+deriveRule :: Context -> Task -> Proof -> BlockProps -> Bindings -> (M.Map (Key Block) [Var]) -> Rule
+deriveRule ctxt task proof renamedBlockProps bindings blockVariables =
+    Rule {ports = rulePorts, localVars = localVars, freeVars = []}
   where
     portNames = map (Tagged . ("in"++) . show) [1::Integer ..]
 
@@ -27,12 +28,20 @@ deriveRule ctxt task proof renamedBlockProps bindings = Rule {ports = rulePorts,
       | (_, (Connection from to)) <- M.toList $ connections proof
       , (NoPort, BlockPort bKey pKey) <- [(from, to), (to, from)] ]
 
+    surfaceBlocks :: S.Set (Key Block)
     surfaceBlocks = S.fromList $ map fst openPorts
 
     relabeledPorts = concat
       [ ports
       | bKey <- S.toList surfaceBlocks
       , let ports = relabelPorts task renamedBlockProps bKey (block2Rule ctxt $ blocks proof M.! bKey) bindings (map snd $ filter (\(a, _) -> a == bKey) openPorts) ]
+
+    localVars :: [Var]
+    localVars = concat $
+      [ vs
+      | (bKey, vars) <- M.toList blockVariables
+      , S.member bKey surfaceBlocks
+      , let vs = vars ]
 
     dummyPorts =
       [ p
