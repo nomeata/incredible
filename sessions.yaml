@@ -1,0 +1,56 @@
+- name: Lektion 1
+  logic: predicate
+  visible-rules:
+    - conjI
+    - conjE
+  tasks:
+  - assumptions: ["A"]
+    conclusions: ["A"]
+  - assumptions: ["A", "B"]
+    conclusions: ["A"]
+  - assumptions: ["A", "B"]
+    conclusions: ["B", "A"]
+  - assumptions: ["A", "B"]
+    conclusions: ["A∧B"]
+  - assumptions: ["A"]
+    conclusions: ["A∧A"]
+  - assumptions: ["A∧B"]
+    conclusions: ["A"]
+  - assumptions: ["A∧B"]
+    conclusions: ["A", "B"]
+  - assumptions: ["A∧B"]
+    conclusions: ["A∧B"]
+  - assumptions: ["A∧B"]
+    conclusions: ["B∧A"]
+  - assumptions: ["A∧B∧C"]
+    conclusions: ["A","B","C"]
+  - assumptions: ["A∧B∧C"]
+    conclusions: ["A∧C"]
+  - assumptions: ["A∧B∧C"]
+    conclusions: ["A∧(B∧C)"]
+- name: Lektion 2
+  logic: predicate
+  visible-rules:
+    - conjI
+    - conjE
+    - impI
+    - impE
+  tasks:
+  - assumptions: ["A","A→B"]
+    conclusions: ["B"]
+  - assumptions: ["A","A→A"]
+    conclusions: ["A"]
+  - assumptions: ["A","A→B","B→C"]
+    conclusions: ["C"]
+  - assumptions: ["A","A→B","A→C","C→D", "B→D"]
+    conclusions: ["D"]
+- name: Lektion 3
+  logic: predicate
+  tasks:
+  - conclusions: ["∃x.t(x)→(∀x.t(x))"]
+  - assumptions: ["∀x.(r(x)→⊥)→r(f(x))"]
+    conclusions: ["∃x.r(x)∧r(f(f(x)))"]
+- name: "Hilbert-Kakül"
+  logic: hilbert
+  tasks:
+  - conclusions: ["A→A"]

@@ -7,19 +7,45 @@
         <title>The Incredible Proof Machine</title>
 
         <link rel="stylesheet" type="text/css" href="./vendor/joint.min.css" />
+        <link rel="stylesheet" type="text/css" href="./webui/loader.css" />
         <link rel="stylesheet" type="text/css" href="./webui/logic.css" />
         <link rel="stylesheet" type="text/css" href="./fonts/lintsec_regular_macroman/stylesheet.css" />
 
         <style>
+            body {
+                font-family: sans-serif;
+            }
+
+	    h1 .e {
+		display: inline-block;
+		-ms-transform: rotate(180deg);
+		-webkit-transform: rotate(180deg);
+		-moz-transform: rotate(180deg);
+		transform: rotate(180deg);
+
+		transform-origin: center 44%;
+	    }
+
+	    #loading {
+		position: absolute;
+		top:0px;
+		left:0px;
+		right:0px;
+		bottom:0px;
+		/* background: lightgray; */
+		/* ^ too much flickering if loading is quick */
+	    }
+
 	    #header {
 		position: absolute;
 		top:0px;
 		left:0px;
 		right:0px;
-		height:115px;
+		height:80px;
 		overflow: auto;
 		border-bottom: 5px solid grey;
-		padding:15px;
+		padding:10px;
+		text-align: center;
             }
 
 	    #task #assumptions, #task #conclusions {
@@ -35,14 +61,67 @@
 		overflow: auto;
             }
 
-	    #task h3, #inferredrule h3 {
-		padding:1px;
-		margin:0px;
+            #taskwrap {
+		text-align: center;
+            }
+            .inferencerule {
+                width: 200px;
+                padding: 4px;
+                margin: 0 1em 1em 1em;
+            }
+            .inferencerule ul {
+                display: block;
+                padding: 0px;
+                margin: 0px;
+            }
+            .inferencerule li {
+                display: block;
+                padding: 0px;
+                margin: 0px;
+		text-align: center;
+            }
+            #taskdialog .inferencerule.attempted {
+                background: wheat;
+            }
+            #taskdialog .inferencerule.solved {
+                background: #0f0;
+            }
+            #taskdialog .inferencerule {
+                border: 1px solid lightgray;
+                cursor: pointer;
+            }
+            #taskdialog .inferencerule:hover{
+                border: 1px solid black;
+            }
+
+	    .tasklist {
+                display: flex;
+                flex-wrap: wrap;
+                /* justify-content: space-between;
+                   ^ not a good idea, see http://stackoverflow.com/questions/1637797 */
+                align-items: center;
 	    }
+
+            #customtask {
+                width: 200px;
+                padding: 4px;
+                margin: 0 1em 1em 1em;
+                text-align: center;
+            }
+            #customtask textarea {
+                width: 100%;
+                height: 80px;
+                display: inline-block;
+                font-family: sans-serif;
+                text-align: center;
+            }
+            #customtask button {
+                width: 100%;
+            }
 
             #leftpane {
 		position: absolute;
-		top:150px;
+		top:100px;
 		left:0px;
 		width:268px;
 		bottom:0px;
@@ -51,9 +130,14 @@
                 padding:15px;
             }
 
+	    #devtools {
+		margin-top: 6em;
+		color: gray;
+	    }
+
             #paper {
 		position: absolute;
-		top:150px;
+		top:100px;
 		left:300px;
 		right:0px;
 		bottom:0px;
@@ -65,15 +149,46 @@
 		background:white;
 		display:none;
 		position: absolute;
-		top:100px;
+		top:120px;
 		left:0px;
 		right:0px;
 		margin-left:auto;
 		margin-right:auto;
-		width:800px;
-		bottom:100px;
+		width:1000px;
+		bottom:120px;
 		overflow: auto;
 		padding:15px;
+	    }
+
+	    #taskdialog {
+		border-top: 5px solid grey;
+		position: absolute;
+		margin:0px;
+		top:100px;
+		left:0px;
+		right:0px;
+		bottom:0px;
+		background:white;
+		overflow: auto;
+		padding:15px;
+
+	    }
+
+	    #taskbottombar {
+		text-align:center;
+		border-top: 5px solid grey;
+		position: absolute;
+		margin:0px;
+		left:0px;
+		right:0px;
+		bottom:0px;
+		height: 20px;
+		background:white;
+		padding: 5px;
+	    }
+
+	    #taskbottombar:hover {
+		background:light grey,
 	    }
 
 	    .incrediblefont {
@@ -98,35 +213,37 @@
 
     <div id="leftpane">
       <div id="task">
-	<h3>Current task:</h3>
-	<div id="assumptions"></div>
-	<hr/>
-	<div id="conclusions"></div>
+	<h3 data-i18n>Current task:</h3>
+        <div id="taskwrap"></div>
       </div>
-      <h3>Logikbausteine:</h3>
+      <h3 data-i18n>Logics blocks:</h3>
       <div id="logic"></div>
-      <h3>Hilfsbausteine:</h3>
+      <h3 data-i18n>Helper blocks:</h3>
       <div id="helpers"></div>
-      <h3>Eigene Bausteine:</h3>
+      <h3 data-i18n>Custom blocks:</h3>
       <div id="custom"></div>
+
+      <div id="devtools">
+      <h3 data-i18n>Developers tools</h3>
+	Example tasks: <select id="taskselect"></select><br/>
+	<button id="freeproof">Start empty proof</button><br/>
+	Example proofs: <select id="proofselect"><option value="" label=""></option></select><br/>
+	<button id="showdialog">Details</button>
+	<button id="reset" title="Forget all stored data">Reset</button>
+	<button id="showhelp">Help</button><br/>
+	<div id="errors"></div>
+
+        <!-- <label><input type="checkbox" id="unify" checked="checked" /> Run unification</label> -->
+     </div>
     </div>
 
 
     <div id="paper"></div>
 
     <div id="header">
-      <h1>The Incredible Proof Machine</h1>
-	Load a new task: <select id="taskselect"></select>
-	<button id="freeproof">Start empty proof</button>
-	Load existing proof: <select id="proofselect"><option value="" label=""></option></select>
-	<button id="showdialog">Details</button>
-	<button id="showhelp">Help</button>
-        <!-- <label><input type="checkbox" id="unify" checked="checked" /> Run unification</label> -->
-        <br/>
-	<div id="errors"></div>
-
+      <h1>The Incredible Proof Machin<span class="e">e</span></h1>
 	<div id="inferredrule">
-	<h3>You proved:</h3>
+	<h3 data-i18n>You proved:</h3>
 	<div id="inferredrulewrapper">
 	<svg xmlns="http://www.w3.org/2000/svg" width="30em" height="100px"></svg>
 	</div>
@@ -145,6 +262,21 @@
     <br/>
     <textarea  cols=100 rows=20 id="analysis" readonly="readonly"></textarea>
     </div>
+
+    <div id="taskbottombar" data-i18n="switch">switch task...</div>
+
+    <div id="taskdialog">
+    <h2 data-i18n>What do you want to prove today?</h2>
+    <div id="sessiontasks"></div>
+    <h3 data-i18n>Custom tasks</h3>
+    <div id="customtasks" class="tasklist">
+    <div id="customtask">
+    <textarea>A&#10;────────────&#10;A</textarea>
+    <button id="addcustomtask" data-i18n>Add</button>
+    </div>
+    </div>
+    </div>
+
 
     <div id="help">
     <div style="text-align:right"><button id="closehelp">×</button></div>
@@ -171,8 +303,15 @@
     </p>
     </div>
 
+    <div id="loading">
+	<div class="signal"></div>
+    </div>
+
 
         <script src="./vendor/jquery-2.1.4.min.js"></script>
+        <script type="text/javascript">$.holdReady( true );</script>
+        <script src="./vendor/i18next-1.10.1.min.js"></script>
+        <script src="./webui/i18n.js"></script>
 	<script src="./vendor/jquery-ui/jquery-ui.js"></script>
         <script src="./vendor/lodash.min.js"></script>
         <script src="./vendor/backbone-min.js"></script>
@@ -180,8 +319,14 @@
 
         <script src="./logic.js"></script>
         <script src="./examples.js"></script>
+        <script src="./sessions.js"></script>
         <script src="./webui/shapes.js"></script>
-        <script src="./webui/logic.js"></script>
+        <script src="./webui/logic-interface.js"></script>
+        <script src="./webui/incredible-elements.js"></script>
+        <script src="./webui/task-management.js"></script>
+        <script src="./webui/graph-interaction.js"></script>
+        <script src="./webui/devtools.js"></script>
+        <script src="./webui/webui.js"></script>
 
     </body>
 </html>

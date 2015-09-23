@@ -1,9 +1,20 @@
+/*
+This file contains all the code related creating SVG representations of blocks.
+A family of functions (ruleToBlockDesc etc.) converts some other data types
+into a common representation, which is then rendered by renderBlockDescToSVG.
+
+This should be independent from jointjs (besides the use of the vectorizer
+library V).
+*/
+
+
 function ruleToBlockDesc(rule) {
   var ports = rule.ports;
   var portsList = _.sortBy(_.map(ports, function (v, i) {
     return { id: i,
              proposition: v.proposition,
              type: v.type,
+             consumedBy: v.consumedBy, // may be undefined
            }
   }), 'id');
   var portsGroup = _.groupBy(portsList, "type");
@@ -86,40 +97,43 @@ function renderDesc(desc, group) {
 }
 
 
-function looksLikeImpI(blockDesc) {
-  // Support not complete
-  return (blockDesc.portsGroup['local hypothesis']||[]).length == 1 &&
-         (blockDesc.portsGroup['assumption']||[]).length == 1 &&
-         (blockDesc.portsGroup['conclusion']||[]).length == 1
+function looksLikeSchieblehre1(blockDesc) {
+  return (blockDesc.portsGroup['local hypothesis']||[]).length == 1;
+}
+function looksLikeSchieblehre2(blockDesc) {
+  return (blockDesc.portsGroup['local hypothesis']||[]).length == 2;
 }
 
-function impILikePath(opts) {
-  var start = opts.leftWidth + opts.innerWidth/2;
+function pathDataSchieblehre1(opts) {
+  var start = -opts.leftWidth - opts.innerWidthLeft;
   var h = function(x) { return "h" + x };
   var v = function(x) { return "v" + x };
   var tr = "a 5 5 0 0 1 5 -5";
   var tb = "a 5 5 0 0 1 5 5";
   var tl = "a 5 5 0 0 1 -5 5";
   var tu = "a 5 5 0 0 1 -5 -5";
+  // height above the zero line
+  var extraHeightL = opts.leftHeight - 15 + 2.5;
+  var extraHeightR = opts.rightHeight - 15 + 2.5;
   return path = [
-    "M" + (-start) + " 10", // left edge, vertical center. Not sure why 10 is needed here?
-    v(-17.5 - 5),
+    "M" + start + " 0", // left edge, vertical center
+    v(-(extraHeightL - 5)),
     tr,
     h(opts.leftWidth-5-5),
     tb,
-    v(17.5 - 5),
-    v(3.5),
-    h(opts.innerWidth),
-    v(-3.5),
-    v(-(17.5 - 5)),
+    v(extraHeightL - 5 - 3.5),
+    h(opts.innerWidthLeft),
+    h(opts.innerWidthRight),
+    v(-(extraHeightR - 5 - 3.5)),
     tr,
     h(opts.rightWidth -5 - 5),
     tb,
-    v(17.5 -5),
+    v(extraHeightR -5),
     v(17.5 -5),
     tl,
     h(-(opts.rightWidth -5)),
-    h(-opts.innerWidth),
+    h(-opts.innerWidthRight),
+    h(-opts.innerWidthLeft),
     h(-(opts.leftWidth -5)),
     tu,
     v(-17.5 -5),
@@ -127,34 +141,97 @@ function impILikePath(opts) {
     ].join(" ");
 }
 
-function renderImpILikeBlock(group, blockDesc, forReal) {
-  pathV = V("<path class='body' fill='#ecf0f1'  stroke='#bdc3c7' stroke-opacity='0.5'/>")
-  group.prepend(pathV);
-
-  addPort(group, blockDesc.portsGroup['assumption'][0],
-    'in', 'left', forReal, blockDesc.isPrototype);
-  addPort(group, blockDesc.portsGroup['local hypothesis'][0],
-    'out', 'right', forReal, blockDesc.isPrototype);
-  addPort(group, blockDesc.portsGroup['conclusion'][0],
-    'out', 'right', forReal, blockDesc.isPrototype);
+function pathDataSchieblehre2(opts) {
+  var start = -opts.leftWidth - opts.innerWidthLeft;
+  var h = function(x) { return "h" + x };
+  var v = function(x) { return "v" + x };
+  var tr = "a 5 5 0 0 1 5 -5";
+  var tb = "a 5 5 0 0 1 5 5";
+  var tl = "a 5 5 0 0 1 -5 5";
+  var tu = "a 5 5 0 0 1 -5 -5";
+  // height above the zero line
+  var extraHeightL = opts.leftHeight/2 + 2.5;
+  var extraHeightR = opts.rightHeight/2 + 2.5;
+  return path = [
+    "M" + start + " 0", // left edge, vertical center
+    v(-(extraHeightL - 5)),
+    tr,
+    h(opts.leftWidth-5-5),
+    tb,
+    v(extraHeightL - 5 - 3.5),
+    h(opts.innerWidthLeft),
+    h(opts.innerWidthRight),
+    v(-(extraHeightR - 5 - 3.5)),
+    tr,
+    h(opts.rightWidth -5 - 5),
+    tb,
+    v(extraHeightR -5),
+    v(extraHeightR -5),
+    tl,
+    h(-(opts.rightWidth -5 - 5)),
+    tu,
+    v(-(extraHeightR - 5 - 3.5)),
+    h(-(opts.innerWidthRight)),
+    h(-(opts.innerWidthLeft)),
+    v(extraHeightL - 5 - 3.5),
+    tl,
+    h(-(opts.leftWidth-5-5)),
+    tu,
+    v(-(extraHeightL - 5)),
+    "Z"
+    ].join(" ");
 }
 
-function updateSizesImpI(el, blockDesc) {
+function renderSchieblehre(group, blockDesc, forReal) {
+  var handlerLeft = V("<rect class='resize-left' opacity='0' event='resize-left'/>");
+  var handlerRight = V("<rect class='resize-right' opacity='0' event='resize-right'/>");
+  group.append(handlerLeft);
+  group.append(handlerRight);
+  group.prepend(V("<path class='body' fill='#ecf0f1'  stroke='#bdc3c7' stroke-opacity='0.5'/>"));
+
+  _.each(blockDesc.portsGroup, function (thesePorts, portType) {
+    _.each(thesePorts, function (portDesc, index) {
+      var direction = ({assumption: 'in', conclusion: 'out', 'local hypothesis': 'out'})[portType];
+      var orientation = ({assumption: 'left', conclusion: 'right', 'local hypothesis': 'right'})[portType];
+      addPort(group, portDesc, direction, orientation, forReal, blockDesc.isPrototype);
+    });
+  });
+}
+
+
+function updateSizesSchieblehre1(el, blockDesc) {
+  var defaultSchieblehreWidth = (blockDesc.isPrototype ? 0 : 40);
+
   // Minimum sizes
-  impIConfig = {
+  var impIConfig = {
     leftWidth: 10,
-    innerWidth: 40,
-    rightWidth: 10
+    innerWidthLeft:  20,
+    innerWidthRight: 20,
+    rightWidth: 10,
+    leftHeight: 30,
+    rightHeight: 30,
   };
+
+  if (blockDesc.schieblehrewidth === undefined) {
+    impIConfig.innerWidthRight += defaultSchieblehreWidth
+  } else {
+    impIConfig.innerWidthRight += blockDesc.schieblehrewidth
+  }
+
+  impIConfig.leftHeight = Math.max(impIConfig.leftHeight,
+    (blockDesc.portsGroup['assumption'].length - 2) * 20 + 10);
+      // - 2 as one assumption belongs to the local hypothesis
+  impIConfig.rightHeight = Math.max(impIConfig.rightHeight,
+    (blockDesc.portsGroup['conclusion'].length - 1) * 20 + 10);
 
   // Get label size and position
   var text = el.findOne(".label");
   var textBB = text.bbox(true);
   var shift;
   if (text.hasClass("left")) {
-    impIConfig.leftWidth = Math.max(impIConfig.leftWidth, textBB.width + 10)
+    impIConfig.leftWidth = Math.max(impIConfig.leftWidth, textBB.width + 10, 30)
   } else if (text.hasClass("right") || text.hasClass("center")) {
-    impIConfig.rightWidth = Math.max(impIConfig.rightWidth, textBB.width + 10)
+    impIConfig.rightWidth = Math.max(impIConfig.rightWidth, textBB.width + 10, 30)
   } else {
     throw Error("updateSizesImpI: Unknown label class");
   }
@@ -165,41 +242,214 @@ function updateSizesImpI(el, blockDesc) {
     text
       .attr('transform','')
       .translate(- textBB.width/2, - textBB.height/2)
-      .translate(- impIConfig.innerWidth/2 - impIConfig.leftWidth/2, 0);
+      .translate(- impIConfig.innerWidthLeft - impIConfig.leftWidth/2, 0);
   } else if (text.hasClass("right") || text.hasClass("center")) {
     text
       .attr('transform','')
       .translate(- textBB.width/2, - textBB.height/2)
-      .translate(impIConfig.innerWidth/2 + impIConfig.rightWidth/2, 0);
+      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth/2, 0);
   } else {
     throw Error("updateSizesImpI: Unknown label class");
   }
 
-  el.findOne("path.body").attr('d', impILikePath(impIConfig));
+  el.findOne("path.body").attr('d', pathDataSchieblehre1(impIConfig));
+  if (!blockDesc.isPrototype) {
+    el.findOne("rect.resize-left")
+      .attr('transform','')
+      .attr({width: impIConfig.leftWidth, height: impIConfig.leftHeight})
+      .translate(-impIConfig.innerWidthLeft - impIConfig.leftWidth,
+                 -impIConfig.leftHeight + 15);
+    el.findOne("rect.resize-right")
+      .attr('transform','')
+      .attr({width: impIConfig.rightWidth, height: impIConfig.rightHeight})
+      .translate( impIConfig.innerWidthRight,
+                 -impIConfig.rightHeight + 15);
+  }
 
-  el.findOne(".port-wrap-" + blockDesc.portsGroup['local hypothesis'][0].id)
-    .translate(-impIConfig.innerWidth/2, -10);
-  el.findOne(".port-wrap-" + blockDesc.portsGroup['assumption'][0].id)
-    .translate(impIConfig.innerWidth/2, -10);
-  el.findOne(".port-wrap-" + blockDesc.portsGroup['conclusion'][0].id)
-    .translate(impIConfig.innerWidth/2 + impIConfig.rightWidth, 0);
+  // The single hypothesis
+  var hyp = blockDesc.portsGroup['local hypothesis'][0]
+  el.findOne(".port-wrap-" + hyp.id)
+    .attr('transform','')
+    .translate(-impIConfig.innerWidthLeft, -10);
+
+  // Find the conclusion for the single as for that
+  var localAssumption =
+    _.find(blockDesc.portsGroup['assumption'],
+             function (pd) {return pd.id == hyp.consumedBy});
+  var otherAssumptions =
+    _.filter(blockDesc.portsGroup['assumption'],
+             function (pd) {return pd.id != hyp.consumedBy});
+
+  el.findOne(".port-wrap-" + localAssumption.id)
+    .attr('transform','')
+    .translate(impIConfig.innerWidthRight, -10);
+
+  var base = otherAssumptions.length > 1 ? 10 : 0;
+  _.each(otherAssumptions, function (portDesc, index) {
+    el.findOne(".port-wrap-" + portDesc.id)
+      .attr('transform','')
+      .translate(-impIConfig.innerWidthLeft - impIConfig.leftWidth,
+        base - 20 * index);
+  });
+  var base = (blockDesc.portsGroup['conclusion'].length > 1) ? 10 : 0;
+  _.each(blockDesc.portsGroup['conclusion'], function (portDesc, index) {
+    el.findOne(".port-wrap-" + portDesc.id)
+      .attr('transform','')
+      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth,
+        base - 20 * index);
+  });
 
   if (blockDesc.number) {
     number = el.findOne(".number");
     var bb = number.bbox(true);
     number
       .attr('transform','')
-      .translate(impIConfig.innerWidth/2 + impIConfig.rightWidth - bb.width - 5, 17.5 - bb.height - 1);
+      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth - bb.width - 5, 17.5 - bb.height - 1);
   }
 
   if (blockDesc.canRemove) {
     el.findOne(".tool-remove")
       .attr('transform','')
-      .translate(impIConfig.innerWidth/2 + impIConfig.rightWidth - 10, -35/2);
+      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth - 10, -35/2);
   }
 
   // Make sure these asymmetric blocks are still nicely aligned in the logic view
-  el.findOne(".block").translate((impIConfig.leftWidth - impIConfig.rightWidth)/2);
+  if (blockDesc.isPrototype) {
+    el.findOne(".block").translate((impIConfig.leftWidth - impIConfig.rightWidth)/2);
+  }
+}
+
+function updateSizesSchieblehre2(el, blockDesc) {
+  var defaultSchieblehreWidth = (blockDesc.isPrototype ? 0 : 40);
+
+  // Minimum sizes
+  var impIConfig = {
+    leftWidth: 10,
+    innerWidthLeft:  20,
+    innerWidthRight: 20,
+    rightWidth: 10,
+    leftHeight: 30,
+    rightHeight: 30,
+  };
+
+  if (blockDesc.schieblehrewidth === undefined) {
+    impIConfig.innerWidthRight += defaultSchieblehreWidth
+  } else {
+    impIConfig.innerWidthRight += blockDesc.schieblehrewidth
+  }
+
+  impIConfig.leftHeight = Math.max(impIConfig.leftHeight,
+    (blockDesc.portsGroup['assumption'].length - 3) * 20 + 10);
+      // - 3 as two assumptions belong to the local hypotheses
+  impIConfig.rightHeight = Math.max(impIConfig.rightHeight,
+    (blockDesc.portsGroup['conclusion'].length - 1) * 20 + 10);
+
+  // Get label size and position
+  var text = el.findOne(".label");
+  var textBB = text.bbox(true);
+  var shift;
+  if (text.hasClass("left")) {
+    impIConfig.leftWidth = Math.max(impIConfig.leftWidth, textBB.width + 10, 30)
+  } else if (text.hasClass("right") || text.hasClass("center")) {
+    impIConfig.rightWidth = Math.max(impIConfig.rightWidth, textBB.width + 10, 30)
+  } else {
+    throw Error("updateSizesImpI: Unknown label class");
+  }
+  impIConfig.leftWidth = Math.ceil(impIConfig.leftWidth / 10) * 10;
+  impIConfig.rightWidth = Math.ceil(impIConfig.rightWidth / 10) * 10;
+
+  if (text.hasClass("left")) {
+    text
+      .attr('transform','')
+      .translate(- textBB.width/2, - textBB.height/2)
+      .translate(- impIConfig.innerWidthLeft - impIConfig.leftWidth/2, 0);
+  } else if (text.hasClass("right") || text.hasClass("center")) {
+    text
+      .attr('transform','')
+      .translate(- textBB.width/2, - textBB.height/2)
+      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth/2, 0);
+  } else {
+    throw Error("updateSizesImpI: Unknown label class");
+  }
+
+  el.findOne("path.body").attr('d', pathDataSchieblehre2(impIConfig));
+
+  if (!blockDesc.isPrototype) {
+    el.findOne("rect.resize-left")
+      .attr('transform','')
+      .attr({width: impIConfig.leftWidth, height: impIConfig.leftHeight})
+      .translate(-impIConfig.innerWidthLeft - impIConfig.leftWidth,
+                 -impIConfig.leftHeight/2);
+    el.findOne("rect.resize-right")
+      .attr('transform','')
+      .attr({width: impIConfig.rightWidth, height: impIConfig.rightHeight})
+      .translate( impIConfig.innerWidthRight,
+                 -impIConfig.rightHeight/2);
+  }
+
+  // The first hypothesis
+  var hyp1 = blockDesc.portsGroup['local hypothesis'][0]
+  el.findOne(".port-wrap-" + hyp1.id)
+    .attr('transform','')
+    .translate(-impIConfig.innerWidthLeft, -10);
+  // The second hypothesis
+  var hyp2 = blockDesc.portsGroup['local hypothesis'][1]
+  el.findOne(".port-wrap-" + hyp2.id)
+    .attr('transform','')
+    .translate(-impIConfig.innerWidthLeft, 10);
+
+  // Find the conclusion for the single as for that
+  var localAssumption1 =
+    _.find(blockDesc.portsGroup['assumption'],
+             function (pd) {return pd.id == hyp1.consumedBy});
+  var localAssumption2 =
+    _.find(blockDesc.portsGroup['assumption'],
+             function (pd) {return pd.id == hyp2.consumedBy});
+  var otherAssumptions =
+    _.filter(blockDesc.portsGroup['assumption'],
+             function (pd) {return pd.id != hyp1.consumedBy && pd.id != hyp2.consumedBy});
+
+  el.findOne(".port-wrap-" + localAssumption1.id)
+    .attr('transform','')
+    .translate(impIConfig.innerWidthRight, -10);
+
+  el.findOne(".port-wrap-" + localAssumption2.id)
+    .attr('transform','')
+    .translate(impIConfig.innerWidthRight, 10);
+
+  var base = 10 * (otherAssumptions.length-1);
+  _.each(otherAssumptions, function (portDesc, index) {
+    el.findOne(".port-wrap-" + portDesc.id)
+      .attr('transform','')
+      .translate(-impIConfig.innerWidthLeft - impIConfig.leftWidth,
+        base - 20 * index);
+  });
+  var base = 10 * (blockDesc.portsGroup['conclusion'].length - 1);
+  _.each(blockDesc.portsGroup['conclusion'], function (portDesc, index) {
+    el.findOne(".port-wrap-" + portDesc.id)
+      .attr('transform','')
+      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth,
+        base - 20 * index);
+  });
+
+  if (blockDesc.number) {
+    number = el.findOne(".number");
+    var bb = number.bbox(true);
+    number
+      .attr('transform','')
+      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth - bb.width - 5, 17.5 - bb.height - 1);
+  }
+
+  if (blockDesc.canRemove) {
+    el.findOne(".tool-remove")
+      .attr('transform','')
+      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth - 10, -35/2);
+  }
+
+  // Make sure these asymmetric blocks are still nicely aligned in the logic view
+  if (blockDesc.isPrototype) {
+    el.findOne(".block").translate((impIConfig.leftWidth - impIConfig.rightWidth)/2);
+  }
 }
 
 
@@ -226,6 +476,23 @@ function renderBlockDescToSVG(el, blockDesc, forReal) {
   var group = V("<g class='block'/>");
   el.append(group);
 
+  if (blockDesc.number) {
+    var numberLabel = V('<text class="number"></text>');
+    numberLabel.text(blockDesc.number.toString());
+    group.append(numberLabel);
+  }
+
+  renderDesc(blockDesc.desc, group);
+
+  // Some special cases
+  if (looksLikeSchieblehre1(blockDesc)) {
+    renderSchieblehre(group, blockDesc, forReal);
+  } else if (looksLikeSchieblehre2(blockDesc)) {
+    renderSchieblehre(group, blockDesc, forReal);
+  } else {
+    renderRegularBlock(group, blockDesc, forReal);
+  }
+
   if (blockDesc.canRemove) {
     markup = [
       '<g class="tool-remove" event="remove">',
@@ -238,20 +505,6 @@ function renderBlockDescToSVG(el, blockDesc, forReal) {
     group.append(tool);
   }
 
-  if (blockDesc.number) {
-    var numberLabel = V('<text class="number"></text>');
-    numberLabel.text(blockDesc.number.toString());
-    group.append(numberLabel);
-  }
-
-  renderDesc(blockDesc.desc, group);
-
-  // Some special cases
-  if (looksLikeImpI(blockDesc)) {
-    renderImpILikeBlock(group, blockDesc, forReal);
-  } else {
-    renderRegularBlock(group, blockDesc, forReal);
-  }
 
   updateSizes(el, blockDesc);
 }
@@ -259,8 +512,10 @@ function renderBlockDescToSVG(el, blockDesc, forReal) {
 
 function updateSizes(el, blockDesc) {
   // Some special cases
-  if (looksLikeImpI(blockDesc)) {
-    updateSizesImpI(el, blockDesc);
+  if (looksLikeSchieblehre1(blockDesc)) {
+    updateSizesSchieblehre1(el, blockDesc);
+  } else if (looksLikeSchieblehre2(blockDesc)) {
+    updateSizesSchieblehre2(el, blockDesc);
   } else {
     updateSizesRegular(el, blockDesc);
   }
@@ -390,198 +645,3 @@ function addPort(group, portDesc, direction, orientation, forReal, isPrototype) 
     throw new Error("renderBlockDescToSVG(): Unknown orientation " + orientation);
   }
 }
-
-
-/*
- * Specification for Element representing blocks in the proof:
- *
- * Regular proof blocks:
- *   - The cell has an attribute 'rule', which is the rule object of the logic.
- *   - Every SVG element that is an magnet (magnet: true) has an attribute 'port',
- *     that corresponds to the name of the port in the logic, e.g. "in2" or "hyp".
- * Assumption blocks:
- *   - The cell has an attribute 'assumption', with the number of the assumption it
- *     represents.
- * Conclusion blocks:
- *   - The cell has an attribute 'conclusion', with the number of the assumption it
- *     represents.
- *
- * Furthermore, every magnet has an attribute 'direction', which is either "in" or
- * "out". This is used by the UI to make sure wires are connected properly.
- *
- */
-
-
-shapes = {};
-
-
-/*
- * How does jointJS find the view for a model?
- * It takes the 'type' field, of the model, excepts it to be foo.bar
- * and then looks at join.shapes[foo][bar+'View']....
- */
-
-
-joint.shapes.incredible = {}
-
-
-/*
- * The new way of doing things: No more visual information in the model,
- * the shape is calculated in the view.
- * The whole crazy `attrs` feature of JointJS is not used!
- */
-joint.shapes.incredible.Generic = joint.shapes.basic.Generic.extend({
-  defaults: joint.util.deepSupplement({
-    type: 'incredible.Generic',
-  }, joint.shapes.basic.Generic.prototype.defaults)
-});
-
-joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
-  initialize: function () {
-    joint.dia.ElementView.prototype.initialize.apply(this, arguments);
-
-    // Listen to some incredible-specific change events
-    this.listenTo(this.model, 'change:brokenPorts change:selected change:annotation', this.update);
-    if (this.model.get('conclusion')) {
-      this.listenTo(this.model, 'change:qed', this.update);
-    };
-  },
-
-  getBlockDesc: function () {
-    // These will not all be defined
-    var rule = this.model.get('rule');
-    var assumption = this.model.get('assumption');
-    var conclusion = this.model.get('conclusion');
-    var annotation = this.model.get('annotation');
-    var task = this.model.get('task');
-    var number = this.model.get('number');
-
-    if (rule) {
-      var blockDesc = ruleToBlockDesc(rule);
-    } else if (assumption) {
-      var blockDesc = assumptionToBlockDesc(assumption, task);
-    } else if (conclusion) {
-      var blockDesc = conclusionToBlockDesc(conclusion, task);
-    } else if (annotation) {
-      var blockDesc = annotationToBlockDesc(annotation);
-    } else {
-        throw new Error("renderMarkup(): Unknown block type");
-    }
-    blockDesc.number = number;
-
-    return blockDesc;
-  },
-
-  renderMarkup: function() {
-    renderBlockDescToSVG(this.vel, this.getBlockDesc(), true);
-  },
-
-  update: function () {
-    // Do our own stuff
-    var brokenPorts = this.model.get('brokenPorts') || {};
-
-    _.each(this.vel.find(".port-body"), function (port) {
-      if (V(port).attr('port') in brokenPorts) {
-        V(port).attr('fill', '#F00');
-      } else {
-        V(port).attr('fill', '#777');
-      }
-    });
-
-    if (this.model.get('selected')) {
-      V(this.vel).toggleClass('selected', true);
-    } else {
-      V(this.vel).toggleClass('selected', false);
-    }
-
-    if (this.model.get('conclusion')) {
-      if (this.model.get('qed')) {
-        V(this.vel.findOne(".body")).attr('fill','#0f0');
-      } else {
-        V(this.vel.findOne(".body")).attr('fill','#ecf0f1');
-      };
-    }
-
-    if (this.model.get('annotation')) {
-      var textV = V(this.vel.findOne(".label"));
-      var text = "✎"+this.model.get('annotation');
-      if (textV.text() != text) {
-        textV.text(text);
-        updateSizes(this.vel, this.getBlockDesc());
-      }
-    }
-
-    // Just in case we use the attrs feature, let's call the jointjs update function
-    joint.dia.ElementView.prototype.update.apply(this, arguments);
-  }
-});
-
-joint.shapes.incredible.Link = joint.dia.Link.extend({
-
-    arrowheadMarkup: [
-        '<g class="marker-arrowhead-group marker-arrowhead-group-<%= end %>">',
-        '<circle class="marker-arrowhead" end="<%= end %>" r="7"/>',
-        // '<path class="marker-arrowhead" end="<%= end %>" d="M 26 0 L 0 13 L 26 26 z" />',
-        '</g>'
-    ].join(''),
-
-    vertexMarkup: [
-        '<g class="marker-vertex-group" transform="translate(<%= x %>, <%= y %>)">',
-        '<circle class="marker-vertex" idx="<%= idx %>" r="10" />',
-        '<g class="marker-vertex-remove-group">',
-        '<path class="marker-vertex-remove-area" idx="<%= idx %>" d="M16,5.333c-7.732,0-14,4.701-14,10.5c0,1.982,0.741,3.833,2.016,5.414L2,25.667l5.613-1.441c2.339,1.317,5.237,2.107,8.387,2.107c7.732,0,14-4.701,14-10.5C30,10.034,23.732,5.333,16,5.333z" transform="translate(5, -33)"/>',
-        '<path class="marker-vertex-remove" idx="<%= idx %>" transform="scale(.8) translate(9.5, -37)" d="M24.778,21.419 19.276,15.917 24.777,10.415 21.949,7.585 16.447,13.087 10.945,7.585 8.117,10.415 13.618,15.917 8.116,21.419 10.946,24.248 16.447,18.746 21.948,24.248z">',
-        '<title>Remove vertex.</title>',
-        '</path>',
-        '</g>',
-        '</g>'
-    ].join(''),
-
-    defaults: joint.util.deepSupplement({
-
-        type: 'incredible.Link',
-
-        attrs: {
-            '.connection': { 'stroke-width': 2 },
-            '.marker-vertex': { r: 7 }
-        },
-
-        // router: { name: 'orthogonal' },
-
-	/*
-        router: { name: 'manhattan', args: {
-          paddingBox: function () {return {x: -5, y: -5, width: 10, height: 10}},
-          startDirections: ['right'],
-          endDirections: ['left']
-        }},
-	*/
-        router: { name: 'wrappedmanhattan' },
-        connector: { name: 'rounded', args: { radius: 10 }}
-
-    }, joint.dia.Link.prototype.defaults)
-
-});
-
-
-joint.routers.wrappedmanhattan = (function (){
-  var manhattan = joint.routers.manhattan;
-
-  return function(vertices, opt, linkView) {
-    var startDirections = ['right']; // somewhat sensible default
-    var endDirections = ['left']; // somewhat sensible default
-    if (this.sourceMagnet) {
-      startDirections = [this.sourceMagnet.getAttribute('orientation')];
-    }
-    if (this.targetMagnet) {
-      endDirections = [this.targetMagnet.getAttribute('orientation')];
-    }
-
-    var args = {
-      paddingBox: function () {return {x: -5, y: -5, width: 10, height: 10}},
-      startDirections: startDirections,
-      endDirections: endDirections
-    }
-    return manhattan.call(this, vertices, _.extend({},args,opt), linkView);
-  };
-})();
-

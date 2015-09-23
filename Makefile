@@ -1,4 +1,4 @@
-targets := logic.js examples.js
+targets := logic.js examples.js sessions.js
 
 all: ${targets}
 
@@ -43,3 +43,7 @@ logic/dist/build/bundle-examples/bundle-examples: logic/*.hs logic/examples/*.hs
 
 examples.js: examples/*/* logic/dist/build/bundle-examples/bundle-examples
 	logic/dist/build/bundle-examples/bundle-examples examples > $@
+
+sessions.js: sessions.yaml
+	cd logic cabal && \
+	(echo -n "sessions = "; cabal run -v0 yaml2json -- ../sessions.yaml ; echo \;) > ../sessions.js

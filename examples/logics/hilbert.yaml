@@ -1,0 +1,31 @@
+rules:
+- id: Ax1
+  free: ["A","B"]
+  ports:
+    out:
+      type: conclusion
+      proposition: "A→B→A"
+- id: Ax2
+  free: ["A","B","C"]
+  ports:
+    out:
+      type: conclusion
+      proposition: "(A→B→C)→(A→B)→A→C"
+- id: Ax3
+  free: ["A","B"]
+  ports:
+    out:
+      type: conclusion
+      proposition: "(¬A→¬B)→B→A"
+- id: MP
+  free: ["A","B"]
+  ports:
+    in1:
+      type: assumption
+      proposition: A
+    in2:
+      type: assumption
+      proposition: A→B
+    out:
+      type: conclusion
+      proposition: B
