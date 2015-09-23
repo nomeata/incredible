@@ -50,3 +50,7 @@
   - conclusions: ["∃x.t(x)→(∀x.t(x))"]
   - assumptions: ["∀x.(r(x)→⊥)→r(f(x))"]
     conclusions: ["∃x.r(x)∧r(f(f(x)))"]
+- name: "Hilbert-Kakül"
+  logic: hilbert
+  tasks:
+  - conclusions: ["A→A"]
