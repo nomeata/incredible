@@ -51,7 +51,7 @@
     - (A∧B)→C
   - assumptions:
     - A→B
-    - A→B→B
+    - A→B→C
     conclusions:
     - A→C
   - assumptions:
