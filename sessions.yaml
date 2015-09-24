@@ -54,3 +54,4 @@
   logic: hilbert
   tasks:
   - conclusions: ["A→A"]
+  - conclusions: ["~A→A→B"]
