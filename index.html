@@ -7,8 +7,8 @@
         <title>The Incredible Proof Machine</title>
 
         <link rel="stylesheet" type="text/css" href="./vendor/joint.min.css" />
-        <link rel="stylesheet" type="text/css" href="./webui/loader.css" />
-        <link rel="stylesheet" type="text/css" href="./webui/logic.css" />
+        <link rel="stylesheet" data-css="true" type="text/css" href="./webui/loader.css" />
+        <link rel="stylesheet" data-css="true" type="text/css" href="./webui/logic.css" />
         <link rel="stylesheet" type="text/css" href="./fonts/lintsec_regular_macroman/stylesheet.css" />
 
         <style>
@@ -299,12 +299,13 @@
 	<div id="inferredrule">
 	<h3 data-i18n>You proved:</h3>
 	<div id="inferredrulewrapper">
-	<svg xmlns="http://www.w3.org/2000/svg" width="30em" height="100px"></svg>
+	<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="30em" height="100px"></svg>
 	</div>
 	</div>
 
       <div id="toolbar">
 	<button class="iconic" id="showhelp" data-i18n="[title]Help">ℹ</button>
+	<button class="iconic" id="savesvg" data-i18n="[title]Save proof as SVG image.">⤓</button>
 	<button class="iconic" id="reset" data-i18n="[title]Forget all stored data">🔄</button>
       </div>
 
@@ -418,6 +419,7 @@
         <script src="./vendor/lodash.min.js"></script>
         <script src="./vendor/backbone-min.js"></script>
         <script src="./vendor/joint.min.js"></script>
+        <script src="./vendor/FileSaver.min.js"></script>
 
         <script src="./logic.js"></script>
         <script src="./examples.js"></script>

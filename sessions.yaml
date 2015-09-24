@@ -44,6 +44,29 @@
     conclusions: ["C"]
   - assumptions: ["A","A→B","A→C","C→D", "B→D"]
     conclusions: ["D"]
+  - assumptions:
+    - A→C
+    - B→C
+    conclusions:
+    - (A∧B)→C
+  - assumptions:
+    - A→B
+    - A→B→B
+    conclusions:
+    - A→C
+  - assumptions:
+    - (A→B)∧(B→A)
+    - A→C
+    conclusions:
+    - B→C
+  - assumptions:
+    - (A∧B)→C
+    conclusions:
+    - A→B→C
+  - assumptions:
+    - A→B→C
+    conclusions:
+    - (A∧B)→C
 - name: Session 3
   logic: predicate
   tasks:

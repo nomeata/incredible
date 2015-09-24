@@ -141,4 +141,25 @@ $(function() {
     }
   })
 
+  $("#savesvg").on('click', function (){
+    // Connect all SVG data that is possibly relevant
+    var rules = [];
+    $.each(document.styleSheets, function(sheetIndex, sheet) {
+      if (sheet.ownerNode.dataset.css) {
+        $.each(sheet.cssRules || sheet.rules, function(ruleIndex, rule) {
+            rules.push(rule.cssText);
+        });
+      }
+    });
+    var bb = paper.getContentBBox();
+    var css = rules.join("\n");
+    var svg = $("#paper svg")
+      .clone()
+      .prepend($("<style type='text/css'>").text(css))
+      .attr({width: bb.x + bb.width + 10, height: bb.y + bb.height + 10})
+      .wrap('<div>')
+      .parent()
+      .html();
+    saveAs(new Blob([svg], {type:"application/svg+xml"}), "incredible-proof.svg");
+  });
 });
