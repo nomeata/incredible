@@ -16,14 +16,34 @@
                 font-family: sans-serif;
             }
 
-	    .e {
-		display: inline-block;
-		-ms-transform: rotate(180deg);
-		-webkit-transform: rotate(180deg);
-		-moz-transform: rotate(180deg);
-		transform: rotate(180deg);
+            /* Because we try to animate something with a rotation, we need ot include that here */
+            @keyframes wiggle {
+               0%   { transform: skewX(9deg)  rotate(180deg) ; }
+               10%  { transform: skewX(-8deg) rotate(180deg) ; }
+               20%  { transform: skewX(7deg)  rotate(180deg) ; }
+               30%  { transform: skewX(-6deg) rotate(180deg) ; }
+               40%  { transform: skewX(5deg)  rotate(180deg) ; }
+               50%  { transform: skewX(-4deg) rotate(180deg) ; }
+               60%  { transform: skewX(3deg)  rotate(180deg) ; }
+               70%  { transform: skewX(-2deg) rotate(180deg) ; }
+               80%  { transform: skewX(1deg)  rotate(180deg) ; }
+               90%  { transform: skewX(0.001deg)  rotate(180deg) ; }
+               100% { transform: skewX(9deg)  rotate(180deg) ; }
+            }
+            :hover > .e {
+                animation: wiggle;
+                animation-duration: 2s;
+                animation-direction: alternate;
+                animation-iteration-count: 30;
+                animation-fill-mode: both;
+                animation-timing-function: linear;
+            }
 
-		transform-origin: center 44%;
+            .e {
+		display: inline-block;
+		transform: skewX(0.001deg) rotate(180deg);
+
+		transform-origin: center 43%;
 	    }
 
 	    #loading {
@@ -244,7 +264,7 @@
 	    }
 
 	    #taskbottombar:hover {
-		background:light grey,
+		background:lightgrey
 	    }
 
 	    .incrediblefont {
