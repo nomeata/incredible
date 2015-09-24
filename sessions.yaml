@@ -1,4 +1,4 @@
-- name: Lektion 1
+- name: Session 1
   logic: predicate
   visible-rules:
     - conjI
@@ -28,7 +28,7 @@
     conclusions: ["A∧C"]
   - assumptions: ["A∧B∧C"]
     conclusions: ["A∧(B∧C)"]
-- name: Lektion 2
+- name: Session 2
   logic: predicate
   visible-rules:
     - conjI
@@ -44,13 +44,13 @@
     conclusions: ["C"]
   - assumptions: ["A","A→B","A→C","C→D", "B→D"]
     conclusions: ["D"]
-- name: Lektion 3
+- name: Session 3
   logic: predicate
   tasks:
   - conclusions: ["∃x.t(x)→(∀x.t(x))"]
   - assumptions: ["∀x.(r(x)→⊥)→r(f(x))"]
     conclusions: ["∃x.r(x)∧r(f(f(x)))"]
-- name: "Hilbert-Kakül"
+- name: Hilbert system
   logic: hilbert
   tasks:
   - conclusions: ["A→A"]

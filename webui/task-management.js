@@ -76,7 +76,7 @@ $(function () {
 
 function setupTaskSelection() {
   $.each(sessions, function (i,session) {
-    $("<h3>").text(session.name).appendTo("#sessiontasks");
+    $("<h3>").text(i18n.t(session.name)).appendTo("#sessiontasks");
     var container = $("<div>").addClass("tasklist").appendTo("#sessiontasks");
     $.each(session.tasks, function (j,thisTask) {
       taskToHTML(thisTask)
