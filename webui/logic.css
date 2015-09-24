@@ -109,8 +109,20 @@
     font-size: 6px;
 }
 
+
+.block .body {
+    fill:#ecf0f1;
+}
+
+.block.qed .body {
+    fill:#0f0;
+}
+
 .block:hover .body {
     fill:white;
+}
+.block.qed:hover .body {
+    fill:#afa;
 }
 
 .selected .block .body {

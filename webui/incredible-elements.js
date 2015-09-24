@@ -119,11 +119,7 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     }
 
     if (this.model.get('conclusion')) {
-      if (this.model.get('qed')) {
-        V(this.vel.findOne(".body")).attr('fill','#0f0');
-      } else {
-        V(this.vel.findOne(".body")).attr('fill','#ecf0f1');
-      };
+      V(this.vel.findOne(".block")).toggleClass('qed', this.model.get('qed'));
     }
 
     if (this.model.get('annotation')) {
