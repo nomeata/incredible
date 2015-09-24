@@ -183,6 +183,7 @@
 
 	    #dialog, #help {
 		border:2px solid grey;
+                border-radius: 5px;
 		background:white;
 		display:none;
 		position: absolute;
@@ -196,6 +197,24 @@
 		overflow: auto;
 		padding:15px;
 	    }
+
+            .symboltable {
+		margin-left:auto;
+		margin-right:auto;
+                border: 2px solid lightgray;
+                border-radius: 5px;
+            }
+            .symboltable td  {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            .symboltable th {
+                padding-left: 10px;
+                padding-right: 10px;
+                text-align:right;
+                font-weight:normal;
+                /* border-right: 2px solid lightgray; */
+            }
 
 	    #taskdialog {
 		border-top: 5px solid grey;
@@ -331,6 +350,33 @@
     <p>
     <span class="incrediblefont">The Incredible Proof Machine</span> was created to convey the fun and joy of doing proofs, especially in a computer aided way, without first having to learn the syntax of a “real” thereom prover like <a href="http://isabelle.in.tum.de/">Isabelle</a>.
     </p>
+
+    <h3>How do I enter these funny characters?</h3>
+    <p>
+    There are only a few places where you actually have to enter formulas, mostly if you want to use the ✎P-block or define your own tasks. There, you can use the following abbreviations:
+    </p>
+    <table class="symboltable">
+    <tr>
+        <th>Instead of</th>
+	<td>∧</td>
+        <td>∨</td>
+        <td>→</td>
+        <td>¬</td>
+        <td>∀</td>
+        <td>∃</td>
+        <td>λ</td>
+    </tr>
+    <tr>
+        <th>you can write</th>
+	<td>&amp;</td>
+        <td>|</td>
+        <td>-&gt;</td>
+        <td>~</td>
+        <td>!</td>
+        <td>?</td>
+        <td>\</td>
+    </tr>
+    </table>
 
     <h3>Who did this?</h3>
     <p>
