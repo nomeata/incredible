@@ -16,7 +16,7 @@
                 font-family: sans-serif;
             }
 
-	    h1 .e {
+	    .e {
 		display: inline-block;
 		-ms-transform: rotate(180deg);
 		-webkit-transform: rotate(180deg);
@@ -339,7 +339,7 @@
 
     <div id="help">
     <button class="iconic close" id="closehelp">×</button>
-    <h2>Welcome to <span class="incrediblefont">The Incredible Proof Machine</span></h2>
+    <h2>Welcome to <span class="incrediblefont">The Incredible Proof Machin<span class="e">e</span></span>!</h2>
 
     <h3>What is this?</h3>
     <p>
@@ -348,8 +348,24 @@
 
     <h3>Why is this?</h3>
     <p>
-    <span class="incrediblefont">The Incredible Proof Machine</span> was created to convey the fun and joy of doing proofs, especially in a computer aided way, without first having to learn the syntax of a “real” thereom prover like <a href="http://isabelle.in.tum.de/">Isabelle</a>.
+    <span class="incrediblefont">The Incredible Proof Machin<span class="e">e</span></span> was created to convey the fun and joy of doing proofs, especially in a computer aided way, without first having to learn the syntax of a “real” thereom prover like <a href="http://isabelle.in.tum.de/">Isabelle</a>.
     </p>
+
+    <h3>Why is the conclusion not green?</h3>
+    <p>
+     Because your proof is not a proof (yet). This can have these reasons:
+    </p>
+    <ul>
+     <li>
+     Some of your blocks have an input (an assumption) that is not connected to
+     anything. These are red.
+     </li>
+     <li>
+     Some of your connections connect propositions that are obvoiusly different (marked red and marked with ☠), or they are underspecified and it is not clear whether they might be different or not (marked red and with ?). In the latter case, inserting an annotation block (✎P) can help.
+     </li>
+     <li>You have cycles in the proof. These are (you guessed it) marked red.</li>
+     <li>You have wired up local hypotheses wrongly. Local hypotheses are those outputs that come out on the left of a dent in the block, and can only be used in the part of the proof that connects to the corresponding input on the right of the dent. Do I need to mention that these are marked red?</li>
+    </ul>
 
     <h3>How do I enter these funny characters?</h3>
     <p>
@@ -385,7 +401,7 @@
 
     <h3>Can I help?</h3>
     <p>
-    Most certainly! Everything is Free Software, so you can jump right in, <a href="https://github.com/nomeata/incredible">fetch the code</a> and start contributing. The more people contribute, the more incredible the <span class="incrediblefont">The Incredible Proof Machine</span> becomes.
+    Most certainly! Everything is Free Software, so you can jump right in, <a href="https://github.com/nomeata/incredible">fetch the code</a> and start contributing. The more people contribute, the more incredible the <span class="incrediblefont">The Incredible Proof Machin<span class="e">e</span></span> becomes.
     </p>
     </div>
 
