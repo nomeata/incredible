@@ -21,6 +21,8 @@ var translations = {
     "Session 4": "Lektion 4",
     "Session 5": "Lektion 5",
     "Hilbert system": "Hilbert-Kalkül",
+    "Help": "Hilfe",
+    "Forget all stored data": "Alle gespeicherten Daten löschen.",
   }},
 
   en: { translation: {

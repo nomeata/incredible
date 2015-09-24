@@ -51,6 +51,43 @@
 	    #task #assumptions, #task #conclusions {
 		text-align: center;
 	    }
+
+
+	    .close {
+		position: absolute;
+		top: 2px;
+		right: 2px;
+	    }
+	    button.iconic {
+		font-size:120%;
+		color: white;
+		margin: 2px;
+		padding: 1px;
+		border: 0px;
+		border-radius: 5px;
+		background: lightgrey;
+		cursor: pointer;
+	    }
+            button.iconic:hover {
+		opacity:0.5;
+	    }
+
+            #toolbar {
+		position: absolute;
+		top:0px;
+		right:0px;
+		padding:1em;
+		display: flex;
+		width:100px;
+		justify-content: flex-end;
+	    }
+            #toolbar button {
+		flex-grow:1;
+		flex-basis:0;
+	    }
+            #toolbar button#showhelp {
+		background: blue;
+	    }
 	    #inferredrule {
 		display:none;
 		position: absolute;
@@ -229,8 +266,6 @@
 	<button id="freeproof">Start empty proof</button><br/>
 	Example proofs: <select id="proofselect"><option value="" label=""></option></select><br/>
 	<button id="showdialog">Details</button>
-	<button id="reset" title="Forget all stored data">Reset</button>
-	<button id="showhelp">Help</button><br/>
 	<div id="errors"></div>
 
         <!-- <label><input type="checkbox" id="unify" checked="checked" /> Run unification</label> -->
@@ -249,11 +284,16 @@
 	</div>
 	</div>
 
+      <div id="toolbar">
+	<button class="iconic" id="showhelp" data-i18n="[title]Help">ℹ</button>
+	<button class="iconic" id="reset" data-i18n="[title]Forget all stored data">🔄</button>
+      </div>
+
     </div>
 
 
     <div id="dialog">
-    <div style="text-align:right"><button id="closedialog">×</button></div>
+    <button class="iconic close" id="closedialog">×</button>
     <span id="took"></span>
     <br/>
     <textarea  cols=100 rows=20 id="graph" readonly="readonly"></textarea>
@@ -279,7 +319,7 @@
 
 
     <div id="help">
-    <div style="text-align:right"><button id="closehelp">×</button></div>
+    <button class="iconic close" id="closehelp">×</button>
     <h2>Welcome to <span class="incrediblefont">The Incredible Proof Machine</span></h2>
 
     <h3>What is this?</h3>
