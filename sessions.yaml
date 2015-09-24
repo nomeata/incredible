@@ -67,7 +67,48 @@
     - A→B→C
     conclusions:
     - (A∧B)→C
+  - assumptions: ["(A→B)∧(A→C)"]
+    conclusions: ["A→(B∧C)"]
 - name: Session 3
+  logic: predicate
+  visible-rules:
+    - conjI
+    - conjE
+    - impI
+    - impE
+    - disjI1
+    - disjI2
+    - disjE
+  tasks:
+  - assumptions: ["A", "B"]
+    conclusions: ["A∨B"]
+  - assumptions: ["A"]
+    conclusions: ["A∨B"]
+  - assumptions: ["B"]
+    conclusions: ["A∨B"]
+  - assumptions: ["A"]
+    conclusions: ["A∨A"]
+  - assumptions: ["A∨B"]
+    conclusions: ["B∨A"]
+  - assumptions: ["A∨(B∨C)"]
+    conclusions: ["(A∨B)∨C"]
+  - assumptions: ["A∨(B∨C)"]
+    conclusions: ["(A∨B)∨C"]
+  - assumptions: ["A∧B"]
+    conclusions: ["A∨B"]
+  - assumptions: ["(A∧B)∨C"]
+    conclusions: ["(A∨C)∧(B∨C)"]
+  - assumptions: ["(A∨B)∧C"]
+    conclusions: ["(A∧C)∨(B∧C)"]
+  - assumptions: ["(A→C)∧(B→C)"]
+    conclusions: ["(A∨B)→C"]
+  - assumptions: ["(A∨B)→C"]
+    conclusions: ["(A→C)∧(B→C)"]
+  - assumptions: ["(A∨B)→C"]
+    conclusions: ["(A→C)∧(B→C)"]
+  - assumptions: ["(A→B)∨(A→C)"]
+    conclusions: ["A→(B∨C)"]
+- name: Session 4
   logic: predicate
   tasks:
   - conclusions: ["∃x.t(x)→(∀x.t(x))"]
