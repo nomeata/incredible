@@ -72,6 +72,10 @@ function processGraph() {
     $("#errors").empty()
 
     if (task_desc) {
+      if (analysis.qed && !(tasks_solved[tasks_solved])) {
+        // Give a hint about the switch task bar
+        $("#taskbottombar").effect('highlight', {color: "#8f8"}, 3000);;
+      }
       tasks_solved[task_desc] = analysis.qed;
     }
 
