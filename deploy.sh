@@ -22,19 +22,11 @@ fi
 
 mkdir $dirname
 
-cp --parents -v -t $dirname \
+cp --parents -r -v -t $dirname \
 	*.html  \
 	*.js  \
-	./vendor/joint.min.css \
-	./vendor/jquery-2.1.4.min.js \
-	./vendor/jquery-ui/jquery-ui.js \
-	./vendor/lodash.min.js \
-	./vendor/backbone-min.js \
-	./vendor/joint.min.js \
-	./webui/*.css \
-	./webui/*.js \
-	./images/* \
-	./fonts/*/*
+	./vendor \
+	./fonts
 
 if [ -d ".git" ]
 then
