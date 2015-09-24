@@ -110,6 +110,48 @@
     conclusions: ["A→(B∨C)"]
 - name: Session 4
   logic: predicate
+  visible-rules:
+    - conjI
+    - conjE
+    - impI
+    - impE
+    - disjI1
+    - disjI2
+    - disjE
+    - falseE
+  tasks:
+  - assumptions: ["⊥"]
+    conclusions: ["A"]
+  - assumptions: ["⊥"]
+    conclusions: ["A","B"]
+  - assumptions: ["A"]
+    conclusions: ["⊥∨A"]
+  - assumptions: ["⊥∨A"]
+    conclusions: ["A"]
+  - assumptions: ["A→B"]
+    conclusions: ["(B→⊥)→(A→⊥)"]
+  - assumptions: ["(((A→⊥)→⊥)→⊥)"]
+    conclusions: ["A→⊥"]
+- name: Session 5
+  logic: predicate
+  visible-rules:
+    - conjI
+    - conjE
+    - impI
+    - impE
+    - disjI1
+    - disjI2
+    - disjE
+    - falseE
+    - TND
+  tasks:
+  - conclusions: ["A∨(A→⊥)"]
+  - assumptions: ["(B→⊥)→(A→⊥)"]
+    conclusions: ["A→B"]
+  - assumptions: ["((A→⊥)→⊥)"]
+    conclusions: ["A"]
+- name: Session 6
+  logic: predicate
   tasks:
   - conclusions: ["∃x.t(x)→(∀x.t(x))"]
   - assumptions: ["∀x.(r(x)→⊥)→r(f(x))"]
