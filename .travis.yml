@@ -53,7 +53,7 @@ install:
 
 script:
     - make
-    - ( cd logic && cabal-1.22 test --show-details=streaming )
+    - make test
     - make docs
 
 after_success:
