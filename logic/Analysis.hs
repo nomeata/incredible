@@ -18,9 +18,9 @@ import Unbound.LocallyNameless.Fresh
 
 type BlockProps = M.Map (Key Block) (M.Map (Key Port) Term)
 
-prepare :: Context -> Task -> Proof -> (BlockProps, M.Map (Key Block) [Var])
+prepare :: Context -> Task -> Proof -> (BlockProps, [Var])
 prepare ctxt task proof =
-    (renamedBlockProps, blockVariables)
+    (renamedBlockProps, unificationVariables)
   where
     -- Strategy:
     --  1. For each block, look up the rule data and localize the variables
@@ -54,9 +54,6 @@ prepare ctxt task proof =
                     prop'   = substs s (portProp p)
                     scopes' = map localize (portScopes p)
 
-    unificationVariables :: [Var]
-    unificationVariables = concat $ map fst $ M.elems renamedBlockData
-
     scopedVariables :: [Var]
     scopedVariables = concatMap (concatMap snd . M.elems . snd) $ M.elems renamedBlockData
 
@@ -79,16 +76,13 @@ prepare ctxt task proof =
             [ (s, V s) | s <- scopedVariables ]
         preparePort (prop, _) = (substs s prop)
 
-    blockVariables :: M.Map (Key Block) [Var]
-    blockVariables = M.map fst renamedBlockData
+    unificationVariables = concat $ M.elems $ M.map fst renamedBlockData
 
 
-analyse :: Task -> Proof -> BlockProps -> (M.Map (Key Block) [Var]) -> (Bindings, [(Key Connection, UnificationResult)])
-analyse task proof renamedBlockProps blockVariables =
+analyse :: Task -> Proof -> BlockProps -> [Var] -> (Bindings, [(Key Connection, UnificationResult)])
+analyse task proof renamedBlockProps unificationVariables =
     (final_bind, unificationResults)
   where
-    unificationVariables = concat $ M.elems blockVariables
-
     equations =
         [ (connKey, (prop1, prop2))
         | (connKey, conn) <- M.toList (connections proof)

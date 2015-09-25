@@ -4,13 +4,16 @@ import Types
 import Analysis
 import Unification
 import Data.Tagged
+--import Debug.Trace
 
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-deriveRule :: Context -> Task -> Proof -> BlockProps -> Bindings -> (M.Map (Key Block) [Var]) -> Rule
-deriveRule ctxt task proof renamedBlockProps bindings blockVariables =
-    Rule {ports = rulePorts, localVars = localVars, freeVars = []}
+import Unbound.LocallyNameless hiding (Infix)
+
+deriveRule :: Context -> Task -> Proof -> BlockProps -> Bindings -> [Var] -> Rule
+deriveRule ctxt task proof renamedBlockProps bindings unificationVariables =
+    Rule {ports = rulePorts, localVars = localVars, freeVars = freeVars}
   where
     portNames = map (Tagged . ("in"++) . show) [1::Integer ..]
 
@@ -36,12 +39,12 @@ deriveRule ctxt task proof renamedBlockProps bindings blockVariables =
       | bKey <- S.toList surfaceBlocks
       , let ports = relabelPorts task renamedBlockProps bKey (block2Rule ctxt $ blocks proof M.! bKey) bindings (map snd $ filter (\(a, _) -> a == bKey) openPorts) ]
 
-    localVars :: [Var]
-    localVars = concat $
-      [ vs
-      | (bKey, vars) <- M.toList blockVariables
-      , S.member bKey surfaceBlocks
-      , let vs = vars ]
+    allVars :: S.Set Var
+    allVars = S.fromList $ fv (map portProp relabeledPorts)
+
+    localVars = S.toList $ S.filter (\v -> name2Integer v > 0) allVars
+
+    freeVars = filter (\v -> S.member v allVars) unificationVariables
 
     dummyPorts =
       [ p

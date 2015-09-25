@@ -195,7 +195,7 @@ oneBlockProof = Proof
 
 renamedRule = Rule ["B"] ["B"] (M.fromList ["in1" >: Port PTAssumption "B" [], "in2" >: Port PTConclusion "B" []])
 
-varMap = (M.singleton "b" ["B"])
+varMap = ["B"]
 
 blockProps :: BlockProps
 blockProps = M.singleton "b" $ M.fromList ["in" >: (V "A"), "out" >: (V "A")]

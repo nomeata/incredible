@@ -97,7 +97,7 @@ function processGraph() {
           blockDesc.canRemove = false;
           blockDesc.isPrototype = true;
           blockDesc.label = '☃';
-          renderBlockDescToSVG(g, blockDesc, false);
+          BlockDescRender(g, blockDesc, false).renderToSVG();
           gBB = g.bbox(false);
           g.translate($(el).width()/2, gBB.height/2 + 5);
           $(el).height(gBB.height + 10);
