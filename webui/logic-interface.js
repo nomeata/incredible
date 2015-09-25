@@ -7,7 +7,7 @@ function buildProof(graph) {
       if (e.get('assumption') || e.get('conclusion') || e.get('prototypeElement')) {
         return;
       }
-      block = {}
+      var block = {};
       var rule, annotation;
       if (rule = e.get('rule')) {
         block.rule = rule.id;
@@ -69,7 +69,7 @@ function processGraph() {
     $("#inferredrule svg").empty();
   } else {
     $("#analysis").val(JSON.stringify(analysis, null, 2));
-    $("#errors").empty()
+    $("#errors").empty();
 
     if (task_desc) {
       if (analysis.qed && !(tasks_solved[tasks_solved])) {
@@ -95,7 +95,7 @@ function processGraph() {
           renderBlockDescToSVG(g, blockDesc, false);
           g.scale(1.5);
           gBB = g.bbox(false);
-          g.translate($(el).width()/2, gBB.height/2 + 5)
+          g.translate($(el).width()/2, gBB.height/2 + 5);
           $(el).height(gBB.height + 10);
         });
       } else {
@@ -160,9 +160,9 @@ function processGraph() {
       var conn = graph.getCell(connId);
       if (lbl.type == "mismatch" || lbl.type == "dunno") {
         var symbol;
-        if (lbl.type == "mismatch")   {symbol = "☠"}
-        else if (lbl.type == "dunno") {symbol = "?"}
-        else {throw Error("processGraph: Unknown connection label type")}
+        if (lbl.type == "mismatch")   {symbol = "☠";}
+        else if (lbl.type == "dunno") {symbol = "?";}
+        else {throw Error("processGraph: Unknown connection label type");}
 
         // not very nice, see http://stackoverflow.com/questions/32010888
         conn.attr({'.connection': {class: 'connection error'}});
@@ -218,7 +218,7 @@ function processGraph() {
 function isReversed(conn) {
   // A connection is reversed if its source is an "in" magnet, or the target an
   // "out" magnet.
-  var e = conn.get('source')
+  var e = conn.get('source');
   if (e.id) {
     var el = graph.getCell(e.id);
     if (el.get('conclusion')) {
@@ -236,7 +236,7 @@ function isReversed(conn) {
       }
     }
   }
-  var e = conn.get('target')
+  var e = conn.get('target');
   if (e.id) {
     var el = graph.getCell(e.id);
     if (el.get('assumption')) {
