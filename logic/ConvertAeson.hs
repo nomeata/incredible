@@ -117,7 +117,7 @@ instance ToJSON Port where
         (case portType of
             PTAssumption ->         [ "type" .= ("assumption" :: T.Text) ]
             PTConclusion ->         [ "type" .= ("conclusion" :: T.Text) ]
-            (PTLocalHyp portKey) -> [ "type" .= ("conclusion" :: T.Text)
+            (PTLocalHyp portKey) -> [ "type" .= ("local hypothesis" :: T.Text)
                                     , "consumedBy" .= toJSON portKey]
         ) ++
         [ "proposition" .= toJSON portProp
