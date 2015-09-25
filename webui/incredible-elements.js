@@ -128,7 +128,7 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
       var text = "✎"+this.model.get('annotation');
       if (textV.text() != text) {
         textV.text(text);
-        updateSizes(this.vel, this.getBlockDesc());
+        this.updateSizes();
       }
     }
 
