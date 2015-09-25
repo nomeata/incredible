@@ -5,6 +5,7 @@ import qualified Data.Map as M
 import Data.Map ((!))
 import Data.Function
 import Data.List (sortBy)
+import Debug.Trace
 
 import Types
 import Unification

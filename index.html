@@ -112,12 +112,6 @@
 	    }
 	    #inferredrule {
 		display:none;
-		position: absolute;
-		top:0px;
-		width:30em;
-		right:0px;
-		padding:1em;
-		overflow: auto;
             }
 
             #taskwrap {
@@ -297,6 +291,13 @@
 	<h3 data-i18n>Current task:</h3>
         <div id="taskwrap"></div>
       </div>
+      <div id="inferredrule">
+	<h3 data-i18n>You proved:</h3>
+	<div id="inferredrulewrapper">
+	<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="30em" height="100px"></svg>
+	</div>
+      </div>
+
       <h3 data-i18n>Logics blocks:</h3>
       <div id="logic"></div>
       <h3 data-i18n>Helper blocks:</h3>
@@ -321,13 +322,6 @@
 
     <div id="header">
       <h1>The Incredible Proof Machin<span class="e">e</span></h1>
-	<div id="inferredrule">
-	<h3 data-i18n>You proved:</h3>
-	<div id="inferredrulewrapper">
-	<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="30em" height="100px"></svg>
-	</div>
-	</div>
-
       <div id="toolbar">
 	<button class="iconic" id="showhelp" data-i18n="[title]Help">ℹ</button>
 	<button class="iconic" id="savesvg" data-i18n="[title]Save proof as SVG image.">⤓</button>

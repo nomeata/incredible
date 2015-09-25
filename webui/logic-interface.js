@@ -87,27 +87,27 @@ function processGraph() {
     // mock
     // analysis.rule = logic.rules[0];
 
-    if ($("#inferredrule").is(':visible')) {
-      if (analysis.rule) {
-        $("#inferredrule svg").each(function (n, el) {
-          $(el).empty();
-          var g = V("<g/>");
-          var vel = V(el).append(g);
-          var blockDesc = ruleToBlockDesc(analysis.rule);
-          blockDesc.canRemove = false;
-          blockDesc.isPrototype = true;
-          blockDesc.label = '☃';
-          BlockDescRender(g, blockDesc, false).renderToSVG();
-          gBB = g.bbox(false);
-          g.translate($(el).width()/2, gBB.height/2 + 5);
-          $(el).height(gBB.height + 10);
-        });
-      } else {
-        $("#inferredrule svg").each(function (n, el) {
-          $(el).empty();
-          V(el).append(V("<text fill='black'/>").text(i18n.t('nothing')));
-        });
-      }
+    if (analysis.rule) {
+      $("#inferredrule").slideDown();
+      $("#inferredrule svg").each(function (n, el) {
+        $(el).empty();
+        var g = V("<g/>");
+        var vel = V(el).append(g);
+        var blockDesc = ruleToBlockDesc(analysis.rule);
+        blockDesc.canRemove = false;
+        blockDesc.isPrototype = true;
+        blockDesc.desc = {label: '☃'};
+        BlockDescRenderer(g, blockDesc, false).renderToSVG();
+        gBB = g.bbox(false);
+        g.translate($(el).width()/2, -gBB.y + 5);
+        vel.attr({'width': $("#inferredrule").width(), 'height': gBB.height + 10 });
+      });
+    } else {
+      $("#inferredrule").slideUp();
+      $("#inferredrule svg").each(function (n, el) {
+        $(el).empty();
+        // V(el).append(V("<text fill='black'/>").text(i18n.t('nothing')));
+      });
     }
 
     // Reset everything
