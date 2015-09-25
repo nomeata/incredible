@@ -1,7 +1,7 @@
 cycles: []
 connectionLabels:
   d0ae041d-7605-45b5-a0bc-9a263d1f6cd6:
-    prop: P(c₃)
+    prop: P(c₅)
     type: ok
   2d7dc28e-ce45-4dd0-acf1-56d37238a378:
     prop: ⊥
@@ -22,7 +22,7 @@ connectionLabels:
     prop: ∃x.P(x)→⊥
     type: ok
   e3c92d34-70e9-43eb-9688-22dc5f7951f2:
-    prop: P(c₃)→⊥
+    prop: P(c₅)→⊥
     type: ok
 rule: null
 escapedHypotheses: []

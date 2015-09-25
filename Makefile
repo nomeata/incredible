@@ -27,7 +27,7 @@ docs:
 test: all
 	cd logic && \
 	cabal test --show-details=streaming
-	which jshint && jshint webui/*.js sessions.js examples.js
+	! which jshint || jshint webui/*.js sessions.js examples.js
 
 logic/dist-ghcjs/build/js-interface/js-interface.jsexe/all.js: logic/*.hs logic/js/*.hs
 	cd logic && \
