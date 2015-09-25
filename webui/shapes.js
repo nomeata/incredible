@@ -198,6 +198,13 @@ function renderSchieblehre(group, blockDesc, forReal) {
   });
 }
 
+function positionPorts(el, portPos) {
+  _.each(portPos, function (pos, id) {
+    el.findOne(".port-wrap-" + id)
+      .attr('transform','')
+      .translate(pos.x, pos.y);
+  });
+}
 
 function updateSizesSchieblehre1(el, blockDesc) {
   var defaultSchieblehreWidth = (blockDesc.isPrototype ? 0 : 40);
@@ -268,9 +275,6 @@ function updateSizesSchieblehre1(el, blockDesc) {
 
   // The single hypothesis
   var hyp = blockDesc.portsGroup['local hypothesis'][0];
-  el.findOne(".port-wrap-" + hyp.id)
-    .attr('transform','')
-    .translate(-impIConfig.innerWidthLeft, -10);
 
   // Find the conclusion for the single as for that
   var localAssumption =
@@ -280,25 +284,28 @@ function updateSizesSchieblehre1(el, blockDesc) {
     _.filter(blockDesc.portsGroup.assumption,
              function (pd) {return pd.id != hyp.consumedBy;});
 
-  el.findOne(".port-wrap-" + localAssumption.id)
-    .attr('transform','')
-    .translate(impIConfig.innerWidthRight, -10);
+  // Port positions
+  var portPos = {};
+
+  portPos[hyp.id] =
+    {x: -impIConfig.innerWidthLeft, y: -10};
+  portPos[localAssumption.id] =
+    {x: impIConfig.innerWidthRight, y: -10};
 
   var base;
   base = otherAssumptions.length > 1 ? 10 : 0;
   _.each(otherAssumptions, function (portDesc, index) {
-    el.findOne(".port-wrap-" + portDesc.id)
-      .attr('transform','')
-      .translate(-impIConfig.innerWidthLeft - impIConfig.leftWidth,
-        base - 20 * index);
+    portPos[portDesc.id] =
+      {x: -impIConfig.innerWidthLeft - impIConfig.leftWidth,
+       y: base - 20 * index};
   });
   base = (blockDesc.portsGroup.conclusion.length > 1) ? 10 : 0;
   _.each(blockDesc.portsGroup.conclusion, function (portDesc, index) {
-    el.findOne(".port-wrap-" + portDesc.id)
-      .attr('transform','')
-      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth,
-        base - 20 * index);
+    portPos[portDesc.id] =
+      {x: impIConfig.innerWidthRight + impIConfig.rightWidth,
+       y: base - 20 * index};
   });
+  positionPorts(el, portPos);
 
   if (blockDesc.number) {
     number = el.findOne(".number");
@@ -391,14 +398,8 @@ function updateSizesSchieblehre2(el, blockDesc) {
 
   // The first hypothesis
   var hyp1 = blockDesc.portsGroup['local hypothesis'][0];
-  el.findOne(".port-wrap-" + hyp1.id)
-    .attr('transform','')
-    .translate(-impIConfig.innerWidthLeft, -10);
   // The second hypothesis
   var hyp2 = blockDesc.portsGroup['local hypothesis'][1];
-  el.findOne(".port-wrap-" + hyp2.id)
-    .attr('transform','')
-    .translate(-impIConfig.innerWidthLeft, 10);
 
   // Find the conclusion for the single as for that
   var localAssumption1 =
@@ -411,29 +412,33 @@ function updateSizesSchieblehre2(el, blockDesc) {
     _.filter(blockDesc.portsGroup.assumption,
              function (pd) {return pd.id != hyp1.consumedBy && pd.id != hyp2.consumedBy;});
 
-  el.findOne(".port-wrap-" + localAssumption1.id)
-    .attr('transform','')
-    .translate(impIConfig.innerWidthRight, -10);
+  // Port positions
+  var portPos = {};
 
-  el.findOne(".port-wrap-" + localAssumption2.id)
-    .attr('transform','')
-    .translate(impIConfig.innerWidthRight, 10);
+  portPos[hyp1.id] =
+    {x: -impIConfig.innerWidthLeft, y: -10};
+  portPos[hyp2.id] =
+    {x: -impIConfig.innerWidthLeft, y: 10};
+  portPos[localAssumption1.id] =
+    {x: impIConfig.innerWidthRight, y: -10};
+  portPos[localAssumption2.id] =
+    {x: impIConfig.innerWidthRight, y: 10};
 
   var base;
   base = 10 * (otherAssumptions.length-1);
   _.each(otherAssumptions, function (portDesc, index) {
-    el.findOne(".port-wrap-" + portDesc.id)
-      .attr('transform','')
-      .translate(-impIConfig.innerWidthLeft - impIConfig.leftWidth,
-        base - 20 * index);
+    portPos[portDesc.id] =
+      {x: -impIConfig.innerWidthLeft - impIConfig.leftWidth,
+       y: base - 20 * index};
   });
   base = 10 * (blockDesc.portsGroup.conclusion.length - 1);
   _.each(blockDesc.portsGroup.conclusion, function (portDesc, index) {
-    el.findOne(".port-wrap-" + portDesc.id)
-      .attr('transform','')
-      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth,
-        base - 20 * index);
+    portPos[portDesc.id] =
+      {x: impIConfig.innerWidthRight + impIConfig.rightWidth,
+       y: base - 20 * index};
   });
+  positionPorts(el, portPos);
+
 
   if (blockDesc.number) {
     number = el.findOne(".number");
@@ -584,6 +589,7 @@ function updateSizesRegular(el, blockDesc) {
       .translate(width/2 - 20, -height/2);
   }
 
+  var portPos = {};
   _.each(blockDesc.portsGroup, function (thesePorts, portType) {
     var total = _.size(thesePorts);
     _.each(thesePorts, function (portDesc, index) {
@@ -598,11 +604,10 @@ function updateSizesRegular(el, blockDesc) {
         pos.x = 20*index - 10*(total-1);
         pos.y = height/2;
       }
-      el.findOne(".port-wrap-" + portDesc.id)
-        .attr('transform','')
-        .translate(pos.x, pos.y);
+      portPos[portDesc.id] = pos;
     });
   });
+  positionPorts(el, portPos);
 }
 
 function addPort(group, portDesc, direction, orientation, forReal, isPrototype) {
