@@ -1,0 +1,20 @@
+{
+  /* Lets be strict, better safe than sorry */
+  "bitwise": true,
+  "curly": true,
+  "forin": true,
+  "futurehostile": true,
+  "latedef": "nofunc",
+  "noarg": true,
+  "nocomma": true,
+  "nonew": true
+
+  // undef does not work well, we have too many things in global scope (both
+  // global variables and functions)
+  // "undef": true,
+
+  // for the same reason, unused does not work well
+  // "unused": "vars"
+
+  // "varstmt": true,
+}

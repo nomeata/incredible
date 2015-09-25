@@ -52,8 +52,16 @@ function selectProof(name) {
 
 
 $(function (){
-  $("#taskselect").change(with_graph_loading(function () { if (this.value) selectNamedTask(this.value); }));
-  $("#proofselect").change(with_graph_loading (function () { if (this.value) selectProof(this.value); }));
+  $("#taskselect").change(with_graph_loading(function () {
+    if (this.value) {
+      selectNamedTask(this.value);
+    }
+  }));
+  $("#proofselect").change(with_graph_loading (function () {
+    if (this.value) {
+      selectProof(this.value);
+    }
+  }));
   $("#freeproof").click(with_graph_loading (function () { selectNoTask(); }));
 
   $("#showdialog").click(function(){

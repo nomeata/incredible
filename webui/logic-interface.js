@@ -161,61 +161,63 @@ function processGraph() {
     });
 
     for (var connId in analysis.connectionLabels) {
-      var lbl = analysis.connectionLabels[connId];
-      var conn = graph.getCell(connId);
-      if (lbl.type == "mismatch" || lbl.type == "dunno") {
-        var symbol;
-        if (lbl.type == "mismatch")   {symbol = "☠";}
-        else if (lbl.type == "dunno") {symbol = "?";}
-        else {throw Error("processGraph: Unknown connection label type");}
+      if (analysis.connectionLabels.hasOwnProperty(connId)) {
+        var lbl = analysis.connectionLabels[connId];
+        var conn = graph.getCell(connId);
+        if (lbl.type == "mismatch" || lbl.type == "dunno") {
+          var symbol;
+          if (lbl.type == "mismatch")   {symbol = "☠";}
+          else if (lbl.type == "dunno") {symbol = "?";}
+          else {throw Error("processGraph: Unknown connection label type");}
 
-        // not very nice, see http://stackoverflow.com/questions/32010888
-        conn.attr({'.connection': {class: 'connection error'}});
+          // not very nice, see http://stackoverflow.com/questions/32010888
+          conn.attr({'.connection': {class: 'connection error'}});
 
-        if (isReversed(conn)) {
-          f = function (pos) {return 1-pos;};
-        } else {
-          f = function (pos) {return pos;};
-        }
-
-        conn.set('labels', [{
-          position: f(0.1),
-          attrs: {
-            text: {
-              text: lbl.propIn
-            }
+          if (isReversed(conn)) {
+            f = function (pos) {return 1-pos;};
+          } else {
+            f = function (pos) {return pos;};
           }
-        },
-          {
-            position: f(0.5),
+
+          conn.set('labels', [{
+            position: f(0.1),
             attrs: {
               text: {
-                text: symbol
+                text: lbl.propIn
               }
             }
           },
-          {
-            position: f(0.9),
-            attrs: {
-              text: {
-                text: lbl.propOut
+            {
+              position: f(0.5),
+              attrs: {
+                text: {
+                  text: symbol
+                }
+              }
+            },
+            {
+              position: f(0.9),
+              attrs: {
+                text: {
+                  text: lbl.propOut
+                }
               }
             }
-          }
-        ]);
-      } else if (lbl.type == "ok") {
-        conn.set('labels', [{
-          position: 0.5,
-          attrs: {
-            text: {
-              text: lbl.prop
+          ]);
+        } else if (lbl.type == "ok") {
+          conn.set('labels', [{
+            position: 0.5,
+            attrs: {
+              text: {
+                text: lbl.prop
+              }
             }
-          }
-        }]);
-      } else if (lbl.type == "unconnected") {
-        conn.set('labels', []);
-      } else {
-        throw new Error("processGraph(): Unknown connection label type");
+          }]);
+        } else if (lbl.type == "unconnected") {
+          conn.set('labels', []);
+        } else {
+          throw new Error("processGraph(): Unknown connection label type");
+        }
       }
     }
   }
