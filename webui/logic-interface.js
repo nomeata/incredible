@@ -236,23 +236,23 @@ function isReversed(conn) {
       }
     }
   }
-  var e = conn.get('target');
-  if (e.id) {
-    var el = graph.getCell(e.id);
+  var target = conn.get('target');
+  if (target.id) {
+    var el = graph.getCell(target.id);
     if (el.get('assumption')) {
       return true;
     }
     if (el.get('annotation')) {
-      if (e.port == "out") {
+      if (target.port == "out") {
         return true;
       }
     }
     var rule;
     if (rule = el.get('rule')) {
-      if (rule.ports[e.port].type == "conclusion") {
+      if (rule.ports[target.port].type == "conclusion") {
         return true;
       }
-      if (rule.ports[e.port].type == "local hypothesis") {
+      if (rule.ports[target.port].type == "local hypothesis") {
         return true;
       }
     }
