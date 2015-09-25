@@ -127,14 +127,17 @@
                 margin: 0 1em 1em 1em;
             }
             .inferencerule ul {
-                display: block;
+                display: flex;
+		flex-wrap: wrap;
+		justify-content: space-around;
+		align-items: baseline;
                 padding: 0px;
                 margin: 0px;
             }
             .inferencerule li {
                 display: block;
                 padding: 0px;
-                margin: 0px;
+                margin: 1px 1ex 1px 1ex;
 		text-align: center;
             }
             #taskdialog .inferencerule.attempted {
