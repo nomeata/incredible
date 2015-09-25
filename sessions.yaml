@@ -162,3 +162,17 @@
   - conclusions: ["A→A"]
   - conclusions: ["~A→A→B"]
   - conclusions: ["(A→B)→(~A→B)→B"]
+- name: NAND calculus
+  logic: nand
+  tasks:
+  - assumptions: ["A↑B"]
+    conclusions: ["B↑A"]
+  - assumptions: ["A"]
+    conclusions: ["(A↑A)↑(A↑A)"]
+  - conclusions: ["A↑A↑A"]
+  - assumptions: ["(A↑A)↑(A↑A)"]
+    conclusions: ["A"]
+  - assumptions: ["A","B"]
+    conclusions: ["A↑B↑(A↑B)"]
+  - assumptions: ["A↑B↑(A↑B)"]
+    conclusions: ["A","B"]

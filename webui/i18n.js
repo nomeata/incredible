@@ -21,6 +21,7 @@ var translations = {
     "Session 4": "Lektion 4",
     "Session 5": "Lektion 5",
     "Hilbert system": "Hilbert-Kalkül",
+    "NAND calculus": "NAND-Kalkül",
     "Help": "Hilfe",
     "Save proof as SVG image.": "Den Beweis als SVG-Datei speichern.",
     "Forget all stored data": "Alle gespeicherten Daten löschen.",
