@@ -311,7 +311,8 @@ function updateSizesSchieblehre1(el, blockDesc) {
   if (blockDesc.canRemove) {
     el.findOne(".tool-remove")
       .attr('transform','')
-      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth - 10, -35/2);
+      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth,
+                -(impIConfig.rightHeight -15 + 3.5 +5));
   }
 
   // Make sure these asymmetric blocks are still nicely aligned in the logic view
@@ -445,7 +446,8 @@ function updateSizesSchieblehre2(el, blockDesc) {
   if (blockDesc.canRemove) {
     el.findOne(".tool-remove")
       .attr('transform','')
-      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth - 10, -35/2);
+      .translate(impIConfig.innerWidthRight + impIConfig.rightWidth,
+                -(impIConfig.rightHeight/2 + 3.5 +5));
   }
 
   // Make sure these asymmetric blocks are still nicely aligned in the logic view
