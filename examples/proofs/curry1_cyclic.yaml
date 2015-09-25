@@ -15,12 +15,14 @@ blocks:
     number: 4
 connections:
   c1:
+    sortKey: 0
     from:
       assumption: 1
     to:
       block: b2
       port: in1
   c2:
+    sortKey: 0
     from:
       block: b2
       port: out
@@ -28,6 +30,7 @@ connections:
       block: b2
       port: in1
   c3:
+    sortKey: 0
     from:
       block: b3
       port: out
@@ -35,12 +38,14 @@ connections:
       block: b4
       port: in
   c4:
+    sortKey: 0
     from:
       block: b4
       port: out
     to:
       conclusion: 1
   c5:
+    sortKey: 0
     from:
       block: b4
       port: hyp
@@ -48,6 +53,7 @@ connections:
       block: b1
       port: in1
   c6:
+    sortKey: 0
     from:
       block: b3
       port: hyp
@@ -55,6 +61,7 @@ connections:
       block: b1
       port: in2
   c7:
+    sortKey: 0
     from:
       block: b1
       port: out

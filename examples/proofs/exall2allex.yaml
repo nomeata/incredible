@@ -13,6 +13,7 @@ blocks:
     number: 4
 connections:
   978c53b5-f8ca-4b5d-ae2b-e8a8ac801c39:
+    sortKey: 0
     to:
       block: a489962f-763f-44ce-9437-6fec4c05e0f7
       port: in1
@@ -20,6 +21,7 @@ connections:
       block: 850f6134-c910-47f6-9577-c511d43953cd
       port: hyp
   56cf3ad0-90f6-4b1d-a2f1-281ce0b622cd:
+    sortKey: 0
     to:
       block: 2f796fe5-7d4b-4d53-8075-683ad2fcce6f
       port: in1
@@ -27,12 +29,14 @@ connections:
       block: a489962f-763f-44ce-9437-6fec4c05e0f7
       port: out2
   b7bf03cb-bc71-4a26-b9c7-fc42193f0515:
+    sortKey: 0
     to:
       block: 850f6134-c910-47f6-9577-c511d43953cd
       port: in1
     from:
       assumption: 1
   7f8cbf41-21a8-49f0-abfd-479c48c1796d:
+    sortKey: 0
     to:
       block: 850f6134-c910-47f6-9577-c511d43953cd
       port: in2
@@ -40,12 +44,14 @@ connections:
       block: f1f91d19-8873-4070-be62-b11839058df9
       port: out2
   21e84149-c425-4e81-a38f-177b98892a0a:
+    sortKey: 0
     to:
       conclusion: 1
     from:
       block: 850f6134-c910-47f6-9577-c511d43953cd
       port: out
   b63f6a24-8436-4581-b629-10359330442a:
+    sortKey: 0
     to:
       block: f1f91d19-8873-4070-be62-b11839058df9
       port: in1
