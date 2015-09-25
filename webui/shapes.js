@@ -82,13 +82,13 @@ function annotationToBlockDesc(proposition) {
 function renderDesc(desc, group) {
   var text;
   if (desc.label) {
-    text = V("<text class='label center' font-family='sans' fill='black'/>");
+    text = V("<text class='label center' />");
     text.text(desc.label);
   } else if (desc.intro) {
-    text = V("<text class='label right' font-family='sans' fill='black'/>");
+    text = V("<text class='label right' />");
     text.text(desc.intro);
   } else if (desc.elim) {
-    text = V("<text class='label left' font-family='sans' fill='black'/>");
+    text = V("<text class='label left' />");
     text.text(desc.elim);
   } else {
     throw Error("renderDesc: Unknown label desc " + JSON.stringify(desc));
@@ -619,7 +619,7 @@ function addPort(group, portDesc, direction, orientation, forReal, isPrototype) 
   var label;
   var labelBB;
   if (isPrototype) {
-    label = V("<text font-family='sans' fill='#000' font-size='8px'/>");
+    label = V("<text font-family='sans' fill='#000' font-size='14px'/>");
     label.text(portDesc.proposition);
     g.append(label);
     labelBB = label.bbox(true);

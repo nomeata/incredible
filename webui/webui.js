@@ -9,10 +9,6 @@ var graph = new joint.dia.Graph({
 
 var paper = create_paper();
 
-// zoom the viewport by 50%
-paper.scale(1.5, 1.5);
-
-
 function setupGraph(graph, task) {
   var cells = [];
   // Fixed blocks for input and output
@@ -52,7 +48,6 @@ function renderBlockDescToDraggable(blockDesc, container) {
   var g = V("<g/>");
   vel.append(g);
   renderBlockDescToSVG(g, blockDesc, false);
-  g.scale(1.5);
   gBB = g.bbox(false);
   g.translate($(el).width()/2, -gBB.y + 5);
 

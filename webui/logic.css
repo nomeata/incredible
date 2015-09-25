@@ -97,6 +97,12 @@
     cursor: move
 }
 
+.block .label {
+    font-family: sans;
+    font-size: 17px;
+    fill: black;
+}
+
 .block .resize-left {
     cursor: ew-resize
 }
@@ -106,7 +112,7 @@
 .block .number {
     fill: #000;
     opacity: 0.5;
-    font-size: 6px;
+    font-size: 8px;
 }
 
 

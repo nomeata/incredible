@@ -98,7 +98,6 @@ function processGraph() {
           blockDesc.isPrototype = true;
           blockDesc.label = '☃';
           renderBlockDescToSVG(g, blockDesc, false);
-          g.scale(1.5);
           gBB = g.bbox(false);
           g.translate($(el).width()/2, gBB.height/2 + 5);
           $(el).height(gBB.height + 10);
@@ -164,6 +163,8 @@ function processGraph() {
       if (analysis.connectionLabels.hasOwnProperty(connId)) {
         var lbl = analysis.connectionLabels[connId];
         var conn = graph.getCell(connId);
+        conn.attr({'.label text': {'font-size': '14px'}});
+
         if (lbl.type == "mismatch" || lbl.type == "dunno") {
           var symbol;
           if (lbl.type == "mismatch")   {symbol = "☠";}
