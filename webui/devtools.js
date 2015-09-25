@@ -15,6 +15,7 @@ function selectNoTask() {
   $("#inferredrule").show();
   saveTask();
   task = { };
+  task_desc = undefined;
   setupGraph(graph, task);
   processGraph();
 }
@@ -23,6 +24,7 @@ function selectNamedTask(name) {
   saveTask();
   selectLogic(examples.tasks[name].logic);
   loadTask(examples.tasks[name]);
+  task_desc = undefined;
   $("#taskselect").val(name);
 }
 
