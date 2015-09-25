@@ -3,8 +3,6 @@ module Analysis where
 
 import qualified Data.Map as M
 import Data.Map ((!))
-import Data.Tagged -- because unbound does not handle Tag :-(
-import Control.Arrow
 import Data.Function
 import Data.List (sortBy)
 
@@ -14,7 +12,6 @@ import Propositions
 import Scopes
 
 import Unbound.LocallyNameless
-import Unbound.LocallyNameless.Fresh
 
 type BlockProps = M.Map (Key Block) (M.Map (Key Port) Term)
 
@@ -85,7 +82,7 @@ analyse task proof renamedBlockProps unificationVariables =
   where
     equations =
         [ (connKey, (prop1, prop2))
-        | (connKey, conn) <- M.toList (connections proof)
+        | (connKey, conn) <- sortBy (compare `on` snd) $ M.toList (connections proof)
         , Just prop1 <- return $ propAt task renamedBlockProps (connFrom conn)
         , Just prop2 <- return $ propAt task renamedBlockProps (connTo conn)
         ]
