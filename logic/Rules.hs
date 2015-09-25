@@ -11,8 +11,8 @@ import qualified Data.Set as S
 
 import Unbound.LocallyNameless hiding (Infix)
 
-deriveRule :: Context -> Task -> Proof -> BlockProps -> Bindings -> [Var] -> Rule
-deriveRule ctxt task proof renamedBlockProps bindings unificationVariables =
+deriveRule :: Context -> Task -> Proof -> BlockProps -> Bindings -> [Var] -> (Key Block -> Key Port -> [Var]) -> Rule
+deriveRule ctxt task proof renamedBlockProps bindings unificationVariables scopesOverPort =
     Rule {ports = rulePorts, localVars = localVars, freeVars = freeVars}
   where
     portNames = map (Tagged . ("in"++) . show) [1::Integer ..]
@@ -37,7 +37,7 @@ deriveRule ctxt task proof renamedBlockProps bindings unificationVariables =
     relabeledPorts = concat
       [ ports
       | bKey <- S.toList surfaceBlocks
-      , let ports = relabelPorts task renamedBlockProps bKey (block2Rule ctxt $ blocks proof M.! bKey) bindings (map snd $ filter (\(a, _) -> a == bKey) openPorts) ]
+      , let ports = relabelPorts task renamedBlockProps scopesOverPort bKey (block2Rule ctxt $ blocks proof M.! bKey) bindings (map snd $ filter (\(a, _) -> a == bKey) openPorts) ]
 
     allVars :: S.Set Var
     allVars = S.fromList $ fv (map portProp relabeledPorts)
@@ -53,10 +53,10 @@ deriveRule ctxt task proof renamedBlockProps bindings unificationVariables =
 
     rulePorts = M.fromList $ zip portNames relabeledPorts
 
-relabelPorts :: Task -> BlockProps -> Key Block -> Rule -> Bindings -> [Key Port] -> [Port]
-relabelPorts task renamedBlockProps bKey rule binds openPorts =
+relabelPorts :: Task -> BlockProps -> (Key Block -> Key Port -> [Var]) -> Key Block -> Rule -> Bindings -> [Key Port] -> [Port]
+relabelPorts task renamedBlockProps scopesOverPort bKey rule binds openPorts =
   [ port
   | pKey <- openPorts
-  , let Port typ _ scopes = (ports rule) M.! pKey
+  , let Port typ _ _ = (ports rule) M.! pKey
   , let Just prop = propAt task renamedBlockProps (BlockPort bKey pKey)
-  , let port = Port typ (applyBinding binds prop) scopes ]
+  , let port = Port typ (applyBinding binds prop) (scopesOverPort bKey pKey) ]

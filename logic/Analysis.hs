@@ -16,9 +16,9 @@ import Unbound.LocallyNameless
 
 type BlockProps = M.Map (Key Block) (M.Map (Key Port) Term)
 
-prepare :: Context -> Task -> Proof -> (BlockProps, [Var])
+prepare :: Context -> Task -> Proof -> (BlockProps, [Var], Key Block -> Key Port -> [Var])
 prepare ctxt task proof =
-    (renamedBlockProps, unificationVariables)
+    (renamedBlockProps, unificationVariables, scopesOverPort)
   where
     -- Strategy:
     --  1. For each block, look up the rule data and localize the variables
@@ -61,16 +61,23 @@ prepare ctxt task proof =
     renamedBlockProps :: M.Map (Key Block) (M.Map (Key Port) Term)
     renamedBlockProps = M.mapWithKey prepareBlock renamedBlockData
 
+    scopesOverBlock blockKey = [ v
+        | BlockPort pdBlockKey pdPortKey <- M.findWithDefault [] blockKey scopeMap
+        , Just (_,ports) <- return $ M.lookup pdBlockKey renamedBlockData
+        , let (_,sv) = ports M.! pdPortKey
+        , v <- sv
+        ]
+
+    scopesOverPort blockKey portKey =
+        scopesOverBlock blockKey ++ [ v
+               | Just (_,ports) <- return $ M.lookup blockKey renamedBlockData
+               , let (_,sv) = ports M.! portKey
+               , v <- sv ]
+
     prepareBlock blockKey (unv, ports) = M.map preparePort ports
       where
-        scopedVars = [ v
-            | BlockPort pdBlockKey pdPortKey <- M.findWithDefault [] blockKey scopeMap
-            , Just (_,ports) <- return $ M.lookup pdBlockKey renamedBlockData
-            , let (_,sv) = ports M.! pdPortKey
-            , v <- sv
-            ]
         -- Change free variables to variables, possibly depending on these arguments
-        s = [ (s, mkApps (V s) (map V scopedVars)) | s <- unv ] ++
+        s = [ (s, mkApps (V s) (map V $ scopesOverBlock blockKey)) | s <- unv ] ++
             [ (s, V s) | s <- scopedVariables ]
         preparePort (prop, _) = (substs s prop)
 

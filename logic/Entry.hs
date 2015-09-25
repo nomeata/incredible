@@ -22,9 +22,9 @@ incredibleLogic ctxt task proof = do
   where
     usedConnections = findUsedConnections ctxt task proof
 
-    (renamedBlockProps, blockVariables) = prepare ctxt task proof
+    (renamedBlockProps, unificationVariables, scopedVariables) = prepare ctxt task proof
 
-    (final_bind, unificationResults) = analyse task proof renamedBlockProps blockVariables
+    (final_bind, unificationResults) = analyse task proof renamedBlockProps unificationVariables
 
     connectionLabels = labelConnections task proof renamedBlockProps final_bind unificationResults
 
@@ -41,7 +41,7 @@ incredibleLogic ctxt task proof = do
     emptyTask (Task [] []) = True
     emptyTask (Task _ _) = False
     rule = if emptyTask task && null unconnectedGoals && S.null badConnections
-      then Just (deriveRule ctxt task proof renamedBlockProps final_bind blockVariables)
+      then Just (deriveRule ctxt task proof renamedBlockProps final_bind unificationVariables scopedVariables)
       else Nothing
 
     qed = null unconnectedGoals && S.null (usedConnections `S.intersection` badConnections)

@@ -104,7 +104,7 @@ labelConnectionsTests = testGroup "Label Connections"
         M.fromList [("c1",Ok $ C "Prop"),("c2", Ok $ App (C "→") [C "Prop", C "Prop"])]
   ]
   where
-    (renamedBlockProps, unificationVariables) = prepare impILogic simpleTask completeProof
+    (renamedBlockProps, unificationVariables, _) = prepare impILogic simpleTask completeProof
     (final_bind, unificationResults) = analyse simpleTask completeProof renamedBlockProps unificationVariables
 
 unificationTests = testGroup "Unification tests"
@@ -163,11 +163,11 @@ unificationTests = testGroup "Unification tests"
   ]
 
 ruleExportTest = testGroup "Rule export"
-  [ testCase "single block renaming" $ assertEqualValues (toJSON $ deriveRule oneBlockLogic emptyTask oneBlockProof blockProps bindingAB varMap) $ toJSON renamedRule
-  --, testCase "full call" $ deriveRule oneBlockLogic emptyTask oneBlockProof bm b vm @?= renamedRule
+  [ testCase "single block renaming" $ assertEqualValues (toJSON $ deriveRule oneBlockLogic emptyTask oneBlockProof blockProps bindingAB uniVars scopeVars) $ toJSON renamedRule
+  , testCase "full call" $ assertEqualValues (toJSON $ deriveRule oneBlockLogic emptyTask oneBlockProof bm b vm sv) $ toJSON renamedRule
   ]
   where
-    (bm, vm) = prepare oneBlockLogic emptyTask oneBlockProof
+    (bm, vm, sv) = prepare oneBlockLogic emptyTask oneBlockProof
     (b, _) = analyse emptyTask oneBlockProof bm vm
 
 assertUnifies :: [Var] -> [Equality] -> [(Var, Term)] -> Assertion
@@ -195,7 +195,8 @@ oneBlockProof = Proof
 
 renamedRule = Rule ["B"] ["B"] (M.fromList ["in1" >: Port PTAssumption "B" [], "in2" >: Port PTConclusion "B" []])
 
-varMap = ["B"]
+uniVars = ["B"]
+scopeVars _ _ = []
 
 blockProps :: BlockProps
 blockProps = M.singleton "b" $ M.fromList ["in" >: (V "A"), "out" >: (V "A")]
