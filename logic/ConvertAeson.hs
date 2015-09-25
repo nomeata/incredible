@@ -92,7 +92,7 @@ instance FromJSON Block where
 
 instance FromJSON Connection where
   parseJSON = withObject "block" $ \o -> do
-    Connection <$> o .: "from" <*> o .: "to"
+    Connection <$> o .: "sortKey" <*> o .: "from" <*> o .: "to"
 
 instance FromJSON PortSpec where
  parseJSON = withObject "port spec" $ \o ->

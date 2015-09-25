@@ -6,24 +6,46 @@
 
         <title>The Incredible Proof Machine</title>
 
-        <link rel="stylesheet" type="text/css" href="./vendor/joint.min.css" />
+        <link rel="stylesheet" data-css="true" type="text/css" href="./vendor/joint.min.css" />
         <link rel="stylesheet" type="text/css" href="./webui/loader.css" />
-        <link rel="stylesheet" type="text/css" href="./webui/logic.css" />
+        <link rel="stylesheet" data-css="true" type="text/css" href="./webui/logic.css" />
         <link rel="stylesheet" type="text/css" href="./fonts/lintsec_regular_macroman/stylesheet.css" />
+
+	<link rel="icon" href="incredible-favicon.png" type="image/png">
 
         <style>
             body {
                 font-family: sans-serif;
             }
 
-	    h1 .e {
-		display: inline-block;
-		-ms-transform: rotate(180deg);
-		-webkit-transform: rotate(180deg);
-		-moz-transform: rotate(180deg);
-		transform: rotate(180deg);
+            /* Because we try to animate something with a rotation, we need ot include that here */
+            @keyframes wiggle {
+               0%   { transform: skewX(9deg)  rotate(180deg) ; }
+               10%  { transform: skewX(-8deg) rotate(180deg) ; }
+               20%  { transform: skewX(7deg)  rotate(180deg) ; }
+               30%  { transform: skewX(-6deg) rotate(180deg) ; }
+               40%  { transform: skewX(5deg)  rotate(180deg) ; }
+               50%  { transform: skewX(-4deg) rotate(180deg) ; }
+               60%  { transform: skewX(3deg)  rotate(180deg) ; }
+               70%  { transform: skewX(-2deg) rotate(180deg) ; }
+               80%  { transform: skewX(1deg)  rotate(180deg) ; }
+               90%  { transform: skewX(0.001deg)  rotate(180deg) ; }
+               100% { transform: skewX(9deg)  rotate(180deg) ; }
+            }
+            :hover > .e {
+                animation: wiggle;
+                animation-duration: 2s;
+                animation-direction: alternate;
+                animation-iteration-count: 30;
+                animation-fill-mode: both;
+                animation-timing-function: linear;
+            }
 
-		transform-origin: center 44%;
+            .e {
+		display: inline-block;
+		transform: skewX(0.001deg) rotate(180deg);
+
+		transform-origin: center 43%;
 	    }
 
 	    #loading {
@@ -51,6 +73,43 @@
 	    #task #assumptions, #task #conclusions {
 		text-align: center;
 	    }
+
+
+	    .close {
+		position: absolute;
+		top: 2px;
+		right: 2px;
+	    }
+	    button.iconic {
+		font-size:120%;
+		color: white;
+		margin: 2px;
+		padding: 1px;
+		border: 0px;
+		border-radius: 5px;
+		background: lightgrey;
+		cursor: pointer;
+	    }
+            button.iconic:hover {
+		opacity:0.5;
+	    }
+
+            #toolbar {
+		position: absolute;
+		top:0px;
+		right:0px;
+		padding:1em;
+		display: flex;
+		width:100px;
+		justify-content: flex-end;
+	    }
+            #toolbar button {
+		flex-grow:1;
+		flex-basis:0;
+	    }
+            #toolbar button#showhelp {
+		background: blue;
+	    }
 	    #inferredrule {
 		display:none;
 		position: absolute;
@@ -70,14 +129,17 @@
                 margin: 0 1em 1em 1em;
             }
             .inferencerule ul {
-                display: block;
+                display: flex;
+		flex-wrap: wrap;
+		justify-content: space-around;
+		align-items: baseline;
                 padding: 0px;
                 margin: 0px;
             }
             .inferencerule li {
                 display: block;
                 padding: 0px;
-                margin: 0px;
+                margin: 1px 1ex 1px 1ex;
 		text-align: center;
             }
             #taskdialog .inferencerule.attempted {
@@ -124,7 +186,7 @@
 		top:100px;
 		left:0px;
 		width:268px;
-		bottom:0px;
+		bottom:35px;
 		overflow: auto;
 		border-right:2px solid grey;
                 padding:15px;
@@ -140,12 +202,13 @@
 		top:100px;
 		left:300px;
 		right:0px;
-		bottom:0px;
+		bottom:35px;
 		overflow: auto;
             }
 
 	    #dialog, #help {
 		border:2px solid grey;
+                border-radius: 5px;
 		background:white;
 		display:none;
 		position: absolute;
@@ -159,6 +222,24 @@
 		overflow: auto;
 		padding:15px;
 	    }
+
+            .symboltable {
+		margin-left:auto;
+		margin-right:auto;
+                border: 2px solid lightgray;
+                border-radius: 5px;
+            }
+            .symboltable td  {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            .symboltable th {
+                padding-left: 10px;
+                padding-right: 10px;
+                text-align:right;
+                font-weight:normal;
+                /* border-right: 2px solid lightgray; */
+            }
 
 	    #taskdialog {
 		border-top: 5px solid grey;
@@ -188,7 +269,7 @@
 	    }
 
 	    #taskbottombar:hover {
-		background:light grey,
+		background:lightgrey
 	    }
 
 	    .incrediblefont {
@@ -229,8 +310,6 @@
 	<button id="freeproof">Start empty proof</button><br/>
 	Example proofs: <select id="proofselect"><option value="" label=""></option></select><br/>
 	<button id="showdialog">Details</button>
-	<button id="reset" title="Forget all stored data">Reset</button>
-	<button id="showhelp">Help</button><br/>
 	<div id="errors"></div>
 
         <!-- <label><input type="checkbox" id="unify" checked="checked" /> Run unification</label> -->
@@ -245,15 +324,21 @@
 	<div id="inferredrule">
 	<h3 data-i18n>You proved:</h3>
 	<div id="inferredrulewrapper">
-	<svg xmlns="http://www.w3.org/2000/svg" width="30em" height="100px"></svg>
+	<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="30em" height="100px"></svg>
 	</div>
 	</div>
+
+      <div id="toolbar">
+	<button class="iconic" id="showhelp" data-i18n="[title]Help">ℹ</button>
+	<button class="iconic" id="savesvg" data-i18n="[title]Save proof as SVG image.">⤓</button>
+	<button class="iconic" id="reset" data-i18n="[title]Forget all stored data">🔄</button>
+      </div>
 
     </div>
 
 
     <div id="dialog">
-    <div style="text-align:right"><button id="closedialog">×</button></div>
+    <button class="iconic close" id="closedialog">×</button>
     <span id="took"></span>
     <br/>
     <textarea  cols=100 rows=20 id="graph" readonly="readonly"></textarea>
@@ -279,8 +364,8 @@
 
 
     <div id="help">
-    <div style="text-align:right"><button id="closehelp">×</button></div>
-    <h2>Welcome to <span class="incrediblefont">The Incredible Proof Machine</span></h2>
+    <button class="iconic close" id="closehelp">×</button>
+    <h2>Welcome to <span class="incrediblefont">The Incredible Proof Machin<span class="e">e</span></span>!</h2>
 
     <h3>What is this?</h3>
     <p>
@@ -289,7 +374,55 @@
 
     <h3>Why is this?</h3>
     <p>
-    <span class="incrediblefont">The Incredible Proof Machine</span> was created to convey the fun and joy of doing proofs, especially in a computer aided way, without first having to learn the syntax of a “real” thereom prover like <a href="http://isabelle.in.tum.de/">Isabelle</a>.
+    <span class="incrediblefont">The Incredible Proof Machin<span class="e">e</span></span> was created to convey the fun and joy of doing proofs, especially in a computer aided way, without first having to learn the syntax of a “real” thereom prover like <a href="http://isabelle.in.tum.de/">Isabelle</a>.
+    </p>
+
+    <h3>Why is the conclusion not green?</h3>
+    <p>
+     Because your proof is not a proof (yet). This can have these reasons:
+    </p>
+    <ul>
+     <li>
+     Some of your blocks have an input (an assumption) that is not connected to
+     anything. These are red.
+     </li>
+     <li>
+     Some of your connections connect propositions that are obvoiusly different (marked red and marked with ☠), or they are underspecified and it is not clear whether they might be different or not (marked red and with ?). In the latter case, inserting an annotation block (✎P) can help.
+     </li>
+     <li>You have cycles in the proof. These are (you guessed it) marked red.</li>
+     <li>You have wired up local hypotheses wrongly. Local hypotheses are those outputs that come out on the left of a dent in the block, and can only be used in the part of the proof that connects to the corresponding input on the right of the dent. Do I need to mention that these are marked red?</li>
+    </ul>
+
+    <h3>How do I enter these funny characters?</h3>
+    <p>
+    There are only a few places where you actually have to enter formulas, mostly if you want to use the ✎P-block or define your own tasks. There, you can use the following abbreviations:
+    </p>
+    <table class="symboltable">
+    <tr>
+        <th>Instead of</th>
+	<td>∧</td>
+        <td>∨</td>
+        <td>→</td>
+        <td>¬</td>
+        <td>∀</td>
+        <td>∃</td>
+        <td>λ</td>
+    </tr>
+    <tr>
+        <th>you can write</th>
+	<td>&amp;</td>
+        <td>|</td>
+        <td>-&gt;</td>
+        <td>~</td>
+        <td>!</td>
+        <td>?</td>
+        <td>\</td>
+    </tr>
+    </table>
+
+    <h3>Where did my proofs go?</h3>
+    <p>
+    Currently, your proofs will only be saved in your own browser. This means they will be lost when you delete your local storage after you close this window/tab, or if this is a private browsing session or similar. We have plans to save your progress on our server in a future version.
     </p>
 
     <h3>Who did this?</h3>
@@ -299,7 +432,7 @@
 
     <h3>Can I help?</h3>
     <p>
-    Most certainly! Everything is Free Software, so you can jump right in, <a href="https://github.com/nomeata/incredible">fetch the code</a> and start contributing. The more people contribute, the more incredible the <span class="incrediblefont">The Incredible Proof Machine</span> becomes.
+    Most certainly! Everything is Free Software, so you can jump right in, <a href="https://github.com/nomeata/incredible">fetch the code</a> and start contributing. The more people contribute, the more incredible the <span class="incrediblefont">The Incredible Proof Machin<span class="e">e</span></span> becomes.
     </p>
     </div>
 
@@ -316,6 +449,7 @@
         <script src="./vendor/lodash.min.js"></script>
         <script src="./vendor/backbone-min.js"></script>
         <script src="./vendor/joint.min.js"></script>
+        <script src="./vendor/FileSaver.min.js"></script>
 
         <script src="./logic.js"></script>
         <script src="./examples.js"></script>

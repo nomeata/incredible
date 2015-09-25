@@ -8,7 +8,7 @@ function saveTask() {
   if (task_desc) {
     tasks_saved[task_desc] = _.omit(graph.toJSON(), 'loading');
     tasks_solved[task_desc] = graph.get('qed');
-    saveSession()
+    saveSession();
   }
 }
 
@@ -69,6 +69,7 @@ function taskToHTML(task) {
 
 $(function () {
   $("#taskbottombar").on('click', function () {
+    $("#taskbottombar").stop();
     saveTask(); // to update session_saved
     showTaskSelection();
   });
@@ -76,14 +77,14 @@ $(function () {
 
 function setupTaskSelection() {
   $.each(sessions, function (i,session) {
-    $("<h3>").text(session.name).appendTo("#sessiontasks");
+    $("<h3>").text(i18n.t(session.name)).appendTo("#sessiontasks");
     var container = $("<div>").addClass("tasklist").appendTo("#sessiontasks");
     $.each(session.tasks, function (j,thisTask) {
       taskToHTML(thisTask)
         .addClass("sessiontask")
         .data({session: i, task: j, desc: taskToDesc(session.logic||'predicate', thisTask)})
         .on('click', with_graph_loading(selectSessionTask))
-        .appendTo(container)
+        .appendTo(container);
     });
   });
 
@@ -92,7 +93,7 @@ function setupTaskSelection() {
       .addClass("sessiontask")
       .data({session: 'custom', task: j, desc: taskToDesc(sessions.custom.logic||'predicate', thisTask)})
       .on('click', with_graph_loading(selectSessionTask))
-      .insertBefore("#customtask")
+      .insertBefore("#customtask");
   });
 
   $("#customtask #addcustomtask").on('click', function (){
@@ -133,7 +134,7 @@ function taskFromText(text) {
   if (ok && now == 'conclusions') {
     return task;
   } else {
-    return
+    return;
   }
 }
 
@@ -159,7 +160,9 @@ function updateTaskSelectionInfo() {
 function showTaskSelection() {
   updateTaskSelectionInfo();
   $("#taskbottombar").hide("slide", {direction: "down"}, 100, function () {
-    $("#taskdialog").show("slide", {direction:"down"}, 800);
+    $("#taskdialog").show("slide", {direction:"down"}, 800, function () {
+      $("#taskdialog").focus();
+    });
   });
 }
 

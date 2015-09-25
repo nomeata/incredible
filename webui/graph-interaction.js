@@ -3,6 +3,9 @@ Everything related to changing the graph display, without interaction with
 other parts of the system.
 */
 
+// A way to order the connection by creation age
+var connection_counter = 0;
+
 function create_paper() {
   return new joint.dia.Paper({
     el: $('#paper'),
@@ -12,7 +15,10 @@ function create_paper() {
     gridSize: 10,
     snapLinks: true,
     defaultLink: function (elementView, magnet) {
-      return new joint.shapes.incredible.Link();
+      connection_counter++;
+      return new joint.shapes.incredible.Link({
+        counter : connection_counter
+      });
     },
 
     validateConnection: function (vs, ms, vt, mt, e, vl) {
@@ -109,7 +115,7 @@ $(function() {
     } else if (direction == "resize-right") {
       basewidth1 += dx;
     } else {
-      throw Error("element:schieblehre: Unknown direction " + direction)
+      throw Error("element:schieblehre: Unknown direction " + direction);
     }
     cellView.model.set('schieblehrebasewidth', basewidth1);
     var width0 = cellView.model.get('schieblehrewidth');
@@ -131,14 +137,35 @@ $(function() {
     if (model.get('selected')) {
       var dx = options.tx;
       var dy = options.ty;
-      if (dx == 0 && dy == 0) { return; }
+      if (dx === 0 && dy === 0) { return; }
 
       $.each(graph.getElements(), function (i, el) {
         if (el.get('selected') && el != model) {
-          el.translate(dx,dy, { derivedMove : true })
+          el.translate(dx,dy, { derivedMove : true });
         }
       });
     }
-  })
+  });
 
+  $("#savesvg").on('click', function (){
+    // Connect all SVG data that is possibly relevant
+    var rules = [];
+    $.each(document.styleSheets, function(sheetIndex, sheet) {
+      if (sheet.ownerNode.dataset.css) {
+        $.each(sheet.cssRules || sheet.rules, function(ruleIndex, rule) {
+            rules.push(rule.cssText);
+        });
+      }
+    });
+    var bb = paper.getContentBBox();
+    var css = rules.join("\n");
+    var svg = $("#paper svg")
+      .clone()
+      .prepend($("<style type='text/css'>").text(css))
+      .attr({width: bb.x + bb.width + 10, height: bb.y + bb.height + 10})
+      .wrap('<div>')
+      .parent()
+      .html();
+    saveAs(new Blob([svg], {type:"application/svg+xml"}), "incredible-proof.svg");
+  });
 });

@@ -7,6 +7,8 @@
 
 cp -vr logic/dist/doc/html/incredible-logic/ gh-page/doc
 
+echo 'incredible.nomeata.de' > gh-page/CNAME
+
 # Prepare an empty directory
 cd gh-page
 git init

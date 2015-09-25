@@ -15,7 +15,18 @@ var translations = {
     "task-parse-error": "Leider verstehe ich die Aufgabe nicht.",
     "Input proposition": "Bitte gebe die Aussage ein",
     "Could not parse, please try again:": "Konnte die Aussage nicht verstehen, probiere es nochmal:",
+    "Session 1": "Lektion 1",
+    "Session 2": "Lektion 2",
+    "Session 3": "Lektion 3",
+    "Session 4": "Lektion 4",
+    "Session 5": "Lektion 5",
+    "Hilbert system": "Hilbert-Kalkül",
+    "NAND calculus": "NAND-Kalkül",
+    "Help": "Hilfe",
+    "Save proof as SVG image.": "Den Beweis als SVG-Datei speichern.",
+    "Forget all stored data": "Alle gespeicherten Daten löschen.",
   }},
+
   en: { translation: {
     "confirm-reset": "Are you sure you want to remove all saved data (proofs, custom tasks, custom blocks)?",
     "nothing": "nothing",

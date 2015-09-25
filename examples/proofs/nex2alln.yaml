@@ -25,6 +25,7 @@ blocks:
     number: 8
 connections:
   7549ecdd-61ab-4ea1-bec6-abcb81226efd:
+    sortKey: 0
     to:
       block: a3d713f9-971a-4c30-b147-59645cb3b857
       port: in
@@ -32,6 +33,7 @@ connections:
       block: 3e1b1432-a31a-40a3-bd07-0eef0542e3ef
       port: out
   c5e0e827-e6e4-401d-909a-6ef132642bc9:
+    sortKey: 0
     to:
       block: bce295ba-3439-40ae-b5d3-4804538fae6c
       port: in1
@@ -39,6 +41,7 @@ connections:
       block: a3d713f9-971a-4c30-b147-59645cb3b857
       port: hyp1
   8189656f-feb2-4175-8796-0197bb897548:
+    sortKey: 0
     to:
       block: 0c6ae085-dafa-4151-8209-b38cfbbb867a
       port: in2
@@ -46,6 +49,7 @@ connections:
       block: bce295ba-3439-40ae-b5d3-4804538fae6c
       port: out2
   f62cc449-2ee8-4092-8eb3-4c06951c2b6d:
+    sortKey: 0
     to:
       block: b9ece1ca-f53b-435b-890c-58ed8b924d3b
       port: in1
@@ -53,6 +57,7 @@ connections:
       block: a3d713f9-971a-4c30-b147-59645cb3b857
       port: out
   50f945a2-a202-4359-ae7e-d8a3047def81:
+    sortKey: 0
     to:
       block: a3d713f9-971a-4c30-b147-59645cb3b857
       port: in2
@@ -60,6 +65,7 @@ connections:
       block: a3d713f9-971a-4c30-b147-59645cb3b857
       port: hyp2
   b271d71d-0b03-459f-a9ba-a126eb992a60:
+    sortKey: 0
     to:
       block: a3d713f9-971a-4c30-b147-59645cb3b857
       port: in1
@@ -67,12 +73,14 @@ connections:
       block: 9036d3fe-4a1d-4611-a22a-979bb343127e
       port: out
   a4a39bb0-fde7-405c-8c47-0797aa5582fa:
+    sortKey: 0
     to:
       block: 0c6ae085-dafa-4151-8209-b38cfbbb867a
       port: in1
     from:
       assumption: 1
   7c7776cb-7a6f-4b98-bf26-51708071c379:
+    sortKey: 0
     to:
       block: 9036d3fe-4a1d-4611-a22a-979bb343127e
       port: in
@@ -80,6 +88,7 @@ connections:
       block: 0c6ae085-dafa-4151-8209-b38cfbbb867a
       port: out
   3e4b440f-2f3f-4d36-89b8-8e0cec63184e:
+    sortKey: 0
     to:
       conclusion: 1
     from:

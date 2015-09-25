@@ -122,7 +122,7 @@ readTerm = either (error . show) id . parseTerm
 
 -- lexeme
 l :: Parser a -> Parser a
-l = (<* spaces)
+l = (<* (spaces <?> ""))
 
 termP :: Parser Proposition
 termP =  buildExpressionParser table atomP <?> "proposition"

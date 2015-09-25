@@ -25,7 +25,7 @@ deriveRule ctxt task proof renamedBlockProps bindings blockVariables =
       , BlockPort bKey pKey `S.notMember` connectedPorts
       ] ++
       [ (bKey, pKey)
-      | (_, (Connection from to)) <- M.toList $ connections proof
+      | (_, (Connection _ from to)) <- M.toList $ connections proof
       , (NoPort, BlockPort bKey pKey) <- [(from, to), (to, from)] ]
 
     surfaceBlocks :: S.Set (Key Block)

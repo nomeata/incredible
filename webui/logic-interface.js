@@ -7,11 +7,13 @@ function buildProof(graph) {
       if (e.get('assumption') || e.get('conclusion') || e.get('prototypeElement')) {
         return;
       }
-      block = {}
+      var block = {};
       var rule, annotation;
-      if (rule = e.get('rule')) {
+      rule = e.get('rule');
+      annotation = e.get('annotation');
+      if (rule) {
         block.rule = rule.id;
-      } else if (annotation = e.get('annotation')) {
+      } else if (annotation) {
         block.annotation = annotation;
       } else {
         throw new Error("buildProof(): Unknown block type");
@@ -31,6 +33,9 @@ function buildProof(graph) {
         con.from = makeConnEnd(graph, l.get('source'));
         con.to =   makeConnEnd(graph, l.get('target'));
       }
+      // The sort key might be absent, when loading an old proof.
+      // Gracefully use “something” then.
+      con.sortKey = l.get('counter') || 0;
       proof.connections[l.id] = con;
     });
   return proof;
@@ -69,9 +74,13 @@ function processGraph() {
     $("#inferredrule svg").empty();
   } else {
     $("#analysis").val(JSON.stringify(analysis, null, 2));
-    $("#errors").empty()
+    $("#errors").empty();
 
     if (task_desc) {
+      if (analysis.qed && !(tasks_solved[tasks_solved])) {
+        // Give a hint about the switch task bar
+        $("#taskbottombar").effect('highlight', {color: "#8f8"}, 3000);
+      }
       tasks_solved[task_desc] = analysis.qed;
     }
 
@@ -89,9 +98,8 @@ function processGraph() {
           blockDesc.isPrototype = true;
           blockDesc.label = '☃';
           renderBlockDescToSVG(g, blockDesc, false);
-          g.scale(1.5);
           gBB = g.bbox(false);
-          g.translate($(el).width()/2, gBB.height/2 + 5)
+          g.translate($(el).width()/2, gBB.height/2 + 5);
           $(el).height(gBB.height + 10);
         });
       } else {
@@ -152,61 +160,65 @@ function processGraph() {
     });
 
     for (var connId in analysis.connectionLabels) {
-      var lbl = analysis.connectionLabels[connId];
-      var conn = graph.getCell(connId);
-      if (lbl.type == "mismatch" || lbl.type == "dunno") {
-        var symbol;
-        if (lbl.type == "mismatch")   {symbol = "☠"}
-        else if (lbl.type == "dunno") {symbol = "?"}
-        else {throw Error("processGraph: Unknown connection label type")}
+      if (analysis.connectionLabels.hasOwnProperty(connId)) {
+        var lbl = analysis.connectionLabels[connId];
+        var conn = graph.getCell(connId);
+        conn.attr({'.label text': {'font-size': '14px'}});
 
-        // not very nice, see http://stackoverflow.com/questions/32010888
-        conn.attr({'.connection': {class: 'connection error'}});
+        if (lbl.type == "mismatch" || lbl.type == "dunno") {
+          var symbol;
+          if (lbl.type == "mismatch")   {symbol = "☠";}
+          else if (lbl.type == "dunno") {symbol = "?";}
+          else {throw Error("processGraph: Unknown connection label type");}
 
-        if (isReversed(conn)) {
-          f = function (pos) {return 1-pos};
-        } else {
-          f = function (pos) {return pos};
-        }
+          // not very nice, see http://stackoverflow.com/questions/32010888
+          conn.attr({'.connection': {class: 'connection error'}});
 
-        conn.set('labels', [{
-          position: f(.1),
-          attrs: {
-            text: {
-              text: lbl.propIn
-            }
+          if (isReversed(conn)) {
+            f = function (pos) {return 1-pos;};
+          } else {
+            f = function (pos) {return pos;};
           }
-        },
-          {
-            position: f(.5),
+
+          conn.set('labels', [{
+            position: f(0.1),
             attrs: {
               text: {
-                text: symbol
+                text: lbl.propIn
               }
             }
           },
-          {
-            position: f(.9),
-            attrs: {
-              text: {
-                text: lbl.propOut
+            {
+              position: f(0.5),
+              attrs: {
+                text: {
+                  text: symbol
+                }
+              }
+            },
+            {
+              position: f(0.9),
+              attrs: {
+                text: {
+                  text: lbl.propOut
+                }
               }
             }
-          }
-        ]);
-      } else if (lbl.type == "ok") {
-        conn.set('labels', [{
-          position: .5,
-          attrs: {
-            text: {
-              text: lbl.prop
+          ]);
+        } else if (lbl.type == "ok") {
+          conn.set('labels', [{
+            position: 0.5,
+            attrs: {
+              text: {
+                text: lbl.prop
+              }
             }
-          }
-        }]);
-      } else if (lbl.type == "unconnected") {
-        conn.set('labels', []);
-      } else {
-        throw new Error("processGraph(): Unknown connection label type");
+          }]);
+        } else if (lbl.type == "unconnected") {
+          conn.set('labels', []);
+        } else {
+          throw new Error("processGraph(): Unknown connection label type");
+        }
       }
     }
   }
@@ -214,41 +226,43 @@ function processGraph() {
 function isReversed(conn) {
   // A connection is reversed if its source is an "in" magnet, or the target an
   // "out" magnet.
-  var e = conn.get('source')
-  if (e.id) {
-    var el = graph.getCell(e.id);
+  var source = conn.get('source');
+  var el;
+  var rule;
+  if (source.id) {
+    el = graph.getCell(source.id);
     if (el.get('conclusion')) {
       return true;
     }
     if (el.get('annotation')) {
-      if (e.port == "in") {
+      if (source.port == "in") {
         return true;
       }
     }
-    var rule;
-    if (rule = el.get('rule')) {
-      if (rule.ports[e.port].type == "assumption") {
+    rule = el.get('rule');
+    if (rule) {
+      if (rule.ports[source.port].type == "assumption") {
         return true;
       }
     }
   }
-  var e = conn.get('target')
-  if (e.id) {
-    var el = graph.getCell(e.id);
+  var target = conn.get('target');
+  if (target.id) {
+    el = graph.getCell(target.id);
     if (el.get('assumption')) {
       return true;
     }
     if (el.get('annotation')) {
-      if (e.port == "out") {
+      if (target.port == "out") {
         return true;
       }
     }
-    var rule;
-    if (rule = el.get('rule')) {
-      if (rule.ports[e.port].type == "conclusion") {
+    rule = el.get('rule');
+    if (rule) {
+      if (rule.ports[target.port].type == "conclusion") {
         return true;
       }
-      if (rule.ports[e.port].type == "local hypothesis") {
+      if (rule.ports[target.port].type == "local hypothesis") {
         return true;
       }
     }

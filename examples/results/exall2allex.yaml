@@ -1,10 +1,10 @@
 cycles: []
 connectionLabels:
   978c53b5-f8ca-4b5d-ae2b-e8a8ac801c39:
-    prop: ∀x.P(c₃,x)
+    prop: ∀y.P(c₂,y)
     type: ok
   56cf3ad0-90f6-4b1d-a2f1-281ce0b622cd:
-    prop: P(c₃,c₈)
+    prop: P(c₂,c₄)
     type: ok
   b7bf03cb-bc71-4a26-b9c7-fc42193f0515:
     prop: ∃x.∀y.P(x,y)
@@ -16,9 +16,8 @@ connectionLabels:
     prop: ∀y.∃x.P(x,y)
     type: ok
   b63f6a24-8436-4581-b629-10359330442a:
-    prop: ∃x.P(x,c₈)
+    prop: ∃x.P(x,c₄)
     type: ok
-rule: null
 escapedHypotheses: []
 unconnectedGoals: []
 qed: true

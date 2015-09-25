@@ -28,4 +28,5 @@ test -e i18next-1.10.1.min.js || {
 	mv i18next-1.10.1/i18next-1.10.1.min.js i18next-1.10.1.min.js
 	rm -rf i18next-1.10.1/
 	}
-
+test -e FileSaver.min.js ||
+        wget -c https://raw.githubusercontent.com/eligrey/FileSaver.js/master/FileSaver.min.js

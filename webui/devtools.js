@@ -15,6 +15,7 @@ function selectNoTask() {
   $("#inferredrule").show();
   saveTask();
   task = { };
+  task_desc = undefined;
   setupGraph(graph, task);
   processGraph();
 }
@@ -23,6 +24,7 @@ function selectNamedTask(name) {
   saveTask();
   selectLogic(examples.tasks[name].logic);
   loadTask(examples.tasks[name]);
+  task_desc = undefined;
   $("#taskselect").val(name);
 }
 
@@ -43,15 +45,23 @@ function selectProof(name) {
   // This is mostly for backwards compatibility with old stored graphs, and can
   // be removed eventually
   $.each(graph.getElements(), function (i, el) {
-    if (el.get('prototypeElement')) {el.remove()};
+    if (el.get('prototypeElement')) {el.remove();}
   });
   proof.set('loading', false);
 }
 
 
 $(function (){
-  $("#taskselect").change(with_graph_loading(function () { if (this.value) selectNamedTask(this.value); }));
-  $("#proofselect").change(with_graph_loading (function () { if (this.value) selectProof(this.value); }));
+  $("#taskselect").change(with_graph_loading(function () {
+    if (this.value) {
+      selectNamedTask(this.value);
+    }
+  }));
+  $("#proofselect").change(with_graph_loading (function () {
+    if (this.value) {
+      selectProof(this.value);
+    }
+  }));
   $("#freeproof").click(with_graph_loading (function () { selectNoTask(); }));
 
   $("#showdialog").click(function(){
@@ -60,15 +70,15 @@ $(function (){
     $("#dialog").toggle();
   });
   $("#closedialog").click(function(){
-    $("#dialog").hide()}
-  );
+    $("#dialog").hide();
+  });
 
   $("#showhelp").click(function(){
     $("#help").toggle();
   });
   $("#closehelp").click(function(){
-    $("#help").hide()}
-  );
+    $("#help").hide();
+  });
 
   $("#reset").click(function(){
     if (window.confirm(i18n.t("confirm-reset"))) {
