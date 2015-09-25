@@ -69,6 +69,7 @@ function taskToHTML(task) {
 
 $(function () {
   $("#taskbottombar").on('click', function () {
+    $("#taskbottombar").stop();
     saveTask(); // to update session_saved
     showTaskSelection();
   });
