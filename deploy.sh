@@ -25,6 +25,7 @@ mkdir $dirname
 cp --parents -r -v -t $dirname \
 	*.html  \
 	*.js  \
+	incredible-favicon.png \
         ./webui/ \
 	./vendor \
 	./fonts
