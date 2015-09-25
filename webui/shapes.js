@@ -76,9 +76,8 @@ function annotationToBlockDesc(proposition) {
 }
 
 
-// Renders the content of the block (usually label, but might be something fancy)
-// and returns its width and height. The latter is used to resize the frame,
-// and hence to position the ports.
+// Renders the description of the block (usually a textual label, but might be
+// something fancy)
 function renderDesc(desc, group) {
   var text;
   if (desc.label) {
