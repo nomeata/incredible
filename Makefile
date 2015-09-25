@@ -24,7 +24,7 @@ docs:
 	cd logic && \
 	cabal haddock --hyperlink-source --html-location='http://hackage.haskell.org/package/$$pkg/docs'
 
-test: all
+test: sessions.js examples.js
 	cd logic && \
 	cabal test --show-details=streaming
 	which jshint && jshint webui/*.js sessions.js examples.js
