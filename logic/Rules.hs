@@ -44,7 +44,7 @@ deriveRule ctxt task proof renamedBlockProps bindings unificationVariables =
 
     localVars = S.toList $ S.filter (\v -> name2Integer v > 0) allVars
 
-    freeVars = filter (\v -> S.member v allVars) unificationVariables
+    freeVars = filter (`S.member` allVars) unificationVariables
 
     dummyPorts =
       [ p

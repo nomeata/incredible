@@ -126,8 +126,8 @@ instance ToJSON Port where
 
 instance ToJSON Rule where
     toJSON (Rule free local ports) = object
-        [ "free"  .= toVarList (free \\ local)
-        , "local" .= toVarList local
+        [ "free"  .= toVarList free
+        , "local" .= toVarList (local \\ free)
         , "ports" .= ports
         ]
 
