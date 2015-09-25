@@ -26,8 +26,8 @@ varList o field = map (string2Name) <$> o .:? field .!= []
 
 instance FromJSON Rule where
   parseJSON = withObject "rule" $ \o -> do
-    f <- varList o "free"
     l <- varList o "local"
+    f <- varList o "free"
     Rule (f++l) f <$> o .: "ports"
 
 instance FromJSON Port where

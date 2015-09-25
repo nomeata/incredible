@@ -4,7 +4,7 @@ module LabelConnections where
 import Data.Functor
 import qualified Data.Map as M
 import Data.Map ((!))
---import Debug.Trace
+-- import Debug.Trace
 import Data.Function
 import Data.List (sortBy)
 

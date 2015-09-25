@@ -47,7 +47,7 @@ function selectProof(name) {
   $.each(graph.getElements(), function (i, el) {
     if (el.get('prototypeElement')) {el.remove();}
   });
-  proof.set('loading', false);
+  graph.set('loading', false);
 }
 
 
