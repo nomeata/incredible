@@ -64,7 +64,7 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
   },
 
   renderMarkup: function() {
-    renderBlockDescToSVG(this.vel, this.getBlockDesc(), true);
+    BlockDescRenderer(this.vel, this.getBlockDesc(), true).renderToSVG();
 
     var cellView = this;
     function resizeSchieblehre(e) {
@@ -98,7 +98,7 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
   },
 
   updateSizes: function () {
-    updateSizes(this.vel, this.getBlockDesc());
+    BlockDescRenderer(this.vel, this.getBlockDesc(), true).updateSizes();
   },
 
   update: function () {

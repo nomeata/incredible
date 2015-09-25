@@ -47,7 +47,7 @@ function renderBlockDescToDraggable(blockDesc, container) {
 
   var g = V("<g/>");
   vel.append(g);
-  renderBlockDescToSVG(g, blockDesc, false);
+  BlockDescRenderer(g, blockDesc, false).renderToSVG();
   gBB = g.bbox(false);
   g.translate($(el).width()/2, -gBB.y + 5);
 
