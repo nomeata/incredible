@@ -31,6 +31,9 @@ function buildProof(graph) {
         con.from = makeConnEnd(graph, l.get('source'));
         con.to =   makeConnEnd(graph, l.get('target'));
       }
+      // The sort key might be absent, when loading an old proof.
+      // Gracefully use “something” then.
+      con.sortKey = l.get('counter') || 0;
       proof.connections[l.id] = con;
     });
   return proof;

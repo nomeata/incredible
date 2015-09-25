@@ -75,10 +75,11 @@ data PortSpec = NoPort | AssumptionPort Int | ConclusionPort Int | BlockPort (Ke
  deriving (Eq, Ord, Show)
 
 data Connection = Connection
- { connFrom :: PortSpec
+ { connSortKey :: Integer -- Put sort key first, for a convenient Ord instance
+ , connFrom :: PortSpec
  , connTo :: PortSpec
  }
- deriving Show
+ deriving (Eq, Ord, Show)
 
 data Proof = Proof
  { blocks :: KMap Block

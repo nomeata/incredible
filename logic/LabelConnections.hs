@@ -5,6 +5,8 @@ import Data.Functor
 import qualified Data.Map as M
 import Data.Map ((!))
 --import Debug.Trace
+import Data.Function
+import Data.List (sortBy)
 
 import Types
 import Unification
@@ -82,7 +84,7 @@ labelConnections ctxt task proof = labels
 
     equations =
         [ (connKey, (prop1, prop2))
-        | (connKey, conn) <- M.toList (connections proof)
+        | (connKey, conn) <- sortBy (compare `on` snd) $ M.toList (connections proof)
         , Just prop1 <- return $ propAt (connFrom conn)
         , Just prop2 <- return $ propAt (connTo conn)
         ]

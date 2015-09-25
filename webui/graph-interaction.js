@@ -3,6 +3,9 @@ Everything related to changing the graph display, without interaction with
 other parts of the system.
 */
 
+// A way to order the connection by creation age
+var connection_counter = 0;
+
 function create_paper() {
   return new joint.dia.Paper({
     el: $('#paper'),
@@ -12,7 +15,10 @@ function create_paper() {
     gridSize: 10,
     snapLinks: true,
     defaultLink: function (elementView, magnet) {
-      return new joint.shapes.incredible.Link();
+      connection_counter++;
+      return new joint.shapes.incredible.Link({
+        counter : connection_counter
+      });
     },
 
     validateConnection: function (vs, ms, vt, mt, e, vl) {
