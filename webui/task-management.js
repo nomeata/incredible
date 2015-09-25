@@ -159,7 +159,9 @@ function updateTaskSelectionInfo() {
 function showTaskSelection() {
   updateTaskSelectionInfo();
   $("#taskbottombar").hide("slide", {direction: "down"}, 100, function () {
-    $("#taskdialog").show("slide", {direction:"down"}, 800);
+    $("#taskdialog").show("slide", {direction:"down"}, 800, function () {
+      $("#taskdialog").focus();
+    });
   });
 }
 
