@@ -57,10 +57,3 @@ relabelPorts task renamedBlockProps bKey rule binds openPorts =
   , let Port typ _ scopes = (ports rule) M.! pKey
   , let Just prop = propAt task renamedBlockProps (BlockPort bKey pKey)
   , let port = Port typ (applyBinding binds prop) scopes ]
-
--- This is obviously dumb, needed for testsuite
-equivalent :: Rule -> Rule -> Bool
-equivalent _ _ = False
-
-instance Eq Rule where
-  x == y = equivalent x y
