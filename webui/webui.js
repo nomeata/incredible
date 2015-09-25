@@ -54,7 +54,7 @@ function renderBlockDescToDraggable(blockDesc, container) {
   renderBlockDescToSVG(g, blockDesc, false);
   g.scale(1.5);
   gBB = g.bbox(false);
-  g.translate($(el).width()/2, -gBB.y + 5)
+  g.translate($(el).width()/2, -gBB.y + 5);
 
   vel.attr({'width': container.width(), 'height': gBB.height + 10 });
   $(el).data('elementData', blockDesc.data);
@@ -65,23 +65,23 @@ function renderBlockDescToDraggable(blockDesc, container) {
 }
 
 function setupPrototypeElements() {
-  var container = $("#logic");
-  container.empty();
+  var logic_container = $("#logic");
+  logic_container.empty();
   $.each(logic.rules, function (_, rule) {
     var blockDesc = ruleToBlockDesc(rule);
     blockDesc.isPrototype = true;
     blockDesc.canRemove = false;
     blockDesc.data = {rule: rule};
-    renderBlockDescToDraggable(blockDesc, container);
+    renderBlockDescToDraggable(blockDesc, logic_container);
   });
 
-  var container = $("#helpers");
-  container.empty();
+  var helpers_container = $("#helpers");
+  helpers_container.empty();
   var annBlockDesc = annotationToBlockDesc("P");
   annBlockDesc.isPrototype = true;
   annBlockDesc.canRemove = false;
   annBlockDesc.data = {annotation: "P"};
-  renderBlockDescToDraggable(annBlockDesc, container);
+  renderBlockDescToDraggable(annBlockDesc, helpers_container);
 }
 
 function with_graph_loading(func) {
@@ -93,7 +93,7 @@ function with_graph_loading(func) {
     graph.set('loading', false);
     processGraph();
     // $("#loading").hide();
-  }
+  };
 }
 
 function selectLogic(name, visible) {
@@ -107,12 +107,12 @@ function selectLogic(name, visible) {
   // Normalize the input here
   $.each(logic.rules, function (_,r) {
     $.each(r.ports, function (_,p) {
-      p.proposition = incredibleFormatTerm(p.proposition)
+      p.proposition = incredibleFormatTerm(p.proposition);
     });
   });
 
   setupPrototypeElements();
-};
+}
 
 function loadTask(thisTask) {
   task = thisTask;
@@ -135,7 +135,7 @@ function blockNumberMap() {
   var numberMap = {};
   $.each(graph.getElements(), function (i, el) {
     if (el.get('number')) {
-      numberMap[el.get('number')] = el
+      numberMap[el.get('number')] = el;
     }
   });
   return numberMap;
@@ -144,7 +144,7 @@ function blockNumberMap() {
 function nextFreeBlockNumber() {
   var numberMap = blockNumberMap();
   var n=1;
-  while (numberMap[n]) {n+=1};
+  while (numberMap[n]) {n+=1;}
   return n;
 }
 
@@ -159,7 +159,7 @@ $(function (){
           number: nextFreeBlockNumber()
         }));
         graph.addCell(elem);
-      };
+      }
     }
   });
 });
@@ -180,8 +180,8 @@ graph.on('add remove change:annotation change:loading', function () {
   }
 });
 graph.on('change:source change:target', function (model, end) {
-  var connection_state = model.get('source').id + model.get('source').port
-    + model.get('target').id + model.get('target').port;
+  var connection_state = model.get('source').id + model.get('source').port +
+    model.get('target').id + model.get('target').port;
   var connection_state_old = model.get('connection_state');
   if (connection_state != connection_state_old) {
     model.set('connection_state', connection_state);

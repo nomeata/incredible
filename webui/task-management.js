@@ -8,7 +8,7 @@ function saveTask() {
   if (task_desc) {
     tasks_saved[task_desc] = _.omit(graph.toJSON(), 'loading');
     tasks_solved[task_desc] = graph.get('qed');
-    saveSession()
+    saveSession();
   }
 }
 
@@ -83,7 +83,7 @@ function setupTaskSelection() {
         .addClass("sessiontask")
         .data({session: i, task: j, desc: taskToDesc(session.logic||'predicate', thisTask)})
         .on('click', with_graph_loading(selectSessionTask))
-        .appendTo(container)
+        .appendTo(container);
     });
   });
 
@@ -92,7 +92,7 @@ function setupTaskSelection() {
       .addClass("sessiontask")
       .data({session: 'custom', task: j, desc: taskToDesc(sessions.custom.logic||'predicate', thisTask)})
       .on('click', with_graph_loading(selectSessionTask))
-      .insertBefore("#customtask")
+      .insertBefore("#customtask");
   });
 
   $("#customtask #addcustomtask").on('click', function (){
@@ -133,7 +133,7 @@ function taskFromText(text) {
   if (ok && now == 'conclusions') {
     return task;
   } else {
-    return
+    return;
   }
 }
 

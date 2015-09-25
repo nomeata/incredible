@@ -10,7 +10,7 @@ This file contains our custom elements, and their views.
  */
 
 
-joint.shapes.incredible = {}
+joint.shapes.incredible = {};
 
 /*
  * We avoid the crazy `attrs` feature of JointJS and keep the model as semantic
@@ -30,7 +30,7 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     this.listenTo(this.model, 'change:brokenPorts change:selected change:annotation', this.update);
     if (this.model.get('conclusion')) {
       this.listenTo(this.model, 'change:qed', this.update);
-    };
+    }
     this.listenTo(this.model, 'change:schieblehrewidth', this.updateSizes);
     this.listenTo(this.model, 'change:schieblehrewidth', this.updateSizes);
   },
@@ -44,14 +44,15 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     var task = this.model.get('task');
     var number = this.model.get('number');
 
+    var blockDesc;
     if (rule) {
-      var blockDesc = ruleToBlockDesc(rule);
+      blockDesc = ruleToBlockDesc(rule);
     } else if (assumption) {
-      var blockDesc = assumptionToBlockDesc(assumption, task);
+      blockDesc = assumptionToBlockDesc(assumption, task);
     } else if (conclusion) {
-      var blockDesc = conclusionToBlockDesc(conclusion, task);
+      blockDesc = conclusionToBlockDesc(conclusion, task);
     } else if (annotation) {
-      var blockDesc = annotationToBlockDesc(annotation);
+      blockDesc = annotationToBlockDesc(annotation);
     } else {
         throw new Error("renderMarkup(): Unknown block type");
     }
@@ -198,10 +199,10 @@ joint.routers.wrappedmanhattan = (function (){
     }
 
     var args = {
-      paddingBox: function () {return {x: -5, y: -5, width: 10, height: 10}},
+      paddingBox: function () {return {x: -5, y: -5, width: 10, height: 10};},
       startDirections: startDirections,
       endDirections: endDirections
-    }
+    };
     return manhattan.call(this, vertices, _.extend({},args,opt), linkView);
   };
 })();

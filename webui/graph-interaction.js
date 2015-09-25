@@ -115,7 +115,7 @@ $(function() {
     } else if (direction == "resize-right") {
       basewidth1 += dx;
     } else {
-      throw Error("element:schieblehre: Unknown direction " + direction)
+      throw Error("element:schieblehre: Unknown direction " + direction);
     }
     cellView.model.set('schieblehrebasewidth', basewidth1);
     var width0 = cellView.model.get('schieblehrewidth');
@@ -137,15 +137,15 @@ $(function() {
     if (model.get('selected')) {
       var dx = options.tx;
       var dy = options.ty;
-      if (dx == 0 && dy == 0) { return; }
+      if (dx === 0 && dy === 0) { return; }
 
       $.each(graph.getElements(), function (i, el) {
         if (el.get('selected') && el != model) {
-          el.translate(dx,dy, { derivedMove : true })
+          el.translate(dx,dy, { derivedMove : true });
         }
       });
     }
-  })
+  });
 
   $("#savesvg").on('click', function (){
     // Connect all SVG data that is possibly relevant

@@ -15,7 +15,7 @@ function ruleToBlockDesc(rule) {
              proposition: v.proposition,
              type: v.type,
              consumedBy: v.consumedBy, // may be undefined
-           }
+           };
   }), 'id');
   var portsGroup = _.groupBy(portsList, "type");
 
@@ -25,7 +25,7 @@ function ruleToBlockDesc(rule) {
     desc: desc,
     portsGroup: portsGroup,
     canRemove: true
-  }
+  };
 }
 
 function assumptionToBlockDesc(assumption, task) {
@@ -39,7 +39,7 @@ function assumptionToBlockDesc(assumption, task) {
     },
     portsGroup: portsGroup,
     canRemove: false
-  }
+  };
 }
 
 function conclusionToBlockDesc(conclusion, task) {
@@ -53,7 +53,7 @@ function conclusionToBlockDesc(conclusion, task) {
     },
     portsGroup: portsGroup,
     canRemove: false
-  }
+  };
 }
 
 function annotationToBlockDesc(proposition) {
@@ -72,7 +72,7 @@ function annotationToBlockDesc(proposition) {
     desc: { label: "✎"+proposition },
     portsGroup: portsGroup,
     canRemove: true
-  }
+  };
 }
 
 
@@ -106,8 +106,8 @@ function looksLikeSchieblehre2(blockDesc) {
 
 function pathDataSchieblehre1(opts) {
   var start = -opts.leftWidth - opts.innerWidthLeft;
-  var h = function(x) { return "h" + x };
-  var v = function(x) { return "v" + x };
+  var h = function(x) { return "h" + x;};
+  var v = function(x) { return "v" + x;};
   var tr = "a 5 5 0 0 1 5 -5";
   var tb = "a 5 5 0 0 1 5 5";
   var tl = "a 5 5 0 0 1 -5 5";
@@ -115,7 +115,7 @@ function pathDataSchieblehre1(opts) {
   // height above the zero line
   var extraHeightL = opts.leftHeight - 15 + 2.5;
   var extraHeightR = opts.rightHeight - 15 + 2.5;
-  return path = [
+  return [
     "M" + start + " 0", // left edge, vertical center
     v(-(extraHeightL - 5)),
     tr,
@@ -143,8 +143,8 @@ function pathDataSchieblehre1(opts) {
 
 function pathDataSchieblehre2(opts) {
   var start = -opts.leftWidth - opts.innerWidthLeft;
-  var h = function(x) { return "h" + x };
-  var v = function(x) { return "v" + x };
+  var h = function(x) { return "h" + x;};
+  var v = function(x) { return "v" + x;};
   var tr = "a 5 5 0 0 1 5 -5";
   var tb = "a 5 5 0 0 1 5 5";
   var tl = "a 5 5 0 0 1 -5 5";
@@ -152,7 +152,7 @@ function pathDataSchieblehre2(opts) {
   // height above the zero line
   var extraHeightL = opts.leftHeight/2 + 2.5;
   var extraHeightR = opts.rightHeight/2 + 2.5;
-  return path = [
+  return [
     "M" + start + " 0", // left edge, vertical center
     v(-(extraHeightL - 5)),
     tr,
@@ -213,25 +213,25 @@ function updateSizesSchieblehre1(el, blockDesc) {
   };
 
   if (blockDesc.schieblehrewidth === undefined) {
-    impIConfig.innerWidthRight += defaultSchieblehreWidth
+    impIConfig.innerWidthRight += defaultSchieblehreWidth;
   } else {
-    impIConfig.innerWidthRight += blockDesc.schieblehrewidth
+    impIConfig.innerWidthRight += blockDesc.schieblehrewidth;
   }
 
   impIConfig.leftHeight = Math.max(impIConfig.leftHeight,
-    (blockDesc.portsGroup['assumption'].length - 2) * 20 + 10);
+    (blockDesc.portsGroup.assumption.length - 2) * 20 + 10);
       // - 2 as one assumption belongs to the local hypothesis
   impIConfig.rightHeight = Math.max(impIConfig.rightHeight,
-    (blockDesc.portsGroup['conclusion'].length - 1) * 20 + 10);
+    (blockDesc.portsGroup.conclusion.length - 1) * 20 + 10);
 
   // Get label size and position
   var text = el.findOne(".label");
   var textBB = text.bbox(true);
   var shift;
   if (text.hasClass("left")) {
-    impIConfig.leftWidth = Math.max(impIConfig.leftWidth, textBB.width + 10, 30)
+    impIConfig.leftWidth = Math.max(impIConfig.leftWidth, textBB.width + 10, 30);
   } else if (text.hasClass("right") || text.hasClass("center")) {
-    impIConfig.rightWidth = Math.max(impIConfig.rightWidth, textBB.width + 10, 30)
+    impIConfig.rightWidth = Math.max(impIConfig.rightWidth, textBB.width + 10, 30);
   } else {
     throw Error("updateSizesImpI: Unknown label class");
   }
@@ -267,32 +267,33 @@ function updateSizesSchieblehre1(el, blockDesc) {
   }
 
   // The single hypothesis
-  var hyp = blockDesc.portsGroup['local hypothesis'][0]
+  var hyp = blockDesc.portsGroup['local hypothesis'][0];
   el.findOne(".port-wrap-" + hyp.id)
     .attr('transform','')
     .translate(-impIConfig.innerWidthLeft, -10);
 
   // Find the conclusion for the single as for that
   var localAssumption =
-    _.find(blockDesc.portsGroup['assumption'],
-             function (pd) {return pd.id == hyp.consumedBy});
+    _.find(blockDesc.portsGroup.assumption,
+             function (pd) {return pd.id == hyp.consumedBy;});
   var otherAssumptions =
-    _.filter(blockDesc.portsGroup['assumption'],
-             function (pd) {return pd.id != hyp.consumedBy});
+    _.filter(blockDesc.portsGroup.assumption,
+             function (pd) {return pd.id != hyp.consumedBy;});
 
   el.findOne(".port-wrap-" + localAssumption.id)
     .attr('transform','')
     .translate(impIConfig.innerWidthRight, -10);
 
-  var base = otherAssumptions.length > 1 ? 10 : 0;
+  var base;
+  base = otherAssumptions.length > 1 ? 10 : 0;
   _.each(otherAssumptions, function (portDesc, index) {
     el.findOne(".port-wrap-" + portDesc.id)
       .attr('transform','')
       .translate(-impIConfig.innerWidthLeft - impIConfig.leftWidth,
         base - 20 * index);
   });
-  var base = (blockDesc.portsGroup['conclusion'].length > 1) ? 10 : 0;
-  _.each(blockDesc.portsGroup['conclusion'], function (portDesc, index) {
+  base = (blockDesc.portsGroup.conclusion.length > 1) ? 10 : 0;
+  _.each(blockDesc.portsGroup.conclusion, function (portDesc, index) {
     el.findOne(".port-wrap-" + portDesc.id)
       .attr('transform','')
       .translate(impIConfig.innerWidthRight + impIConfig.rightWidth,
@@ -333,25 +334,25 @@ function updateSizesSchieblehre2(el, blockDesc) {
   };
 
   if (blockDesc.schieblehrewidth === undefined) {
-    impIConfig.innerWidthRight += defaultSchieblehreWidth
+    impIConfig.innerWidthRight += defaultSchieblehreWidth;
   } else {
-    impIConfig.innerWidthRight += blockDesc.schieblehrewidth
+    impIConfig.innerWidthRight += blockDesc.schieblehrewidth;
   }
 
   impIConfig.leftHeight = Math.max(impIConfig.leftHeight,
-    (blockDesc.portsGroup['assumption'].length - 3) * 20 + 10);
+    (blockDesc.portsGroup.assumption.length - 3) * 20 + 10);
       // - 3 as two assumptions belong to the local hypotheses
   impIConfig.rightHeight = Math.max(impIConfig.rightHeight,
-    (blockDesc.portsGroup['conclusion'].length - 1) * 20 + 10);
+    (blockDesc.portsGroup.conclusion.length - 1) * 20 + 10);
 
   // Get label size and position
   var text = el.findOne(".label");
   var textBB = text.bbox(true);
   var shift;
   if (text.hasClass("left")) {
-    impIConfig.leftWidth = Math.max(impIConfig.leftWidth, textBB.width + 10, 30)
+    impIConfig.leftWidth = Math.max(impIConfig.leftWidth, textBB.width + 10, 30);
   } else if (text.hasClass("right") || text.hasClass("center")) {
-    impIConfig.rightWidth = Math.max(impIConfig.rightWidth, textBB.width + 10, 30)
+    impIConfig.rightWidth = Math.max(impIConfig.rightWidth, textBB.width + 10, 30);
   } else {
     throw Error("updateSizesImpI: Unknown label class");
   }
@@ -388,26 +389,26 @@ function updateSizesSchieblehre2(el, blockDesc) {
   }
 
   // The first hypothesis
-  var hyp1 = blockDesc.portsGroup['local hypothesis'][0]
+  var hyp1 = blockDesc.portsGroup['local hypothesis'][0];
   el.findOne(".port-wrap-" + hyp1.id)
     .attr('transform','')
     .translate(-impIConfig.innerWidthLeft, -10);
   // The second hypothesis
-  var hyp2 = blockDesc.portsGroup['local hypothesis'][1]
+  var hyp2 = blockDesc.portsGroup['local hypothesis'][1];
   el.findOne(".port-wrap-" + hyp2.id)
     .attr('transform','')
     .translate(-impIConfig.innerWidthLeft, 10);
 
   // Find the conclusion for the single as for that
   var localAssumption1 =
-    _.find(blockDesc.portsGroup['assumption'],
-             function (pd) {return pd.id == hyp1.consumedBy});
+    _.find(blockDesc.portsGroup.assumption,
+             function (pd) {return pd.id == hyp1.consumedBy;});
   var localAssumption2 =
-    _.find(blockDesc.portsGroup['assumption'],
-             function (pd) {return pd.id == hyp2.consumedBy});
+    _.find(blockDesc.portsGroup.assumption,
+             function (pd) {return pd.id == hyp2.consumedBy;});
   var otherAssumptions =
-    _.filter(blockDesc.portsGroup['assumption'],
-             function (pd) {return pd.id != hyp1.consumedBy && pd.id != hyp2.consumedBy});
+    _.filter(blockDesc.portsGroup.assumption,
+             function (pd) {return pd.id != hyp1.consumedBy && pd.id != hyp2.consumedBy;});
 
   el.findOne(".port-wrap-" + localAssumption1.id)
     .attr('transform','')
@@ -417,15 +418,16 @@ function updateSizesSchieblehre2(el, blockDesc) {
     .attr('transform','')
     .translate(impIConfig.innerWidthRight, 10);
 
-  var base = 10 * (otherAssumptions.length-1);
+  var base;
+  base = 10 * (otherAssumptions.length-1);
   _.each(otherAssumptions, function (portDesc, index) {
     el.findOne(".port-wrap-" + portDesc.id)
       .attr('transform','')
       .translate(-impIConfig.innerWidthLeft - impIConfig.leftWidth,
         base - 20 * index);
   });
-  var base = 10 * (blockDesc.portsGroup['conclusion'].length - 1);
-  _.each(blockDesc.portsGroup['conclusion'], function (portDesc, index) {
+  base = 10 * (blockDesc.portsGroup.conclusion.length - 1);
+  _.each(blockDesc.portsGroup.conclusion, function (portDesc, index) {
     el.findOne(".port-wrap-" + portDesc.id)
       .attr('transform','')
       .translate(impIConfig.innerWidthRight + impIConfig.rightWidth,
@@ -612,11 +614,13 @@ function addPort(group, portDesc, direction, orientation, forReal, isPrototype) 
   pacman.attr({port: portDesc.id, direction: direction, orientation: orientation});
   g.append(pacman);
 
+  var label;
+  var labelBB;
   if (isPrototype) {
-    var label = V("<text font-family='sans' fill='#000' font-size='8px'/>");
+    label = V("<text font-family='sans' fill='#000' font-size='8px'/>");
     label.text(portDesc.proposition);
     g.append(label);
-    var labelBB = label.bbox(true);
+    labelBB = label.bbox(true);
   }
 
   if (direction === "in") {

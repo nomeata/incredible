@@ -9,9 +9,11 @@ function buildProof(graph) {
       }
       var block = {};
       var rule, annotation;
-      if (rule = e.get('rule')) {
+      rule = e.get('rule');
+      annotation = e.get('annotation');
+      if (rule) {
         block.rule = rule.id;
-      } else if (annotation = e.get('annotation')) {
+      } else if (annotation) {
         block.annotation = annotation;
       } else {
         throw new Error("buildProof(): Unknown block type");
@@ -77,7 +79,7 @@ function processGraph() {
     if (task_desc) {
       if (analysis.qed && !(tasks_solved[tasks_solved])) {
         // Give a hint about the switch task bar
-        $("#taskbottombar").effect('highlight', {color: "#8f8"}, 3000);;
+        $("#taskbottombar").effect('highlight', {color: "#8f8"}, 3000);
       }
       tasks_solved[task_desc] = analysis.qed;
     }
@@ -171,13 +173,13 @@ function processGraph() {
         conn.attr({'.connection': {class: 'connection error'}});
 
         if (isReversed(conn)) {
-          f = function (pos) {return 1-pos};
+          f = function (pos) {return 1-pos;};
         } else {
-          f = function (pos) {return pos};
+          f = function (pos) {return pos;};
         }
 
         conn.set('labels', [{
-          position: f(.1),
+          position: f(0.1),
           attrs: {
             text: {
               text: lbl.propIn
@@ -185,7 +187,7 @@ function processGraph() {
           }
         },
           {
-            position: f(.5),
+            position: f(0.5),
             attrs: {
               text: {
                 text: symbol
@@ -193,7 +195,7 @@ function processGraph() {
             }
           },
           {
-            position: f(.9),
+            position: f(0.9),
             attrs: {
               text: {
                 text: lbl.propOut
@@ -203,7 +205,7 @@ function processGraph() {
         ]);
       } else if (lbl.type == "ok") {
         conn.set('labels', [{
-          position: .5,
+          position: 0.5,
           attrs: {
             text: {
               text: lbl.prop
@@ -221,27 +223,29 @@ function processGraph() {
 function isReversed(conn) {
   // A connection is reversed if its source is an "in" magnet, or the target an
   // "out" magnet.
-  var e = conn.get('source');
-  if (e.id) {
-    var el = graph.getCell(e.id);
+  var source = conn.get('source');
+  var el;
+  var rule;
+  if (source.id) {
+    el = graph.getCell(source.id);
     if (el.get('conclusion')) {
       return true;
     }
     if (el.get('annotation')) {
-      if (e.port == "in") {
+      if (source.port == "in") {
         return true;
       }
     }
-    var rule;
-    if (rule = el.get('rule')) {
-      if (rule.ports[e.port].type == "assumption") {
+    rule = el.get('rule');
+    if (rule) {
+      if (rule.ports[source.port].type == "assumption") {
         return true;
       }
     }
   }
   var target = conn.get('target');
   if (target.id) {
-    var el = graph.getCell(target.id);
+    el = graph.getCell(target.id);
     if (el.get('assumption')) {
       return true;
     }
@@ -250,8 +254,8 @@ function isReversed(conn) {
         return true;
       }
     }
-    var rule;
-    if (rule = el.get('rule')) {
+    rule = el.get('rule');
+    if (rule) {
       if (rule.ports[target.port].type == "conclusion") {
         return true;
       }

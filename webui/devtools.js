@@ -45,7 +45,7 @@ function selectProof(name) {
   // This is mostly for backwards compatibility with old stored graphs, and can
   // be removed eventually
   $.each(graph.getElements(), function (i, el) {
-    if (el.get('prototypeElement')) {el.remove()};
+    if (el.get('prototypeElement')) {el.remove();}
   });
   proof.set('loading', false);
 }
@@ -62,15 +62,15 @@ $(function (){
     $("#dialog").toggle();
   });
   $("#closedialog").click(function(){
-    $("#dialog").hide()}
-  );
+    $("#dialog").hide();
+  });
 
   $("#showhelp").click(function(){
     $("#help").toggle();
   });
   $("#closehelp").click(function(){
-    $("#help").hide()}
-  );
+    $("#help").hide();
+  });
 
   $("#reset").click(function(){
     if (window.confirm(i18n.t("confirm-reset"))) {
