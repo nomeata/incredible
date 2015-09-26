@@ -1,15 +1,22 @@
+portLabels:
+  57f30f92-545b-4e25-940a-af2dac1bad23:
+    hyp1: P₂
+    in: P₂∨(P₂→⊥)
+    in2: P₂
+    hyp2: P₂→⊥
+    in1: P₂
+    out: P₂
+  fb5a5f57-5358-4f3e-8b12-c825da640797:
+    out: P₂∨(P₂→⊥)
+  d306aebd-4b16-406c-81b7-d658cd4e010a:
+    in: ⊥
+    out: P₂
 cycles: []
-connectionLabels:
-  4b856f88-917b-4927-b00a-5f62c6cc27c5:
-    prop: P₂∨(P₂→⊥)
-    type: ok
-  a9c737c3-9a54-4279-85f4-865b5ff87c3f:
-    prop: P₂
-    type: ok
-  43a6c217-70ae-446b-b328-590bbba66edd:
-    prop: P₂
-    type: ok
 rule: null
 escapedHypotheses: []
+connectionStatus:
+  4b856f88-917b-4927-b00a-5f62c6cc27c5: solved
+  a9c737c3-9a54-4279-85f4-865b5ff87c3f: solved
+  43a6c217-70ae-446b-b328-590bbba66edd: solved
 unconnectedGoals: []
 qed: true
