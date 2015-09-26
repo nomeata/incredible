@@ -24,14 +24,14 @@ var translations = {
     "NAND calculus": "NAND-Kalkül",
     "Help": "Hilfe",
     "Save proof as SVG image.": "Den Beweis als SVG-Datei speichern.",
-    "Forget all stored data": "Alle gespeicherten Daten löschen.",
+    "Forget all stored data": "Alle gespeicherten Daten löschen."
   }},
 
   en: { translation: {
     "confirm-reset": "Are you sure you want to remove all saved data (proofs, custom tasks, custom blocks)?",
     "nothing": "nothing",
-    "task-parse-error": "Sorry, I could not understand this task.",
-  }},
+    "task-parse-error": "Sorry, I could not understand this task."
+  }}
 };
 
 
@@ -40,7 +40,7 @@ i18n.init({
     fallbackLng: 'en',
     debug: true,
     nsseparator: "::unused::",
-    keyseparator: "::unused::",
+    keyseparator: "::unused::"
   }, function(err, t) {
   $("body").i18n();
 });
