@@ -27,7 +27,6 @@ library
                      Lint,
                      TaggedMap,
                      ShapeChecks,
-                     LabelConnections,
                      Propositions,
                      Utils,
                      Unification,

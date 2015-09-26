@@ -44,14 +44,14 @@ lint logic _task proof = mconcat
         [ printf "Connection \"%s\" references unknown block \"%s\""
           (untag connKey) (untag blockKey)
         | (connKey, conn) <- M.toList (connections proof)
-        , BlockPort blockKey _ <- [connFrom conn, connTo conn]
+        , Just (BlockPort blockKey _) <- [connFrom conn, connTo conn]
         , blockKey `M.notMember` blocks proof
         ]
     wrongPort =
         [ printf "Connection \"%s\" references unknown port \"%s\" of block \"%s\", rule \"%s\""
           (untag connKey) (untag portKey) (untag blockKey) (untag ruleKey)
         | (connKey, conn) <- M.toList (connections proof)
-        , BlockPort blockKey portKey <- [connFrom conn, connTo conn]
+        , Just (BlockPort blockKey portKey) <- [connFrom conn, connTo conn]
         , Just (Block _ ruleKey) <- return $ M.lookup blockKey (blocks proof)
         , Just rule <- return $ M.lookup ruleKey (ctxtRules logic)
         , portKey `M.notMember` ports rule
@@ -60,16 +60,11 @@ lint logic _task proof = mconcat
         [ printf "Connection \"%s\" begins in port \"%s\" of block \"%s\", which is not a conclusion or local hypothesis"
           (untag connKey) (untag portKey) (untag blockKey)
         | (connKey, conn) <- M.toList (connections proof)
-        , BlockPort blockKey portKey <- return $ connFrom conn
+        , Just (BlockPort blockKey portKey) <- return $ connFrom conn
         , Just (Block _ ruleKey) <- return $ M.lookup blockKey (blocks proof)
         , Just rule <- return $ M.lookup ruleKey (ctxtRules logic)
         , Just port <- return $ M.lookup portKey (ports rule)
         , not $ isOk port
-        ] ++
-        [ printf "Connection \"%s\" begins in conclusion %d"
-          (untag connKey) n
-        | (connKey, conn) <- M.toList (connections proof)
-        , ConclusionPort n <- return $ connFrom conn
         ]
       where isOk (Port (PTLocalHyp _) _ _) = True
             isOk (Port PTConclusion _ _) = True
@@ -78,16 +73,11 @@ lint logic _task proof = mconcat
         [ printf "Connection \"%s\" ends in port \"%s\" of block \"%s\", which is not an assumption."
           (untag connKey) (untag portKey) (untag blockKey)
         | (connKey, conn) <- M.toList (connections proof)
-        , BlockPort blockKey portKey <- return $ connTo conn
+        , Just (BlockPort blockKey portKey) <- return $ connTo conn
         , Just (Block _ ruleKey) <- return $ M.lookup blockKey (blocks proof)
         , Just rule <- return $ M.lookup ruleKey (ctxtRules logic)
         , Just port <- return $ M.lookup portKey (ports rule)
         , not $ isOk port
-        ] ++
-        [ printf "Connection \"%s\" begins in global assumption %d"
-          (untag connKey) n
-        | (connKey, conn) <- M.toList (connections proof)
-        , AssumptionPort n <- return $ connTo conn
         ]
       where isOk (Port PTAssumption _ _) = True
             isOk _ = False

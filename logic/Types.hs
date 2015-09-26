@@ -11,6 +11,7 @@ import qualified Data.Set as S
 import Data.Tagged
 
 import Propositions
+import Unification (UnificationResult(..))
 
 -- We might want to look into other implementation of key-value maps
 type Key k = Tagged k String
@@ -67,17 +68,21 @@ type BlockNum = Int
 data Block
     = AnnotationBlock BlockNum Proposition
       -- ^ A block with an annotation (no associated rule)
+    | AssumptionBlock BlockNum Int
+      -- ^ A block representing an assumption
+    | ConclusionBlock BlockNum Int
+      -- ^ A block representing a conclusion
     | Block BlockNum (Key Rule)
       -- ^ A normal with block with a rule
  deriving Show
 
-data PortSpec = NoPort | AssumptionPort Int | ConclusionPort Int | BlockPort (Key Block) (Key Port)
+data PortSpec = BlockPort (Key Block) (Key Port)
  deriving (Eq, Ord, Show)
 
 data Connection = Connection
  { connSortKey :: Integer -- Put sort key first, for a convenient Ord instance
- , connFrom :: PortSpec
- , connTo :: PortSpec
+ , connFrom :: Maybe PortSpec
+ , connTo :: Maybe PortSpec
  }
  deriving (Eq, Ord, Show)
 
@@ -87,17 +92,14 @@ data Proof = Proof
  }
  deriving Show
 
-data ConnLabel = Unconnected | Ok Proposition | Mismatch Proposition Proposition | DunnoLabel Proposition Proposition
- deriving (Eq, Show)
-
-badLabel :: ConnLabel -> Bool
-badLabel (Mismatch {})   = True
-badLabel (DunnoLabel {}) = True
-badLabel (Ok {})         = False
-badLabel Unconnected     = False
+badResult :: UnificationResult -> Bool
+badResult Solved = False
+badResult Failed = True
+badResult Dunno  = True
 
 data Analysis = Analysis
- { connectionLabels :: M.Map (Key Connection) ConnLabel
+ { connectionStatus :: M.Map (Key Connection) UnificationResult
+ , portLabels :: M.Map PortSpec Term
  , unconnectedGoals :: [PortSpec]
  , cycles :: [Cycle]
  , escapedHypotheses :: [Path]
@@ -113,23 +115,27 @@ type Path = [Key Connection]
 
 blockNum :: Block -> BlockNum
 blockNum (AnnotationBlock n _) = n
+blockNum (AssumptionBlock n _) = n
+blockNum (ConclusionBlock n _) = n
 blockNum (Block n _) = n
 
-block2Rule :: Context -> Block -> Rule
-block2Rule ctxt (Block _ rule) = ctxtRules ctxt M.! rule
-block2Rule _    (AnnotationBlock _ prop) = annotationRule prop
+block2Rule :: Context -> Task -> Block -> Rule
+block2Rule ctxt _    (Block _ rule) = ctxtRules ctxt M.! rule
+block2Rule _    _    (AnnotationBlock _ prop) = annotationRule prop
+block2Rule _    task (AssumptionBlock _ n) = assumptionRule task n
+block2Rule _    task (ConclusionBlock _ n) = conclusionRule task n
 
 annotationRule :: Proposition -> Rule
 annotationRule prop = Rule
     { localVars = []
     , freeVars = []
     , ports = M.fromList
-        [ (annotationPortIn, Port
+        [ (fakePortIn, Port
             { portType = PTAssumption
             , portProp = prop
             , portScopes = []
             })
-        , (annotationPortOut, Port
+        , (fakePortOut, Port
             { portType = PTConclusion
             , portProp = prop
             , portScopes = []
@@ -137,8 +143,38 @@ annotationRule prop = Rule
         ]
     }
 
-annotationPortIn :: Key Port
-annotationPortIn = Tagged "in"
-annotationPortOut :: Key Port
-annotationPortOut = Tagged "out"
+assumptionRule :: Task -> Int -> Rule
+assumptionRule task n = Rule
+    { localVars = []
+    , freeVars = []
+    , ports = M.fromList
+        [(fakePortOut, Port
+            { portType = PTConclusion
+            , portProp = prop
+            , portScopes = []
+            })
+        ]
+    }
+  where
+    prop = tAssumptions task !! (n - 1)
+
+conclusionRule :: Task -> Int -> Rule
+conclusionRule task n = Rule
+    { localVars = []
+    , freeVars = []
+    , ports = M.fromList
+        [(fakePortIn, Port
+            { portType = PTAssumption
+            , portProp = prop
+            , portScopes = []
+            })
+        ]
+    }
+  where
+    prop = tConclusions task !! (n - 1)
+
+fakePortIn :: Key Port
+fakePortIn = Tagged "in"
+fakePortOut :: Key Port
+fakePortOut = Tagged "out"
 

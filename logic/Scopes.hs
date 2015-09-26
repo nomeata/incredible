@@ -8,7 +8,6 @@ import Control.Monad.Trans.Writer
 import Control.Arrow
 import Control.Monad
 import Data.Tuple
-import Data.Maybe
 import Data.Tree
 
 import Data.Graph.Dom
@@ -22,15 +21,13 @@ calculateScopes ctxt task proof = scopes
   where
     -- Building a graph for the dom-lt library
 
-    conclusionNodes = take (length (tConclusions task)) [-1,-2..] :: [Node]
-
     exitNode = 0 :: Node
 
     -- We only need to consider assumption ports
     portSpecs =
         [ BlockPort blockKey portKey
         | (blockKey, block) <- M.toList (blocks proof)
-        , let rule = block2Rule ctxt block
+        , let rule = block2Rule ctxt task block
         , (portKey, Port {portType = PTAssumption}) <- M.toList (ports rule)
         ]
 
@@ -43,18 +40,13 @@ calculateScopes ctxt task proof = scopes
     graph = IM.fromList $
         [ (obj2node M.! (Left blockKey), findSuccs blockKey) | blockKey <- M.keys (blocks proof) ] ++
         [ (obj2node M.! (Right ps), IS.singleton (obj2node M.! Left blockKey)) | ps@(BlockPort blockKey _) <- portSpecs ] ++
-        [ (c,IS.singleton exitNode) | c <- conclusionNodes ] ++
         [ (exitNode, IS.empty) ]
 
     findSuccs :: Key Block -> IS.IntSet
-    findSuccs blockKey = IS.fromList $ fakeExit $ catMaybes $
-        [ portSpec2Node ps | ps <- connsFrom blockKey ]
+    findSuccs blockKey = IS.fromList $ fakeExit $ map portSpec2Node $ connsFrom blockKey
 
-    portSpec2Node :: PortSpec -> Maybe Node
-    portSpec2Node (ConclusionPort n) | n >= 1 = Just (-n)
-    portSpec2Node ps@(BlockPort _ _) = Just $ obj2node M.! Right ps
-    portSpec2Node NoPort = Nothing
-    portSpec2Node ps = error $ "portSpec2Node: " ++ show ps
+    portSpec2Node :: PortSpec -> Node
+    portSpec2Node ps = obj2node M.! Right ps
 
     fakeExit :: [Node] -> [Node]
     fakeExit [] = [exitNode]
@@ -62,7 +54,7 @@ calculateScopes ctxt task proof = scopes
 
     fromMap = M.fromListWith (++)
         [ (fromBlock, [ps])
-        | Connection {connFrom = BlockPort fromBlock _, connTo = ps}
+        | Connection {connFrom = Just (BlockPort fromBlock _), connTo = Just ps}
             <- M.elems $ connections proof]
     connsFrom :: Key Block -> [PortSpec]
     connsFrom ps = M.findWithDefault [] ps fromMap
@@ -85,7 +77,7 @@ calculateScopes ctxt task proof = scopes
             tell [(childBlocks childs, ps)]
       where
         block = blocks proof M.! blockKey
-        rule = block2Rule ctxt block
+        rule = block2Rule ctxt task block
         port = ports rule M.! portKey
 
         childBlocks childs = [ b | Just (Left b) <- concatMap flatten childs ]

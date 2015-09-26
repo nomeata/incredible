@@ -1,4 +1,10 @@
 blocks:
+  a:
+    assumption: 1
+    number: 5
+  c:
+    conclusion: 1
+    number: 6
   2f796fe5-7d4b-4d53-8075-683ad2fcce6f:
     rule: exI
     number: 1
@@ -34,7 +40,8 @@ connections:
       block: 850f6134-c910-47f6-9577-c511d43953cd
       port: in1
     from:
-      assumption: 1
+      block: a
+      port: out
   7f8cbf41-21a8-49f0-abfd-479c48c1796d:
     sortKey: 0
     to:
@@ -46,7 +53,8 @@ connections:
   21e84149-c425-4e81-a38f-177b98892a0a:
     sortKey: 0
     to:
-      conclusion: 1
+      block: c
+      port: in
     from:
       block: 850f6134-c910-47f6-9577-c511d43953cd
       port: out
