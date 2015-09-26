@@ -134,13 +134,18 @@ instance ToJSON Rule where
 instance ToJSON Analysis where
     toJSON (Analysis {..}) = object
         [ "connectionStatus"  .= connectionStatus
-        , "portLabels"        .= M.toList portLabels
+        , "portLabels"        .= portLabels
         , "unconnectedGoals"  .= unconnectedGoals
         , "cycles"            .= cycles
         , "escapedHypotheses" .= escapedHypotheses
         , "rule"              .= rule
         , "qed"               .= qed
         ]
+
+instance ToJSON a => ToJSON (M.Map PortSpec a) where
+    toJSON = toJSON . M.fromListWith M.union . map go . M.toList 
+      where
+        go (BlockPort bk pk, a) = (bk, M.singleton pk a)
 
 instance ToJSON UnificationResult where
     toJSON = toJSON . go
