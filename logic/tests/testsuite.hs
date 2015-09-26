@@ -100,12 +100,12 @@ unconnectedGoalsTests = testGroup "Unsolved goals"
   ]
 
 labelConnectionsTests = testGroup "Label Connections"
-  [ testCase "complete" $ labelConnections completeProof sp final_bind unificationResults @?=
+  [ testCase "complete" $ labelConnections completeProof sp' unificationResults @?=
         M.fromList [("c1",Ok $ C "Prop"),("c2", Ok $ App (C "→") [C "Prop", C "Prop"])]
   ]
   where
     sp = prepare impILogic simpleTask completeProof
-    (final_bind, unificationResults) = analyse completeProof sp
+    (sp', unificationResults) = unifyScopedProof completeProof sp
 
 unificationTests = testGroup "Unification tests"
   [ testCase "unify pred" $
@@ -163,11 +163,11 @@ unificationTests = testGroup "Unification tests"
   ]
 
 ruleExportTest = testGroup "Rule export"
-  [ testCase "full call" $ assertEqualValues (toJSON $ deriveRule oneBlockLogic oneBlockProof sp b) $ toJSON renamedRule
+  [ testCase "full call" $ assertEqualValues (toJSON $ deriveRule oneBlockLogic oneBlockProof sp') $ toJSON renamedRule
   ]
   where
     sp = prepare oneBlockLogic emptyTask oneBlockProof
-    (b, _) = analyse oneBlockProof sp
+    (sp', _) = unifyScopedProof oneBlockProof sp
 
 assertUnifies :: [Var] -> [Equality] -> [(Var, Term)] -> Assertion
 assertUnifies vars eqns expt = do
@@ -193,15 +193,6 @@ oneBlockProof = Proof
     M.empty
 
 renamedRule = Rule ["B"] ["B"] (M.fromList ["in1" >: Port PTAssumption "B" [], "in2" >: Port PTConclusion "B" []])
-
-uniVars = ["B"]
-scopeVars _ _ = []
-
-blockProps :: BlockProps
-blockProps = M.singleton "b" $ M.fromList ["in" >: (V "A"), "out" >: (V "A")]
-
-bindingAB :: Bindings
-bindingAB = M.singleton "A" (V "B")
 
 proofWithCycle = Proof
     (M.singleton "b" (Block 1 "r"))

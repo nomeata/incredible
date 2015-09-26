@@ -3,7 +3,6 @@ module Rules where
 
 import Types
 import Analysis
-import Unification
 import Data.Tagged
 --import Debug.Trace
 
@@ -13,8 +12,8 @@ import qualified Data.Set as S
 
 import Unbound.LocallyNameless hiding (Infix)
 
-deriveRule :: Context -> Proof -> ScopedProof -> Bindings -> Rule
-deriveRule ctxt proof (sp@ScopedProof {..}) bindings =
+deriveRule :: Context -> Proof -> ScopedProof -> Rule
+deriveRule ctxt proof (sp@ScopedProof {..}) =
     Rule {ports = rulePorts, localVars = localVars, freeVars = freeVars}
   where
     portNames = map (Tagged . ("in"++) . show) [1::Integer ..]
@@ -39,7 +38,7 @@ deriveRule ctxt proof (sp@ScopedProof {..}) bindings =
     relabeledPorts = concat
       [ ports
       | bKey <- S.toList surfaceBlocks
-      , let ports = relabelPorts sp bKey (block2Rule ctxt $ blocks proof M.! bKey) bindings (map snd $ filter (\(a, _) -> a == bKey) openPorts) ]
+      , let ports = relabelPorts sp bKey (block2Rule ctxt $ blocks proof M.! bKey) (map snd $ filter (\(a, _) -> a == bKey) openPorts) ]
 
     allVars :: S.Set Var
     allVars = S.fromList $ fv (map portProp relabeledPorts)
@@ -50,11 +49,11 @@ deriveRule ctxt proof (sp@ScopedProof {..}) bindings =
 
     rulePorts = M.fromList $ zip portNames relabeledPorts
 
-relabelPorts :: ScopedProof -> Key Block -> Rule -> Bindings -> [Key Port] -> [Port]
-relabelPorts (ScopedProof {..}) bKey rule binds openPorts =
+relabelPorts :: ScopedProof -> Key Block -> Rule -> [Key Port] -> [Port]
+relabelPorts (ScopedProof {..}) bKey rule openPorts =
   [ port
   | pKey <- openPorts
   , let Port typ _ _ = (ports rule) M.! pKey
   , let prop = spProps ! BlockPort bKey pKey
-  , let port = Port typ (applyBinding binds prop) (spScopedVars ! (BlockPort bKey pKey))
+  , let port = Port typ prop (spScopedVars ! (BlockPort bKey pKey))
   ]

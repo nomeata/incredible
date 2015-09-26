@@ -5,7 +5,7 @@ import qualified Data.Map as M
 import Data.Map ((!))
 import Data.Function
 import Data.List (sortBy)
-import Debug.Trace
+-- import Debug.Trace
 import Control.Arrow
 
 import Types
@@ -15,14 +15,14 @@ import Scopes
 
 import Unbound.LocallyNameless
 
-type BlockProps = M.Map (Key Block) (M.Map (Key Port) Term)
-
 -- | This function turns a proof into something that is easier to work on in
 -- unfication:
 --  * Constants have been turned into variables,
 --  * Local variables have been renamed
 --  * Scopes have been calculated
 --  * Free variables have their scoped variables as arguments
+--
+-- After unification, ScopedProofs contains the fully unified result
 
 data ScopedProof = ScopedProof
     { spProps      :: M.Map PortSpec Term
@@ -105,10 +105,11 @@ prepare ctxt task proof = ScopedProof {..}
         , v <- freeVars (block2Rule ctxt block)
         ]
 
+type UnificationResults = [(Key Connection, UnificationResult)]
 
-analyse :: Proof -> ScopedProof -> (Bindings, [(Key Connection, UnificationResult)])
-analyse proof (ScopedProof {..}) =
-    (final_bind, unificationResults)
+unifyScopedProof :: Proof -> ScopedProof -> (ScopedProof, UnificationResults)
+unifyScopedProof proof (ScopedProof {..}) =
+    (ScopedProof spProps' spScopedVars spFreeVars, unificationResults)
   where
     equations =
         [ (connKey, (prop1, prop2))
@@ -118,3 +119,8 @@ analyse proof (ScopedProof {..}) =
         ]
 
     (final_bind, unificationResults) = unifyLiberally spFreeVars equations
+
+    -- It is far to costly to do that in every invocatio to applyBinding below
+    highest = firstFree (M.toList final_bind, M.elems spProps)
+
+    spProps' = M.map (applyBinding' highest final_bind) spProps
