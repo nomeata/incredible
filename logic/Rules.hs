@@ -1,3 +1,4 @@
+{-# LANGUAGE RecordWildCards #-}
 module Rules where
 
 import Types
@@ -7,12 +8,13 @@ import Data.Tagged
 --import Debug.Trace
 
 import qualified Data.Map as M
+import Data.Map ((!))
 import qualified Data.Set as S
 
 import Unbound.LocallyNameless hiding (Infix)
 
-deriveRule :: Context -> Task -> Proof -> BlockProps -> Bindings -> [Var] -> (Key Block -> Key Port -> [Var]) -> Rule
-deriveRule ctxt task proof renamedBlockProps bindings unificationVariables scopesOverPort =
+deriveRule :: Context -> Proof -> ScopedProof -> Bindings -> Rule
+deriveRule ctxt proof (sp@ScopedProof {..}) bindings =
     Rule {ports = rulePorts, localVars = localVars, freeVars = freeVars}
   where
     portNames = map (Tagged . ("in"++) . show) [1::Integer ..]
@@ -37,26 +39,22 @@ deriveRule ctxt task proof renamedBlockProps bindings unificationVariables scope
     relabeledPorts = concat
       [ ports
       | bKey <- S.toList surfaceBlocks
-      , let ports = relabelPorts task renamedBlockProps scopesOverPort bKey (block2Rule ctxt $ blocks proof M.! bKey) bindings (map snd $ filter (\(a, _) -> a == bKey) openPorts) ]
+      , let ports = relabelPorts sp bKey (block2Rule ctxt $ blocks proof M.! bKey) bindings (map snd $ filter (\(a, _) -> a == bKey) openPorts) ]
 
     allVars :: S.Set Var
     allVars = S.fromList $ fv (map portProp relabeledPorts)
 
     localVars = S.toList $ S.filter (\v -> name2Integer v > 0) allVars
 
-    freeVars = filter (`S.member` allVars) unificationVariables
-
-    dummyPorts =
-      [ p
-      | (bKey, pKey) <- openPorts
-      , let p = (ports (block2Rule ctxt (blocks proof M.! bKey))) M.! pKey ]
+    freeVars = filter (`S.member` allVars) spFreeVars
 
     rulePorts = M.fromList $ zip portNames relabeledPorts
 
-relabelPorts :: Task -> BlockProps -> (Key Block -> Key Port -> [Var]) -> Key Block -> Rule -> Bindings -> [Key Port] -> [Port]
-relabelPorts task renamedBlockProps scopesOverPort bKey rule binds openPorts =
+relabelPorts :: ScopedProof -> Key Block -> Rule -> Bindings -> [Key Port] -> [Port]
+relabelPorts (ScopedProof {..}) bKey rule binds openPorts =
   [ port
   | pKey <- openPorts
   , let Port typ _ _ = (ports rule) M.! pKey
-  , let Just prop = propAt task renamedBlockProps (BlockPort bKey pKey)
-  , let port = Port typ (applyBinding binds prop) (scopesOverPort bKey pKey) ]
+  , let prop = spProps ! BlockPort bKey pKey
+  , let port = Port typ (applyBinding binds prop) (spScopedVars ! (BlockPort bKey pKey))
+  ]

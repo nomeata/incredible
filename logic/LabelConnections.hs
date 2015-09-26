@@ -1,4 +1,4 @@
-{-# LANGUAGE TupleSections,FlexibleContexts #-}
+{-# LANGUAGE TupleSections, FlexibleContexts, RecordWildCards #-}
 module LabelConnections where
 
 import Data.Functor
@@ -10,8 +10,8 @@ import Propositions
 import Analysis
 
 
-labelConnections :: Task -> Proof -> BlockProps -> Bindings -> [(Key Connection, UnificationResult)] -> M.Map (Key Connection) ConnLabel
-labelConnections task proof renamedBlockProps final_bind unificationResults =
+labelConnections :: Proof -> ScopedProof -> Bindings -> [(Key Connection, UnificationResult)] -> M.Map (Key Connection) ConnLabel
+labelConnections proof (ScopedProof {..}) final_bind unificationResults =
     M.mapWithKey instantiate (connections proof)
   where
     resultsMap :: M.Map (Key Connection) UnificationResult
@@ -27,8 +27,8 @@ labelConnections task proof renamedBlockProps final_bind unificationResults =
             Dunno  -> DunnoLabel propFrom propTo
             Failed -> Mismatch propFrom propTo
       where
-        propFromMB = applyBinding' highest final_bind <$> propAt task renamedBlockProps (connFrom conn)
-        propToMB   = applyBinding' highest final_bind <$> propAt task renamedBlockProps (connTo conn)
+        propFromMB = applyBinding' highest final_bind <$> M.lookup (connFrom conn) spProps
+        propToMB   = applyBinding' highest final_bind <$> M.lookup (connTo conn) spProps
 
     -- It is far to costly to do that in every invocatio to applyBinding below
-    highest = firstFree (M.toList final_bind, map M.elems (M.elems renamedBlockProps))
+    highest = firstFree (M.toList final_bind, M.elems spProps)

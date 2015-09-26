@@ -1,4 +1,4 @@
-{-# LANGUAGE TupleSections,FlexibleContexts #-}
+{-# LANGUAGE TupleSections, RecordWildCards, FlexibleContexts #-}
 module Analysis where
 
 import qualified Data.Map as M
@@ -6,6 +6,7 @@ import Data.Map ((!))
 import Data.Function
 import Data.List (sortBy)
 import Debug.Trace
+import Control.Arrow
 
 import Types
 import Unification
@@ -16,89 +17,104 @@ import Unbound.LocallyNameless
 
 type BlockProps = M.Map (Key Block) (M.Map (Key Port) Term)
 
-prepare :: Context -> Task -> Proof -> (BlockProps, [Var], Key Block -> Key Port -> [Var])
-prepare ctxt task proof =
-    (renamedBlockProps, unificationVariables, scopesOverPort)
+-- | This function turns a proof into something that is easier to work on in
+-- unfication:
+--  * Constants have been turned into variables,
+--  * Local variables have been renamed
+--  * Scopes have been calculated
+--  * Free variables have their scoped variables as arguments
+
+data ScopedProof = ScopedProof
+    { spProps      :: M.Map PortSpec Term
+    , spScopedVars :: M.Map PortSpec [Var]
+    , spFreeVars   :: [Var]
+    }
+
+prepare :: Context -> Task -> Proof -> ScopedProof
+prepare ctxt task proof = ScopedProof {..}
   where
-    -- Strategy:
-    --  1. For each block, look up the rule data and localize the variables
-    --     according to the blockNum.
-    --  2. Calculate scopes, and give scoped bound variables as arguments to
-    --     free variables
-    --  3. Look at each connection, turn this into equations
-    --     [(proposition, proposition)], and pass them to the unification module
-    --  4. Get back a substiution, apply it to the data structure from step 2
-    --  5. For each connection, calculate the ConnLabel
-
-    renamedBlockData :: M.Map (Key Block) ([Var], M.Map (Key Port) (Term, [Var]))
-    renamedBlockData = M.map go (blocks proof)
-      where
-        go block = (f', ports')
-          where
-            rule = block2Rule ctxt block
-
-            l = localVars rule
-            num = fromIntegral $ blockNum block
-
-            localize :: Var -> Var
-            localize n = makeName (name2String n) num
-            s = [(n, V (localize n)) | n <- l ]
-
-            f' = map localize (freeVars rule)
-            ports' = M.map goPort (ports rule)
-              where
-                goPort p = (prop', scopes')
-                  where
-                    prop'   = substs s (portProp p)
-                    scopes' = map localize (portScopes p)
-
-    scopedVariables :: [Var]
-    scopedVariables = concatMap (concatMap snd . M.elems . snd) $ M.elems renamedBlockData
-
     scopes = calculateScopes ctxt task proof
     scopeMap = M.fromListWith (++) [ (k, [pdom]) | (ks, pdom) <- scopes, k <- ks ]
 
-    renamedBlockProps :: M.Map (Key Block) (M.Map (Key Port) Term)
-    renamedBlockProps = M.mapWithKey prepareBlock renamedBlockData
+    localize :: Block -> Var -> Var
+    localize block n = makeName (name2String n) (fromIntegral (blockNum block))
 
-    scopesOverBlock blockKey = [ v
+
+    scopesOverBlock :: Key Block -> [Var]
+    scopesOverBlock blockKey = [ v'
         | BlockPort pdBlockKey pdPortKey <- M.findWithDefault [] blockKey scopeMap
-        , Just (_,ports) <- return $ M.lookup pdBlockKey renamedBlockData
-        , let (_,sv) = ports M.! pdPortKey
-        , v <- sv
+        , let pdBlock = blocks proof ! pdBlockKey
+        , let pdRule = block2Rule ctxt pdBlock
+        , let port = ports pdRule ! pdPortKey
+        , v <- portScopes port
+        , let v' = localize pdBlock v
         ]
 
-    scopesOverPort blockKey portKey =
-        scopesOverBlock blockKey ++ [ v
-               | Just (_,ports) <- return $ M.lookup blockKey renamedBlockData
-               , let (_,sv) = ports M.! portKey
-               , v <- sv ]
+    allPortSpecs :: [PortSpec]
+    allPortSpecs =
+        [ AssumptionPort n | n <- [1..length (tAssumptions task)]]++
+        [ ConclusionPort n | n <- [1..length (tConclusions task)]]++
+        [ BlockPort blockKey portKey
+        | (blockKey, block) <- M.toList (blocks proof)
+        , portKey <- M.keys $ ports (block2Rule ctxt block)
+        ]
 
-    prepareBlock blockKey (unv, ports) = M.map preparePort ports
+    propAtPortSpec :: PortSpec -> Term
+    propAtPortSpec NoPort = error "propAtPortSpec"
+    propAtPortSpec (ConclusionPort n) = tConclusions task !! (n-1)
+    propAtPortSpec (AssumptionPort n) = tAssumptions task !! (n-1)
+    propAtPortSpec (BlockPort blockKey portKey) = prop'
       where
-        -- Change free variables to variables, possibly depending on these arguments
-        s = [ (s, mkApps (V s) (map V $ scopesOverBlock blockKey)) | s <- unv ] ++
-            [ (s, V s) | s <- scopedVariables ]
-        preparePort (prop, _) = (substs s prop)
+        block = blocks proof ! blockKey
+        rule = block2Rule ctxt block
+        prop = portProp (ports rule ! portKey)
+        scopes = scopesOverBlock blockKey
 
-    unificationVariables = concat $ M.elems $ M.map fst renamedBlockData
+        f = freeVars rule
+        l = localVars rule
+
+        -- localize everything
+        s1 = [ (a, V a') | a <- l, let a' = localize block a]
+        -- add scopes
+        s2 = [ (a', mkApps (V a') (map V scopes)) | a <- f, let a' = localize block a]
+
+        prop' = substs s2 (substs s1 prop)
 
 
-analyse :: Task -> Proof -> BlockProps -> [Var] -> (Bindings, [(Key Connection, UnificationResult)])
-analyse task proof renamedBlockProps unificationVariables =
+    spProps :: M.Map PortSpec Term
+    spProps = M.fromList $ map (id &&& propAtPortSpec) allPortSpecs
+
+    scopedVarsAtPortSpec :: PortSpec -> [Var]
+    scopedVarsAtPortSpec (BlockPort blockKey portKey) =
+        scopesOverBlock blockKey ++
+        [ v'
+        | (_, block) <- M.toList (blocks proof)
+        , let port = ports (block2Rule ctxt block) ! portKey
+        , v <- portScopes port
+        , let v' = localize block v
+        ]
+    scopedVarsAtPortSpec _  = [] -- TODO?
+
+
+    spScopedVars :: M.Map PortSpec [Var]
+    spScopedVars = M.fromList $ map (id &&& scopedVarsAtPortSpec) allPortSpecs
+
+    spFreeVars =
+        [ localize block v
+        | (_, block) <- M.toList (blocks proof)
+        , v <- freeVars (block2Rule ctxt block)
+        ]
+
+
+analyse :: Proof -> ScopedProof -> (Bindings, [(Key Connection, UnificationResult)])
+analyse proof (ScopedProof {..}) =
     (final_bind, unificationResults)
   where
     equations =
         [ (connKey, (prop1, prop2))
         | (connKey, conn) <- sortBy (compare `on` snd) $ M.toList (connections proof)
-        , Just prop1 <- return $ propAt task renamedBlockProps (connFrom conn)
-        , Just prop2 <- return $ propAt task renamedBlockProps (connTo conn)
+        , Just prop1 <- return $ M.lookup (connFrom conn) spProps
+        , Just prop2 <- return $ M.lookup (connTo conn) spProps
         ]
 
-    (final_bind, unificationResults) = unifyLiberally unificationVariables equations
-
-propAt :: Task -> BlockProps -> PortSpec -> Maybe Proposition
-propAt _ _ NoPort = Nothing
-propAt task _ (ConclusionPort n) = Just $ tConclusions task !! (n-1)
-propAt task _ (AssumptionPort n) = Just $ tAssumptions task !! (n-1)
-propAt _ blockProps (BlockPort blockKey portKey) = Just $ blockProps ! blockKey ! portKey
+    (final_bind, unificationResults) = unifyLiberally spFreeVars equations

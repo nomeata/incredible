@@ -100,12 +100,12 @@ unconnectedGoalsTests = testGroup "Unsolved goals"
   ]
 
 labelConnectionsTests = testGroup "Label Connections"
-  [ testCase "complete" $ labelConnections simpleTask completeProof renamedBlockProps final_bind unificationResults @?=
+  [ testCase "complete" $ labelConnections completeProof sp final_bind unificationResults @?=
         M.fromList [("c1",Ok $ C "Prop"),("c2", Ok $ App (C "→") [C "Prop", C "Prop"])]
   ]
   where
-    (renamedBlockProps, unificationVariables, _) = prepare impILogic simpleTask completeProof
-    (final_bind, unificationResults) = analyse simpleTask completeProof renamedBlockProps unificationVariables
+    sp = prepare impILogic simpleTask completeProof
+    (final_bind, unificationResults) = analyse completeProof sp
 
 unificationTests = testGroup "Unification tests"
   [ testCase "unify pred" $
@@ -163,12 +163,11 @@ unificationTests = testGroup "Unification tests"
   ]
 
 ruleExportTest = testGroup "Rule export"
-  [ testCase "single block renaming" $ assertEqualValues (toJSON $ deriveRule oneBlockLogic emptyTask oneBlockProof blockProps bindingAB uniVars scopeVars) $ toJSON renamedRule
-  , testCase "full call" $ assertEqualValues (toJSON $ deriveRule oneBlockLogic emptyTask oneBlockProof bm b vm sv) $ toJSON renamedRule
+  [ testCase "full call" $ assertEqualValues (toJSON $ deriveRule oneBlockLogic oneBlockProof sp b) $ toJSON renamedRule
   ]
   where
-    (bm, vm, sv) = prepare oneBlockLogic emptyTask oneBlockProof
-    (b, _) = analyse emptyTask oneBlockProof bm vm
+    sp = prepare oneBlockLogic emptyTask oneBlockProof
+    (b, _) = analyse oneBlockProof sp
 
 assertUnifies :: [Var] -> [Equality] -> [(Var, Term)] -> Assertion
 assertUnifies vars eqns expt = do
