@@ -192,7 +192,7 @@ oneBlockProof = Proof
     (M.singleton "b" (Block 1 "r"))
     M.empty
 
-renamedRule = Rule ["B"] ["B"] (M.fromList ["in1" >: Port PTAssumption "B" [], "in2" >: Port PTConclusion "B" []])
+renamedRule = Rule ["AA"] ["AA"] (M.fromList ["in1" >: Port PTAssumption "AA" [], "in2" >: Port PTConclusion "AA" []])
 
 proofWithCycle = Proof
     (M.singleton "b" (Block 1 "r"))

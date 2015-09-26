@@ -1,5 +1,6 @@
 cycles: []
-connectionLabels:
+connectionLabels: {}
+rule: null
 escapedHypotheses: []
 unconnectedGoals: []
 qed: true

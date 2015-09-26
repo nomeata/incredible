@@ -9,6 +9,7 @@ connectionLabels:
   43a6c217-70ae-446b-b328-590bbba66edd:
     prop: P₂
     type: ok
+rule: null
 escapedHypotheses: []
 unconnectedGoals: []
 qed: true
