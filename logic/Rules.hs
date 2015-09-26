@@ -14,9 +14,10 @@ import qualified Data.Set as S
 
 import Unbound.LocallyNameless hiding (Infix)
 
-deriveRule :: Context -> Proof -> ScopedProof -> Rule
+deriveRule :: Context -> Proof -> ScopedProof -> Maybe Rule
 deriveRule ctxt proof (sp@ScopedProof {..}) =
-    Rule {ports = rulePorts, localVars = map exportableName localVars, freeVars = map exportableName freeVars}
+    if hasLocalHyps then Nothing
+    else Just $ Rule {ports = rulePorts, localVars = map exportableName localVars, freeVars = map exportableName freeVars}
   where
     portNames = map (Tagged . ("in"++) . show) [1::Integer ..]
 
@@ -41,6 +42,10 @@ deriveRule ctxt proof (sp@ScopedProof {..}) =
       [ ports
       | bKey <- S.toList surfaceBlocks
       , let ports = relabelPorts sp bKey (block2Rule ctxt $ blocks proof M.! bKey) (map snd $ filter (\(a, _) -> a == bKey) openPorts) ]
+
+    isLocalHyp (Port (PTLocalHyp _) _ _) = True
+    isLocalHyp _ = False
+    hasLocalHyps = any isLocalHyp relabeledPorts
 
     allVars :: S.Set Var
     allVars = S.fromList $ fv (map portProp relabeledPorts)

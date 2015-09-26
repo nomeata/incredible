@@ -41,7 +41,7 @@ incredibleLogic ctxt task proof = do
     emptyTask (Task [] []) = True
     emptyTask (Task _ _) = False
     rule = if emptyTask task && null unconnectedGoals && S.null badConnections
-      then Just $ deriveRule ctxt proof scopedProof'
+      then deriveRule ctxt proof scopedProof'
       else Nothing
 
     qed = null unconnectedGoals && S.null (usedConnections `S.intersection` badConnections)
