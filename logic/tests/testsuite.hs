@@ -19,7 +19,6 @@ import ShapeChecks
 import Types
 import TaggedMap
 import Propositions
-import LabelConnections
 import Unification
 import ConvertAeson
 import Examples
@@ -53,7 +52,6 @@ main = do
         , cycleTests
         , escapedHypothesesTests
         , unconnectedGoalsTests
-        , labelConnectionsTests
         , unificationTests
         , ruleExportTest
         , exampleTests examples analyses
@@ -99,13 +97,6 @@ unconnectedGoalsTests = testGroup "Unsolved goals"
   , testCase "complete"  $ findUnconnectedGoals impILogic simpleTask completeProof @?= []
   ]
 
-labelConnectionsTests = testGroup "Label Connections"
-  [ testCase "complete" $ labelConnections completeProof sp' unificationResults @?=
-        M.fromList [("c1",Ok $ C "Prop"),("c2", Ok $ App (C "→") [C "Prop", C "Prop"])]
-  ]
-  where
-    sp = prepare impILogic simpleTask completeProof
-    (sp', unificationResults) = unifyScopedProof completeProof sp
 
 unificationTests = testGroup "Unification tests"
   [ testCase "unify pred" $

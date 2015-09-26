@@ -11,6 +11,7 @@ import qualified Data.Set as S
 import Data.Tagged
 
 import Propositions
+import Unification (UnificationResult(..))
 
 -- We might want to look into other implementation of key-value maps
 type Key k = Tagged k String
@@ -87,17 +88,14 @@ data Proof = Proof
  }
  deriving Show
 
-data ConnLabel = Unconnected | Ok Proposition | Mismatch Proposition Proposition | DunnoLabel Proposition Proposition
- deriving (Eq, Show)
-
-badLabel :: ConnLabel -> Bool
-badLabel (Mismatch {})   = True
-badLabel (DunnoLabel {}) = True
-badLabel (Ok {})         = False
-badLabel Unconnected     = False
+badResult :: UnificationResult -> Bool
+badResult Solved = False
+badResult Failed = True
+badResult Dunno  = True
 
 data Analysis = Analysis
- { connectionLabels :: M.Map (Key Connection) ConnLabel
+ { connectionStatus :: M.Map (Key Connection) UnificationResult
+ , portLabels :: M.Map PortSpec Term
  , unconnectedGoals :: [PortSpec]
  , cycles :: [Cycle]
  , escapedHypotheses :: [Path]

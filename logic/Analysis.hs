@@ -105,11 +105,11 @@ prepare ctxt task proof = ScopedProof {..}
         , v <- freeVars (block2Rule ctxt block)
         ]
 
-type UnificationResults = [(Key Connection, UnificationResult)]
+type UnificationResults = M.Map (Key Connection) UnificationResult
 
 unifyScopedProof :: Proof -> ScopedProof -> (ScopedProof, UnificationResults)
 unifyScopedProof proof (ScopedProof {..}) =
-    (ScopedProof spProps' spScopedVars spFreeVars, unificationResults)
+    (ScopedProof spProps' spScopedVars spFreeVars, M.fromList unificationResults)
   where
     equations =
         [ (connKey, (prop1, prop2))

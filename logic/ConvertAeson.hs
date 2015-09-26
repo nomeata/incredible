@@ -13,6 +13,7 @@ import Data.List
 import Types
 import TaggedMap ()
 import Propositions
+import Unification (UnificationResult(..))
 
 -- Conversion from/to aeson value
 
@@ -133,23 +134,22 @@ instance ToJSON Rule where
 
 instance ToJSON Analysis where
     toJSON (Analysis {..}) = object
-        [ "connectionLabels" .= connectionLabels
-        , "unconnectedGoals" .= unconnectedGoals
-        , "cycles" .= cycles
+        [ "connectionStatus"  .= connectionStatus
+        , "portLabels"        .= M.toList portLabels
+        , "unconnectedGoals"  .= unconnectedGoals
+        , "cycles"            .= cycles
         , "escapedHypotheses" .= escapedHypotheses
-        , "rule" .= rule
-        , "qed" .= qed
+        , "rule"              .= rule
+        , "qed"               .= qed
         ]
 
-instance ToJSON ConnLabel where
-    toJSON Unconnected = object
-        [ "type" .= ("unconnected" :: T.Text) ]
-    toJSON (Ok prop) = object
-        [ "prop"   .= prop, "type" .= ("ok" :: T.Text) ]
-    toJSON (Mismatch prop1 prop2) = object
-        [ "propIn" .= prop1, "propOut" .= prop2, "type" .= ("mismatch"::T.Text) ]
-    toJSON (DunnoLabel prop1 prop2) = object
-        [ "propIn" .= prop1, "propOut" .= prop2, "type" .= ("dunno"::T.Text) ]
+instance ToJSON UnificationResult where
+    toJSON = toJSON . go
+      where
+        go :: UnificationResult -> T.Text
+        go Failed = "failed"
+        go Dunno  = "dunno"
+        go Solved = "solved"
 
 instance ToJSON PortSpec where
     toJSON NoPort             = object []
