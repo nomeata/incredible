@@ -120,7 +120,7 @@ unifyScopedProof proof (ScopedProof {..}) =
 
     (final_bind, unificationResults) = unifyLiberally spFreeVars equations
 
-    -- It is far to costly to do that in every invocatio to applyBinding below
+    -- It is far to costly to do that in every invocation to applyBinding below
     highest = firstFree (M.toList final_bind, M.elems spProps)
 
     spProps' = M.map (applyBinding' highest final_bind) spProps

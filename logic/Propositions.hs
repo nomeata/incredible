@@ -59,7 +59,7 @@ const2Var vs = substs [(v, V v) | v <- vs]
 name2ExternalString :: Var -> String
 name2ExternalString n
     | name2Integer n == 0 = name2String n
-    | otherwise = show n --error $ "name2ExternalString: Invalid external name " ++ show n
+    | otherwise = error $ "name2ExternalString: Invalid external name " ++ show n
 
 -- Pretty printer
 
