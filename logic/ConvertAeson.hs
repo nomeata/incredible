@@ -89,6 +89,8 @@ instance FromJSON Block where
   parseJSON = withObject "block" $ \o ->
     if | "rule"       `HM.member` o -> Block <$> o.: "number" <*> o .: "rule"
        | "annotation" `HM.member` o -> AnnotationBlock <$> o.: "number" <*> o .: "annotation"
+       | "assumption" `HM.member` o -> AssumptionBlock <$> o.: "number" <*> o .: "assumption"
+       | "conclusion" `HM.member` o -> ConclusionBlock <$> o.: "number" <*> o .: "conclusion"
 
 
 instance FromJSON Connection where
@@ -97,10 +99,7 @@ instance FromJSON Connection where
 
 instance FromJSON PortSpec where
  parseJSON = withObject "port spec" $ \o ->
-    if | "assumption" `HM.member` o -> AssumptionPort <$> o .: "assumption"
-       | "conclusion" `HM.member` o -> ConclusionPort <$> o .: "conclusion"
-       | "block"      `HM.member` o -> BlockPort <$> o .: "block" <*> o .: "port"
-       | otherwise                  -> return NoPort
+    BlockPort <$> o .: "block" <*> o .: "port"
 
 instance FromJSON Proof where
   parseJSON = withObject "proof" $ \o -> do
@@ -152,7 +151,4 @@ instance ToJSON UnificationResult where
         go Solved = "solved"
 
 instance ToJSON PortSpec where
-    toJSON NoPort             = object []
-    toJSON (AssumptionPort n) = object [ "assumption" .= n ]
-    toJSON (ConclusionPort n) = object [ "conclusion" .= n ]
     toJSON (BlockPort b n)    = object [ "block" .= b, "port" .= n ]

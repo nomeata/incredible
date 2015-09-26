@@ -28,8 +28,8 @@ incredibleLogic ctxt task proof = do
     (scopedProof', connectionStatus) = unifyScopedProof proof scopedProof
 
     unconnectedGoals = findUnconnectedGoals ctxt task proof
-    cycles = findCycles ctxt proof
-    escapedHypotheses = findEscapedHypotheses ctxt proof
+    cycles = findCycles ctxt task proof
+    escapedHypotheses = findEscapedHypotheses ctxt task proof
 
     badConnections = S.unions
         [ S.fromList (concat cycles)
@@ -41,7 +41,7 @@ incredibleLogic ctxt task proof = do
     emptyTask (Task [] []) = True
     emptyTask (Task _ _) = False
     rule = if emptyTask task && null unconnectedGoals && S.null badConnections
-      then Just (deriveRule ctxt proof scopedProof')
+      then Just (deriveRule ctxt task proof scopedProof')
       else Nothing
 
     qed = null unconnectedGoals && S.null (usedConnections `S.intersection` badConnections)

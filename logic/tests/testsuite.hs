@@ -80,19 +80,18 @@ assertParse f t = do
 
 
 cycleTests = testGroup "Cycle detection"
-  [ testCase "cycle"    $ findCycles oneBlockLogic proofWithCycle @?= [["c"]]
-  , testCase "no cycle" $ findCycles oneBlockLogic proofWithoutCycle @?= []
+  [ testCase "cycle"    $ findCycles oneBlockLogic simpleTask proofWithCycle @?= [["c"]]
+  , testCase "no cycle" $ findCycles oneBlockLogic simpleTask proofWithoutCycle @?= []
   ]
-  where
 
 escapedHypothesesTests = testGroup "Escaped hypotheses"
-  [ testCase "direct"    $ findEscapedHypotheses impILogic directEscape @?= [["c"]]
-  , testCase "indirect"  $ findEscapedHypotheses impILogic indirectEscape @?= [["c", "c2"]]
-  , testCase "ok"        $ findEscapedHypotheses impILogic noEscape @?= []
+  [ testCase "direct"    $ findEscapedHypotheses impILogic simpleTask directEscape @?= [["c"]]
+  , testCase "indirect"  $ findEscapedHypotheses impILogic simpleTask indirectEscape @?= [["c", "c2"]]
+  , testCase "ok"        $ findEscapedHypotheses impILogic simpleTask noEscape @?= []
   ]
 
 unconnectedGoalsTests = testGroup "Unsolved goals"
-  [ testCase "empty"     $ findUnconnectedGoals impILogic simpleTask emptyProof @?= [ConclusionPort 1]
+  [ testCase "empty"     $ findUnconnectedGoals impILogic simpleTask emptyProof @?= [BlockPort "c" "in"]
   , testCase "indirect"  $ findUnconnectedGoals impILogic simpleTask partialProof @?= [BlockPort "b" "in"]
   , testCase "complete"  $ findUnconnectedGoals impILogic simpleTask completeProof @?= []
   ]
@@ -154,7 +153,7 @@ unificationTests = testGroup "Unification tests"
   ]
 
 ruleExportTest = testGroup "Rule export"
-  [ testCase "full call" $ assertEqualValues (toJSON $ deriveRule oneBlockLogic oneBlockProof sp') $ toJSON renamedRule
+  [ testCase "full call" $ assertEqualValues (toJSON $ deriveRule oneBlockLogic simpleTask oneBlockProof sp') $ toJSON renamedRule
   ]
   where
     sp = prepare oneBlockLogic emptyTask oneBlockProof
@@ -185,13 +184,15 @@ oneBlockProof = Proof
 
 renamedRule = Rule ["B"] ["B"] (M.fromList ["in1" >: Port PTAssumption "B" [], "in2" >: Port PTConclusion "B" []])
 
+f --> t = Connection 1 (Just f) (Just t)
+
 proofWithCycle = Proof
     (M.singleton "b" (Block 1 "r"))
-    (M.singleton "c" (Connection 1 (BlockPort "b" "out") (BlockPort "b" "in")))
+    (M.singleton "c" (BlockPort "b" "out" --> BlockPort "b" "in"))
 
 proofWithoutCycle = Proof
-    (M.singleton "b" (Block 1 "r"))
-    (M.singleton "c" (Connection 1 (BlockPort "b" "out") (ConclusionPort 1)))
+    (M.fromList ["c" >: ConclusionBlock 0 1, "b" >: (Block 1 "r")])
+    (M.singleton "c" (BlockPort "b" "out" --> BlockPort "c" "in"))
 
 impILogic :: Context
 impILogic = Context
@@ -206,34 +207,36 @@ impILogic = Context
   where f = ["A","B"]
 
 directEscape = Proof
-    (M.singleton "b" (Block 1 "impI"))
-    (M.singleton "c" (Connection 1 (BlockPort "b" "hyp") (ConclusionPort 1)))
+    (M.fromList ["c" >: ConclusionBlock 0 1, "b" >: Block 1 "impI"])
+    (M.singleton "c" (BlockPort "b" "hyp" --> BlockPort "c" "in"))
 
 noEscape = Proof
-    (M.singleton "b" (Block 1 "impI"))
+    (M.fromList ["c" >: ConclusionBlock 0 1, "b" >: Block 1 "impI"])
     (M.fromList
-        [ ("c",  (Connection 1 (BlockPort "b" "hyp") (BlockPort "b" "in")))
-        , ("c2", (Connection 2 (BlockPort "b" "out") (ConclusionPort 1)))
+        [ ("c",  BlockPort "b" "hyp" --> BlockPort "b" "in")
+        , ("c2", BlockPort "b" "out" --> BlockPort "c" "in")
         ])
 
 indirectEscape = Proof
-    (M.fromList [("b", Block 1 "impI"), ("b2", Block 2 "impI")])
+    (M.fromList ["c" >: ConclusionBlock 0 1, "b" >: Block 1 "impI", "b2" >: Block 2 "impI"])
     (M.fromList
-        [ ("c",  (Connection 1 (BlockPort "b" "hyp") (BlockPort "b2" "in")))
-        , ("c2", (Connection 2 (BlockPort "b2" "out") (ConclusionPort 1)))
+        [ ("c",  BlockPort "b" "hyp" --> BlockPort "b2" "in")
+        , ("c2", BlockPort "b2" "out" --> BlockPort "c" "in")
         ])
 
 simpleTask = Task [] ["Prop→Prop"]
 
-emptyProof = Proof M.empty M.empty
+emptyProof = Proof
+    (M.fromList [("c", ConclusionBlock 0 1)])
+    (M.fromList [])
 
 partialProof = Proof
-    (M.fromList [("b", Block 1 "impI")])
-    (M.fromList [("c", (Connection 1 (BlockPort "b" "out") (ConclusionPort 1)))])
+    (M.fromList [("c", ConclusionBlock 0 1),("b", Block 1 "impI")])
+    (M.fromList [("c", (BlockPort "b" "out" --> BlockPort "c" "in"))])
 completeProof = Proof
-    (M.fromList [("b", Block 1 "impI")])
-    (M.fromList [ ("c1", (Connection 1 (BlockPort "b" "hyp") (BlockPort "b" "in")))
-                , ("c2", (Connection 2 (BlockPort "b" "out") (ConclusionPort 1)))])
+    (M.fromList [("c", ConclusionBlock 0 1),("b", Block 1 "impI")])
+    (M.fromList [ ("c1", (BlockPort "b" "hyp" --> BlockPort "b" "in"))
+                , ("c2", (BlockPort "b" "out" --> BlockPort "c" "in"))])
 
 -- Quickcheck tests
 

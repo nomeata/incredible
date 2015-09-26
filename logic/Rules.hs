@@ -1,9 +1,8 @@
 {-# LANGUAGE RecordWildCards #-}
 module Rules where
 
-import Types
-import Analysis
 import Data.Tagged
+import Data.Maybe
 --import Debug.Trace
 
 import qualified Data.Map as M
@@ -12,25 +11,28 @@ import qualified Data.Set as S
 
 import Unbound.LocallyNameless hiding (Infix)
 
-deriveRule :: Context -> Proof -> ScopedProof -> Rule
-deriveRule ctxt proof (sp@ScopedProof {..}) =
+import Types
+import Analysis
+
+deriveRule :: Context -> Task -> Proof -> ScopedProof -> Rule
+deriveRule ctxt task proof (sp@ScopedProof {..}) =
     Rule {ports = rulePorts, localVars = localVars, freeVars = freeVars}
   where
     portNames = map (Tagged . ("in"++) . show) [1::Integer ..]
 
-    connectedPorts = S.fromList $ concat
+    connectedPorts = S.fromList $ catMaybes $ concat
       [ [connFrom c, connTo c] | (_, c) <- M.toList $ connections proof ]
 
     openPorts = S.toList $ S.fromList $
       [ (bKey, pKey)
       | (bKey, block) <- M.toList $ blocks proof
-      , let rule = block2Rule ctxt block
+      , let rule = block2Rule ctxt task block
       , (pKey, _) <- M.toList (ports rule)
       , BlockPort bKey pKey `S.notMember` connectedPorts
       ] ++
       [ (bKey, pKey)
       | (_, (Connection _ from to)) <- M.toList $ connections proof
-      , (NoPort, BlockPort bKey pKey) <- [(from, to), (to, from)] ]
+      , (Nothing, Just (BlockPort bKey pKey)) <- [(from, to), (to, from)] ]
 
     surfaceBlocks :: S.Set (Key Block)
     surfaceBlocks = S.fromList $ map fst openPorts
@@ -38,7 +40,7 @@ deriveRule ctxt proof (sp@ScopedProof {..}) =
     relabeledPorts = concat
       [ ports
       | bKey <- S.toList surfaceBlocks
-      , let ports = relabelPorts sp bKey (block2Rule ctxt $ blocks proof M.! bKey) (map snd $ filter (\(a, _) -> a == bKey) openPorts) ]
+      , let ports = relabelPorts sp bKey (block2Rule ctxt task $ blocks proof M.! bKey) (map snd $ filter (\(a, _) -> a == bKey) openPorts) ]
 
     allVars :: S.Set Var
     allVars = S.fromList $ fv (map portProp relabeledPorts)
