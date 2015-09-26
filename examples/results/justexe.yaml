@@ -1,5 +1,36 @@
+portLabels:
+  b1:
+    in2: Q₁
+    in1: ∃x.P₁(x)
+    out: Q₁
+    hyp: P₁(c₁)
 cycles: []
-connectionLabels:
+rule:
+  free:
+  - P1
+  - Q1
+  local:
+  - c1
+  ports:
+    in3:
+      proposition: Q₁
+      type: assumption
+      scoped:
+      - c1
+    in2:
+      proposition: ∃x.P₁(x)
+      type: assumption
+      scoped: []
+    in4:
+      proposition: Q₁
+      type: conclusion
+      scoped: []
+    in1:
+      consumedBy: in2
+      proposition: P₁(c₁)
+      type: local hypothesis
+      scoped: []
 escapedHypotheses: []
+connectionStatus: {}
 unconnectedGoals: []
 qed: true

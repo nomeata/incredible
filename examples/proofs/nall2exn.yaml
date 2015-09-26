@@ -1,4 +1,10 @@
 blocks:
+  a:
+    assumption: 1
+    number: 13
+  c:
+    conclusion: 1
+    number: 14
   afe0bc87-2ea1-4961-a798-55c82f858716:
     rule: impE
     number: 1
@@ -39,7 +45,8 @@ connections:
   191c645b-b86d-4779-bd99-3f76cc233a81:
     sortKey: 0
     to:
-      conclusion: 1
+      block: c
+      port: in
     from:
       block: c30655a8-5537-48a9-8f6d-3b7b147c39f4
       port: out
@@ -153,5 +160,6 @@ connections:
       block: b10ef60a-5e41-4fab-b92a-48192b690095
       port: in1
     from:
-      assumption: 1
+      block: a
+      port: out
 task: nall2exn

@@ -1,30 +1,38 @@
+portLabels:
+  ef29c782-c9d6-42aa-a603-1161da2a7e61:
+    out2: P(c₅)
+    in1: ∀x.P(x)
+  523926cf-6951-4042-8862-f02fa6981eac:
+    in2: P(c₅)
+    in1: P(c₅)→⊥
+    out: ⊥
+  a:
+    out: ∃x.P(x)→⊥
+  f4ba46ae-7a55-40cf-afa2-019b45391cdd:
+    in: ⊥
+    out: ⊥
+  1ce4002a-8e8b-429c-9ee0-7cc002532298:
+    in: ⊥
+    out: (∀x.P(x))→⊥
+    hyp: ∀x.P(x)
+  c:
+    in: (∀x.P(x))→⊥
+  2404bdaa-1c2d-4283-9005-69f3d8c67920:
+    in2: ⊥
+    in1: ∃x.P(x)→⊥
+    out: ⊥
+    hyp: P(c₅)→⊥
 cycles: []
-connectionLabels:
-  d0ae041d-7605-45b5-a0bc-9a263d1f6cd6:
-    prop: P(c₅)
-    type: ok
-  2d7dc28e-ce45-4dd0-acf1-56d37238a378:
-    prop: ⊥
-    type: ok
-  90f26c5b-d8fd-4b5b-bd45-1ce06f265147:
-    prop: ⊥
-    type: ok
-  9c1ab767-4585-45b7-be9c-36fa5906744b:
-    prop: (∀x.P(x))→⊥
-    type: ok
-  1e757bee-f07d-41cd-8256-fd0adf099ff8:
-    prop: ∀x.P(x)
-    type: ok
-  e8b9c01e-5f08-4240-8c88-acd5d84b0b46:
-    prop: ⊥
-    type: ok
-  fdfdfd0c-94cd-4c6d-ba82-a7948c50f657:
-    prop: ∃x.P(x)→⊥
-    type: ok
-  e3c92d34-70e9-43eb-9688-22dc5f7951f2:
-    prop: P(c₅)→⊥
-    type: ok
 rule: null
 escapedHypotheses: []
+connectionStatus:
+  d0ae041d-7605-45b5-a0bc-9a263d1f6cd6: solved
+  2d7dc28e-ce45-4dd0-acf1-56d37238a378: solved
+  90f26c5b-d8fd-4b5b-bd45-1ce06f265147: solved
+  9c1ab767-4585-45b7-be9c-36fa5906744b: solved
+  1e757bee-f07d-41cd-8256-fd0adf099ff8: solved
+  e8b9c01e-5f08-4240-8c88-acd5d84b0b46: solved
+  fdfdfd0c-94cd-4c6d-ba82-a7948c50f657: solved
+  e3c92d34-70e9-43eb-9688-22dc5f7951f2: solved
 unconnectedGoals: []
 qed: true

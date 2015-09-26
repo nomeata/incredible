@@ -1,5 +1,11 @@
 task: grandfather
 blocks:
+  a:
+    assumption: 1
+    number: 22
+  c:
+    conclusion: 1
+    number: 23
   de3d8a72-a3b9-47b9-b106-1f9886e9f6dd:
     rule: TND
     number: 1
@@ -118,7 +124,8 @@ connections:
       block: 610acfc9-05d8-40c3-ab0f-6e6e064666fe
       port: in1
     from:
-      assumption: 1
+      block: a
+      port: out
   fda7bde3-2cdd-46fa-85c7-c99ff8794a04:
     sortKey: 0
     to:
@@ -130,7 +137,8 @@ connections:
   4abeed61-3c48-43e0-8c65-593cc5d2fc42:
     sortKey: 0
     to:
-      conclusion: 1
+      block: c
+      port: in
     from:
       block: 2982d6d5-b736-47b7-b963-98c7b6785b3d
       port: out
@@ -260,7 +268,8 @@ connections:
       block: ca806f34-a54a-4451-8c85-6852029e7a22
       port: in1
     from:
-      assumption: 1
+      block: a
+      port: out
   9e910993-4b0f-4468-9b0b-4ec79144f3aa:
     sortKey: 0
     to:
@@ -291,7 +300,8 @@ connections:
       block: 402ce222-b499-48e4-b0d9-4925336b65f6
       port: in1
     from:
-      assumption: 1
+      block: a
+      port: out
   6895cc7d-8f60-4f12-8610-6fca6629ea84:
     sortKey: 0
     to:
