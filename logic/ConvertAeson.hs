@@ -13,6 +13,7 @@ import Data.List
 import Types
 import TaggedMap ()
 import Propositions
+import Unification (UnificationResult(..))
 
 -- Conversion from/to aeson value
 
@@ -88,6 +89,8 @@ instance FromJSON Block where
   parseJSON = withObject "block" $ \o ->
     if | "rule"       `HM.member` o -> Block <$> o.: "number" <*> o .: "rule"
        | "annotation" `HM.member` o -> AnnotationBlock <$> o.: "number" <*> o .: "annotation"
+       | "assumption" `HM.member` o -> AssumptionBlock <$> o.: "number" <*> o .: "assumption"
+       | "conclusion" `HM.member` o -> ConclusionBlock <$> o.: "number" <*> o .: "conclusion"
 
 
 instance FromJSON Connection where
@@ -96,10 +99,7 @@ instance FromJSON Connection where
 
 instance FromJSON PortSpec where
  parseJSON = withObject "port spec" $ \o ->
-    if | "assumption" `HM.member` o -> AssumptionPort <$> o .: "assumption"
-       | "conclusion" `HM.member` o -> ConclusionPort <$> o .: "conclusion"
-       | "block"      `HM.member` o -> BlockPort <$> o .: "block" <*> o .: "port"
-       | otherwise                  -> return NoPort
+    BlockPort <$> o .: "block" <*> o .: "port"
 
 instance FromJSON Proof where
   parseJSON = withObject "proof" $ \o -> do
@@ -117,7 +117,7 @@ instance ToJSON Port where
         (case portType of
             PTAssumption ->         [ "type" .= ("assumption" :: T.Text) ]
             PTConclusion ->         [ "type" .= ("conclusion" :: T.Text) ]
-            (PTLocalHyp portKey) -> [ "type" .= ("conclusion" :: T.Text)
+            (PTLocalHyp portKey) -> [ "type" .= ("local hypothesis" :: T.Text)
                                     , "consumedBy" .= toJSON portKey]
         ) ++
         [ "proposition" .= toJSON portProp
@@ -125,33 +125,35 @@ instance ToJSON Port where
         ]
 
 instance ToJSON Rule where
-    toJSON (Rule free local ports) = object
-        [ "free"  .= toVarList (free \\ local)
-        , "local" .= toVarList local
+    toJSON (Rule {..}) = object
+        [ "local" .= toVarList (localVars \\ freeVars)
+        , "free"  .= toVarList freeVars
         , "ports" .= ports
         ]
 
 instance ToJSON Analysis where
     toJSON (Analysis {..}) = object
-        [ "connectionLabels" .= connectionLabels
-        , "unconnectedGoals" .= unconnectedGoals
-        , "cycles" .= cycles
+        [ "connectionStatus"  .= connectionStatus
+        , "portLabels"        .= portLabels
+        , "unconnectedGoals"  .= unconnectedGoals
+        , "cycles"            .= cycles
         , "escapedHypotheses" .= escapedHypotheses
-        , "qed" .= qed
+        , "rule"              .= rule
+        , "qed"               .= qed
         ]
 
-instance ToJSON ConnLabel where
-    toJSON Unconnected = object
-        [ "type" .= ("unconnected" :: T.Text) ]
-    toJSON (Ok prop) = object
-        [ "prop"   .= prop, "type" .= ("ok" :: T.Text) ]
-    toJSON (Mismatch prop1 prop2) = object
-        [ "propIn" .= prop1, "propOut" .= prop2, "type" .= ("mismatch"::T.Text) ]
-    toJSON (DunnoLabel prop1 prop2) = object
-        [ "propIn" .= prop1, "propOut" .= prop2, "type" .= ("dunno"::T.Text) ]
+instance ToJSON a => ToJSON (M.Map PortSpec a) where
+    toJSON = toJSON . M.fromListWith M.union . map go . M.toList 
+      where
+        go (BlockPort bk pk, a) = (bk, M.singleton pk a)
+
+instance ToJSON UnificationResult where
+    toJSON = toJSON . go
+      where
+        go :: UnificationResult -> T.Text
+        go Failed = "failed"
+        go Dunno  = "dunno"
+        go Solved = "solved"
 
 instance ToJSON PortSpec where
-    toJSON NoPort             = object []
-    toJSON (AssumptionPort n) = object [ "assumption" .= n ]
-    toJSON (ConclusionPort n) = object [ "conclusion" .= n ]
     toJSON (BlockPort b n)    = object [ "block" .= b, "port" .= n ]

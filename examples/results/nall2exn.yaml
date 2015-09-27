@@ -1,50 +1,74 @@
+portLabels:
+  afe0bc87-2ea1-4961-a798-55c82f858716:
+    in2: ∃x.P(x)→⊥
+    in1: (∃x.P(x)→⊥)→⊥
+    out: ⊥
+  2544562f-b575-4326-b3c2-bbdd9a16414d:
+    hyp1: P(c₇)
+    in: P(c₇)∨(P(c₇)→⊥)
+    in2: P(c₇)
+    hyp2: P(c₇)→⊥
+    in1: P(c₇)
+    out: P(c₇)
+  836daff8-fc44-4f1d-9719-5a4d74533d3f:
+    out: (∃x.P(x)→⊥)∨((∃x.P(x)→⊥)→⊥)
+  fb8af3ce-aba5-4491-a0ee-1e5b7a7f2de2:
+    out: P(c₇)∨(P(c₇)→⊥)
+  d5314483-d2a8-436a-9c1a-b3b0e099bd8f:
+    hyp1: A₅
+    in: A₅∨B₅
+    in2: P₅
+    hyp2: B₅
+    in1: P₅
+    out: P₅
+  f512c3b6-36e4-4480-8a5e-33908d6d7fe9:
+    in: ⊥
+    out: P₆
+  b48a7572-f5e5-4aac-a66a-f0d2e7ae18f3:
+    out2: ∀x.P(x)
+    in1: P(c₇)
+  ed38397e-48ee-4ad8-aff9-1c1350f244a1:
+    out2: ∃x.P(x)→⊥
+    in1: P(c₇)→⊥
+  f372a945-4112-4994-b683-7e03c4998f97:
+    in: ⊥
+    out: P(c₇)
+  a:
+    out: (∀x.P(x))→⊥
+  b10ef60a-5e41-4fab-b92a-48192b690095:
+    in2: ∀x.P(x)
+    in1: (∀x.P(x))→⊥
+    out: ⊥
+  162291d9-d33e-41db-8872-84c42a0c6764:
+    in: ⊥
+    out: ∃x.P(x)→⊥
+  c:
+    in: ∃x.P(x)→⊥
+  c30655a8-5537-48a9-8f6d-3b7b147c39f4:
+    hyp1: ∃x.P(x)→⊥
+    in: (∃x.P(x)→⊥)∨((∃x.P(x)→⊥)→⊥)
+    in2: ∃x.P(x)→⊥
+    hyp2: (∃x.P(x)→⊥)→⊥
+    in1: ∃x.P(x)→⊥
+    out: ∃x.P(x)→⊥
 cycles: []
-connectionLabels:
-  191c645b-b86d-4779-bd99-3f76cc233a81:
-    prop: ∃x.P(x)→⊥
-    type: ok
-  239cd049-236f-4381-bb75-01fc001a0715:
-    prop: P(c₇)
-    type: ok
-  af8bf578-3982-4855-aaa2-4ddc355f5d85:
-    prop: P(c₇)∨(P(c₇)→⊥)
-    type: ok
-  ebbb1d3b-c8fd-41ae-976d-3a1b476cb562:
-    prop: P(c₇)
-    type: ok
-  49cfb84f-9f67-4063-8ecf-81b15c28afb7:
-    prop: ⊥
-    type: ok
-  52b9c8e1-d807-4530-93f8-2139a6a30810:
-    prop: ∀x.P(x)
-    type: ok
-  42636562-25db-4150-b250-0803ece82322:
-    prop: ∃x.P(x)→⊥
-    type: ok
-  763b7303-d3ea-4794-a3af-bccee85d07b5:
-    prop: ⊥
-    type: ok
-  87075f94-fd73-4b67-a22c-825bda645d15:
-    prop: P(c₇)→⊥
-    type: ok
-  d704fa22-f2a4-4113-a130-c6f0b67d9828:
-    prop: ∃x.P(x)→⊥
-    type: ok
-  251559cd-3068-4377-a351-9a2351d128b1:
-    prop: (∃x.P(x)→⊥)∨((∃x.P(x)→⊥)→⊥)
-    type: ok
-  952caeb2-e6d3-4670-9a15-f90d0050ce32:
-    prop: P(c₇)
-    type: ok
-  dae4c9ee-b890-4f4e-b588-8e5d8cf9d8e0:
-    prop: (∃x.P(x)→⊥)→⊥
-    type: ok
-  da557bbe-d09b-4dd3-a5d2-4737f4815fa5:
-    prop: ∃x.P(x)→⊥
-    type: ok
-  60e8086c-f1a1-4cd4-9780-80faaff2f399:
-    prop: (∀x.P(x))→⊥
-    type: ok
+rule: null
 escapedHypotheses: []
+connectionStatus:
+  191c645b-b86d-4779-bd99-3f76cc233a81: solved
+  239cd049-236f-4381-bb75-01fc001a0715: solved
+  af8bf578-3982-4855-aaa2-4ddc355f5d85: solved
+  ebbb1d3b-c8fd-41ae-976d-3a1b476cb562: solved
+  49cfb84f-9f67-4063-8ecf-81b15c28afb7: solved
+  52b9c8e1-d807-4530-93f8-2139a6a30810: solved
+  42636562-25db-4150-b250-0803ece82322: solved
+  763b7303-d3ea-4794-a3af-bccee85d07b5: solved
+  87075f94-fd73-4b67-a22c-825bda645d15: solved
+  d704fa22-f2a4-4113-a130-c6f0b67d9828: solved
+  251559cd-3068-4377-a351-9a2351d128b1: solved
+  952caeb2-e6d3-4670-9a15-f90d0050ce32: solved
+  dae4c9ee-b890-4f4e-b588-8e5d8cf9d8e0: solved
+  da557bbe-d09b-4dd3-a5d2-4737f4815fa5: solved
+  60e8086c-f1a1-4cd4-9780-80faaff2f399: solved
 unconnectedGoals: []
 qed: true

@@ -1,32 +1,49 @@
+portLabels:
+  3e1b1432-a31a-40a3-bd07-0eef0542e3ef:
+    out: P(c₇)∨(P(c₇)→⊥)
+  a3d713f9-971a-4c30-b147-59645cb3b857:
+    hyp1: P(c₇)
+    in: P(c₇)∨(P(c₇)→⊥)
+    in2: P(c₇)→⊥
+    hyp2: P(c₇)→⊥
+    in1: P(c₇)→⊥
+    out: P(c₇)→⊥
+  0c6ae085-dafa-4151-8209-b38cfbbb867a:
+    in2: ∃x.P(x)
+    in1: (∃x.P(x))→⊥
+    out: ⊥
+  e601a863-e50c-4b7f-a696-a3dbac4df9a7:
+    in2: A₄
+    in1: A₄→B₄
+    out: B₄
+  9036d3fe-4a1d-4611-a22a-979bb343127e:
+    in: ⊥
+    out: P(c₇)→⊥
+  a:
+    out: (∃x.P(x))→⊥
+  ca9cf7b5-4e9e-4f6b-b98c-ad1e239ff984:
+    in: ⊥
+    out: P₆
+  b9ece1ca-f53b-435b-890c-58ed8b924d3b:
+    out2: ∀x.P(x)→⊥
+    in1: P(c₇)→⊥
+  bce295ba-3439-40ae-b5d3-4804538fae6c:
+    out2: ∃x.P(x)
+    in1: P(c₇)
+  c:
+    in: ∀x.P(x)→⊥
 cycles: []
-connectionLabels:
-  7549ecdd-61ab-4ea1-bec6-abcb81226efd:
-    prop: P(c₇)∨(P(c₇)→⊥)
-    type: ok
-  c5e0e827-e6e4-401d-909a-6ef132642bc9:
-    prop: P(c₇)
-    type: ok
-  8189656f-feb2-4175-8796-0197bb897548:
-    prop: ∃x.P(x)
-    type: ok
-  f62cc449-2ee8-4092-8eb3-4c06951c2b6d:
-    prop: P(c₇)→⊥
-    type: ok
-  50f945a2-a202-4359-ae7e-d8a3047def81:
-    prop: P(c₇)→⊥
-    type: ok
-  b271d71d-0b03-459f-a9ba-a126eb992a60:
-    prop: P(c₇)→⊥
-    type: ok
-  a4a39bb0-fde7-405c-8c47-0797aa5582fa:
-    prop: (∃x.P(x))→⊥
-    type: ok
-  7c7776cb-7a6f-4b98-bf26-51708071c379:
-    prop: ⊥
-    type: ok
-  3e4b440f-2f3f-4d36-89b8-8e0cec63184e:
-    prop: ∀x.P(x)→⊥
-    type: ok
+rule: null
 escapedHypotheses: []
+connectionStatus:
+  7549ecdd-61ab-4ea1-bec6-abcb81226efd: solved
+  c5e0e827-e6e4-401d-909a-6ef132642bc9: solved
+  8189656f-feb2-4175-8796-0197bb897548: solved
+  f62cc449-2ee8-4092-8eb3-4c06951c2b6d: solved
+  50f945a2-a202-4359-ae7e-d8a3047def81: solved
+  b271d71d-0b03-459f-a9ba-a126eb992a60: solved
+  a4a39bb0-fde7-405c-8c47-0797aa5582fa: solved
+  7c7776cb-7a6f-4b98-bf26-51708071c379: solved
+  3e4b440f-2f3f-4d36-89b8-8e0cec63184e: solved
 unconnectedGoals: []
 qed: true

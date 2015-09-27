@@ -1,4 +1,10 @@
 blocks:
+  a:
+    assumption: 1
+    number: 10
+  c:
+    conclusion: 1
+    number: 11
   3e1b1432-a31a-40a3-bd07-0eef0542e3ef:
     rule: TND
     number: 1
@@ -78,7 +84,8 @@ connections:
       block: 0c6ae085-dafa-4151-8209-b38cfbbb867a
       port: in1
     from:
-      assumption: 1
+      block: a
+      port: out
   7c7776cb-7a6f-4b98-bf26-51708071c379:
     sortKey: 0
     to:
@@ -90,7 +97,8 @@ connections:
   3e4b440f-2f3f-4d36-89b8-8e0cec63184e:
     sortKey: 0
     to:
-      conclusion: 1
+      block: c
+      port: in
     from:
       block: b9ece1ca-f53b-435b-890c-58ed8b924d3b
       port: out2

@@ -1,0 +1,5 @@
+task: empty
+blocks:
+  b1:
+    rule: exE
+    number: 1

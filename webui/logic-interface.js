@@ -4,17 +4,23 @@ function buildProof(graph) {
   proof.blocks = {};
   graph.getElements().map(
     function (e, i) {
-      if (e.get('assumption') || e.get('conclusion') || e.get('prototypeElement')) {
+      if (e.get('prototypeElement')) {
         return;
       }
       var block = {};
       var rule, annotation;
       rule = e.get('rule');
       annotation = e.get('annotation');
+      assumption = e.get('assumption');
+      conclusion = e.get('conclusion');
       if (rule) {
         block.rule = rule.id;
       } else if (annotation) {
         block.annotation = annotation;
+      } else if (assumption) {
+        block.assumption = assumption;
+      } else if (conclusion) {
+        block.conclusion = conclusion;
       } else {
         throw new Error("buildProof(): Unknown block type");
       }
@@ -47,14 +53,8 @@ function makeConnEnd(graph, x) {
   if (!c) {
     return ret;
   }
-  if (c.get('assumption')) {
-    ret.assumption = c.get('assumption');
-  } else if (c.get('conclusion')) {
-    ret.conclusion = c.get('conclusion');
-  } else {
-    ret.block = x.id;
-    ret.port = x.port;
-  }
+  ret.block = x.id;
+  ret.port = x.port;
   return ret;
 }
 
@@ -87,27 +87,27 @@ function processGraph() {
     // mock
     // analysis.rule = logic.rules[0];
 
-    if ($("#inferredrule").is(':visible')) {
-      if (analysis.rule) {
-        $("#inferredrule svg").each(function (n, el) {
-          $(el).empty();
-          var g = V("<g/>");
-          var vel = V(el).append(g);
-          var blockDesc = ruleToBlockDesc(analysis.rule);
-          blockDesc.canRemove = false;
-          blockDesc.isPrototype = true;
-          blockDesc.label = '☃';
-          renderBlockDescToSVG(g, blockDesc, false);
-          gBB = g.bbox(false);
-          g.translate($(el).width()/2, gBB.height/2 + 5);
-          $(el).height(gBB.height + 10);
-        });
-      } else {
-        $("#inferredrule svg").each(function (n, el) {
-          $(el).empty();
-          V(el).append(V("<text fill='black'/>").text(i18n.t('nothing')));
-        });
-      }
+    if (analysis.rule) {
+      $("#inferredrule").slideDown();
+      $("#inferredrule svg").each(function (n, el) {
+        $(el).empty();
+        var g = V("<g/>");
+        var vel = V(el).append(g);
+        var blockDesc = ruleToBlockDesc(analysis.rule);
+        blockDesc.canRemove = false;
+        blockDesc.isPrototype = true;
+        blockDesc.desc = {label: '☃'};
+        BlockDescRenderer(g, blockDesc, false).renderToSVG();
+        gBB = g.bbox(false);
+        g.translate($(el).width()/2, -gBB.y + 5);
+        vel.attr({'width': $("#inferredrule").width(), 'height': gBB.height + 10 });
+      });
+    } else {
+      $("#inferredrule").slideUp();
+      $("#inferredrule svg").each(function (n, el) {
+        $(el).empty();
+        // V(el).append(V("<text fill='black'/>").text(i18n.t('nothing')));
+      });
     }
 
     // Reset everything
@@ -159,16 +159,28 @@ function processGraph() {
       }
     });
 
-    for (var connId in analysis.connectionLabels) {
-      if (analysis.connectionLabels.hasOwnProperty(connId)) {
-        var lbl = analysis.connectionLabels[connId];
+    for (var connId in analysis.connectionStatus) {
+      if (analysis.connectionStatus.hasOwnProperty(connId)) {
+        var stat = analysis.connectionStatus[connId];
         var conn = graph.getCell(connId);
         conn.attr({'.label text': {'font-size': '14px'}});
 
-        if (lbl.type == "mismatch" || lbl.type == "dunno") {
+        var propFrom;
+        var x;
+        if (conn.get('source')) {
+          x = conn.get('source');
+          propFrom = analysis.portLabels[x.id][x.port];
+        }
+        var propTo;
+        if (conn.get('target')) {
+          x = conn.get('target');
+          propTo = analysis.portLabels[x.id][x.port];
+        }
+
+        if (stat == "failed" || stat == "dunno") {
           var symbol;
-          if (lbl.type == "mismatch")   {symbol = "☠";}
-          else if (lbl.type == "dunno") {symbol = "?";}
+          if (stat == "failed")   {symbol = "☠";}
+          else if (stat == "dunno") {symbol = "?";}
           else {throw Error("processGraph: Unknown connection label type");}
 
           // not very nice, see http://stackoverflow.com/questions/32010888
@@ -184,7 +196,7 @@ function processGraph() {
             position: f(0.1),
             attrs: {
               text: {
-                text: lbl.propIn
+                text: propFrom
               }
             }
           },
@@ -200,24 +212,25 @@ function processGraph() {
               position: f(0.9),
               attrs: {
                 text: {
-                  text: lbl.propOut
+                  text: propTo
                 }
               }
             }
           ]);
-        } else if (lbl.type == "ok") {
+        } else if (stat == "solved") {
           conn.set('labels', [{
             position: 0.5,
             attrs: {
               text: {
-                text: lbl.prop
+                text: propFrom || propTo
               }
             }
           }]);
-        } else if (lbl.type == "unconnected") {
+        } else if (stat == "unconnected") {
+          // Cannot happen
           conn.set('labels', []);
         } else {
-          throw new Error("processGraph(): Unknown connection label type");
+          throw new Error("processGraph(): Unknown connection status: " + stat);
         }
       }
     }

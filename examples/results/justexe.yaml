@@ -1,0 +1,12 @@
+portLabels:
+  b1:
+    in2: Q₁
+    in1: ∃x.P₁(x)
+    out: Q₁
+    hyp: P₁(c₁)
+cycles: []
+rule: null
+escapedHypotheses: []
+connectionStatus: {}
+unconnectedGoals: []
+qed: true
