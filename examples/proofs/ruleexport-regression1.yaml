@@ -1,0 +1,17 @@
+task: empty
+blocks:
+  e06f2b14-56cc-4e66-85cf-c835cb44c5ce:
+    rule: conjI
+    number: 2
+  db0953ed-21c6-4a26-be6c-470869917231:
+    rule: impI
+    number: 1
+connections:
+  4dab100f-7e52-43a1-abbd-df31afdd769f:
+    sortKey: 3
+    to:
+      block: e06f2b14-56cc-4e66-85cf-c835cb44c5ce
+      port: in2
+    from:
+      block: db0953ed-21c6-4a26-be6c-470869917231
+      port: hyp
