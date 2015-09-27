@@ -45,9 +45,14 @@ deriveRule ctxt task proof (sp@ScopedProof {..}) =
       | bKey <- S.toList surfaceBlocks
       , let ports = relabelPorts sp bKey (block2Rule ctxt task $ blocks proof M.! bKey) (map snd $ filter (\(a, _) -> a == bKey) openPorts) ]
 
-    isLocalHyp (Port (PTLocalHyp _) _ _) = True
-    isLocalHyp _ = False
-    hasLocalHyps = any isLocalHyp relabeledPorts
+    -- Temporary cut until the necessary code is in place to trace local
+    -- hyoptheses and their corresponding inputs to the actual relabelPorts
+    hasLocalHyps = not $ null
+        [ ()
+        | block <- M.elems $ blocks proof
+        , let rule = block2Rule ctxt task block
+        , Port  { portType = PTLocalHyp {} } <- M.elems $ ports rule
+        ]
 
     allVars :: S.Set Var
     allVars = S.fromList $ fv (map portProp relabeledPorts)
