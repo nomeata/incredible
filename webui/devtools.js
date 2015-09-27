@@ -79,6 +79,12 @@ $(function (){
   $("#closehelp").click(function(){
     $("#help").hide();
   });
+  $(document).mouseup(function (e){
+    var container = $("#help");
+    if (!container.is(e.target) && container.has(e.target).length === 0){
+        container.hide();
+    }
+  })
 
   $("#reset").click(function(){
     if (window.confirm(i18n.t("confirm-reset"))) {
