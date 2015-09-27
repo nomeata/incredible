@@ -14,7 +14,7 @@ function ruleToBlockDesc(rule) {
     return { id: i,
              proposition: v.proposition,
              type: v.type,
-             consumedBy: v.consumedBy, // may be undefined
+             consumedBy: v.consumedBy // may be undefined
            };
   }), 'id');
   var portsGroup = _.groupBy(portsList, "type");
@@ -65,7 +65,7 @@ function annotationToBlockDesc(proposition) {
    'conclusion': [{
      id: 'out',
      proposition: incredibleFormatTerm(proposition)
-    }],
+    }]
   };
 
   return {
@@ -360,7 +360,7 @@ blockrenderers.Schieblehre1.updateSizes = function() {
     innerWidthRight: 20,
     rightWidth: 10,
     leftHeight: 30,
-    rightHeight: 30,
+    rightHeight: 30
   };
 
   if (this.blockDesc.schieblehrewidth === undefined) {
@@ -515,7 +515,7 @@ blockrenderers.Schieblehre2.updateSizes = function () {
     innerWidthRight: 20,
     rightWidth: 10,
     leftHeight: 30,
-    rightHeight: 30,
+    rightHeight: 30
   };
 
   if (this.blockDesc.schieblehrewidth === undefined) {
