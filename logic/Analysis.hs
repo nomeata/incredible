@@ -81,13 +81,10 @@ prepare ctxt task proof = ScopedProof {..}
 
     scopedVarsAtPortSpec :: PortSpec -> [Var]
     scopedVarsAtPortSpec (BlockPort blockKey portKey) =
-        scopesOverBlock blockKey ++
-        [ v'
-        | (_, block) <- M.toList (blocks proof)
-        , let port = ports (block2Rule ctxt task block) ! portKey
-        , v <- portScopes port
-        , let v' = localize block v
-        ]
+        scopesOverBlock blockKey ++ map (localize block) (portScopes port)
+      where
+        block = blocks proof ! blockKey
+        port = ports (block2Rule ctxt task block) ! portKey
 
     spScopedVars :: M.Map PortSpec [Var]
     spScopedVars = M.fromList $ map (id &&& scopedVarsAtPortSpec) allPortSpecs
