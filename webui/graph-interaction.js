@@ -35,13 +35,9 @@ function create_paper() {
 
 
 function rescale_paper() {
-  var paper_w = $("#paper").innerWidth() - 5;
-  var paper_h = $("#paper").innerHeight() - 5;
-
-  var bb = paper.getContentBBox();
-
-  var w = Math.max(paper_w, bb.x + bb.width);
-  var h = Math.max(paper_h, bb.y + bb.height);
+  paper.setDimensions(1, 1);
+  var w = $("#paper").innerWidth() - 5;
+  var h = $("#paper").innerHeight() - 5;
   paper.setDimensions(w, h);
 }
 
@@ -61,6 +57,27 @@ $(function() {
       cell.remove();
       return;
     }
+  });
+
+  paper.on('blank:pointerdown', function (e, x, y) {
+    if (e.shiftKey) { return; }
+
+    var pos0 = {x: e.pageX, y: e.pageY};
+
+    document.onmousemove = function(e){
+      var pos1 = {x: e.pageX, y: e.pageY};
+      paper.setOrigin(
+        paper.options.origin.x + pos1.x - pos0.x,
+        paper.options.origin.y + pos1.y - pos0.y
+      );
+      pos0 = pos1;
+    };
+
+    document.onmouseup = function(e){
+      document.onmousemove = null;
+      document.onmouseup = null;
+    };
+    e.stopPropagation();
   });
 
   paper.on('blank:pointerclick', function (evt, x, y) {
