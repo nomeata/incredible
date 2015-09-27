@@ -12,7 +12,7 @@ $.each(examples.graphs, function (name, l) {
 function selectNoTask() {
   $("#taskselect").val("");
   $("#task").hide();
-  $("#inferredrule").show();
+  selectLogic('predicate');
   saveTask();
   task = { };
   task_desc = undefined;
