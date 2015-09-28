@@ -48,11 +48,11 @@ function buildProof(graph) {
 }
 
 function makeConnEnd(graph, x) {
-  var ret = {};
   var c = graph.getCell(x.id);
   if (!c) {
-    return ret;
+    return null;
   }
+  var ret = {};
   ret.block = x.id;
   ret.port = x.port;
   return ret;
@@ -115,7 +115,9 @@ function processGraph() {
       el.set('brokenPorts',{});
     });
     $.each(graph.getLinks(), function (i, conn) {
-      conn.attr({'.connection': {class: 'connection'}});
+      conn
+        .attr({'.connection': {class: 'connection'}})
+        .set('labels', []);
     });
 
     // We set this simly for all elements, even if only
@@ -159,81 +161,89 @@ function processGraph() {
       }
     });
 
-    for (var connId in analysis.connectionStatus) {
-      if (analysis.connectionStatus.hasOwnProperty(connId)) {
-        var stat = analysis.connectionStatus[connId];
-        var conn = graph.getCell(connId);
-        conn.attr({'.label text': {'font-size': '14px'}});
-
-        var propFrom;
-        var x;
-        if (conn.get('source')) {
-          x = conn.get('source');
+    $.each(graph.getLinks(), function (i, conn) {
+      var propFrom;
+      var x;
+      if (conn.get('source')) {
+        x = conn.get('source');
+        if (x.id) {
           propFrom = analysis.portLabels[x.id][x.port];
         }
-        var propTo;
-        if (conn.get('target')) {
-          x = conn.get('target');
+      }
+      var propTo;
+      if (conn.get('target')) {
+        x = conn.get('target');
+        if (x.id) {
           propTo = analysis.portLabels[x.id][x.port];
         }
+      }
 
-        if (stat == "failed" || stat == "dunno") {
-          var symbol;
-          if (stat == "failed")   {symbol = "☠";}
-          else if (stat == "dunno") {symbol = "?";}
-          else {throw Error("processGraph: Unknown connection label type");}
+      conn.attr({'.label text': {'font-size': '14px'}});
 
-          // not very nice, see http://stackoverflow.com/questions/32010888
-          conn.attr({'.connection': {class: 'connection error'}});
+      var stat = analysis.connectionStatus[conn.id] || "unconnected";
 
-          if (isReversed(conn)) {
-            f = function (pos) {return 1-pos;};
-          } else {
-            f = function (pos) {return pos;};
+      if (stat == "failed" || stat == "dunno") {
+        var symbol;
+        if (stat == "failed")   {symbol = "☠";}
+        else if (stat == "dunno") {symbol = "?";}
+        else {throw Error("processGraph: Unknown connection label type");}
+
+        // not very nice, see http://stackoverflow.com/questions/32010888
+        conn.attr({'.connection': {class: 'connection error'}});
+
+        if (isReversed(conn)) {
+          f = function (pos) {return 1-pos;};
+        } else {
+          f = function (pos) {return pos;};
+        }
+
+        conn.set('labels', [{
+          position: f(0.1),
+          attrs: {
+            text: {
+              text: propFrom
+            }
           }
-
-          conn.set('labels', [{
-            position: f(0.1),
+        },
+          {
+            position: f(0.5),
             attrs: {
               text: {
-                text: propFrom
+                text: symbol
               }
             }
           },
-            {
-              position: f(0.5),
-              attrs: {
-                text: {
-                  text: symbol
-                }
-              }
-            },
-            {
-              position: f(0.9),
-              attrs: {
-                text: {
-                  text: propTo
-                }
-              }
-            }
-          ]);
-        } else if (stat == "solved") {
-          conn.set('labels', [{
-            position: 0.5,
+          {
+            position: f(0.9),
             attrs: {
               text: {
-                text: propFrom || propTo
+                text: propTo
               }
             }
-          }]);
-        } else if (stat == "unconnected") {
-          // Cannot happen
-          conn.set('labels', []);
-        } else {
-          throw new Error("processGraph(): Unknown connection status: " + stat);
-        }
+          }
+        ]);
+      } else if (stat == "solved") {
+        conn.set('labels', [{
+          position: 0.5,
+          attrs: {
+            text: {
+              text: propFrom
+            }
+          }
+        }]);
+      } else if (stat == "unconnected") {
+        conn.set('labels', [{
+          position: 0.5,
+          attrs: {
+            text: {
+              text: propFrom || propTo
+            }
+          }
+        }]);
+      } else {
+        throw new Error("processGraph(): Unknown connection status: " + stat);
       }
-    }
+    });
   }
 }
 function isReversed(conn) {
