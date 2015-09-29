@@ -196,6 +196,11 @@ $(function() {
     saveAs(new Blob([svg], {type:"application/svg+xml"}), "incredible-proof.svg");
   });
 
+  $("#paper").on('wheel', function (evt) {
+    var up = evt.originalEvent.deltaY < 0;
+    paper_scale(up ? 1.1 : 1/1.1, evt.originalEvent.offsetX, evt.originalEvent.offsetY);
+  });
+
   $("#zoom-in").on('click', function (){
     paper_scale(1.2, paper.options.width / 2, paper.options.height / 2);
   });
