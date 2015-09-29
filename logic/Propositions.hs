@@ -128,7 +128,7 @@ termP :: Parser Proposition
 termP =  buildExpressionParser table atomP <?> "proposition"
 
 table :: OperatorTable String () Identity Proposition
-table = [ [ binary "↑" [] AssocLeft
+table = [ [ binary "↑" ["^"] AssocLeft
           ]
         , [ binary "∧" ["&"] AssocLeft
           ]
