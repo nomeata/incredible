@@ -225,15 +225,18 @@ $(function() {
   $("#zoom-fit").on('click', function (){
     var padding = 15;
     var cbb = paper.getContentBBox();
-    var scale = V(paper.viewport).scale().sx;
-    scale *= Math.min((paper.options.width - padding) / cbb.width,
-                     (paper.options.height - padding) / cbb.height);
-    paper.scale(scale, scale);
+    if (cbb.width != 0 && cbb.heigh != 0) {
+      // Only rescale and pan if we have content.
+      var scale = V(paper.viewport).scale().sx;
+      scale *= Math.min((paper.options.width - padding) / cbb.width,
+                       (paper.options.height - padding) / cbb.height);
+      paper.scale(scale, scale);
 
-    cbb = paper.getContentBBox();
-    var ox = paper.options.origin.x + (paper.options.width - cbb.width) / 2 - cbb.x;
-    var oy = paper.options.origin.y + (paper.options.height - cbb.height) / 2 - cbb.y;
-    paper.setOrigin(ox, oy);
+      cbb = paper.getContentBBox();
+      var ox = paper.options.origin.x + (paper.options.width - cbb.width) / 2 - cbb.x;
+      var oy = paper.options.origin.y + (paper.options.height - cbb.height) / 2 - cbb.y;
+      paper.setOrigin(ox, oy);
+    }
   });
 
 });
