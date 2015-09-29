@@ -37,6 +37,8 @@ function setupGraph(graph, task) {
 
   setupPrototypeElements();
 
+  paper.scale(1.0);
+  paper.setOrigin(0,0);
   rescale_paper();
 }
 
