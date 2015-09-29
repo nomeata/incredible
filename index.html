@@ -94,20 +94,20 @@
 		opacity:0.5;
 	    }
 
-            #toolbar {
+            .toolbar {
 		position: absolute;
 		top:0px;
 		right:0px;
 		padding:1em;
 		display: flex;
-		width:100px;
 		justify-content: flex-end;
 	    }
-            #toolbar button {
+            .toolbar button {
+		width:40px;
 		flex-grow:1;
 		flex-basis:0;
 	    }
-            #toolbar button#showhelp {
+            .toolbar button#showhelp {
 		background: blue;
 	    }
 	    #inferredrule {
@@ -191,13 +191,20 @@
 		color: gray;
 	    }
 
-            #paper {
+	    #mainpane {
 		position: absolute;
 		top:100px;
 		left:300px;
 		right:0px;
 		bottom:35px;
 		overflow: auto;
+	    }
+            #paper {
+		position: absolute;
+		top:0px;
+		left:0px;
+		right:0px;
+		bottom:0px;
             }
 
 	    #dialog, #help {
@@ -288,13 +295,6 @@
     <body>
 
     <div id="leftpane">
-      <div id="controls">
-        <h3>Zoom:</h3>
-        <button class="iconic" id="zoom-in">&nbsp;+&nbsp;</button>
-        <button class="iconic" id="zoom-out">&nbsp;−&nbsp;</button>
-        <button class="iconic" id="zoom-orig">1:1</button>
-        <button class="iconic" id="zoom-fit">Fit</button>
-      </div>
       <div id="task">
 	<h3 data-i18n>Current task:</h3>
         <div id="taskwrap"></div>
@@ -326,13 +326,21 @@
     </div>
 
 
-    <div id="paper"></div>
+    <div id="mainpane">
+      <div id="paper"></div>
+      <div class="toolbar">
+        <button class="iconic" id="zoom-in">+</button>
+        <button class="iconic" id="zoom-out">−</button>
+        <button class="iconic" id="zoom-orig">1:1</button>
+        <button class="iconic" id="zoom-fit">Fit</button>
+	<button class="iconic" id="savesvg" data-i18n="[title]Save proof as SVG image.">⤓</button>
+      </div>
+    </div>
 
     <div id="header">
       <h1>The Incredible Proof Machin<span class="e">e</span></h1>
-      <div id="toolbar">
+      <div class="toolbar">
 	<button class="iconic" id="showhelp" data-i18n="[title]Help">ℹ</button>
-	<button class="iconic" id="savesvg" data-i18n="[title]Save proof as SVG image.">⤓</button>
 	<button class="iconic" id="reset" data-i18n="[title]Forget all stored data">🔄</button>
       </div>
 
