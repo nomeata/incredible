@@ -151,6 +151,9 @@
   tasks:
   - assumptions: ["∀x.P(x)"]
     conclusions: ["∃x.P(x)"]
+  - assumptions: ["(∀x.t(x))∨(∃x.t(x)→⊥)"]
+    conclusions: ["∃x.t(x)→(∀x.t(x))"]
+  - conclusions: ["(∀x.t(x))∨(∃x.t(x)→⊥)"]
   - conclusions: ["∃x.t(x)→(∀x.t(x))"]
   - assumptions: ["∀x.(r(x)→⊥)→r(f(x))"]
     conclusions: ["∃x.r(x)∧r(f(f(x)))"]
