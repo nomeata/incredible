@@ -185,4 +185,43 @@ $(function() {
       .html();
     saveAs(new Blob([svg], {type:"application/svg+xml"}), "incredible-proof.svg");
   });
+
+  $("#zoom-in").on('click', function (){
+    var scale = V(paper.viewport).scale().sx;
+    paper.scale(scale * 1.2, scale * 1.2);
+    var dx = 0.2 * (paper.options.width / 2 - paper.options.origin.x);
+    var dy = 0.2 * (paper.options.height / 2 - paper.options.origin.y);
+    paper.setOrigin(paper.options.origin.x - dx, paper.options.origin.y - dy);
+  });
+
+  $("#zoom-out").on('click', function (){
+    var scale = V(paper.viewport).scale().sx;
+    paper.scale(scale / 1.2, scale / 1.2);
+    var dx = -0.2/1.2 * (paper.options.width / 2 - paper.options.origin.x);
+    var dy = -0.2/1.2 * (paper.options.height / 2 - paper.options.origin.y);
+    paper.setOrigin(paper.options.origin.x - dx, paper.options.origin.y - dy);
+   });
+
+  $("#zoom-orig").on('click', function (){
+    var scale = V(paper.viewport).scale().sx;
+    paper.scale(1.0, 1.0);
+    var dx = (1.0 - scale)/scale * (paper.options.width / 2 - paper.options.origin.x);
+    var dy = (1.0 - scale)/scale * (paper.options.height / 2 - paper.options.origin.y);
+    paper.setOrigin(paper.options.origin.x - dx, paper.options.origin.y - dy);
+  });
+
+  $("#zoom-fit").on('click', function (){
+    var padding = 15;
+    var cbb = paper.getContentBBox();
+    var scale = V(paper.viewport).scale().sx;
+    scale *= Math.min((paper.options.width - padding) / cbb.width,
+                     (paper.options.height - padding) / cbb.height);
+    paper.scale(scale, scale);
+
+    cbb = paper.getContentBBox();
+    var ox = paper.options.origin.x + (paper.options.width - cbb.width) / 2 - cbb.x;
+    var oy = paper.options.origin.y + (paper.options.height - cbb.height) / 2 - cbb.y;
+    paper.setOrigin(ox, oy);
+  });
+
 });
