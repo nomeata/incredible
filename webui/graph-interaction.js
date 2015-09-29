@@ -225,7 +225,7 @@ $(function() {
   $("#zoom-fit").on('click', function (){
     var padding = 15;
     var cbb = paper.getContentBBox();
-    if (cbb.width != 0 && cbb.heigh != 0) {
+    if (cbb.width !== 0 && cbb.height !== 0) {
       // Only rescale and pan if we have content.
       var scale = V(paper.viewport).scale().sx;
       scale *= Math.min((paper.options.width - padding) / cbb.width,
