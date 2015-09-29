@@ -41,6 +41,15 @@ function rescale_paper() {
   paper.setDimensions(w, h);
 }
 
+/**
+ * Rescales the paper.
+ *
+ * Parameters:
+ *  - amount: The ratio between the rescaled and current paper
+ *            (e.g. '2.0' makes everything appear two times bigger)
+ *  - x, y: Coordinates of the point that shall remain stable,
+ *          given by pixel coordinates relative to the top left corner of the viewport.
+ */
 function paper_scale(amount, x, y) {
   var scale = V(paper.viewport).scale().sx;
   var newScale = scale*amount;
