@@ -41,6 +41,16 @@ function rescale_paper() {
   paper.setDimensions(w, h);
 }
 
+function paper_scale(amount, x, y) {
+  var scale = V(paper.viewport).scale().sx;
+  var newScale = scale*amount;
+  paper.scale(newScale, newScale);
+
+  var dx = (newScale - scale)/scale * (x - paper.options.origin.x);
+  var dy = (newScale - scale)/scale * (y - paper.options.origin.y);
+  paper.setOrigin(paper.options.origin.x - dx, paper.options.origin.y - dy);
+}
+
 $(window).on('resize load', rescale_paper);
 
 $(function() {
@@ -187,27 +197,15 @@ $(function() {
   });
 
   $("#zoom-in").on('click', function (){
-    var scale = V(paper.viewport).scale().sx;
-    paper.scale(scale * 1.2, scale * 1.2);
-    var dx = 0.2 * (paper.options.width / 2 - paper.options.origin.x);
-    var dy = 0.2 * (paper.options.height / 2 - paper.options.origin.y);
-    paper.setOrigin(paper.options.origin.x - dx, paper.options.origin.y - dy);
+    paper_scale(1.2, paper.options.width / 2, paper.options.height / 2);
   });
 
   $("#zoom-out").on('click', function (){
-    var scale = V(paper.viewport).scale().sx;
-    paper.scale(scale / 1.2, scale / 1.2);
-    var dx = -0.2/1.2 * (paper.options.width / 2 - paper.options.origin.x);
-    var dy = -0.2/1.2 * (paper.options.height / 2 - paper.options.origin.y);
-    paper.setOrigin(paper.options.origin.x - dx, paper.options.origin.y - dy);
+    paper_scale(1/1.2, paper.options.width / 2, paper.options.height / 2);
    });
 
   $("#zoom-orig").on('click', function (){
-    var scale = V(paper.viewport).scale().sx;
-    paper.scale(1.0, 1.0);
-    var dx = (1.0 - scale)/scale * (paper.options.width / 2 - paper.options.origin.x);
-    var dy = (1.0 - scale)/scale * (paper.options.height / 2 - paper.options.origin.y);
-    paper.setOrigin(paper.options.origin.x - dx, paper.options.origin.y - dy);
+    paper_scale(1/V(paper.viewport).scale().sx, paper.options.width / 2, paper.options.height / 2);
   });
 
   $("#zoom-fit").on('click', function (){
