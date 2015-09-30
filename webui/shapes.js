@@ -535,8 +535,8 @@ blockrenderers.Schieblehre1.updateSizes = function() {
 
   this.positionNumber(impIConfig.innerWidthRight + impIConfig.rightWidth - 5, 17.5 - 1);
   this.positionRemoveTool(
-      impIConfig.innerWidthRight + impIConfig.rightWidth,
-      -(impIConfig.rightHeight -15 + 3.5 +5)
+      impIConfig.innerWidthRight + impIConfig.rightWidth + 2.5,
+      -(impIConfig.rightHeight/2 + 3.5 + 7.5)
   );
 
   // Make sure these asymmetric blocks are still nicely aligned in the logic view
@@ -701,8 +701,8 @@ blockrenderers.Schieblehre2.updateSizes = function () {
 
   this.positionNumber(impIConfig.innerWidthRight + impIConfig.rightWidth - 5, (impIConfig.rightHeight + 5)/2 - 1);
   this.positionRemoveTool(
-      impIConfig.innerWidthRight + impIConfig.rightWidth,
-      -(impIConfig.rightHeight/2 + 3.5 +5)
+      impIConfig.innerWidthRight + impIConfig.rightWidth + 2.5,
+      -(impIConfig.rightHeight/2 + 3.5 + 7.5)
   );
 
   // Make sure these asymmetric blocks are still nicely aligned in the logic view
