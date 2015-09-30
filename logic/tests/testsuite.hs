@@ -69,7 +69,7 @@ parserTests = testGroup "Parsers"
              , ("P&Q", "P∧Q")
              , ("P|Q", "P∨Q")
              , ("A↑B", "A↑B")
-             , ("(A↑B)↑C", "A↑B↑C")
+             , ("(A↑B)↑C", "(A↑B)↑C")
              , ("A↑(B↑C)", "A↑(B↑C)")
              ]
   ]
