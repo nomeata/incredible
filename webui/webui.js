@@ -162,6 +162,10 @@ $(function (){
 });
 
 $(function (){
+  $("#resettask").on('click', function () {
+    setupGraph(graph, task);
+  });
+
   loadSession();
   setupTaskSelection();
   showTaskSelection();

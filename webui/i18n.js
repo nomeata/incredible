@@ -24,7 +24,8 @@ var translations = {
     "NAND calculus": "NAND-Kalkül",
     "Help": "Hilfe",
     "Save proof as SVG image.": "Den Beweis als SVG-Datei speichern.",
-    "Forget all stored data": "Alle gespeicherten Daten löschen."
+    "Forget all stored data": "Alle gespeicherten Daten löschen.",
+    "Reset this task": "Diesen Task neu beginnen"
   }},
 
   en: { translation: {
