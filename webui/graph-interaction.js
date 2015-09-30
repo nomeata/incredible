@@ -180,6 +180,16 @@ $(function() {
           el.translate(dx,dy, { derivedMove : true });
         }
       });
+      $.each(graph.getLinks(), function (i, conn) {
+	var source = conn.get('source');
+	var target = conn.get('target');
+	var connected = source.id || target.id;
+	var sourceSelected = source.id && graph.getCell(source.id).get('selected');
+	var targetSelected = target.id && graph.getCell(target.id).get('selected');
+	if (connected && (!source.id || sourceSelected) && (!target.id || targetSelected)) {
+          conn.translate(dx,dy, { derivedMove : true });
+	}
+      });
     }
   });
 
