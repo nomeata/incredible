@@ -37,6 +37,7 @@ function assumptionToBlockDesc(assumption, task) {
     desc: {
       label: task.assumptions[assumption-1]
     },
+    roundLeft: true,
     portsGroup: portsGroup,
     canRemove: false
   };
@@ -51,6 +52,7 @@ function conclusionToBlockDesc(conclusion, task) {
     desc: {
       label: task.conclusions[conclusion-1]
     },
+    roundRight: true,
     portsGroup: portsGroup,
     canRemove: false
   };
@@ -85,7 +87,11 @@ function BlockDescRenderer(el, blockDesc, forReal) {
   };
   // Choose right class to use here
   var RendererPrototype;
-  if ((blockDesc.portsGroup['local hypothesis']||[]).length == 1) {
+  if (blockDesc.roundLeft){
+    RendererPrototype = blockrenderers.RoundLeft;
+  } else if (blockDesc.roundRight){
+    RendererPrototype = blockrenderers.RoundRight;
+  } else if ((blockDesc.portsGroup['local hypothesis']||[]).length == 1) {
     RendererPrototype = blockrenderers.Schieblehre1;
   } else if ((blockDesc.portsGroup['local hypothesis']||[]).length == 2) {
     RendererPrototype = blockrenderers.Schieblehre2;
@@ -100,7 +106,10 @@ function BlockDescRenderer(el, blockDesc, forReal) {
 }
 
 blockrenderers = {};
-blockrenderers.RegularBlock = Object.create(BlockDescRenderer);
+blockrenderers.RoughlyRectangular = Object.create(BlockDescRenderer);
+blockrenderers.RegularBlock = Object.create(blockrenderers.RoughlyRectangular);
+blockrenderers.RoundLeft = Object.create(blockrenderers.RoughlyRectangular);
+blockrenderers.RoundRight = Object.create(blockrenderers.RoughlyRectangular);
 blockrenderers.Schieblehre = Object.create(BlockDescRenderer);
 blockrenderers.Schieblehre1 = Object.create(blockrenderers.Schieblehre);
 blockrenderers.Schieblehre2 = Object.create(blockrenderers.Schieblehre);
@@ -157,7 +166,7 @@ BlockDescRenderer.renderToSVG = function() {
   }
 
   this.renderDesc(this.blockDesc.desc);
-  this.renderBody();
+  this.renderBodyAndPorts();
 
   if (this.blockDesc.canRemove) {
     markup = [
@@ -241,13 +250,12 @@ BlockDescRenderer.positionRemoveTool = function (x,y) {
   }
 };
 
-/*
- * Regular square-shaped block
- */
 
-blockrenderers.RegularBlock.renderBody = function () {
-  var rect = V("<rect class='body' fill='#ecf0f1' rx='5' ry='5' stroke='#bdc3c7' stroke-opacity='0.5'/>");
-  this.group.prepend(rect);
+/*
+ * Roughly rectangular block
+ */
+blockrenderers.RoughlyRectangular.renderBodyAndPorts = function () {
+  this.renderBody();
   _.each(this.blockDesc.portsGroup, function (thesePorts, portType) {
     _.each(thesePorts, function (portDesc, index) {
       var direction = ({assumption: 'in', conclusion: 'out', 'local hypothesis': 'out'})[portType];
@@ -257,8 +265,7 @@ blockrenderers.RegularBlock.renderBody = function () {
   }, this);
 };
 
-
-blockrenderers.RegularBlock.updateSizes = function () {
+blockrenderers.RoughlyRectangular.updateSizes = function () {
   // Get label size and position
   var text = this.el.findOne(".label");
   var textBB = text.bbox(true);
@@ -297,10 +304,7 @@ blockrenderers.RegularBlock.updateSizes = function () {
   height = Math.max(height, textBB.height + 10);
   width = Math.ceil(width / 10) * 10;
 
-  this.el.findOne("rect.body")
-    .attr({width: width, height: height})
-    .attr('transform','')
-    .translate(-width/2,-height/2);
+  this.resizeBody(width, height);
 
   this.positionNumber(width/2 - 5, height/2 - 1);
   this.positionRemoveTool(width/2-20, -height/2);
@@ -327,10 +331,88 @@ blockrenderers.RegularBlock.updateSizes = function () {
 };
 
 /*
+ * Regular square-shaped block
+ */
+
+blockrenderers.RegularBlock.renderBody = function () {
+  var rect = V("<rect class='body' fill='#ecf0f1' rx='5' ry='5' stroke='#bdc3c7' stroke-opacity='0.5'/>");
+  this.group.prepend(rect);
+};
+
+blockrenderers.RegularBlock.resizeBody = function (width, height) {
+  this.el.findOne("rect.body")
+    .attr({width: width, height: height})
+    .attr('transform','')
+    .translate(-width/2,-height/2);
+};
+
+/*
+ * Left rounded block
+ */
+
+blockrenderers.RoundLeft.renderBody = function () {
+  this.group.prepend(V("<path class='body' fill='#ecf0f1'  stroke='#bdc3c7' stroke-opacity='0.5'/>"));
+};
+
+blockrenderers.RoundLeft.resizeBody = function (width, height) {
+  var h = function(x) { return "h" + x;};
+  var v = function(x) { return "v" + x;};
+  var r = height/2;
+  var tr = ["a",r,r,0,0,1,r,-r].join(" ");
+  var tb = "a 5 5 0 0 1 5 5";
+  var tl = "a 5 5 0 0 1 -5 5";
+  var tu = ["a",r,r,0,0,1,-r,-r].join(" ");
+  var d = [
+    "M" + (-width/2) + " 0", // left edge, vertical center
+    tr,
+    h(width - 5 - 5),
+    tb,
+    v(height - 5 - 5),
+    tl,
+    h(-(width - 5 - 5)),
+    tu,
+    "Z"
+    ].join(" ");
+  this.el.findOne("path.body").attr({d:d});
+};
+
+/*
+ * Right rounded block
+ */
+
+blockrenderers.RoundRight.renderBody = function () {
+  this.group.prepend(V("<path class='body' fill='#ecf0f1'  stroke='#bdc3c7' stroke-opacity='0.5'/>"));
+};
+
+blockrenderers.RoundRight.resizeBody = function (width, height) {
+  var h = function(x) { return "h" + x;};
+  var v = function(x) { return "v" + x;};
+  var r = height/2;
+  var tr = "a 5 5 0 0 1 5 -5";
+  var tb = ["a",r,r,0,0,1,r,r].join(" ");
+  var tl = ["a",r,r,0,0,1,-r,r].join(" ");
+  var tu = "a 5 5 0 0 1 -5 -5";
+  var d = [
+    "M" + (-width/2) + " 0", // left edge, vertical center
+    v(-(height/2-5)),
+    tr,
+    h(width - 5 - 5),
+    tb,
+    tl,
+    h(-(width - 5 - 5)),
+    tu,
+    v(-(height/2-5)),
+    "Z"
+    ].join(" ");
+  this.el.findOne("path.body").attr({d:d});
+};
+
+
+/*
  * Schieblehre Code (common)
  */
 
-blockrenderers.Schieblehre.renderBody = function () {
+blockrenderers.Schieblehre.renderBodyAndPorts = function () {
   var handlerLeft = V("<rect class='resize-left' opacity='0' event='resize-left'/>");
   var handlerRight = V("<rect class='resize-right' opacity='0' event='resize-right'/>");
   this.group.append(handlerLeft);
