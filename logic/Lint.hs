@@ -22,8 +22,8 @@ import Types
 
 type Lints = [String]
 
-lint :: Context -> Task -> Proof -> Lints
-lint logic _task proof = mconcat
+lint :: Context -> Proof -> Lints
+lint logic proof = mconcat
     [ wrongLocalHyps, missingRule, wrongBlock, wrongPort, wrongSourceType, wrongTargetType, nonUniqueBlockNums, nonPositiveBlockNums ]
   where
     wrongLocalHyps =

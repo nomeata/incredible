@@ -26,14 +26,12 @@ main = do
 
     callback <- syncCallback1 NeverRetain False $ \o -> do
         rawContext <- getProp "context" o
-        rawTask <- getProp "task" o
         rawProof <- getProp "proof" o
         -- Call something here
 
         context <- toContext rawContext
-        task  <-   toTask    rawTask
         proof <-   toProof   rawProof
-        case join $ incredibleLogic <$> context <*> task <*> proof of
+        case join $ incredibleLogic <$> context <*> proof of
             Left e -> setProp "error" (toJSString e) o
             Right analysis -> do
                 rawAnalysis <- fromAnalysis analysis

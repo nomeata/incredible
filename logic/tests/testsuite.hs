@@ -80,20 +80,20 @@ assertParse f t = do
 
 
 cycleTests = testGroup "Cycle detection"
-  [ testCase "cycle"    $ findCycles oneBlockLogic simpleTask proofWithCycle @?= [["c"]]
-  , testCase "no cycle" $ findCycles oneBlockLogic simpleTask proofWithoutCycle @?= []
+  [ testCase "cycle"    $ findCycles oneBlockLogic proofWithCycle @?= [["c"]]
+  , testCase "no cycle" $ findCycles oneBlockLogic proofWithoutCycle @?= []
   ]
 
 escapedHypothesesTests = testGroup "Escaped hypotheses"
-  [ testCase "direct"    $ findEscapedHypotheses impILogic simpleTask directEscape @?= [["c"]]
-  , testCase "indirect"  $ findEscapedHypotheses impILogic simpleTask indirectEscape @?= [["c", "c2"]]
-  , testCase "ok"        $ findEscapedHypotheses impILogic simpleTask noEscape @?= []
+  [ testCase "direct"    $ findEscapedHypotheses impILogic directEscape @?= [["c"]]
+  , testCase "indirect"  $ findEscapedHypotheses impILogic indirectEscape @?= [["c", "c2"]]
+  , testCase "ok"        $ findEscapedHypotheses impILogic noEscape @?= []
   ]
 
 unconnectedGoalsTests = testGroup "Unsolved goals"
-  [ testCase "empty"     $ findUnconnectedGoals impILogic simpleTask emptyProof @?= [BlockPort "c" "in"]
-  , testCase "indirect"  $ findUnconnectedGoals impILogic simpleTask partialProof @?= [BlockPort "b" "in"]
-  , testCase "complete"  $ findUnconnectedGoals impILogic simpleTask completeProof @?= []
+  [ testCase "empty"     $ findUnconnectedGoals impILogic emptyProof @?= [BlockPort "c" "in"]
+  , testCase "indirect"  $ findUnconnectedGoals impILogic partialProof @?= [BlockPort "b" "in"]
+  , testCase "complete"  $ findUnconnectedGoals impILogic completeProof @?= []
   ]
 
 
@@ -153,10 +153,10 @@ unificationTests = testGroup "Unification tests"
   ]
 
 ruleExportTest = testGroup "Rule export"
-  [ testCase "full call" $ assertEqualValues (toJSON $ deriveRule oneBlockLogic simpleTask oneBlockProof sp') $ toJSON renamedRule
+  [ testCase "full call" $ assertEqualValues (toJSON $ deriveRule oneBlockLogic oneBlockProof sp') $ toJSON renamedRule
   ]
   where
-    sp = prepare oneBlockLogic emptyTask oneBlockProof
+    sp = prepare oneBlockLogic oneBlockProof
     (sp', _) = unifyScopedProof oneBlockProof sp
 
 assertUnifies :: [Var] -> [Equality] -> [(Var, Term)] -> Assertion
@@ -170,9 +170,6 @@ assertUnifies vars eqns expt = do
             map (\(k,v) -> "    " ++ show k ++ ": " ++ printTerm v) (M.toList expt') ++
             [" but got: "] ++
             map (\(k,v) -> "    " ++ show k ++ ": " ++ printTerm v) (M.toList res)
-
-emptyTask :: Task
-emptyTask = Task [] []
 
 oneBlockLogic :: Context
 oneBlockLogic = Context
@@ -191,7 +188,7 @@ proofWithCycle = Proof
     (M.singleton "c" (BlockPort "b" "out" --> BlockPort "b" "in"))
 
 proofWithoutCycle = Proof
-    (M.fromList ["c" >: ConclusionBlock 0 1, "b" >: (Block 1 "r")])
+    (M.fromList ["c" >: ConclusionBlock 0 "P→P", "b" >: (Block 1 "r")])
     (M.singleton "c" (BlockPort "b" "out" --> BlockPort "c" "in"))
 
 impILogic :: Context
@@ -207,34 +204,32 @@ impILogic = Context
   where f = ["A","B"]
 
 directEscape = Proof
-    (M.fromList ["c" >: ConclusionBlock 0 1, "b" >: Block 1 "impI"])
+    (M.fromList ["c" >: ConclusionBlock 0 "P→P", "b" >: Block 1 "impI"])
     (M.singleton "c" (BlockPort "b" "hyp" --> BlockPort "c" "in"))
 
 noEscape = Proof
-    (M.fromList ["c" >: ConclusionBlock 0 1, "b" >: Block 1 "impI"])
+    (M.fromList ["c" >: ConclusionBlock 0 "P→P", "b" >: Block 1 "impI"])
     (M.fromList
         [ ("c",  BlockPort "b" "hyp" --> BlockPort "b" "in")
         , ("c2", BlockPort "b" "out" --> BlockPort "c" "in")
         ])
 
 indirectEscape = Proof
-    (M.fromList ["c" >: ConclusionBlock 0 1, "b" >: Block 1 "impI", "b2" >: Block 2 "impI"])
+    (M.fromList ["c" >: ConclusionBlock 0 "P→P", "b" >: Block 1 "impI", "b2" >: Block 2 "impI"])
     (M.fromList
         [ ("c",  BlockPort "b" "hyp" --> BlockPort "b2" "in")
         , ("c2", BlockPort "b2" "out" --> BlockPort "c" "in")
         ])
 
-simpleTask = Task [] ["Prop→Prop"]
-
 emptyProof = Proof
-    (M.fromList [("c", ConclusionBlock 0 1)])
+    (M.fromList [("c", ConclusionBlock 0 "Prop→Prop")])
     (M.fromList [])
 
 partialProof = Proof
-    (M.fromList [("c", ConclusionBlock 0 1),("b", Block 1 "impI")])
+    (M.fromList [("c", ConclusionBlock 0 "Prop→Prop"),("b", Block 1 "impI")])
     (M.fromList [("c", (BlockPort "b" "out" --> BlockPort "c" "in"))])
 completeProof = Proof
-    (M.fromList [("c", ConclusionBlock 0 1),("b", Block 1 "impI")])
+    (M.fromList [("c", ConclusionBlock 0 "Prop→Prop"),("b", Block 1 "impI")])
     (M.fromList [ ("c1", (BlockPort "b" "hyp" --> BlockPort "b" "in"))
                 , ("c2", (BlockPort "b" "out" --> BlockPort "c" "in"))])
 
@@ -256,12 +251,11 @@ genProp n = do
 exampleTests :: Examples -> M.Map String Value -> TestTree
 exampleTests (Examples {..}) exampleAnalyses = testGroup "Examples"
     [ testCase name $ do
-        result <- assertRight $ incredibleLogic (fromJSON' logic) (fromJSON' task) (fromJSON' proof)
+        result <- assertRight $ incredibleLogic (fromJSON' logic) (fromJSON' proof)
         assertEqualValues (toJSON result) analysis
     | (name, analysis) <- M.toList exampleAnalyses
     , let proof = exampleProofs ! name
-    , let task  = exampleTasks  ! (proof !!! "task")
-    , let logic = exampleLogics ! (task !!! "logic")
+    , let logic = exampleLogics ! (proof !!! "logic")
     ]
   where
     value !!! field = either error id $ parseEither (withObject "" (.: field)) value

@@ -5,8 +5,8 @@
  * TODO: Proper error reporting. How is it done usually?
  */
 
-function incredibleLogic(context, task, proof) {
-    var tmp = {"context": context, "task": task, "proof": proof};
+function incredibleLogic(context, proof) {
+    var tmp = {"context": context, "proof": proof};
     incredibleLogic_(tmp);
     if (tmp.analysis) {
         return tmp.analysis;

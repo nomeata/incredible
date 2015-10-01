@@ -1,9 +1,10 @@
+logic: predicate
 blocks:
   a:
-    assumption: 1
+    assumption: "(∀x.P(x))→⊥"
     number: 13
   c:
-    conclusion: 1
+    conclusion: "∃x.(P(x)→⊥)"
     number: 14
   afe0bc87-2ea1-4961-a798-55c82f858716:
     rule: impE
@@ -162,4 +163,3 @@ connections:
     from:
       block: a
       port: out
-task: nall2exn

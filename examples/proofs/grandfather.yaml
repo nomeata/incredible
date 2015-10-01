@@ -1,10 +1,10 @@
-task: grandfather
+logic: predicate
 blocks:
   a:
-    assumption: 1
+    assumption: "∀x.(r(x)→⊥)→r(f(x))"
     number: 22
   c:
-    conclusion: 1
+    conclusion: "∃x.r(x)∧r(f(f(x)))"
     number: 23
   de3d8a72-a3b9-47b9-b106-1f9886e9f6dd:
     rule: TND

@@ -18,9 +18,9 @@ function buildProof(graph) {
       } else if (annotation) {
         block.annotation = annotation;
       } else if (assumption) {
-        block.assumption = assumption;
+        block.assumption = task.assumptions[assumption-1];
       } else if (conclusion) {
-        block.conclusion = conclusion;
+        block.conclusion = task.conclusions[conclusion-1];
       } else {
         throw new Error("buildProof(): Unknown block type");
       }
@@ -63,7 +63,7 @@ function processGraph() {
   $("#analysis").val();
   var proof = buildProof(graph);
   var timeBefore = performance.now();
-  var analysis = incredibleLogic(logic, task, proof);
+  var analysis = incredibleLogic(logic, proof);
   var timeAfter = performance.now();
 
   $("#took").text("processing took " + (timeAfter - timeBefore).toFixed(1) + "ms");

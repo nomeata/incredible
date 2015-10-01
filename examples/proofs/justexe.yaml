@@ -1,4 +1,4 @@
-task: empty
+logic: predicate
 blocks:
   b1:
     rule: exE

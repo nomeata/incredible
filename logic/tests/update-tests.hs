@@ -16,9 +16,8 @@ main = do
     analyses <- readDirectoryOfYamlFiles "../examples/results"
     forM_ (M.keys analyses) $ \name -> do
         let proof = exampleProofs ! name
-        let task  = exampleTasks  ! (proof !!! "task")
-        let logic = exampleLogics ! (task !!! "logic")
-        let res = incredibleLogic (fromJSON' logic) (fromJSON' task) (fromJSON' proof)
+        let logic = exampleLogics ! (proof !!! "logic")
+        let res = incredibleLogic (fromJSON' logic) (fromJSON' proof)
         case res of
             Left e ->  putStrLn $ "Skippping " ++ name ++ ":\n" ++ e
             Right r -> encodeFile ("../examples/results" </> name <.> "yaml") r

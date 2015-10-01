@@ -1,9 +1,10 @@
+logic: predicate
 blocks:
   a:
-    assumption: 1
+    assumption: "∃x.∀y.P(x,y)"
     number: 5
   c:
-    conclusion: 1
+    conclusion: "∀y.∃x.P(x,y)"
     number: 6
   2f796fe5-7d4b-4d53-8075-683ad2fcce6f:
     rule: exI
@@ -66,4 +67,3 @@ connections:
     from:
       block: 2f796fe5-7d4b-4d53-8075-683ad2fcce6f
       port: out2
-task: exall2allex

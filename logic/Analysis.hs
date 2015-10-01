@@ -30,10 +30,10 @@ data ScopedProof = ScopedProof
     , spFreeVars   :: [Var]
     }
 
-prepare :: Context -> Task -> Proof -> ScopedProof
-prepare ctxt task proof = ScopedProof {..}
+prepare :: Context -> Proof -> ScopedProof
+prepare ctxt proof = ScopedProof {..}
   where
-    scopes = calculateScopes ctxt task proof
+    scopes = calculateScopes ctxt proof
     scopeMap = M.fromListWith (++) [ (k, [pdom]) | (ks, pdom) <- scopes, k <- ks ]
 
     localize :: Block -> Var -> Var
@@ -44,7 +44,7 @@ prepare ctxt task proof = ScopedProof {..}
     scopesOverBlock blockKey = [ v'
         | BlockPort pdBlockKey pdPortKey <- M.findWithDefault [] blockKey scopeMap
         , let pdBlock = blocks proof ! pdBlockKey
-        , let pdRule = block2Rule ctxt task pdBlock
+        , let pdRule = block2Rule ctxt pdBlock
         , let port = ports pdRule ! pdPortKey
         , v <- portScopes port
         , let v' = localize pdBlock v
@@ -54,14 +54,14 @@ prepare ctxt task proof = ScopedProof {..}
     allPortSpecs =
         [ BlockPort blockKey portKey
         | (blockKey, block) <- M.toList (blocks proof)
-        , portKey <- M.keys $ ports (block2Rule ctxt task block)
+        , portKey <- M.keys $ ports (block2Rule ctxt block)
         ]
 
     propAtPortSpec :: PortSpec -> Term
     propAtPortSpec (BlockPort blockKey portKey) = prop'
       where
         block = blocks proof ! blockKey
-        rule = block2Rule ctxt task block
+        rule = block2Rule ctxt block
         prop = portProp (ports rule ! portKey)
         scopes = scopesOverBlock blockKey
 
@@ -84,7 +84,7 @@ prepare ctxt task proof = ScopedProof {..}
         scopesOverBlock blockKey ++ map (localize block) (portScopes port)
       where
         block = blocks proof ! blockKey
-        port = ports (block2Rule ctxt task block) ! portKey
+        port = ports (block2Rule ctxt block) ! portKey
 
     spScopedVars :: M.Map PortSpec [Var]
     spScopedVars = M.fromList $ map (id &&& scopedVarsAtPortSpec) allPortSpecs
@@ -92,7 +92,7 @@ prepare ctxt task proof = ScopedProof {..}
     spFreeVars =
         [ localize block v
         | (_, block) <- M.toList (blocks proof)
-        , v <- freeVars (block2Rule ctxt task block)
+        , v <- freeVars (block2Rule ctxt block)
         ]
 
 type UnificationResults = M.Map (Key Connection) UnificationResult

@@ -18,12 +18,6 @@ type Key k = Tagged k String
 type KMap v = M.Map (Key v) v
 type KSet v = S.Set (Key v)
 
-data Task = Task
- { tAssumptions :: [Term]
- , tConclusions :: [Term]
- }
- deriving Show
-
 -- This is different from the specification:
 --  - There, we have a list of rules with an id.
 --  - Here, we have a map from id to rule.
@@ -68,9 +62,9 @@ type BlockNum = Int
 data Block
     = AnnotationBlock BlockNum Proposition
       -- ^ A block with an annotation (no associated rule)
-    | AssumptionBlock BlockNum Int
+    | AssumptionBlock BlockNum Proposition
       -- ^ A block representing an assumption
-    | ConclusionBlock BlockNum Int
+    | ConclusionBlock BlockNum Proposition
       -- ^ A block representing a conclusion
     | Block BlockNum (Key Rule)
       -- ^ A normal with block with a rule
@@ -119,11 +113,11 @@ blockNum (AssumptionBlock n _) = n
 blockNum (ConclusionBlock n _) = n
 blockNum (Block n _) = n
 
-block2Rule :: Context -> Task -> Block -> Rule
-block2Rule ctxt _    (Block _ rule) = ctxtRules ctxt M.! rule
-block2Rule _    _    (AnnotationBlock _ prop) = annotationRule prop
-block2Rule _    task (AssumptionBlock _ n) = assumptionRule task n
-block2Rule _    task (ConclusionBlock _ n) = conclusionRule task n
+block2Rule :: Context -> Block -> Rule
+block2Rule ctxt (Block _ rule) = ctxtRules ctxt M.! rule
+block2Rule _    (AnnotationBlock _ prop) = annotationRule prop
+block2Rule _    (AssumptionBlock _ prop) = assumptionRule prop
+block2Rule _    (ConclusionBlock _ prop) = conclusionRule prop
 
 annotationRule :: Proposition -> Rule
 annotationRule prop = Rule
@@ -143,8 +137,8 @@ annotationRule prop = Rule
         ]
     }
 
-assumptionRule :: Task -> Int -> Rule
-assumptionRule task n = Rule
+assumptionRule :: Proposition -> Rule
+assumptionRule prop = Rule
     { localVars = []
     , freeVars = []
     , ports = M.fromList
@@ -155,11 +149,9 @@ assumptionRule task n = Rule
             })
         ]
     }
-  where
-    prop = tAssumptions task !! (n - 1)
 
-conclusionRule :: Task -> Int -> Rule
-conclusionRule task n = Rule
+conclusionRule :: Proposition -> Rule
+conclusionRule prop = Rule
     { localVars = []
     , freeVars = []
     , ports = M.fromList
@@ -170,8 +162,6 @@ conclusionRule task n = Rule
             })
         ]
     }
-  where
-    prop = tConclusions task !! (n - 1)
 
 fakePortIn :: Key Port
 fakePortIn = Tagged "in"

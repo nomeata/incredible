@@ -1,9 +1,10 @@
+logic: predicate
 blocks:
   a:
-    assumption: 1
+    assumption: "(∃x.P(x))→⊥"
     number: 10
   c:
-    conclusion: 1
+    conclusion: "∀x.(P(x)→⊥)"
     number: 11
   3e1b1432-a31a-40a3-bd07-0eef0542e3ef:
     rule: TND
@@ -102,4 +103,3 @@ connections:
     from:
       block: b9ece1ca-f53b-435b-890c-58ed8b924d3b
       port: out2
-task: nex2alln

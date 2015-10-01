@@ -16,8 +16,8 @@ import qualified Data.Set as S
 
 import Unbound.LocallyNameless hiding (Infix)
 
-deriveRule :: Context -> Task -> Proof -> ScopedProof -> Maybe Rule
-deriveRule ctxt task proof (sp@ScopedProof {..}) =
+deriveRule :: Context ->  Proof -> ScopedProof -> Maybe Rule
+deriveRule ctxt proof (sp@ScopedProof {..}) =
     if hasLocalHyps then Nothing
     else Just $ Rule {ports = rulePorts, localVars = map exportableName localVars, freeVars = map exportableName freeVars}
   where
@@ -29,7 +29,7 @@ deriveRule ctxt task proof (sp@ScopedProof {..}) =
     openPorts = S.toList $ S.fromList $
       [ (bKey, pKey)
       | (bKey, block) <- M.toList $ blocks proof
-      , let rule = block2Rule ctxt task block
+      , let rule = block2Rule ctxt block
       , (pKey, _) <- M.toList (ports rule)
       , BlockPort bKey pKey `S.notMember` connectedPorts
       ] ++
@@ -43,14 +43,14 @@ deriveRule ctxt task proof (sp@ScopedProof {..}) =
     relabeledPorts = concat
       [ ports
       | bKey <- S.toList surfaceBlocks
-      , let ports = relabelPorts sp bKey (block2Rule ctxt task $ blocks proof M.! bKey) (map snd $ filter (\(a, _) -> a == bKey) openPorts) ]
+      , let ports = relabelPorts sp bKey (block2Rule ctxt $ blocks proof M.! bKey) (map snd $ filter (\(a, _) -> a == bKey) openPorts) ]
 
     -- Temporary cut until the necessary code is in place to trace local
     -- hyoptheses and their corresponding inputs to the actual relabelPorts
     hasLocalHyps = not $ null
         [ ()
         | block <- M.elems $ blocks proof
-        , let rule = block2Rule ctxt task block
+        , let rule = block2Rule ctxt block
         , Port  { portType = PTLocalHyp {} } <- M.elems $ ports rule
         ]
 

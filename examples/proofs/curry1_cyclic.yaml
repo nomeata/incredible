@@ -1,5 +1,4 @@
-task:
-  curry1
+logic: predicate
 blocks:
   b2:
     rule: impE
@@ -17,7 +16,7 @@ connections:
   c1:
     sortKey: 0
     from:
-      assumption: 1
+      assumption: "(A∧B)→C"
     to:
       block: b2
       port: in1
@@ -43,7 +42,7 @@ connections:
       block: b4
       port: out
     to:
-      conclusion: 1
+      conclusion: "A→(B→C)"
   c5:
     sortKey: 0
     from:

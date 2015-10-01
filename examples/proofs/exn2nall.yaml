@@ -1,10 +1,10 @@
-task: exn2nall
+logic: predicate
 blocks:
   a:
-    assumption: 1
+    assumption: "∃x.(P(x)→⊥)"
     number: 7
   c:
-    conclusion: 1
+    conclusion: "(∀x.P(x))→⊥"
     number: 6
   ef29c782-c9d6-42aa-a603-1161da2a7e61:
     rule: allE

@@ -1,4 +1,4 @@
-task: empty
+logic: predicate
 blocks:
   57f30f92-545b-4e25-940a-af2dac1bad23:
     rule: disjE

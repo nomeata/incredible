@@ -16,8 +16,8 @@ import Types
 
 type Scope = ([Key Block], PortSpec)
 
-calculateScopes :: Context -> Task -> Proof -> [Scope]
-calculateScopes ctxt task proof = scopes
+calculateScopes :: Context -> Proof -> [Scope]
+calculateScopes ctxt proof = scopes
   where
     -- Building a graph for the dom-lt library
 
@@ -27,7 +27,7 @@ calculateScopes ctxt task proof = scopes
     portSpecs =
         [ BlockPort blockKey portKey
         | (blockKey, block) <- M.toList (blocks proof)
-        , let rule = block2Rule ctxt task block
+        , let rule = block2Rule ctxt block
         , (portKey, Port {portType = PTAssumption}) <- M.toList (ports rule)
         ]
 
@@ -77,7 +77,7 @@ calculateScopes ctxt task proof = scopes
             tell [(childBlocks childs, ps)]
       where
         block = blocks proof M.! blockKey
-        rule = block2Rule ctxt task block
+        rule = block2Rule ctxt block
         port = ports rule M.! portKey
 
         childBlocks childs = [ b | Just (Left b) <- concatMap flatten childs ]

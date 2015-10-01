@@ -14,22 +14,22 @@ import Rules
 import Analysis
 import ShapeChecks
 
-incredibleLogic :: Context -> Task -> Proof -> Either String Analysis
-incredibleLogic ctxt task proof = do
-    lintsToEither (lint ctxt task proof)
+incredibleLogic :: Context -> Proof -> Either String Analysis
+incredibleLogic ctxt proof = do
+    lintsToEither (lint ctxt proof)
     return $ Analysis {..}
   where
-    usedConnections = findUsedConnections ctxt task proof
+    usedConnections = findUsedConnections ctxt proof
 
-    scopedProof = prepare ctxt task proof
+    scopedProof = prepare ctxt proof
 
     portLabels = spProps scopedProof'
 
     (scopedProof', connectionStatus) = unifyScopedProof proof scopedProof
 
-    unconnectedGoals = findUnconnectedGoals ctxt task proof
-    cycles = findCycles ctxt task proof
-    escapedHypotheses = findEscapedHypotheses ctxt task proof
+    unconnectedGoals = findUnconnectedGoals ctxt proof
+    cycles = findCycles ctxt proof
+    escapedHypotheses = findEscapedHypotheses ctxt proof
 
     badConnections = S.unions
         [ S.fromList (concat cycles)
@@ -37,11 +37,8 @@ incredibleLogic ctxt task proof = do
         , S.fromList [ c | (c, r) <- M.toList connectionStatus, badResult r ]
         ]
 
-
-    emptyTask (Task [] []) = True
-    emptyTask (Task _ _) = False
-    rule = if emptyTask task && null unconnectedGoals && S.null badConnections
-      then deriveRule ctxt task proof scopedProof'
+    rule = if null unconnectedGoals && S.null badConnections
+      then deriveRule ctxt proof scopedProof'
       else Nothing
 
     qed = null unconnectedGoals && S.null (usedConnections `S.intersection` badConnections)

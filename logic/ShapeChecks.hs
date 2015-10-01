@@ -19,8 +19,8 @@ import Types
 
 -- Cycles are in fact just SCCs, so lets build a Data.Graph graph out of our
 -- connections and let the standard library do the rest.
-findCycles :: Context -> Task ->  Proof -> [Cycle]
-findCycles ctxt task proof = [ keys | CyclicSCC keys <- stronglyConnComp graph ]
+findCycles :: Context -> Proof -> [Cycle]
+findCycles ctxt proof = [ keys | CyclicSCC keys <- stronglyConnComp graph ]
   where
     graph = [ (key, key, connectionsBefore ps)
             | (key, connection) <- M.toList $ connections proof
@@ -33,7 +33,7 @@ findCycles ctxt task proof = [ keys | CyclicSCC keys <- stronglyConnComp graph ]
     connectionsBefore :: PortSpec -> [Key Connection]
     connectionsBefore (BlockPort blockId toPortId)
         | Just block <- M.lookup blockId (blocks proof)
-        , let rule = block2Rule ctxt task block
+        , let rule = block2Rule ctxt block
         , (Port PTConclusion _ _) <- ports rule ! toPortId -- No need to follow local assumptions
         = [ c'
           | (portId, Port PTAssumption _ _) <- M.toList (ports rule)
@@ -41,11 +41,11 @@ findCycles ctxt task proof = [ keys | CyclicSCC keys <- stronglyConnComp graph ]
           ]
     connectionsBefore _ = []
 
-findEscapedHypotheses :: Context -> Task -> Proof -> [Path]
-findEscapedHypotheses ctxt task proof =
+findEscapedHypotheses :: Context -> Proof -> [Path]
+findEscapedHypotheses ctxt proof =
     [ path
     | (blockKey, block) <- M.toList $ blocks proof
-    , let rule = block2Rule ctxt task block
+    , let rule = block2Rule ctxt block
     , (portKey, Port (PTLocalHyp consumedBy) _ _) <- M.toList (ports rule)
     , Just path <- return $ pathToConclusion
         (S.singleton (BlockPort blockKey consumedBy))
@@ -80,15 +80,15 @@ findEscapedHypotheses ctxt task proof =
             ]
       where stopAt' = S.insert start stopAt
             block = blocks proof ! blockId
-            rule = block2Rule ctxt task (blocks proof ! blockId)
+            rule = block2Rule ctxt (blocks proof ! blockId)
 
 
     fromMap = M.fromListWith (++) [ (ps, [k]) | (k,c) <- M.toList $ connections proof
                                               , Just ps <- return $ connFrom c ]
     connsFrom ps = M.findWithDefault [] ps fromMap
 
-findUsedConnections :: Context -> Task -> Proof -> S.Set (Key Connection)
-findUsedConnections ctxt task proof = go S.empty connectionsToConclusions
+findUsedConnections :: Context -> Proof -> S.Set (Key Connection)
+findUsedConnections ctxt proof = go S.empty connectionsToConclusions
   where
     conclusions = [ BlockPort blockKey fakePortIn
         | (blockKey, ConclusionBlock {}) <- M.toList $ blocks proof
@@ -103,7 +103,7 @@ findUsedConnections ctxt task proof = go S.empty connectionsToConclusions
         conns' = S.insert connKey conns
         inConnections = [ c
             | Just (BlockPort blockKey _) <- return $ connFrom (connections proof ! connKey)
-            , let rule = block2Rule ctxt task (blocks proof ! blockKey)
+            , let rule = block2Rule ctxt (blocks proof ! blockKey)
             , (portId, Port PTAssumption _ _) <- M.toList $ ports rule
             , let spec = BlockPort blockKey portId
             , c <- connsTo spec
@@ -115,8 +115,8 @@ findUsedConnections ctxt task proof = go S.empty connectionsToConclusions
     connsTo :: PortSpec -> [Key Connection]
     connsTo ps = M.findWithDefault [] ps toMap
 
-findUnconnectedGoals :: Context -> Task -> Proof -> [PortSpec]
-findUnconnectedGoals ctxt task proof = go S.empty conclusions
+findUnconnectedGoals :: Context -> Proof -> [PortSpec]
+findUnconnectedGoals ctxt proof = go S.empty conclusions
   where
     conclusions = [ BlockPort blockKey fakePortIn
         | (blockKey, ConclusionBlock {}) <- M.toList $ blocks proof
@@ -135,7 +135,7 @@ findUnconnectedGoals ctxt task proof = go S.empty conclusions
                        , Just (BlockPort blockKey _) <- return $ connFrom (connections proof ! c)]
         inPorts = [ spec
             | blockKey <- blockKeys
-            , let rule = block2Rule ctxt task (blocks proof ! blockKey)
+            , let rule = block2Rule ctxt (blocks proof ! blockKey)
             , (portId, Port PTAssumption _ _) <- M.toList $ ports rule
             , let spec = BlockPort blockKey portId
             ]

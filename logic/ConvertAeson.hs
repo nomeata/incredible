@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings, RecordWildCards, TypeSynonymInstances, FlexibleInstances, MultiWayIf #-}
-module ConvertAeson (toContext, toTask, toProof, fromAnalysis) where
+module ConvertAeson (toContext, toProof, fromAnalysis) where
 
 import qualified Data.Vector as V
 import qualified Data.Text as T
@@ -72,15 +72,6 @@ mapFromList idField = withArray "rules" $ \a -> do
         r <- parseJSON v
         return (k,r)
     return $ M.fromList entries
-
-toTask :: Value -> Either String Task
-toTask = parseEither parseJSON
-
-instance FromJSON Task where
-  parseJSON = withObject "task" $ \o ->
-    Task <$> o .:? "assumptions" .!= []
-         <*> o .:? "conclusions" .!= []
-
 
 toProof :: Value -> Either String Proof
 toProof = parseEither parseJSON

@@ -1,5 +1,5 @@
 {
-  "task": "beer",
+  "logic": "predicate",
   "blocks": {
     "202f6e6f-e804-4b30-9248-b523e49d10d7": {
       "rule": "disjE",
@@ -46,7 +46,7 @@
         "port": "out"
       },
       "to": {
-        "conclusion": 1
+        "conclusion": "∃x.t(x)→∀x.t(x)"
       }
     },
     "1009b509-27dc-4d25-ad45-8a36e09a7932": {
