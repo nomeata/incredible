@@ -8,7 +8,7 @@ var translations = {
     "Helper blocks:": "Hilfsbausteine:",
     "Custom blocks:": "Eigene Bausteine:",
     "Developers tools:": "Entwicklertools",
-    "You proved:": "Du hast bewiesen:",
+    "New custom block:": "Neuer eigener Baustein:",
     "switch task...": "Aufgabe wechseln",
     "confirm-reset": "Willst du wirklich alle gespeicherten Daten löschen (Beweise, eigene Aufgaben, eigene Bausteine)?",
     "nothing": "nichts",
