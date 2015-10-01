@@ -1,10 +1,13 @@
-function buildProof(graph) {
+function buildProof(graph, onlySelected) {
   var proof = {};
 
   proof.blocks = {};
   graph.getElements().map(
     function (e, i) {
       if (e.get('prototypeElement')) {
+        return;
+      }
+      if (onlySelected && !e.get('selected')) {
         return;
       }
       var block = {};
@@ -33,11 +36,11 @@ function buildProof(graph) {
     function (l, i) {
       var con = {};
       if (isReversed(l)){
-        con.to =   makeConnEnd(graph, l.get('source'));
-        con.from = makeConnEnd(graph, l.get('target'));
+        con.to =   makeConnEnd(graph, l.get('source'), onlySelected);
+        con.from = makeConnEnd(graph, l.get('target'), onlySelected);
       } else {
-        con.from = makeConnEnd(graph, l.get('source'));
-        con.to =   makeConnEnd(graph, l.get('target'));
+        con.from = makeConnEnd(graph, l.get('source'), onlySelected);
+        con.to =   makeConnEnd(graph, l.get('target'), onlySelected);
       }
       // The sort key might be absent, when loading an old proof.
       // Gracefully use “something” then.
@@ -47,9 +50,12 @@ function buildProof(graph) {
   return proof;
 }
 
-function makeConnEnd(graph, x) {
+function makeConnEnd(graph, x, onlySelected) {
   var c = graph.getCell(x.id);
   if (!c) {
+    return null;
+  }
+  if (onlySelected && !c.get('selected')) {
     return null;
   }
   var ret = {};
@@ -82,32 +88,6 @@ function processGraph() {
         $("#taskbottombar").effect('highlight', {color: "#8f8"}, 3000);
       }
       tasks_solved[task_desc] = analysis.qed;
-    }
-
-    // mock
-    // analysis.rule = logic.rules[0];
-
-    if (analysis.rule) {
-      $("#inferredrule").slideDown();
-      $("#inferredrule svg").each(function (n, el) {
-        $(el).empty();
-        var g = V("<g/>");
-        var vel = V(el).append(g);
-        var blockDesc = ruleToBlockDesc(analysis.rule);
-        blockDesc.canRemove = false;
-        blockDesc.isPrototype = true;
-        blockDesc.desc = {label: '☃'};
-        BlockDescRenderer(g, blockDesc, false).renderToSVG();
-        gBB = g.bbox(false);
-        g.translate($(el).width()/2, -gBB.y + 5);
-        vel.attr({'width': $("#inferredrule").width(), 'height': gBB.height + 10 });
-      });
-    } else {
-      $("#inferredrule").slideUp();
-      $("#inferredrule svg").each(function (n, el) {
-        $(el).empty();
-        // V(el).append(V("<text fill='black'/>").text(i18n.t('nothing')));
-      });
     }
 
     // Reset everything
@@ -244,8 +224,42 @@ function processGraph() {
         throw new Error("processGraph(): Unknown connection status: " + stat);
       }
     });
+
+    processDerivedRule();
   }
 }
+
+function processDerivedRule() {
+  var proof = buildProof(graph, true);
+  var rule = incredibleNewRule(logic, proof);
+
+  if ($.isEmptyObject(proof.blocks) ||
+      typeof rule === 'string' ||
+      rule instanceof String ||
+      rule === null ||
+      rule === undefined) {
+    $("#inferredrule").slideUp();
+    $("#inferredrule svg").each(function (n, el) {
+      $(el).empty();
+    });
+  } else {
+    $("#inferredrule").slideDown();
+    $("#inferredrule svg").each(function (n, el) {
+      $(el).empty();
+      var g = V("<g/>");
+      var vel = V(el).append(g);
+      var blockDesc = ruleToBlockDesc(rule);
+      blockDesc.canRemove = false;
+      blockDesc.isPrototype = true;
+      blockDesc.desc = {label: '☃'};
+      BlockDescRenderer(g, blockDesc, false).renderToSVG();
+      gBB = g.bbox(false);
+      g.translate($(el).width()/2, -gBB.y + 5);
+      vel.attr({'width': $("#inferredrule").width(), 'height': gBB.height + 10 });
+    });
+  }
+}
+
 function isReversed(conn) {
   // A connection is reversed if its source is an "in" magnet, or the target an
   // "out" magnet.

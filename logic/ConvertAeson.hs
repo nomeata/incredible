@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings, RecordWildCards, TypeSynonymInstances, FlexibleInstances, MultiWayIf #-}
-module ConvertAeson (toContext, toProof, fromAnalysis) where
+module ConvertAeson (toContext, toProof, fromAnalysis, fromRule) where
 
 import qualified Data.Vector as V
 import qualified Data.Text as T
@@ -99,6 +99,9 @@ instance FromJSON Proof where
 
 fromAnalysis :: Analysis -> Value
 fromAnalysis = toJSON
+
+fromRule :: Rule -> Value
+fromRule = toJSON
 
 toVarList :: [Var] -> [String]
 toVarList = map name2ExternalString

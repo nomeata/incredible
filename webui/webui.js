@@ -180,6 +180,13 @@ graph.on('add remove change:annotation change:loading', function () {
     processGraph();
   }
 });
+graph.on('change:selected', function () {
+  // Do not process the graph when loading is one, which happens during startup
+  // and during batch changes.
+  if (!graph.get('loading')) {
+    processDerivedRule();
+  }
+});
 graph.on('change:source change:target', function (model, end) {
   var connection_state = model.get('source').id + model.get('source').port +
     model.get('target').id + model.get('target').port;
@@ -188,6 +195,7 @@ graph.on('change:source change:target', function (model, end) {
     model.set('connection_state', connection_state);
     if (!graph.get('loading')) {
       processGraph();
+      processDerivedRule();
     }
   }
 });

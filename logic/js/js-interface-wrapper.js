@@ -15,6 +15,16 @@ function incredibleLogic(context, proof) {
     }
 }
 
+function incredibleNewRule(context, proof) {
+    var tmp = {"context": context, "proof": proof};
+    incredibleNewRule_(tmp);
+    if (tmp.error) {
+        return tmp.error;
+    } else {
+        return tmp.rule;
+    }
+}
+
 function incredibleFormatTerm(input) {
     var tmp = {"prop": input};
     incredibleFormatTerm_(tmp);

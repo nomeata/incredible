@@ -5,6 +5,7 @@ import GHCJS.Foreign
 import GHCJS.Types
 import System.IO
 import Control.Concurrent
+import Data.Foldable
 
 import ConvertJS
 import Entry
@@ -13,6 +14,9 @@ import Propositions
 
 foreign import javascript unsafe "incredibleLogic_ = $1"
     js_set_logic :: JSFun a -> IO ()
+
+foreign import javascript unsafe "incredibleNewRule_ = $1"
+    js_set_new_rule :: JSFun a -> IO ()
 
 foreign import javascript unsafe "incredibleFormatTerm_ = $1"
     js_set_formatter :: JSFun a -> IO ()
@@ -27,7 +31,6 @@ main = do
     callback <- syncCallback1 NeverRetain False $ \o -> do
         rawContext <- getProp "context" o
         rawProof <- getProp "proof" o
-        -- Call something here
 
         context <- toContext rawContext
         proof <-   toProof   rawProof
@@ -38,6 +41,21 @@ main = do
                 setProp "analysis" rawAnalysis o
 
     js_set_logic callback
+
+    callback <- syncCallback1 NeverRetain False $ \o -> do
+        rawContext <- getProp "context" o
+        rawProof <- getProp "proof" o
+
+        context <- toContext rawContext
+        proof <-   toProof   rawProof
+        case join $ incredibleNewRule <$> context <*> proof of
+            Left e -> setProp "error" (toJSString e) o
+            Right mbrule -> do
+                for_ mbrule $ \rule -> do
+                    rawRule <- fromRule rule
+                    setProp "rule" rawRule o
+
+    js_set_new_rule callback
 
 
     callback <- syncCallback1 NeverRetain False $ \o -> do

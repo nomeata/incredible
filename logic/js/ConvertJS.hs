@@ -1,4 +1,4 @@
-module ConvertJS (toContext, toProof, fromAnalysis) where
+module ConvertJS (toContext, toProof, fromAnalysis, fromRule) where
 
 import GHCJS.Types
 import GHCJS.Marshal
@@ -26,5 +26,11 @@ toProof ref = do
 fromAnalysis :: Analysis -> IO (JSRef a)
 fromAnalysis analysis = do
     let v = A.fromAnalysis analysis
+    r <- toJSRef v
+    return $ castRef r
+
+fromRule :: Rule -> IO (JSRef a)
+fromRule rule = do
+    let v = A.fromRule rule
     r <- toJSRef v
     return $ castRef r

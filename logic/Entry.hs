@@ -42,3 +42,27 @@ incredibleLogic ctxt proof = do
       else Nothing
 
     qed = null unconnectedGoals && S.null (usedConnections `S.intersection` badConnections)
+
+incredibleNewRule :: Context -> Proof -> Either String (Maybe Rule)
+incredibleNewRule ctxt proof = do
+    lintsToEither (lint ctxt proof)
+    return rule
+  where
+    scopedProof = prepare ctxt proof
+
+    (scopedProof', connectionStatus) = unifyScopedProof proof scopedProof
+
+    unconnectedGoals = findUnconnectedGoals ctxt proof
+    cycles = findCycles ctxt proof
+    escapedHypotheses = findEscapedHypotheses ctxt proof
+
+    badConnections = S.unions
+        [ S.fromList (concat cycles)
+        , S.fromList (concat escapedHypotheses)
+        , S.fromList [ c | (c, r) <- M.toList connectionStatus, badResult r ]
+        ]
+
+    rule = if null unconnectedGoals && S.null badConnections
+      then deriveRule ctxt proof scopedProof'
+      else Nothing
+
