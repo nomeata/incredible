@@ -365,11 +365,11 @@ blockrenderers.RoundLeft.resizeBody = function (width, height) {
   var d = [
     "M" + (-width/2) + " 0", // left edge, vertical center
     tr,
-    h(width - 5 - 5),
+    h(width - 5 - height/2),
     tb,
     v(height - 5 - 5),
     tl,
-    h(-(width - 5 - 5)),
+    h(-(width - 5 - height/2)),
     tu,
     "Z"
     ].join(" ");
@@ -396,10 +396,10 @@ blockrenderers.RoundRight.resizeBody = function (width, height) {
     "M" + (-width/2) + " 0", // left edge, vertical center
     v(-(height/2-5)),
     tr,
-    h(width - 5 - 5),
+    h(width - 5 - height/2 + 5), // extra +5 for the number in the corner
     tb,
     tl,
-    h(-(width - 5 - 5)),
+    h(-(width - 5 - height/2 + 5)),
     tu,
     v(-(height/2-5)),
     "Z"
