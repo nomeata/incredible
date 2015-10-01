@@ -3,6 +3,7 @@ sessions.custom = {tasks: []};
 
 var tasks_saved = {};
 var tasks_solved = {};
+var custom_rules = {};
 
 function saveTask() {
   if (task_desc) {

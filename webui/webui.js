@@ -1,6 +1,19 @@
 // Some global variables
 var task; // The current task
-var logic; // The current logic
+var logicName; // The name of the current logic, important for custom blocks etc.
+var ruleFilter = constant_true;
+
+// Shortcut.
+var logics = examples.logics;
+
+
+function constant_true (r) {
+  return true;
+}
+
+function current_rules() {
+  return _.filter(logics[logicName].rules.concat(custom_rules[logicName]||[]), ruleFilter);
+}
 
 
 var graph = new joint.dia.Graph({
@@ -64,7 +77,7 @@ function renderBlockDescToDraggable(blockDesc, container) {
 function setupPrototypeElements() {
   var logic_container = $("#logic");
   logic_container.empty();
-  $.each(logic.rules, function (_, rule) {
+  $.each(current_rules(), function (_, rule) {
     var blockDesc = ruleToBlockDesc(rule);
     blockDesc.isPrototype = true;
     blockDesc.canRemove = false;
@@ -94,19 +107,22 @@ function with_graph_loading(func) {
 }
 
 function selectLogic(name, visible) {
-  logic = _.clone(examples.logics[name || 'predicate']);
+  logicName = name || 'predicate';
 
-  if (visible) {
-    logic.rules = _.filter(logic.rules, function (r) {
-      return _.includes(visible, r.id);
-    });
-  }
   // Normalize the input here
-  $.each(logic.rules, function (_,r) {
+  $.each(examples.logics[logicName].rules, function (_,r) {
     $.each(r.ports, function (_,p) {
       p.proposition = incredibleFormatTerm(p.proposition);
     });
   });
+
+  if (visible) {
+    ruleFilter= function (r) {
+      return _.includes(visible, r.id);
+    };
+  } else {
+    ruleFilter = constant_true;
+  }
 
   setupPrototypeElements();
 }
