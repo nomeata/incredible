@@ -179,7 +179,7 @@ oneBlockProof = Proof
     (M.singleton "b" (Block 1 "r"))
     M.empty
 
-renamedRule = Rule ["AA"] ["AA"] (M.fromList ["in1" >: Port PTAssumption "AA" [], "in2" >: Port PTConclusion "AA" []])
+renamedRule = Rule ["A"] ["A"] (M.fromList ["in1" >: Port PTAssumption "A" [], "in2" >: Port PTConclusion "A" []])
 
 f --> t = Connection 1 (Just f) (Just t)
 
