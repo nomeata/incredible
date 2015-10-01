@@ -62,6 +62,12 @@ function paper_scale(amount, x, y) {
 
 $(window).on('resize load', rescale_paper);
 
+function selectNothing() {
+  $.each(graph.getElements(), function (i, el) {
+    el.set('selected', false);
+  });
+}
+
 $(function() {
   paper.on('cell:pointerdown', function (cellView, evt, x, y) {
     var cell = cellView.model;
@@ -103,9 +109,7 @@ $(function() {
     if (evt.shiftKey) {
       // ignore
     } else {
-      $.each(graph.getElements(), function (i, el) {
-        el.set('selected', false);
-      });
+      selectNothing();
     }
   });
 

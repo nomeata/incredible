@@ -69,7 +69,7 @@ function processGraph() {
   $("#analysis").val();
   var proof = buildProof(graph);
   var timeBefore = performance.now();
-  var analysis = incredibleLogic({rules: current_rules()}, proof);
+  var analysis = incredibleLogic(current_logic(), proof);
   var timeAfter = performance.now();
 
   $("#took").text("processing took " + (timeAfter - timeBefore).toFixed(1) + "ms");
@@ -231,7 +231,7 @@ function processGraph() {
 
 function processDerivedRule() {
   var proof = buildProof(graph, true);
-  var rule = incredibleNewRule({rules: current_rules()}, proof);
+  var rule = incredibleNewRule(current_logic(), proof);
 
   if ($.isEmptyObject(proof.blocks) ||
       typeof rule === 'string' ||

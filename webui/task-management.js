@@ -5,6 +5,8 @@ var tasks_saved = {};
 var tasks_solved = {};
 var custom_rules = {};
 
+var funnyUnicodeCharacters="☃⚛⚾♛♬☏⚒☸☀☮☘☭";
+
 function saveTask() {
   if (task_desc) {
     tasks_saved[task_desc] = _.omit(graph.toJSON(), 'loading');
@@ -17,7 +19,8 @@ function saveSession() {
   localStorage["incredible-session"] = JSON.stringify({
     saved: tasks_saved,
     solved: tasks_solved,
-    custom: sessions.custom
+    custom: sessions.custom,
+    rules: custom_rules
   });
 }
 
@@ -27,6 +30,7 @@ function loadSession() {
     tasks_saved = stored.saved || {};
     tasks_solved = stored.solved || {};
     sessions.custom = stored.custom || {tasks: []};
+    custom_rules = stored.rules || {};
   }
 }
 function taskToDesc(logic, task) {
@@ -113,7 +117,34 @@ function setupTaskSelection() {
       alert(i18n.t('task-parse-error'));
     }
   });
+
+  $("#addcustomblock").on('click', function (){
+    // Instead of reading the displayed rule, we simply re-calculate it. It
+    // should be the same, if not, then that is a bug..
+    var proof = buildProof(graph, true);
+    var rule = incredibleNewRule(current_logic(), proof);
+    if ($.isEmptyObject(proof.blocks) ||
+        typeof rule === 'string' ||
+        rule instanceof String ||
+        rule === null ||
+        rule === undefined) {
+      alert('Could not produce a usable rule');
+    } else {
+      if (!custom_rules[logicName]) {
+        custom_rules[logicName] = [];
+      }
+      var n = custom_rules[logicName].length + 1;
+      rule.id = "custom" + n;
+      if (n<= funnyUnicodeCharacters.length) {
+        rule.desc = {label: funnyUnicodeCharacters.substr(n-1,1)};
+      }
+      custom_rules[logicName].push(rule);
+      setupPrototypeElements();
+      selectNothing();
+    }
+  });
 }
+
 
 function taskFromText(text) {
   var lines = text.match(/[^\r\n]+/g);

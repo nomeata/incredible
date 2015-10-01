@@ -11,8 +11,16 @@ function constant_true (r) {
   return true;
 }
 
-function current_rules() {
-  return _.filter(logics[logicName].rules.concat(custom_rules[logicName]||[]), ruleFilter);
+function current_logic_rules() {
+  return _.filter(logics[logicName].rules, ruleFilter).concat();
+}
+function current_custom_rules() {
+  return custom_rules[logicName]||[];
+}
+function current_logic() {
+  return {
+    rules: current_logic_rules().concat(current_custom_rules())
+  };
 }
 
 
@@ -77,12 +85,22 @@ function renderBlockDescToDraggable(blockDesc, container) {
 function setupPrototypeElements() {
   var logic_container = $("#logic");
   logic_container.empty();
-  $.each(current_rules(), function (_, rule) {
+  $.each(current_logic_rules(), function (_, rule) {
     var blockDesc = ruleToBlockDesc(rule);
     blockDesc.isPrototype = true;
     blockDesc.canRemove = false;
     blockDesc.data = {rule: rule};
     renderBlockDescToDraggable(blockDesc, logic_container);
+  });
+
+  var custom_container = $("#custom");
+  custom_container.empty();
+  $.each(current_custom_rules(), function (_, rule) {
+    var blockDesc = ruleToBlockDesc(rule);
+    blockDesc.isPrototype = true;
+    blockDesc.canRemove = false;
+    blockDesc.data = {rule: rule};
+    renderBlockDescToDraggable(blockDesc, custom_container);
   });
 
   var helpers_container = $("#helpers");
