@@ -1,0 +1,8 @@
+          free:
+          - A
+          local: []
+          ports:
+            port1:
+              proposition: A→A
+              type: conclusion
+              scoped: []
