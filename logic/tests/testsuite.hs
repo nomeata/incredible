@@ -253,7 +253,8 @@ genProp n = do
 
 exampleTests :: Examples -> M.Map String Value -> TestTree
 exampleTests (Examples {..}) exampleAnalyses = testGroup "Examples"
-    [ testCase name $ do
+    [ (if isBad proof then expectFail else id) $
+      testCase name $ do
         result <- assertRight $ incredibleLogic (fromJSON' logic) (fromJSON' proof)
         assertEqualValues (toJSON result) analysis
     | (name, analysis) <- M.toList exampleAnalyses
@@ -262,6 +263,7 @@ exampleTests (Examples {..}) exampleAnalyses = testGroup "Examples"
     ]
   where
     value !!! field = either error id $ parseEither (withObject "" (.: field)) value
+    isBad value = either error id $ parseEither (withObject "" (\o -> o .:? "expectedBad" .!= False)) value
 
 ruleDerivationTests :: Examples -> M.Map String Value -> M.Map String Value -> TestTree
 ruleDerivationTests (Examples {..}) inputs outputs = testGroup "Rule derivation"

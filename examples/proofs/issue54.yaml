@@ -1,0 +1,26 @@
+expectedBad: true
+logic: predicate
+blocks:
+  d:
+    rule: disjE
+    number: 4
+  e:
+    rule: exE
+    number: 3
+connections:
+  c1:
+    sortKey: 1
+    to:
+      block: e
+      port: in2
+    from:
+      block: d
+      port: out
+  c2:
+    sortKey: 1
+    to:
+      block: d
+      port: in
+    from:
+      block: e
+      port: hyp

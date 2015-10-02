@@ -1,0 +1,20 @@
+portLabels:
+  d:
+    hyp1: A₄(c₄)
+    in: A₄(c₄)∨B₄(c₄)
+    in2: P₄
+    hyp2: B₄(c₄)
+    in1: P₄
+    out: P₄
+  e:
+    in2: P₄
+    in1: ∃x.A₄(x)∨B₄(x)
+    out: P₄
+    hyp: A₄(c₄)∨B₄(c₄)
+cycles: []
+escapedHypotheses: []
+connectionStatus:
+  c1: solved
+  c2: solved
+unconnectedGoals: []
+qed: true
