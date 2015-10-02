@@ -21,38 +21,51 @@ deriveRule ctxt proof (sp@ScopedProof {..}) =
     if hasLocalHyps then Nothing
     else Just $ renameRule $ Rule {ports = rulePorts, localVars = localVars, freeVars = freeVars}
   where
-    portNames = map (Tagged . ("in"++) . show) [1::Integer ..]
+    portNames = map (Tagged . ("port"++) . show) [1::Integer ..]
 
     connectedPorts = S.fromList $ catMaybes $ concat
       [ [connFrom c, connTo c] | (_, c) <- M.toList $ connections proof ]
 
-    openPorts = S.toList $ S.fromList $
-      [ (bKey, pKey)
+    openPorts = S.fromList $
+      [ BlockPort bKey pKey
       | (bKey, block) <- M.toList $ blocks proof
       , let rule = block2Rule ctxt block
       , (pKey, _) <- M.toList (ports rule)
       , BlockPort bKey pKey `S.notMember` connectedPorts
       ] ++
-      [ (bKey, pKey)
+      [ ps
       | (_, (Connection _ from to)) <- M.toList $ connections proof
-      , (Nothing, Just (BlockPort bKey pKey)) <- [(from, to), (to, from)] ]
+      , (Nothing, Just ps) <- [(from, to), (to, from)] ]
 
     surfaceBlocks :: S.Set (Key Block)
-    surfaceBlocks = S.fromList $ map fst openPorts
+    surfaceBlocks = S.map psBlock openPorts
 
     relabeledPorts = concat
       [ ports
       | bKey <- S.toList surfaceBlocks
-      , let ports = relabelPorts sp bKey (block2Rule ctxt $ blocks proof M.! bKey) (map snd $ filter (\(a, _) -> a == bKey) openPorts) ]
+      , let ports =
+                relabelPorts sp bKey (block2Rule ctxt $ blocks proof M.! bKey) $
+                map psPort $
+                filter (\ps -> psBlock ps == bKey) $
+                S.toList openPorts
+      ]
+
+    localHyps =
+        [ (BlockPort blockKey portKey, BlockPort blockKey consumedBy)
+        | (blockKey, block) <- M.toList $ blocks proof
+        , let rule = block2Rule ctxt block
+        , (portKey, Port  { portType = PTLocalHyp consumedBy }) <- M.toList $ ports rule
+        ]
+
+    openLocalHyps = [ port
+        | (hyp, target) <- localHyps
+        , port <- outPorts ctxt proof target S.empty [hyp]
+        , port `S.member` openPorts
+        ]
 
     -- Temporary cut until the necessary code is in place to trace local
     -- hyoptheses and their corresponding inputs to the actual relabelPorts
-    hasLocalHyps = not $ null
-        [ ()
-        | block <- M.elems $ blocks proof
-        , let rule = block2Rule ctxt block
-        , Port  { portType = PTLocalHyp {} } <- M.elems $ ports rule
-        ]
+    hasLocalHyps = not $ null openLocalHyps
 
     allVars :: S.Set Var
     allVars = S.fromList $ fv (map portProp relabeledPorts)
@@ -65,6 +78,23 @@ deriveRule ctxt proof (sp@ScopedProof {..}) =
       Port typ prop scopes
 
     rulePorts = M.fromList $ zip portNames (map exportPortVars relabeledPorts)
+
+outPorts :: Context -> Proof -> PortSpec -> S.Set (Key Block) -> [PortSpec] -> [PortSpec]
+outPorts ctxt proof stopAt = go
+  where
+    go _seen [] = []
+    go seen (ps:pss) = ps : go seen' (newOutPorts ++ pss)
+      where
+        otherEnds = [ to | Connection _ (Just from) (Just to) <- M.elems (connections proof)
+                         , from == ps && to /= stopAt ]
+        otherBlockKeys = S.fromList (map psBlock otherEnds) `S.difference` seen
+        newOutPorts = [ BlockPort blockKey portKey
+            | blockKey <- S.toList otherBlockKeys
+            , let rule = block2Rule ctxt $ blocks proof ! blockKey
+            , (portKey, Port { portType = PTConclusion }) <- M.toList (ports rule)
+            ]
+        seen' = seen `S.union` otherBlockKeys
+
 
 relabelPorts :: ScopedProof -> Key Block -> Rule -> [Key Port] -> [Port]
 relabelPorts (ScopedProof {..}) bKey rule openPorts =

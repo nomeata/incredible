@@ -47,6 +47,8 @@ main = do
     -- analysis are not part of the examples, as the latter is also shipped to
     -- the client.
     analyses <- readDirectoryOfYamlFiles "../examples/results"
+    custom_rules <- readDirectoryOfYamlFiles "../examples/custom_rules"
+    custom_rules_out <- readDirectoryOfYamlFiles "../examples/custom_rules_out"
     defaultMain $ testGroup "Tests"
         [ parserTests
         , cycleTests
@@ -55,6 +57,7 @@ main = do
         , unificationTests
         , ruleExportTest
         , exampleTests examples analyses
+        , ruleDerivationTests examples custom_rules custom_rules_out
         ]
 
 parserTests = testGroup "Parsers"
@@ -179,7 +182,7 @@ oneBlockProof = Proof
     (M.singleton "b" (Block 1 "r"))
     M.empty
 
-renamedRule = Rule ["A"] ["A"] (M.fromList ["in1" >: Port PTAssumption "A" [], "in2" >: Port PTConclusion "A" []])
+renamedRule = Rule ["A"] ["A"] (M.fromList ["port1" >: Port PTAssumption "A" [], "port2" >: Port PTConclusion "A" []])
 
 f --> t = Connection 1 (Just f) (Just t)
 
@@ -256,6 +259,18 @@ exampleTests (Examples {..}) exampleAnalyses = testGroup "Examples"
     | (name, analysis) <- M.toList exampleAnalyses
     , let proof = exampleProofs ! name
     , let logic = exampleLogics ! (proof !!! "logic")
+    ]
+  where
+    value !!! field = either error id $ parseEither (withObject "" (.: field)) value
+
+ruleDerivationTests :: Examples -> M.Map String Value -> M.Map String Value -> TestTree
+ruleDerivationTests (Examples {..}) inputs outputs = testGroup "Rule derivation"
+    [ testCase name $ do
+        result <- assertRight $ incredibleNewRule (fromJSON' logic) (fromJSON' input)
+        assertEqualValues (toJSON result) expected
+    | (name, input) <- M.toList inputs
+    , let logic = exampleLogics ! (input !!! "logic")
+    , let expected = outputs M.! name
     ]
   where
     value !!! field = either error id $ parseEither (withObject "" (.: field)) value

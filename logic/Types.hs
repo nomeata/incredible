@@ -70,7 +70,10 @@ data Block
       -- ^ A normal with block with a rule
  deriving Show
 
-data PortSpec = BlockPort (Key Block) (Key Port)
+data PortSpec = BlockPort
+    { psBlock :: Key Block
+    , psPort :: (Key Port)
+    }
  deriving (Eq, Ord, Show)
 
 data Connection = Connection
