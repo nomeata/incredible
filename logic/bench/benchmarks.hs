@@ -18,9 +18,8 @@ main = do
         bgroup "examples"
             [ bench name $ nf (toJSON . func) proof
             | (name, proof) <- M.toList exampleProofs
-            , let task  = exampleTasks  ! (proof !!! "task")
-            , let logic = exampleLogics ! (task !!! "logic")
-            , let func p = incredibleLogic (fromJSON' logic) (fromJSON' task) (fromJSON' p)
+            , let logic = exampleLogics ! (proof !!! "logic")
+            , let func p = incredibleLogic (fromJSON' logic) (fromJSON' p)
             ]
         ]
   where

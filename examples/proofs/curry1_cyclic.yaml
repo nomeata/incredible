@@ -1,5 +1,11 @@
 logic: predicate
 blocks:
+  a:
+    assumption: "(A∧B)→C"
+    number: 5
+  c:
+    conclusion: "A→(B→C)"
+    number: 6
   b2:
     rule: impE
     number: 1
@@ -16,7 +22,8 @@ connections:
   c1:
     sortKey: 0
     from:
-      assumption: "(A∧B)→C"
+      block: a
+      port: out
     to:
       block: b2
       port: in1
@@ -42,7 +49,8 @@ connections:
       block: b4
       port: out
     to:
-      conclusion: "A→(B→C)"
+      block: c
+      port: in
   c5:
     sortKey: 0
     from:

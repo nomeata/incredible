@@ -1,175 +1,129 @@
-{
-  "logic": "predicate",
-  "blocks": {
-    "202f6e6f-e804-4b30-9248-b523e49d10d7": {
-      "rule": "disjE",
-      "number": 1
-    },
-    "413b5c61-ceb9-4625-af38-fddc86634fb5": {
-      "rule": "TND",
-      "number": 2
-    },
-    "96e1fce4-cd45-47bc-abfc-986634dbd1c7": {
-      "rule": "impI",
-      "number": 3
-    },
-    "b9bef4b3-48d4-4d43-a0f7-102b14a3b8bf": {
-      "rule": "exI",
-      "number": 4
-    },
-    "6de72240-ae2d-4ad6-a7b5-40363128d7e0": {
-      "rule": "exI",
-      "number": 5
-    },
-    "d1b34a7a-ca0d-4e11-9f96-afb9689c3380": {
-      "rule": "impI",
-      "number": 6
-    },
-    "ae19a252-39d4-4375-b6d9-21eb4afed322": {
-      "rule": "falseE",
-      "number": 7
-    },
-    "2408506a-6eac-4bed-95c1-67e9c0aa2d4b": {
-      "rule": "impE",
-      "number": 8
-    },
-    "1a4821ea-9e08-49e5-8c74-89ec4bb6fc11": {
-      "rule": "allI",
-      "number": 9
-    }
-  },
-  "connections": {
-    "fc1cc77d-fb87-4ffc-ad64-29c1dfe035cc": {
-      "sortKey": 0,
-      "from": {
-        "block": "202f6e6f-e804-4b30-9248-b523e49d10d7",
-        "port": "out"
-      },
-      "to": {
-        "conclusion": "∃x.t(x)→∀x.t(x)"
-      }
-    },
-    "1009b509-27dc-4d25-ad45-8a36e09a7932": {
-      "sortKey": 0,
-      "from": {
-        "block": "413b5c61-ceb9-4625-af38-fddc86634fb5",
-        "port": "out"
-      },
-      "to": {
-        "block": "202f6e6f-e804-4b30-9248-b523e49d10d7",
-        "port": "in"
-      }
-    },
-    "e60e21b7-4aec-4e15-85e6-980602d04736": {
-      "sortKey": 0,
-      "from": {
-        "block": "202f6e6f-e804-4b30-9248-b523e49d10d7",
-        "port": "hyp1"
-      },
-      "to": {
-        "block": "96e1fce4-cd45-47bc-abfc-986634dbd1c7",
-        "port": "in"
-      }
-    },
-    "ee26adb4-c418-4275-a72b-5a8cb5c76e4c": {
-      "sortKey": 0,
-      "from": {
-        "block": "96e1fce4-cd45-47bc-abfc-986634dbd1c7",
-        "port": "out"
-      },
-      "to": {
-        "block": "b9bef4b3-48d4-4d43-a0f7-102b14a3b8bf",
-        "port": "in1"
-      }
-    },
-    "6bd0f1ac-9860-4b4c-a733-b935c057072f": {
-      "sortKey": 0,
-      "from": {
-        "block": "b9bef4b3-48d4-4d43-a0f7-102b14a3b8bf",
-        "port": "out2"
-      },
-      "to": {
-        "block": "202f6e6f-e804-4b30-9248-b523e49d10d7",
-        "port": "in1"
-      }
-    },
-    "60f76b08-a9e5-4938-b610-fd7539103ac4": {
-      "sortKey": 0,
-      "from": {
-        "block": "202f6e6f-e804-4b30-9248-b523e49d10d7",
-        "port": "hyp2"
-      },
-      "to": {
-        "block": "2408506a-6eac-4bed-95c1-67e9c0aa2d4b",
-        "port": "in1"
-      }
-    },
-    "287ef30c-bc4c-46d3-8458-59c9091bd9e2": {
-      "sortKey": 0,
-      "from": {
-        "block": "6de72240-ae2d-4ad6-a7b5-40363128d7e0",
-        "port": "out2"
-      },
-      "to": {
-        "block": "202f6e6f-e804-4b30-9248-b523e49d10d7",
-        "port": "in2"
-      }
-    },
-    "d26d683d-4ddc-4761-a044-7cf00d3dbe97": {
-      "sortKey": 0,
-      "from": {
-        "block": "d1b34a7a-ca0d-4e11-9f96-afb9689c3380",
-        "port": "out"
-      },
-      "to": {
-        "block": "6de72240-ae2d-4ad6-a7b5-40363128d7e0",
-        "port": "in1"
-      }
-    },
-    "e3b1b438-f3e6-46c6-b1a1-4b5d9b41f377": {
-      "sortKey": 0,
-      "from": {
-        "block": "ae19a252-39d4-4375-b6d9-21eb4afed322",
-        "port": "out"
-      },
-      "to": {
-        "block": "d1b34a7a-ca0d-4e11-9f96-afb9689c3380",
-        "port": "in"
-      }
-    },
-    "76b04544-b493-4d76-950d-4a24e785c1ca": {
-      "sortKey": 0,
-      "from": {
-        "block": "d1b34a7a-ca0d-4e11-9f96-afb9689c3380",
-        "port": "hyp"
-      },
-      "to": {
-        "block": "1a4821ea-9e08-49e5-8c74-89ec4bb6fc11",
-        "port": "in1"
-      }
-    },
-    "447e7a5e-b791-44a5-a5cf-1707572fa5b6": {
-      "sortKey": 0,
-      "from": {
-        "block": "2408506a-6eac-4bed-95c1-67e9c0aa2d4b",
-        "port": "out"
-      },
-      "to": {
-        "block": "ae19a252-39d4-4375-b6d9-21eb4afed322",
-        "port": "in"
-      }
-    },
-    "aa05e8f2-9bc6-4248-bbd0-5d4d3b639ac8": {
-      "sortKey": 0,
-      "from": {
-        "block": "1a4821ea-9e08-49e5-8c74-89ec4bb6fc11",
-        "port": "out2"
-      },
-      "to": {
-        "block": "2408506a-6eac-4bed-95c1-67e9c0aa2d4b",
-        "port": "in2"
-      }
-    }
-  }
-}
-
+logic: predicate
+blocks:
+  c:
+    conclusion: "∃x.t(x)→∀x.t(x)"
+    number: 10
+  b9bef4b3-48d4-4d43-a0f7-102b14a3b8bf:
+    rule: exI
+    number: 4
+  96e1fce4-cd45-47bc-abfc-986634dbd1c7:
+    rule: impI
+    number: 3
+  6de72240-ae2d-4ad6-a7b5-40363128d7e0:
+    rule: exI
+    number: 5
+  413b5c61-ceb9-4625-af38-fddc86634fb5:
+    rule: TND
+    number: 2
+  d1b34a7a-ca0d-4e11-9f96-afb9689c3380:
+    rule: impI
+    number: 6
+  ae19a252-39d4-4375-b6d9-21eb4afed322:
+    rule: falseE
+    number: 7
+  2408506a-6eac-4bed-95c1-67e9c0aa2d4b:
+    rule: impE
+    number: 8
+  1a4821ea-9e08-49e5-8c74-89ec4bb6fc11:
+    rule: allI
+    number: 9
+  202f6e6f-e804-4b30-9248-b523e49d10d7:
+    rule: disjE
+    number: 1
+connections:
+  e60e21b7-4aec-4e15-85e6-980602d04736:
+    sortKey: 0
+    to:
+      block: 96e1fce4-cd45-47bc-abfc-986634dbd1c7
+      port: in
+    from:
+      block: 202f6e6f-e804-4b30-9248-b523e49d10d7
+      port: hyp1
+  6bd0f1ac-9860-4b4c-a733-b935c057072f:
+    sortKey: 0
+    to:
+      block: 202f6e6f-e804-4b30-9248-b523e49d10d7
+      port: in1
+    from:
+      block: b9bef4b3-48d4-4d43-a0f7-102b14a3b8bf
+      port: out2
+  aa05e8f2-9bc6-4248-bbd0-5d4d3b639ac8:
+    sortKey: 0
+    to:
+      block: 2408506a-6eac-4bed-95c1-67e9c0aa2d4b
+      port: in2
+    from:
+      block: 1a4821ea-9e08-49e5-8c74-89ec4bb6fc11
+      port: out2
+  447e7a5e-b791-44a5-a5cf-1707572fa5b6:
+    sortKey: 0
+    to:
+      block: ae19a252-39d4-4375-b6d9-21eb4afed322
+      port: in
+    from:
+      block: 2408506a-6eac-4bed-95c1-67e9c0aa2d4b
+      port: out
+  e3b1b438-f3e6-46c6-b1a1-4b5d9b41f377:
+    sortKey: 0
+    to:
+      block: d1b34a7a-ca0d-4e11-9f96-afb9689c3380
+      port: in
+    from:
+      block: ae19a252-39d4-4375-b6d9-21eb4afed322
+      port: out
+  60f76b08-a9e5-4938-b610-fd7539103ac4:
+    sortKey: 0
+    to:
+      block: 2408506a-6eac-4bed-95c1-67e9c0aa2d4b
+      port: in1
+    from:
+      block: 202f6e6f-e804-4b30-9248-b523e49d10d7
+      port: hyp2
+  1009b509-27dc-4d25-ad45-8a36e09a7932:
+    sortKey: 0
+    to:
+      block: 202f6e6f-e804-4b30-9248-b523e49d10d7
+      port: in
+    from:
+      block: 413b5c61-ceb9-4625-af38-fddc86634fb5
+      port: out
+  d26d683d-4ddc-4761-a044-7cf00d3dbe97:
+    sortKey: 0
+    to:
+      block: 6de72240-ae2d-4ad6-a7b5-40363128d7e0
+      port: in1
+    from:
+      block: d1b34a7a-ca0d-4e11-9f96-afb9689c3380
+      port: out
+  287ef30c-bc4c-46d3-8458-59c9091bd9e2:
+    sortKey: 0
+    to:
+      block: 202f6e6f-e804-4b30-9248-b523e49d10d7
+      port: in2
+    from:
+      block: 6de72240-ae2d-4ad6-a7b5-40363128d7e0
+      port: out2
+  ee26adb4-c418-4275-a72b-5a8cb5c76e4c:
+    sortKey: 0
+    to:
+      block: b9bef4b3-48d4-4d43-a0f7-102b14a3b8bf
+      port: in1
+    from:
+      block: 96e1fce4-cd45-47bc-abfc-986634dbd1c7
+      port: out
+  76b04544-b493-4d76-950d-4a24e785c1ca:
+    sortKey: 0
+    to:
+      block: 1a4821ea-9e08-49e5-8c74-89ec4bb6fc11
+      port: in1
+    from:
+      block: d1b34a7a-ca0d-4e11-9f96-afb9689c3380
+      port: hyp
+  fc1cc77d-fb87-4ffc-ad64-29c1dfe035cc:
+    sortKey: 0
+    to:
+      block: c
+      port: in
+    from:
+      block: 202f6e6f-e804-4b30-9248-b523e49d10d7
+      port: out
