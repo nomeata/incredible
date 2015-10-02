@@ -5,7 +5,6 @@ portLabels:
     out: Q₁
     hyp: P₁(c₁)
 cycles: []
-rule: null
 escapedHypotheses: []
 connectionStatus: {}
 unconnectedGoals: []

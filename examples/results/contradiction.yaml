@@ -12,7 +12,6 @@ portLabels:
     in: ⊥
     out: P₂
 cycles: []
-rule: null
 escapedHypotheses: []
 connectionStatus:
   4b856f88-917b-4927-b00a-5f62c6cc27c5: solved

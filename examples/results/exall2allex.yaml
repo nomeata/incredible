@@ -18,7 +18,6 @@ portLabels:
   c:
     in: ∀y.∃x.P(x,y)
 cycles: []
-rule: null
 escapedHypotheses: []
 connectionStatus:
   978c53b5-f8ca-4b5d-ae2b-e8a8ac801c39: solved

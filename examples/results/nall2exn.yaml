@@ -52,7 +52,6 @@ portLabels:
     in1: ∃x.P(x)→⊥
     out: ∃x.P(x)→⊥
 cycles: []
-rule: null
 escapedHypotheses: []
 connectionStatus:
   191c645b-b86d-4779-bd99-3f76cc233a81: solved

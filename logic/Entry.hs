@@ -36,11 +36,6 @@ incredibleLogic ctxt proof = do
         , S.fromList (concat escapedHypotheses)
         , S.fromList [ c | (c, r) <- M.toList connectionStatus, badResult r ]
         ]
-
-    rule = if null unconnectedGoals && S.null badConnections
-      then deriveRule ctxt proof scopedProof'
-      else Nothing
-
     qed = null unconnectedGoals && S.null (usedConnections `S.intersection` badConnections)
 
 incredibleNewRule :: Context -> Proof -> Either String (Maybe Rule)

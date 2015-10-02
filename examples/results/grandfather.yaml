@@ -84,7 +84,6 @@ portLabels:
     in1: (r(y₁₂)→⊥)→r(f(y₁₂))
     out: r(f(y₁₂))
 cycles: []
-rule: null
 escapedHypotheses: []
 connectionStatus:
   649e1afa-8379-4e2e-991f-724ee7136139: solved
