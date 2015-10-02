@@ -30,6 +30,28 @@ var graph = new joint.dia.Graph({
 
 var paper = create_paper();
 
+var undoList = [];
+var currentState;
+
+function clearUndo() {
+  var g = graph.toJSON();
+  var o = paper.options.origin;
+  var s = V(paper.viewport).scale();
+  currentState = {graph: g, ox: o.x, oy: o.y, sx: s.sx, sy: s.sy};
+  undoList = [];
+}
+
+function saveUndo() {
+  if (undefined === currentState) {
+    throw Error("Usage of clearUndo() before saveUndo() is required.");
+  }
+  undoList.push(currentState);
+  var g = graph.toJSON();
+  var o = paper.options.origin;
+  var s = V(paper.viewport).scale();
+  currentState = {graph: g, ox: o.x, oy: o.y, sx: s.sx, sy: s.sy};
+}
+
 function setupGraph(graph, task) {
   var cells = [];
   // Fixed blocks for input and output
@@ -200,6 +222,23 @@ $(function (){
     setupGraph(graph, task);
   });
 
+  $("#undo").on('click', function () {
+    var state = undoList.pop();
+    if (undefined !== state) {
+      graph.fromJSON(state.graph);
+      paper.scale(state.sx, state.sy);
+      paper.setOrigin(state.ox, state.oy);
+      currentState = state;
+      processGraph();
+    }
+  });
+
+  $("#paper").on('click', saveUndo);
+  $("#paper").on('wheel', saveUndo);
+
+  //$("#redo").on('click', function () {
+  //});
+
   loadSession();
   setupTaskSelection();
   showTaskSelection();
@@ -234,6 +273,7 @@ graph.on('change:source change:target', function (model, end) {
   }
 });
 
+//graph.on('change', saveUndo);
 
 // time arg is in milliseconds
 // Use only to simulate heave calculations!
