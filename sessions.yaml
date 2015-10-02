@@ -54,6 +54,8 @@
     - A→B→C
     conclusions:
     - A→C
+  - assumptions: ["B"]
+    conclusions: ["A→B"]
   - assumptions:
     - (A→B)∧(B→A)
     - A→C
