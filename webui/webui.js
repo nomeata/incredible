@@ -37,19 +37,31 @@ function clearUndo() {
   var g = graph.toJSON();
   var o = paper.options.origin;
   var s = V(paper.viewport).scale();
-  currentState = {graph: g, ox: o.x, oy: o.y, sx: s.sx, sy: s.sy};
-  undoList = [];
+  undoList = [{graph: g, ox: o.x, oy: o.y, sx: s.sx, sy: s.sy}];
+  currentState = 0;
 }
 
 function saveUndo() {
   if (undefined === currentState) {
     throw Error("Usage of clearUndo() before saveUndo() is required.");
   }
-  undoList.push(currentState);
+  currentState += 1;
   var g = graph.toJSON();
   var o = paper.options.origin;
   var s = V(paper.viewport).scale();
-  currentState = {graph: g, ox: o.x, oy: o.y, sx: s.sx, sy: s.sy};
+  undoList[currentState] = {graph: g, ox: o.x, oy: o.y, sx: s.sx, sy: s.sy};
+  undoList.length = currentState+1;
+}
+
+function applyUndoState(idx) {
+  var state = undoList[idx];
+  if (undefined !== state) {
+    graph.fromJSON(state.graph);
+    paper.scale(state.sx, state.sy);
+    paper.setOrigin(state.ox, state.oy);
+    currentState = idx;
+    processGraph();
+  }
 }
 
 function setupGraph(graph, task) {
@@ -223,21 +235,16 @@ $(function (){
   });
 
   $("#undo").on('click', function () {
-    var state = undoList.pop();
-    if (undefined !== state) {
-      graph.fromJSON(state.graph);
-      paper.scale(state.sx, state.sy);
-      paper.setOrigin(state.ox, state.oy);
-      currentState = state;
-      processGraph();
-    }
+    applyUndoState(currentState-1);
   });
+
+  $("#redo").on('click', function () {
+    applyUndoState(currentState+1);
+  });
+
 
   $("#paper").on('click', saveUndo);
   $("#paper").on('wheel', saveUndo);
-
-  //$("#redo").on('click', function () {
-  //});
 
   loadSession();
   setupTaskSelection();
