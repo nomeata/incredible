@@ -17,8 +17,9 @@ import Analysis
 import Propositions
 
 deriveRule :: Context ->  Proof -> ScopedProof -> Maybe Rule
-deriveRule ctxt proof (sp@ScopedProof {..}) =
-    if hasLocalHyps then Nothing
+deriveRule ctxt proof (ScopedProof {..}) =
+    if badLocalHyps
+    then Nothing
     else Just $ renameRule $ Rule {ports = rulePorts, localVars = localVars, freeVars = freeVars}
   where
     portNames = map (Tagged . ("port"++) . show) [1::Integer ..]
@@ -37,19 +38,6 @@ deriveRule ctxt proof (sp@ScopedProof {..}) =
       | (_, (Connection _ from to)) <- M.toList $ connections proof
       , (Nothing, Just ps) <- [(from, to), (to, from)] ]
 
-    surfaceBlocks :: S.Set (Key Block)
-    surfaceBlocks = S.map psBlock openPorts
-
-    relabeledPorts = concat
-      [ ports
-      | bKey <- S.toList surfaceBlocks
-      , let ports =
-                relabelPorts sp bKey (block2Rule ctxt $ blocks proof M.! bKey) $
-                map psPort $
-                filter (\ps -> psBlock ps == bKey) $
-                S.toList openPorts
-      ]
-
     localHyps =
         [ (BlockPort blockKey portKey, BlockPort blockKey consumedBy)
         | (blockKey, block) <- M.toList $ blocks proof
@@ -57,30 +45,72 @@ deriveRule ctxt proof (sp@ScopedProof {..}) =
         , (portKey, Port  { portType = PTLocalHyp consumedBy }) <- M.toList $ ports rule
         ]
 
-    openLocalHyps = [ port
+    openLocalHyps = M.fromList $ [ (port, targets)
         | (hyp, target) <- localHyps
-        , port <- outPorts ctxt proof target S.empty [hyp]
+        , let targets = filter (validTargetFor ctxt proof target openPorts) $ S.toList openPorts
+        , port <- outPorts ctxt proof target hyp
         , port `S.member` openPorts
         ]
 
-    -- Temporary cut until the necessary code is in place to trace local
-    -- hyoptheses and their corresponding inputs to the actual relabelPorts
-    hasLocalHyps = not $ null openLocalHyps
+    badLocalHyps = any null $ M.elems openLocalHyps
+
+    openPort2PortName = M.fromList $ zip (S.toList openPorts) portNames
+
+    updatedPorts = [ Port
+        { portType =
+                if isPortTypeOut (portType origPort)
+                then case M.lookup ps openLocalHyps of
+                        Just (t:_) -> PTLocalHyp (openPort2PortName ! t)
+                        Just [] -> error "updatedPorts: no targets?"
+                        Nothing -> PTConclusion
+                else PTAssumption
+        , portProp = spProps ! ps
+        , portScopes = spScopedVars ! ps
+        }
+        | ps@(BlockPort blockKey portKey) <- S.toList openPorts
+        , let block = blocks proof ! blockKey
+        , let rule = block2Rule ctxt block
+        , let origPort = ports rule ! portKey
+        ]
 
     allVars :: S.Set Var
-    allVars = S.fromList $ fv (map portProp relabeledPorts)
+    allVars = S.fromList $ fv (map portProp updatedPorts)
 
     localVars = S.toList $ S.filter (\v -> name2Integer v > 0) allVars
 
     freeVars = filter (`S.member` allVars) spFreeVars
 
-    exportPortVars (Port typ prop scopes) =
-      Port typ prop scopes
+    rulePorts = M.fromList $ zip portNames updatedPorts
 
-    rulePorts = M.fromList $ zip portNames (map exportPortVars relabeledPorts)
+-- Checks if from this open port, everything goes to the target, and never
+-- into another open port before
+validTargetFor :: Context -> Proof -> PortSpec -> S.Set PortSpec -> PortSpec -> Bool
+validTargetFor ctxt proof stopAt openPorts from =
+    isPortTypeIn (portType port) && (from == stopAt || ok (S.singleton (psBlock from)) outPorts)
+  where
+    block = blocks proof ! psBlock from
+    rule = block2Rule ctxt block
+    port = ports rule ! psPort from
 
-outPorts :: Context -> Proof -> PortSpec -> S.Set (Key Block) -> [PortSpec] -> [PortSpec]
-outPorts ctxt proof stopAt = go
+    outPorts = [ BlockPort (psBlock from) portKey
+               | (portKey, Port { portType = PTConclusion }) <- M.toList (ports rule)
+               ]
+
+    ok _seen [] = True
+    ok seen (ps:pss) = ps `S.notMember` openPorts && ok seen' (newOutPorts ++ pss)
+      where
+        otherEnds = [ to | Connection _ (Just from) (Just to) <- M.elems (connections proof)
+                         , from == ps && to /= stopAt ]
+        otherBlockKeys = S.fromList (map psBlock otherEnds) `S.difference` seen
+        newOutPorts = [ BlockPort blockKey portKey
+            | blockKey <- S.toList otherBlockKeys
+            , let rule = block2Rule ctxt $ blocks proof ! blockKey
+            , (portKey, Port { portType = PTConclusion }) <- M.toList (ports rule)
+            ]
+        seen' = seen `S.union` otherBlockKeys
+
+outPorts :: Context -> Proof -> PortSpec -> PortSpec -> [PortSpec]
+outPorts ctxt proof stopAt start = go S.empty [start]
   where
     go _seen [] = []
     go seen (ps:pss) = ps : go seen' (newOutPorts ++ pss)
@@ -95,15 +125,6 @@ outPorts ctxt proof stopAt = go
             ]
         seen' = seen `S.union` otherBlockKeys
 
-
-relabelPorts :: ScopedProof -> Key Block -> Rule -> [Key Port] -> [Port]
-relabelPorts (ScopedProof {..}) bKey rule openPorts =
-  [ port
-  | pKey <- openPorts
-  , let Port typ _ _ = (ports rule) M.! pKey
-  , let prop = spProps ! BlockPort bKey pKey
-  , let port = Port typ prop (spScopedVars ! (BlockPort bKey pKey))
-  ]
 
 -- Changes the names of variables in the rule so that the rule is semantically
 -- equivalent, but all names have an integer of 0, so that they can validly be 
