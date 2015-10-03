@@ -83,8 +83,8 @@ fun unif (S,(s,t)) = case (devar S s,devar S t) of
 -}
 unif :: (MonadPlus m, Fresh m) => [Var] -> Bindings -> (Term, Term) -> m ([Var], Bindings)
 unif uvs binds (s,t) = do
-    s' <- devar binds s
-    t' <- devar binds t
+    let s' = devar binds s
+    let t' = devar binds t
     case (s',t') of
         (Lam b1, Lam b2)
             -> lunbind2' b1 b2 $ \(Just (_,s,_,t)) -> unif uvs binds (s,t)
@@ -189,7 +189,7 @@ fun proj W (S,s) = case strip(devar S s) of
 -}
 proj :: (MonadPlus m, Fresh m) => [Var] -> [Var] -> Bindings -> Term -> m ([Var], Bindings)
 proj w uvs binds s = do
-    s' <- devar binds s
+    let s' = devar binds s
     case strip s' of
         (Lam b, _)
             -> lunbind' b $ \(x,t) -> proj (x:w) uvs binds t
@@ -237,17 +237,17 @@ fun devar S t = case strip t of
                                | None => t)
                 | _ => t;
 -}
-devar :: Fresh m => Bindings -> Term -> m Term
+devar :: Bindings -> Term -> Term
 devar binds t = case strip t of
     (V v,ys)
         | Just t <- M.lookup v binds
-        -> redsTerm t ys >>= devar binds
-    _   -> return t
+        -> devar binds (redsTerm t ys)
+    _   -> t
 
-redsTerm :: Fresh m => Term -> [Term] -> m Term
-redsTerm t [] = return t
-redsTerm (Lam b) (x:xs) = lunbind' b $ \(v,body) -> redsTerm (subst v x body) xs
-redsTerm t xs = return $ App t xs
+redsTerm :: Term -> [Term] -> Term
+redsTerm t [] = t
+redsTerm (Lam b) (x:xs) = redsTerm (substBind b x) xs
+redsTerm t xs = App t xs
 
 strip :: Term -> (Term, [Term])
 strip t = go t []
@@ -279,7 +279,7 @@ applyBindingM bindings t = go [] t
     go args (App t args') = go (args' ++ args) t
 
     go [] (Lam b) = lunbind' b $ \(v,body) -> Lam . bind v <$> go [] body
-    go (x:xs) (Lam b) = lunbind' b $ \(v,body) -> go xs (subst v x body)
+    go (x:xs) (Lam b) = go xs (substBind b x)
 
     -- This can be dropped once we only support GHC-7.10
     infixl 4 <$>
