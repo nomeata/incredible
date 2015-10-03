@@ -33,6 +33,7 @@ library
                      Scopes,
                      ConvertAeson,
                      Rules,
+                     ProofGraph,
                      Analysis
   build-depends:     base >=4.7 && <4.9,
                      aeson,
