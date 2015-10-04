@@ -141,11 +141,10 @@ unificationTests = testGroup "Unification tests"
         , "y1" >: "c2"
         , "y2" >: "c"
         ]
-  , expectFail $
-    testCase "better unification" $
+  , testCase "better unification" $
     assertUnifies
         [ "P", "y" ]
-        [ "P(c)" >: "f(y)" ] -- here, we can make some progress on P
+        [ "P(V c)" >: "f(y)" ] -- here, we can make some progress on P
         [ "P" >: absTerm ["x"] "f(y)"]
   , testCase "basic pattern-matching" $
     assertUnifies
