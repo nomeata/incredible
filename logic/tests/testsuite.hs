@@ -93,6 +93,7 @@ escapedHypothesesTests = testGroup "Escaped hypotheses"
   [ testCase "direct"    $ f directEscape @?= [["c"]]
   , testCase "indirect"  $ f indirectEscape @?= [["c", "c2"]]
   , testCase "ok"        $ f noEscape @?= []
+  , testCase "tricky"    $ f trickyEscape @?= [["tbd"]]
   ]
  where f proof = findEscapedHypotheses impILogic proof (proof2Graph impILogic proof)
 
@@ -206,9 +207,16 @@ impILogic = Context
             , "out" >: Port PTConclusion "A→B" []
             , "hyp" >: Port (PTLocalHyp "in") "A" []
             ]))
+        , ("two2two", Rule f f (M.fromList
+            [ "in1"  >: Port PTAssumption "A" []
+            , "in2"  >: Port PTAssumption "B" []
+            , "out1" >: Port PTConclusion "A" []
+            , "out2" >: Port PTConclusion "B" []
+            ]))
         ]
     )
   where f = ["A","B"]
+
 
 directEscape = Proof
     (M.fromList ["c" >: ConclusionBlock 0 "P→P", "b" >: Block 1 "impI"])
@@ -226,6 +234,24 @@ indirectEscape = Proof
     (M.fromList
         [ ("c",  BlockPort "b" "hyp" --> BlockPort "b2" "in")
         , ("c2", BlockPort "b2" "out" --> BlockPort "c" "in")
+        ])
+
+trickyEscape = Proof
+    (M.fromList
+        [ "c"  >: ConclusionBlock 0 "P→P"
+        , "i"  >: Block 1 "impI"
+        , "b1" >: Block 2 "two2two"
+        , "b2" >: Block 2 "two2two"
+        , "b3" >: Block 2 "two2two"
+        , "b4" >: Block 2 "two2two"
+        ])
+    (M.fromList
+        [ ("c",  BlockPort "i"  "hyp"  --> BlockPort "b4" "in1")
+        , ("c1", BlockPort "i"  "out"  --> BlockPort "b1" "in1")
+        , ("c2", BlockPort "b1" "out1" --> BlockPort "b3" "in1")
+        , ("c3", BlockPort "b1" "out2" --> BlockPort "b2" "in1")
+        , ("c4", BlockPort "b2" "out1" --> BlockPort "b3" "in2")
+        , ("c5", BlockPort "b2" "out2" --> BlockPort "b4" "in2")
         ])
 
 emptyProof = Proof
