@@ -161,6 +161,13 @@ calcSCC start = execMarkM $ go start
         mapM_ go (nodePred n)
         mapM_ go (nodeSucc n)
 
+backwardsSlice :: [Node a] -> S.Set ANodeKey
+backwardsSlice starts = execMarkM $ mapM_ goBackward starts
+  where
+    goBackward :: Node a -> MarkM ()
+    goBackward n = markAndFollow (node2ANodeKey n) $ do
+        mapM_ goBackward (nodePred n)
+
 calcScope :: Graph -> Key Block -> [PortSpec] -> [PortSpec] -> [Key Block]
 calcScope Graph{..} start stopAtIn stopAtOut =
     mapMaybe toBlockNodeKey $
@@ -174,6 +181,15 @@ calcScope Graph{..} start stopAtIn stopAtOut =
 toBlockNodeKey :: ANodeKey -> Maybe (Key Block)
 toBlockNodeKey (BlockNodeKey k) = Just k
 toBlockNodeKey _ = Nothing
+
+toConnKey :: ANodeKey -> Maybe (Key Connection)
+toConnKey (ConnNodeKey k) = Just k
+toConnKey _ = Nothing
+
+toInPortKey :: ANodeKey -> Maybe PortSpec
+toInPortKey (InPortNodeKey k) = Just k
+toInPortKey _ = Nothing
+
 
 type MarkM = State (S.Set ANodeKey)
 execMarkM :: MarkM a -> S.Set ANodeKey

@@ -11,11 +11,13 @@ module ShapeChecks
 import qualified Data.Map as M
 import qualified Data.Set as S
 import Data.Map ((!))
-import Data.Graph
+import Data.Graph hiding (Graph)
+import Data.Maybe
 import Control.Monad
 import Control.Applicative
 
 import Types
+import ProofGraph
 
 -- Cycles are in fact just SCCs, so lets build a Data.Graph graph out of our
 -- connections and let the standard library do the rest.
@@ -87,64 +89,25 @@ findEscapedHypotheses ctxt proof =
                                               , Just ps <- return $ connFrom c ]
     connsFrom ps = M.findWithDefault [] ps fromMap
 
-findUsedConnections :: Context -> Proof -> S.Set (Key Connection)
-findUsedConnections ctxt proof = go S.empty connectionsToConclusions
+
+findUsedConnections :: Proof -> Graph -> S.Set (Key Connection)
+findUsedConnections proof graph =
+    S.fromList $
+    mapMaybe toConnKey $
+    S.toList $
+    backwardsSlice conclusions
   where
-    conclusions = [ BlockPort blockKey fakePortIn
-        | (blockKey, ConclusionBlock {}) <- M.toList $ blocks proof
-        ]
-    connectionsToConclusions = [ c | spec <- conclusions, c <- connsTo spec ]
+    conclusions = [ blockNodes graph ! blockKey
+                  | (blockKey, ConclusionBlock {}) <- M.toList $ blocks proof ]
 
-    go conns [] = conns
-    go conns (connKey:todo)
-        | connKey `S.member` conns = go conns todo
-        | otherwise                = go conns' (inConnections ++ todo)
-      where
-        conns' = S.insert connKey conns
-        inConnections = [ c
-            | Just (BlockPort blockKey _) <- return $ connFrom (connections proof ! connKey)
-            , let rule = block2Rule ctxt (blocks proof ! blockKey)
-            , (portId, Port PTAssumption _ _) <- M.toList $ ports rule
-            , let spec = BlockPort blockKey portId
-            , c <- connsTo spec
-            ]
-
-    toMap = M.fromListWith (++)
-        [ (ps, [k]) | (k,c) <- M.toList $ connections proof
-                    , Just ps <- return $ connTo c ]
-    connsTo :: PortSpec -> [Key Connection]
-    connsTo ps = M.findWithDefault [] ps toMap
-
-findUnconnectedGoals :: Context -> Proof -> [PortSpec]
-findUnconnectedGoals ctxt proof = go S.empty conclusions
+findUnconnectedGoals :: Proof -> Graph -> [PortSpec]
+findUnconnectedGoals proof graph =
+    filter isUnconneced $
+    mapMaybe toInPortKey $
+    S.toList $
+    backwardsSlice conclusions
   where
-    conclusions = [ BlockPort blockKey fakePortIn
-        | (blockKey, ConclusionBlock {}) <- M.toList $ blocks proof
-        ]
-
-    go _    [] = []
-    go seen (to:todo)
-        | to `S.member` seen =      go seen todo
-        | null conns         = to : go seen' todo
-        | otherwise          =      go seen' (inPorts ++ todo)
-      where
-        seen' = S.insert to seen
-        conns = connsTo to
-        blockKeys = S.toList $ S.fromList
-            [ blockKey | c <- conns
-                       , Just (BlockPort blockKey _) <- return $ connFrom (connections proof ! c)]
-        inPorts = [ spec
-            | blockKey <- blockKeys
-            , let rule = block2Rule ctxt (blocks proof ! blockKey)
-            , (portId, Port PTAssumption _ _) <- M.toList $ ports rule
-            , let spec = BlockPort blockKey portId
-            ]
-
-    toMap = M.fromListWith (++)
-        [ (ps, [k])
-        | (k,c) <- M.toList $ connections proof
-        , Just _  <- return $ connFrom c
-        , Just ps <- return $ connTo c
-        ]
-    connsTo :: PortSpec -> [Key Connection]
-    connsTo ps = M.findWithDefault [] ps toMap
+    conclusions = [ blockNodes graph ! blockKey
+                  | (blockKey, ConclusionBlock {}) <- M.toList $ blocks proof ]
+    isUnconneced pk = null (nodePred n)
+      where n = inPortNodes graph ! pk

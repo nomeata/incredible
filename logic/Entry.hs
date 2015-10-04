@@ -13,21 +13,24 @@ import Lint
 import Rules
 import Analysis
 import ShapeChecks
+import ProofGraph
 
 incredibleLogic :: Context -> Proof -> Either String Analysis
 incredibleLogic ctxt proof = do
     lintsToEither (lint ctxt proof)
     return $ Analysis {..}
   where
-    usedConnections = findUsedConnections ctxt proof
+    graph = proof2Graph ctxt proof
 
-    scopedProof = prepare ctxt proof
+    usedConnections = findUsedConnections proof graph
+
+    scopedProof = prepare ctxt proof graph
 
     portLabels = spProps scopedProof'
 
     (scopedProof', connectionStatus) = unifyScopedProof proof scopedProof
 
-    unconnectedGoals = findUnconnectedGoals ctxt proof
+    unconnectedGoals = findUnconnectedGoals proof graph
     cycles = findCycles ctxt proof
     escapedHypotheses = findEscapedHypotheses ctxt proof
 
@@ -43,11 +46,11 @@ incredibleNewRule ctxt proof = do
     lintsToEither (lint ctxt proof)
     return rule
   where
-    scopedProof = prepare ctxt proof
+    graph = proof2Graph ctxt proof
+    scopedProof = prepare ctxt proof graph
 
     (scopedProof', connectionStatus) = unifyScopedProof proof scopedProof
 
-    unconnectedGoals = findUnconnectedGoals ctxt proof
     cycles = findCycles ctxt proof
     escapedHypotheses = findEscapedHypotheses ctxt proof
 
@@ -57,7 +60,7 @@ incredibleNewRule ctxt proof = do
         , S.fromList [ c | (c, r) <- M.toList connectionStatus, badResult r ]
         ]
 
-    rule = if null unconnectedGoals && S.null badConnections
+    rule = if S.null badConnections
       then deriveRule ctxt proof scopedProof'
       else Nothing
 

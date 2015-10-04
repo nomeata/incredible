@@ -12,6 +12,7 @@ import Types
 import Unification
 import Propositions
 import Scopes
+import ProofGraph (Graph)
 
 import Unbound.LocallyNameless
 
@@ -30,10 +31,10 @@ data ScopedProof = ScopedProof
     , spFreeVars   :: [Var]
     }
 
-prepare :: Context -> Proof -> ScopedProof
-prepare ctxt proof = ScopedProof {..}
+prepare :: Context -> Proof -> Graph -> ScopedProof
+prepare ctxt proof graph = ScopedProof {..}
   where
-    scopes = calculateScopes ctxt proof
+    scopes = calculateScopes ctxt proof graph
     scopeMap = M.fromListWith (++) [ (k, [pdom]) | (ks, pdom) <- scopes, k <- ks ]
 
     localize :: Block -> Var -> Var

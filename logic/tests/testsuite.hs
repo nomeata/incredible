@@ -25,6 +25,7 @@ import Examples
 import Entry
 import Analysis
 import Rules
+import ProofGraph
 
 
 
@@ -94,10 +95,11 @@ escapedHypothesesTests = testGroup "Escaped hypotheses"
   ]
 
 unconnectedGoalsTests = testGroup "Unsolved goals"
-  [ testCase "empty"     $ findUnconnectedGoals impILogic emptyProof @?= [BlockPort "c" "in"]
-  , testCase "indirect"  $ findUnconnectedGoals impILogic partialProof @?= [BlockPort "b" "in"]
-  , testCase "complete"  $ findUnconnectedGoals impILogic completeProof @?= []
+  [ testCase "empty"     $ f emptyProof @?= [BlockPort "c" "in"]
+  , testCase "indirect"  $ f partialProof @?= [BlockPort "b" "in"]
+  , testCase "complete"  $ f completeProof @?= []
   ]
+ where f proof = findUnconnectedGoals proof (proof2Graph impILogic proof)
 
 
 unificationTests = testGroup "Unification tests"
@@ -158,7 +160,8 @@ ruleExportTest = testGroup "Rule export"
   [ testCase "full call" $ assertEqualValues (toJSON $ deriveRule oneBlockLogic oneBlockProof sp') $ toJSON renamedRule
   ]
   where
-    sp = prepare oneBlockLogic oneBlockProof
+    graph = proof2Graph oneBlockLogic oneBlockProof
+    sp = prepare oneBlockLogic oneBlockProof graph
     (sp', _) = unifyScopedProof oneBlockProof sp
 
 assertUnifies :: [Var] -> [Equality] -> [(Var, Term)] -> Assertion

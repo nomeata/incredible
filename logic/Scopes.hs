@@ -8,8 +8,8 @@ import ProofGraph
 
 type Scope = ([Key Block], PortSpec)
 
-calculateScopes :: Context -> Proof -> [Scope]
-calculateScopes ctxt proof =
+calculateScopes :: Context -> Proof -> Graph -> [Scope]
+calculateScopes ctxt proof graph =
     [ (calcScope graph blockKey [ps] allLocalHyps, ps)
     | (blockKey, block) <- M.toList (blocks proof)
     , let rule = block2Rule ctxt block
@@ -17,7 +17,6 @@ calculateScopes ctxt proof =
     , let ps = BlockPort blockKey portKey
     ]
   where
-    graph = proof2Graph ctxt proof
     allLocalHyps =
         [ BlockPort blockKey hypKey
         | (blockKey, block) <- M.toList (blocks proof)
