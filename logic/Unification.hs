@@ -198,7 +198,7 @@ proj w uvs binds s = do
                 Just vs | all (`elem` w) vs -> return (uvs, binds)
                 Just vs -> do
                     newName <- fresh (string2Name "uni")
-                    let rhs = absTerm vs (App (V newName) (ss ++ map V w))
+                    let rhs = absTerm vs (App (V newName) (ss `intersect` map V w))
                     let binds' = M.insert v rhs binds
                     return (newName:uvs, binds')
 
