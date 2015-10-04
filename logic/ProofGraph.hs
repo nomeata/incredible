@@ -17,6 +17,7 @@ import Data.List
 import Data.Maybe
 import Data.Monoid
 import Data.Functor
+import Control.Monad
 import Control.Monad.Trans.State.Strict
 
 import Types
@@ -52,7 +53,9 @@ data ANodeKey
     | OutPortNodeKey (NodeKey OutPortNodeType)
     | InPortNodeKey  (NodeKey InPortNodeType)
     | ConnNodeKey    (NodeKey ConnNodeType)
-    deriving (Eq, Ord)
+    deriving (Show, Eq, Ord)
+
+type NodePath = [ANodeKey]
 
 data Node a = Node
     { nodeType :: NodeTag a
@@ -77,6 +80,18 @@ data Graph = Graph
     , outPortNodes    :: NodeMap 'OutPortNodeType
     , connectionNodes :: NodeMap 'ConnNodeType
     }
+
+-- For debugging
+ppGraph :: Graph -> String
+ppGraph Graph{..} = unlines $ concat $
+    [ show (nodeKey n) :
+      [ "  ← " ++ show (nodeKey p) | p <- nodePred n ] ++
+      [ "  → " ++ show (nodeKey p) | p <- nodeSucc n ]
+    | n <- M.elems blockNodes] ++
+    [ show (nodeKey n) :
+      [ "  ← " ++ show (nodeKey p) | p <- nodePred n ] ++
+      [ "  → " ++ show (nodeKey p) | p <- nodeSucc n ]
+    | n <- M.elems connectionNodes]
 
 mkNodeMap :: Ord (NodeKey a) => [Node a] -> NodeMap a
 mkNodeMap nodes = M.fromList [ (nodeKey n, n) | n <- nodes ]
@@ -139,35 +154,44 @@ proof2Graph ctxt proof = Graph {..}
         ]
 
 
-calcCycle :: Node a -> S.Set ANodeKey -> [[ANodeKey]]
+calcCycle :: Node a -> S.Set ANodeKey -> [NodePath]
 calcCycle start stopAt = evalMarkM $ goBeyond [] start
   where
-    goBeyond :: [ANodeKey] -> Node a -> MarkM [[ANodeKey]]
+    goBeyond :: NodePath -> Node a -> MarkM [NodePath]
     goBeyond path n = concat <$> mapM remember (nodeSucc n)
       where
         remember n = go (node2ANodeKey n:path) n
 
-    go :: [ANodeKey] -> Node a -> MarkM [[ANodeKey]]
+    go :: NodePath -> Node a -> MarkM [NodePath]
     go path n | node2ANodeKey n == node2ANodeKey start = return [path]
     go _    n | node2ANodeKey n `S.member` stopAt = return []
     go path n = markAndFollow (node2ANodeKey n) $ goBeyond path n
 
 
 
-calcNonScope :: Node a -> S.Set ANodeKey -> S.Set ANodeKey
-calcNonScope start stopAt = execMarkM $ goForward start
+calcNonScope :: Node a -> S.Set ANodeKey -> M.Map ANodeKey NodePath
+calcNonScope start stopAt = execState (goForward [] start) M.empty
   where
-    goForward :: Node a -> MarkM ()
-    goForward n | node2ANodeKey n `S.member` stopAt = return ()
-    goForward n = markAndFollow (node2ANodeKey n) $ do
-        mapM_ goForward  (nodeSucc n)
-        mapM_ goBackward (nodePred n)
+    goForward :: [ANodeKey] -> Node a -> State (M.Map ANodeKey [ANodeKey]) ()
+    goForward path n | nk `S.member` stopAt = return ()
+                     | otherwise = do
+        seen <- gets (nk `M.member`)
+        unless seen $ do
+            modify $ M.insert nk path'
+            mapM_ (goBackward path') (nodePred n)
+            mapM_ (goForward  path') (nodeSucc n)
+      where nk = node2ANodeKey n
+            path' = nk:path
 
-    goBackward :: Node a -> MarkM ()
-    goBackward n | node2ANodeKey n `S.member` stopAt = return ()
-    goBackward n = markAndFollow (node2ANodeKey n) $ do
-        mapM_ goBackward (nodePred n)
-
+    goBackward :: [ANodeKey] -> Node a -> State (M.Map ANodeKey [ANodeKey]) ()
+    goBackward path n | nk `S.member` stopAt = return ()
+                      | otherwise = do
+        seen <- gets (nk `M.member`)
+        unless seen $ do
+            modify $ M.insert nk path'
+            mapM_ (goBackward path') (nodePred n)
+      where nk = node2ANodeKey n
+            path' = nk:path
 
 calcSCC :: Node a -> S.Set ANodeKey
 calcSCC start = execMarkM $ go start
@@ -188,7 +212,7 @@ calcScope :: Graph -> Key Block -> [PortSpec] -> [PortSpec] -> [Key Block]
 calcScope Graph{..} start stopAtIn stopAtOut =
     mapMaybe toBlockNodeKey $
     S.toList $
-    calcSCC node `S.difference` calcNonScope node stopNodes
+    calcSCC node `S.difference` M.keysSet (calcNonScope node stopNodes)
   where
     node = blockNodes ! start
     stopNodes = S.fromList (map InPortNodeKey stopAtIn) `S.union`

@@ -32,7 +32,7 @@ incredibleLogic ctxt proof = do
 
     unconnectedGoals = findUnconnectedGoals proof graph
     cycles = findCycles ctxt proof graph
-    escapedHypotheses = findEscapedHypotheses ctxt proof
+    escapedHypotheses = findEscapedHypotheses ctxt proof graph
 
     badConnections = S.unions
         [ S.fromList (concat cycles)
@@ -52,7 +52,7 @@ incredibleNewRule ctxt proof = do
     (scopedProof', connectionStatus) = unifyScopedProof proof scopedProof
 
     cycles = findCycles ctxt proof graph
-    escapedHypotheses = findEscapedHypotheses ctxt proof
+    escapedHypotheses = findEscapedHypotheses ctxt proof graph
 
     badConnections = S.unions
         [ S.fromList (concat cycles)

@@ -90,10 +90,11 @@ cycleTests = testGroup "Cycle detection"
  where f proof = findCycles oneBlockLogic proof (proof2Graph oneBlockLogic proof)
 
 escapedHypothesesTests = testGroup "Escaped hypotheses"
-  [ testCase "direct"    $ findEscapedHypotheses impILogic directEscape @?= [["c"]]
-  , testCase "indirect"  $ findEscapedHypotheses impILogic indirectEscape @?= [["c", "c2"]]
-  , testCase "ok"        $ findEscapedHypotheses impILogic noEscape @?= []
+  [ testCase "direct"    $ f directEscape @?= [["c"]]
+  , testCase "indirect"  $ f indirectEscape @?= [["c", "c2"]]
+  , testCase "ok"        $ f noEscape @?= []
   ]
+ where f proof = findEscapedHypotheses impILogic proof (proof2Graph impILogic proof)
 
 unconnectedGoalsTests = testGroup "Unsolved goals"
   [ testCase "empty"     $ f emptyProof @?= [BlockPort "c" "in"]
