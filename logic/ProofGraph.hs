@@ -14,7 +14,6 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 import Data.Map ((!))
 import Data.List
-import Data.Maybe
 import Data.Monoid
 import Data.Functor
 import Control.Monad
@@ -154,6 +153,8 @@ proof2Graph ctxt proof = Graph {..}
         ]
 
 
+-- | Finds a list of cycles from the given node to itself, ignoring the nodes
+-- from stopAt along the way, and returns such paths.
 calcCycle :: Node a -> S.Set ANodeKey -> [NodePath]
 calcCycle start stopAt = evalMarkM $ goBeyond [] start
   where
@@ -169,11 +170,19 @@ calcCycle start stopAt = evalMarkM $ goBeyond [] start
 
 
 
-calcNonScope :: Node a -> S.Set ANodeKey -> M.Map ANodeKey NodePath
-calcNonScope start stopAt = execState (goForward [] start) M.empty
+-- | Starting with the given node,
+-- this moves forward from the node, and then backwards, always ignoring the
+-- nodes listed in stopAt.
+--
+-- It returns a map from all visited nodes, with the path from the start node
+-- to the visited node as values.
+--
+-- The nodes mentiond in stopAt are _not_ included in the returned map.
+calcNonScope :: Node a -> S.Set ANodeKey -> S.Set ANodeKey -> M.Map ANodeKey NodePath
+calcNonScope start stopAtForward stopAtBackward = execState (goForward [] start) M.empty
   where
     goForward :: [ANodeKey] -> Node a -> State (M.Map ANodeKey [ANodeKey]) ()
-    goForward path n | nk `S.member` stopAt = return ()
+    goForward path n | nk `S.member` stopAtForward = return ()
                      | otherwise = do
         seen <- gets (nk `M.member`)
         unless seen $ do
@@ -184,7 +193,7 @@ calcNonScope start stopAt = execState (goForward [] start) M.empty
             path' = nk:path
 
     goBackward :: [ANodeKey] -> Node a -> State (M.Map ANodeKey [ANodeKey]) ()
-    goBackward path n | nk `S.member` stopAt = return ()
+    goBackward path n | nk `S.member` stopAtBackward = return ()
                       | otherwise = do
         seen <- gets (nk `M.member`)
         unless seen $ do
@@ -207,16 +216,6 @@ backwardsSlice starts = execMarkM $ mapM_ goBackward starts
     goBackward :: Node a -> MarkM ()
     goBackward n = markAndFollow (node2ANodeKey n) $ do
         mapM_ goBackward (nodePred n)
-
-calcScope :: Graph -> Key Block -> [PortSpec] -> [PortSpec] -> [Key Block]
-calcScope Graph{..} start stopAtIn stopAtOut =
-    mapMaybe toBlockNodeKey $
-    S.toList $
-    calcSCC node `S.difference` M.keysSet (calcNonScope node stopNodes)
-  where
-    node = blockNodes ! start
-    stopNodes = S.fromList (map InPortNodeKey stopAtIn) `S.union`
-                S.fromList (map OutPortNodeKey stopAtOut)
 
 toBlockNodeKey :: ANodeKey -> Maybe (Key Block)
 toBlockNodeKey (BlockNodeKey k) = Just k

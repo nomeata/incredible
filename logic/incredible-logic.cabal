@@ -30,7 +30,6 @@ library
                      Propositions,
                      Utils,
                      Unification,
-                     Scopes,
                      ConvertAeson,
                      Rules,
                      ProofGraph,

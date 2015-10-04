@@ -1,3 +1,4 @@
+{-# LANGUAGE RecordWildCards, TupleSections #-}
 -- |
 -- This module contains the graph-related checks of a proof, i.e. no cycles;
 -- local assumptions used properly.
@@ -6,6 +7,7 @@ module ShapeChecks
     , findEscapedHypotheses
     , findUnconnectedGoals
     , findUsedConnections
+    , calculateScopes
     ) where
 
 import qualified Data.Map as M
@@ -38,11 +40,10 @@ findEscapedHypotheses ctxt proof graph =
     , let rule = block2Rule ctxt block
     , (portKey, Port (PTLocalHyp consumedBy) _ _) <- M.toList (ports rule)
     , let startNodes = (blockNodes graph ! blockKey) : conclusions
-    , let avoid = S.insert (InPortNodeKey (BlockPort blockKey consumedBy)) allLocalHyps
+    , let targetNodeKey = InPortNodeKey (BlockPort blockKey consumedBy)
     , let hypPortSpec = BlockPort blockKey portKey
-    , nonScope <- [ calcNonScope startNode avoid | startNode <- startNodes]
-    , Just path <- [ M.lookup (node2ANodeKey s) nonScope
-                   | s <- nodeSucc (outPortNodes graph ! hypPortSpec) ]
+    , nonScope <- [ calcNonScope startNode allLocalHyps (S.singleton targetNodeKey) | startNode <- startNodes]
+    , Just path <- return $ M.lookup (OutPortNodeKey hypPortSpec) nonScope
     ]
   where
     conclusions = [ blockNodes graph ! blockKey
@@ -76,3 +77,28 @@ findUnconnectedGoals proof graph =
                   | (blockKey, ConclusionBlock {}) <- M.toList $ blocks proof ]
     isUnconneced pk = null (nodePred n)
       where n = inPortNodes graph ! pk
+
+type Scope = ([Key Block], PortSpec)
+
+calculateScopes :: Context -> Proof -> Graph -> [Scope]
+calculateScopes ctxt proof Graph{..} =
+    [ (,ps) $
+      mapMaybe toBlockNodeKey $
+      S.toList $
+      (`S.difference` M.keysSet (calcNonScope startNode allLocalHyps (S.singleton targetNodeKey))) $
+      calcSCC startNode
+    | (blockKey, block) <- M.toList (blocks proof)
+    , let rule = block2Rule ctxt block
+    , (portKey, Port {portType = PTAssumption, portScopes = _:_}) <- M.toList (ports rule)
+    , let ps = BlockPort blockKey portKey
+    , let targetNodeKey = InPortNodeKey ps
+    , let startNode = blockNodes ! blockKey
+    ]
+  where
+    allLocalHyps =
+        S.fromList
+        [ OutPortNodeKey (BlockPort blockKey hypKey)
+        | (blockKey, block) <- M.toList (blocks proof)
+        , let rule = block2Rule ctxt block
+        , (hypKey, Port {portType = PTLocalHyp{}}) <- M.toList (ports rule)
+        ]

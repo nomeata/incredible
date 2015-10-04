@@ -11,8 +11,8 @@ import Control.Arrow
 import Types
 import Unification
 import Propositions
-import Scopes
 import ProofGraph (Graph)
+import ShapeChecks
 
 import Unbound.LocallyNameless
 
