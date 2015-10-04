@@ -93,7 +93,7 @@ escapedHypothesesTests = testGroup "Escaped hypotheses"
   [ testCase "direct"    $ f directEscape @?= [["c"]]
   , testCase "indirect"  $ f indirectEscape @?= [["c", "c2"]]
   , testCase "ok"        $ f noEscape @?= []
-  , testCase "tricky"    $ f trickyEscape @?= [["tbd"]]
+  , testCase "tricky"    $ f trickyEscape @?= [["c", "c5", "c3", "c1"]]
   ]
  where f proof = findEscapedHypotheses impILogic proof (proof2Graph impILogic proof)
 

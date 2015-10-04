@@ -18,6 +18,8 @@ import Data.Monoid
 import Data.Functor
 import Control.Monad
 import Control.Monad.Trans.State.Strict
+import Control.Monad.Trans.Writer.Strict
+import Control.Monad.Trans.Class
 
 import Types
 
@@ -193,20 +195,25 @@ calcCycle start stopAt = evalMarkM $ goBeyond [] start
 --
 -- The nodes mentiond in stopAt are _not_ included in the returned map.
 calcNonScope :: Node a -> S.Set ANodeKey -> S.Set ANodeKey -> M.Map ANodeKey NodePath
-calcNonScope start stopAtForward stopAtBackward = execState (goForward [] start) M.empty
+calcNonScope start stopAtForward stopAtBackward = flip execState M.empty $ do
+    backActions <- execWriterT (goForward [] start)
+    sequence_ backActions
   where
-    goForward :: [ANodeKey] -> Node a -> State (M.Map ANodeKey [ANodeKey]) ()
+    -- This goes only forward. It does not go backwards directly, but rather remembers
+    -- where to start going backwards and returns these actions in a list.
+    -- Going back too early might cut off certain paths (see trickyEscape test case)
+    goForward :: [ANodeKey] -> Node a -> NonScopeDeferM ()
     goForward path n | nk `S.member` stopAtForward = return ()
                      | otherwise = do
-        seen <- gets (nk `M.member`)
+        seen <- lift $ gets (nk `M.member`)
         unless seen $ do
-            modify $ M.insert nk path'
-            mapM_ (goBackward path') (nodePred n)
+            lift $ modify $ M.insert nk path'
+            tell $ map (goBackward path') (nodePred n)
             mapM_ (goForward  path') (nodeSucc n)
       where nk = node2ANodeKey n
             path' = nk:path
 
-    goBackward :: [ANodeKey] -> Node a -> State (M.Map ANodeKey [ANodeKey]) ()
+    goBackward :: [ANodeKey] -> Node a -> NonScopeM ()
     goBackward path n | nk `S.member` stopAtBackward = return ()
                       | otherwise = do
         seen <- gets (nk `M.member`)
@@ -215,6 +222,9 @@ calcNonScope start stopAtForward stopAtBackward = execState (goForward [] start)
             mapM_ (goBackward path') (nodePred n)
       where nk = node2ANodeKey n
             path' = nk:path
+
+type NonScopeM = State (M.Map ANodeKey [ANodeKey])
+type NonScopeDeferM = WriterT [NonScopeM ()] NonScopeM
 
 calcSCC :: Node a -> S.Set ANodeKey
 calcSCC start = execMarkM $ go start
