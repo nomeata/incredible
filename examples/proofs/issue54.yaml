@@ -1,4 +1,3 @@
-expectedBad: true
 logic: predicate
 blocks:
   d:
