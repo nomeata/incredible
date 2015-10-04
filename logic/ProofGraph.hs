@@ -78,6 +78,9 @@ data Graph = Graph
     , inPortNodes     :: NodeMap 'InPortNodeType
     , outPortNodes    :: NodeMap 'OutPortNodeType
     , connectionNodes :: NodeMap 'ConnNodeType
+
+    , localHypNodes   :: S.Set ANodeKey
+    , conclusionNodes :: [Node 'BlockNodeType]
     }
 
 -- For debugging
@@ -151,6 +154,17 @@ proof2Graph ctxt proof = Graph {..}
                [inPortNodes ! ps  | Just ps <- return $ connTo conn]
         | (connKey, conn) <- M.toList (connections proof)
         ]
+
+    localHypNodes =
+        S.fromList
+        [ OutPortNodeKey (BlockPort blockKey hypKey)
+        | (blockKey, block) <- M.toList (blocks proof)
+        , let rule = block2Rule ctxt block
+        , (hypKey, Port {portType = PTLocalHyp{}}) <- M.toList (ports rule)
+        ]
+
+    conclusionNodes = [ blockNodes ! blockKey
+                      | (blockKey, ConclusionBlock {}) <- M.toList $ blocks proof ]
 
 
 -- | Finds a list of cycles from the given node to itself, ignoring the nodes

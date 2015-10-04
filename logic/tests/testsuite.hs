@@ -87,7 +87,7 @@ cycleTests = testGroup "Cycle detection"
   [ testCase "cycle"    $ f proofWithCycle @?= [["c"]]
   , testCase "no cycle" $ f proofWithoutCycle @?= []
   ]
- where f proof = findCycles oneBlockLogic proof (proof2Graph oneBlockLogic proof)
+ where f proof = findCycles (proof2Graph oneBlockLogic proof)
 
 escapedHypothesesTests = testGroup "Escaped hypotheses"
   [ testCase "direct"    $ f directEscape @?= [["c"]]
@@ -101,7 +101,7 @@ unconnectedGoalsTests = testGroup "Unsolved goals"
   , testCase "indirect"  $ f partialProof @?= [BlockPort "b" "in"]
   , testCase "complete"  $ f completeProof @?= []
   ]
- where f proof = findUnconnectedGoals proof (proof2Graph impILogic proof)
+ where f proof = findUnconnectedGoals (proof2Graph impILogic proof)
 
 
 unificationTests = testGroup "Unification tests"

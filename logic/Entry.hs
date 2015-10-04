@@ -22,7 +22,7 @@ incredibleLogic ctxt proof = do
   where
     graph = proof2Graph ctxt proof
 
-    usedConnections = findUsedConnections proof graph
+    usedConnections = findUsedConnections graph
 
     scopedProof = prepare ctxt proof graph
 
@@ -30,8 +30,8 @@ incredibleLogic ctxt proof = do
 
     (scopedProof', connectionStatus) = unifyScopedProof proof scopedProof
 
-    unconnectedGoals = findUnconnectedGoals proof graph
-    cycles = findCycles ctxt proof graph
+    unconnectedGoals = findUnconnectedGoals graph
+    cycles = findCycles graph
     escapedHypotheses = findEscapedHypotheses ctxt proof graph
 
     badConnections = S.unions
@@ -51,7 +51,7 @@ incredibleNewRule ctxt proof = do
 
     (scopedProof', connectionStatus) = unifyScopedProof proof scopedProof
 
-    cycles = findCycles ctxt proof graph
+    cycles = findCycles graph
     escapedHypotheses = findEscapedHypotheses ctxt proof graph
 
     badConnections = S.unions

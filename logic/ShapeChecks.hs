@@ -19,19 +19,12 @@ import Data.Maybe
 import Types
 import ProofGraph
 
-findCycles :: Context -> Proof -> Graph -> [Cycle]
-findCycles ctxt proof graph =
+findCycles :: Graph -> [Cycle]
+findCycles graph =
     [ mapMaybe toConnKey cycle
     | blockNode <- M.elems (blockNodes graph)
-    , cycle <- calcCycle blockNode allLocalHyps
+    , cycle <- calcCycle blockNode (localHypNodes graph)
     ]
-  where
-    allLocalHyps = S.fromList
-        [ OutPortNodeKey (BlockPort blockKey hypKey)
-        | (blockKey, block) <- M.toList (blocks proof)
-        , let rule = block2Rule ctxt block
-        , (hypKey, Port {portType = PTLocalHyp{}}) <- M.toList (ports rule)
-        ]
 
 findEscapedHypotheses :: Context -> Proof -> Graph -> [Path]
 findEscapedHypotheses ctxt proof graph =
@@ -39,66 +32,43 @@ findEscapedHypotheses ctxt proof graph =
     | (blockKey, block) <- M.toList $ blocks proof
     , let rule = block2Rule ctxt block
     , (portKey, Port (PTLocalHyp consumedBy) _ _) <- M.toList (ports rule)
-    , let startNodes = (blockNodes graph ! blockKey) : conclusions
+    , let startNodes = (blockNodes graph ! blockKey) : conclusionNodes graph
     , let targetNodeKey = InPortNodeKey (BlockPort blockKey consumedBy)
     , let hypPortSpec = BlockPort blockKey portKey
-    , nonScope <- [ calcNonScope startNode allLocalHyps (S.singleton targetNodeKey) | startNode <- startNodes]
+    , nonScope <- [ calcNonScope startNode (localHypNodes graph) (S.singleton targetNodeKey) | startNode <- startNodes]
     , Just path <- return $ M.lookup (OutPortNodeKey hypPortSpec) nonScope
     ]
-  where
-    conclusions = [ blockNodes graph ! blockKey
-                  | (blockKey, ConclusionBlock {}) <- M.toList $ blocks proof ]
-    allLocalHyps =
-        S.fromList
-        [ OutPortNodeKey (BlockPort blockKey hypKey)
-        | (blockKey, block) <- M.toList (blocks proof)
-        , let rule = block2Rule ctxt block
-        , (hypKey, Port {portType = PTLocalHyp{}}) <- M.toList (ports rule)
-        ]
 
-findUsedConnections :: Proof -> Graph -> S.Set (Key Connection)
-findUsedConnections proof graph =
+findUsedConnections :: Graph -> S.Set (Key Connection)
+findUsedConnections graph =
     S.fromList $
     mapMaybe toConnKey $
     S.toList $
-    backwardsSlice conclusions
-  where
-    conclusions = [ blockNodes graph ! blockKey
-                  | (blockKey, ConclusionBlock {}) <- M.toList $ blocks proof ]
+    backwardsSlice (conclusionNodes graph)
 
-findUnconnectedGoals :: Proof -> Graph -> [PortSpec]
-findUnconnectedGoals proof graph =
+findUnconnectedGoals :: Graph -> [PortSpec]
+findUnconnectedGoals graph =
     filter isUnconneced $
     mapMaybe toInPortKey $
     S.toList $
-    backwardsSlice conclusions
+    backwardsSlice (conclusionNodes graph)
   where
-    conclusions = [ blockNodes graph ! blockKey
-                  | (blockKey, ConclusionBlock {}) <- M.toList $ blocks proof ]
     isUnconneced pk = null (nodePred n)
       where n = inPortNodes graph ! pk
 
 type Scope = ([Key Block], PortSpec)
 
 calculateScopes :: Context -> Proof -> Graph -> [Scope]
-calculateScopes ctxt proof Graph{..} =
+calculateScopes ctxt proof graph =
     [ (,ps) $
       mapMaybe toBlockNodeKey $
       S.toList $
-      (`S.difference` M.keysSet (calcNonScope startNode allLocalHyps (S.singleton targetNodeKey))) $
+      (`S.difference` M.keysSet (calcNonScope startNode (localHypNodes graph) (S.singleton targetNodeKey))) $
       calcSCC startNode
     | (blockKey, block) <- M.toList (blocks proof)
     , let rule = block2Rule ctxt block
     , (portKey, Port {portType = PTAssumption, portScopes = _:_}) <- M.toList (ports rule)
     , let ps = BlockPort blockKey portKey
     , let targetNodeKey = InPortNodeKey ps
-    , let startNode = blockNodes ! blockKey
+    , let startNode = blockNodes graph ! blockKey
     ]
-  where
-    allLocalHyps =
-        S.fromList
-        [ OutPortNodeKey (BlockPort blockKey hypKey)
-        | (blockKey, block) <- M.toList (blocks proof)
-        , let rule = block2Rule ctxt block
-        , (hypKey, Port {portType = PTLocalHyp{}}) <- M.toList (ports rule)
-        ]
