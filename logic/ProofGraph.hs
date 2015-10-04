@@ -15,7 +15,8 @@ import qualified Data.Set as S
 import Data.Map ((!))
 import Data.List
 import Data.Maybe
-import Control.Monad
+import Data.Monoid
+import Data.Functor
 import Control.Monad.Trans.State.Strict
 
 import Types
@@ -138,17 +139,32 @@ proof2Graph ctxt proof = Graph {..}
         ]
 
 
+calcCycle :: Node a -> S.Set ANodeKey -> [[ANodeKey]]
+calcCycle start stopAt = evalMarkM $ goBeyond [] start
+  where
+    goBeyond :: [ANodeKey] -> Node a -> MarkM [[ANodeKey]]
+    goBeyond path n = concat <$> mapM remember (nodeSucc n)
+      where
+        remember n = go (node2ANodeKey n:path) n
+
+    go :: [ANodeKey] -> Node a -> MarkM [[ANodeKey]]
+    go path n | node2ANodeKey n == node2ANodeKey start = return [path]
+    go _    n | node2ANodeKey n `S.member` stopAt = return []
+    go path n = markAndFollow (node2ANodeKey n) $ goBeyond path n
+
+
+
 calcNonScope :: Node a -> S.Set ANodeKey -> S.Set ANodeKey
-calcNonScope start stopNodes = execMarkM $ goForward start
+calcNonScope start stopAt = execMarkM $ goForward start
   where
     goForward :: Node a -> MarkM ()
-    goForward n | node2ANodeKey n `S.member` stopNodes = return ()
+    goForward n | node2ANodeKey n `S.member` stopAt = return ()
     goForward n = markAndFollow (node2ANodeKey n) $ do
         mapM_ goForward  (nodeSucc n)
         mapM_ goBackward (nodePred n)
 
     goBackward :: Node a -> MarkM ()
-    goBackward n | node2ANodeKey n `S.member` stopNodes = return ()
+    goBackward n | node2ANodeKey n `S.member` stopAt = return ()
     goBackward n = markAndFollow (node2ANodeKey n) $ do
         mapM_ goBackward (nodePred n)
 
@@ -192,12 +208,15 @@ toInPortKey _ = Nothing
 
 
 type MarkM = State (S.Set ANodeKey)
+
 execMarkM :: MarkM a -> S.Set ANodeKey
 execMarkM a = execState a S.empty
 
-markAndFollow :: ANodeKey -> MarkM () -> MarkM ()
+evalMarkM :: MarkM a -> a
+evalMarkM a = evalState a S.empty
+
+markAndFollow :: Monoid m => ANodeKey -> MarkM m -> MarkM m
 markAndFollow k a = do
     seen <- gets (k `S.member`)
-    unless seen $ do
-        modify (S.insert k)
-        a
+    if seen then return mempty
+            else modify (S.insert k) >> a

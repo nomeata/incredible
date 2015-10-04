@@ -11,7 +11,6 @@ module ShapeChecks
 import qualified Data.Map as M
 import qualified Data.Set as S
 import Data.Map ((!))
-import Data.Graph hiding (Graph)
 import Data.Maybe
 import Control.Monad
 import Control.Applicative
@@ -19,29 +18,19 @@ import Control.Applicative
 import Types
 import ProofGraph
 
--- Cycles are in fact just SCCs, so lets build a Data.Graph graph out of our
--- connections and let the standard library do the rest.
-findCycles :: Context -> Proof -> [Cycle]
-findCycles ctxt proof = [ keys | CyclicSCC keys <- stronglyConnComp graph ]
+findCycles :: Context -> Proof -> Graph -> [Cycle]
+findCycles ctxt proof graph =
+    [ mapMaybe toConnKey cycle
+    | blockNode <- M.elems (blockNodes graph)
+    , cycle <- calcCycle blockNode allLocalHyps
+    ]
   where
-    graph = [ (key, key, connectionsBefore ps)
-            | (key, connection) <- M.toList $ connections proof
-            , Just ps <- return $ connFrom connection ]
-
-    toMap = M.fromListWith (++)
-        [ (ps, [k]) | (k,c) <- M.toList $ connections proof
-                    , Just ps <- return $ connTo c ]
-
-    connectionsBefore :: PortSpec -> [Key Connection]
-    connectionsBefore (BlockPort blockId toPortId)
-        | Just block <- M.lookup blockId (blocks proof)
+    allLocalHyps = S.fromList
+        [ OutPortNodeKey (BlockPort blockKey hypKey)
+        | (blockKey, block) <- M.toList (blocks proof)
         , let rule = block2Rule ctxt block
-        , (Port PTConclusion _ _) <- ports rule ! toPortId -- No need to follow local assumptions
-        = [ c'
-          | (portId, Port PTAssumption _ _) <- M.toList (ports rule)
-          , c' <- M.findWithDefault [] (BlockPort blockId portId) toMap
-          ]
-    connectionsBefore _ = []
+        , (hypKey, Port {portType = PTLocalHyp{}}) <- M.toList (ports rule)
+        ]
 
 findEscapedHypotheses :: Context -> Proof -> [Path]
 findEscapedHypotheses ctxt proof =

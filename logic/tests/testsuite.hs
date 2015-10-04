@@ -84,9 +84,10 @@ assertParse f t = do
 
 
 cycleTests = testGroup "Cycle detection"
-  [ testCase "cycle"    $ findCycles oneBlockLogic proofWithCycle @?= [["c"]]
-  , testCase "no cycle" $ findCycles oneBlockLogic proofWithoutCycle @?= []
+  [ testCase "cycle"    $ f proofWithCycle @?= [["c"]]
+  , testCase "no cycle" $ f proofWithoutCycle @?= []
   ]
+ where f proof = findCycles oneBlockLogic proof (proof2Graph oneBlockLogic proof)
 
 escapedHypothesesTests = testGroup "Escaped hypotheses"
   [ testCase "direct"    $ findEscapedHypotheses impILogic directEscape @?= [["c"]]
