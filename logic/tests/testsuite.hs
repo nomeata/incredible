@@ -149,13 +149,25 @@ unificationTests = testGroup "Unification tests"
   , testCase "better unification" $
     assertUnifies
         [ "P", "y" ]
-        [ "P(V c)" >: "f(y)" ] -- here, we can make some progress on P
+        [ "P(V c)" >: "f(y)" ]
         [ "P" >: absTerm ["x"] "f(y)"]
   , testCase "basic pattern-matching" $
     assertUnifies
         [ "P1", "P2" ]
         [ "P1(V c1)" >: "∀x.P2(V c1,x)"]
         [ "P1" >: absTerm ["c1"] "∀x.P2(c1,x)"]
+  , expectFail $
+    testCase "pattern vs. non-pattern" $
+    assertUnifies
+        [ "P1", "P2", "y"]
+        [ "P1(V c)" >: "P2(V c, y(V c))" ]
+        [ "P1" >: absTerm ["x"] "P2(V x, y(V x))"]
+  , expectFail $
+    testCase "non-pattern vs. pattern" $
+    assertUnifies
+        [ "P1", "P2", "y"]
+        [ "P2(V c, y(V c))" >: "P1(V c)" ]
+        [ "P1" >: absTerm ["x"] "P2(V x, y(V x))"]
 
   ]
 
