@@ -54,7 +54,6 @@ function selectSessionTask(evt) {
     graph.fromJSON(tasks_saved[task_desc]);
   }
 
-  clearUndo();
   // Start the animation at the end
   $("#taskdialog").hide("slide", {direction:"down"}, 800, function () {
     $("#taskbottombar").show("slide", {direction:"down"}, 100);
