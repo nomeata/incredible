@@ -86,6 +86,7 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
       document.onmouseup = function(e){
         document.onmousemove = null;
         document.onmouseup = null;
+        cellView.notify('element:schieblehre:ready');
       };
       e.stopPropagation();
     }

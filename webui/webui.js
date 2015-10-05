@@ -149,6 +149,7 @@ function with_graph_loading(func) {
     graph.set('loading', false);
     processGraph();
     // $("#loading").hide();
+    clearUndo();
   };
 }
 
@@ -218,6 +219,7 @@ $(function (){
           number: nextFreeBlockNumber()
         }));
         graph.addCell(elem);
+        saveUndo();
       }
     }
   });
@@ -235,10 +237,6 @@ $(function (){
   $("#redo").on('click', function () {
     applyUndoState(currentState+1);
   });
-
-
-  $("#paper").on('click', saveUndo);
-  $("#paper").on('wheel', saveUndo);
 
   loadSession();
   setupTaskSelection();
@@ -274,7 +272,13 @@ graph.on('change:source change:target', function (model, end) {
   }
 });
 
-//graph.on('change', saveUndo);
+paper.on('element:schieblehre:ready', saveUndo);
+
+paper.listenTo(graph, 'batch:stop', function(evt) {
+  if (evt.batchName === 'pointer') {
+    saveUndo();
+  }
+});
 
 // time arg is in milliseconds
 // Use only to simulate heave calculations!
