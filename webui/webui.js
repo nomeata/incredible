@@ -228,6 +228,7 @@ $(function (){
 $(function (){
   $("#resettask").on('click', function () {
     setupGraph(graph, task);
+    clearUndo(); // Is this what we want?
   });
 
   $("#undo").on('click', function () {
