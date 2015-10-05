@@ -30,6 +30,34 @@ var graph = new joint.dia.Graph({
 
 var paper = create_paper();
 
+var undoList = [];
+var currentState;
+
+function clearUndo() {
+  var g = graph.toJSON();
+  undoList = [{graph: g}];
+  currentState = 0;
+}
+
+function saveUndo() {
+  if (undefined === currentState) {
+    throw Error("Usage of clearUndo() before saveUndo() is required.");
+  }
+  currentState += 1;
+  var g = graph.toJSON();
+  undoList[currentState] = {graph: g};
+  undoList.length = currentState+1;
+}
+
+function applyUndoState(idx) {
+  var state = undoList[idx];
+  if (state) {
+    graph.fromJSON(state.graph);
+    currentState = idx;
+    processGraph();
+  }
+}
+
 function setupGraph(graph, task) {
   var cells = [];
   // Fixed blocks for input and output
@@ -121,6 +149,7 @@ function with_graph_loading(func) {
     graph.set('loading', false);
     processGraph();
     // $("#loading").hide();
+    clearUndo();
   };
 }
 
@@ -190,6 +219,7 @@ $(function (){
           number: nextFreeBlockNumber()
         }));
         graph.addCell(elem);
+        saveUndo();
       }
     }
   });
@@ -198,6 +228,15 @@ $(function (){
 $(function (){
   $("#resettask").on('click', function () {
     setupGraph(graph, task);
+    clearUndo(); // Is this what we want?
+  });
+
+  $("#undo").on('click', function () {
+    applyUndoState(currentState-1);
+  });
+
+  $("#redo").on('click', function () {
+    applyUndoState(currentState+1);
   });
 
   loadSession();
@@ -234,6 +273,13 @@ graph.on('change:source change:target', function (model, end) {
   }
 });
 
+paper.on('element:schieblehre:ready', saveUndo);
+
+paper.listenTo(graph, 'batch:stop', function(evt) {
+  if (evt.batchName === 'pointer') {
+    saveUndo();
+  }
+});
 
 // time arg is in milliseconds
 // Use only to simulate heave calculations!
