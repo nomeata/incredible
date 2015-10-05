@@ -48,12 +48,14 @@ findUsedConnections graph =
 
 findUnconnectedGoals :: Graph -> [PortSpec]
 findUnconnectedGoals graph =
-    filter isUnconneced $
+    filter isUnconnected $
     mapMaybe toInPortKey $
     S.toList $
     backwardsSlice (conclusionNodes graph)
   where
-    isUnconneced pk = null (nodePred n)
+    -- An unconneced port might have predecessors (the a connection), but that
+    -- would be dangling. See #63.
+    isUnconnected pk = all (null . nodePred) (nodePred n)
       where n = inPortNodes graph ! pk
 
 type Scope = ([Key Block], PortSpec)

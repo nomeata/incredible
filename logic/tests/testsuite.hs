@@ -99,6 +99,7 @@ escapedHypothesesTests = testGroup "Escaped hypotheses"
 
 unconnectedGoalsTests = testGroup "Unsolved goals"
   [ testCase "empty"     $ f emptyProof @?= [BlockPort "c" "in"]
+  , testCase "dangling"  $ f danglingProof @?= [BlockPort "c" "in"]
   , testCase "indirect"  $ f partialProof @?= [BlockPort "b" "in"]
   , testCase "complete"  $ f completeProof @?= []
   ]
@@ -267,6 +268,10 @@ trickyEscape = Proof
 emptyProof = Proof
     (M.fromList [("c", ConclusionBlock 0 "Prop→Prop")])
     (M.fromList [])
+
+danglingProof = Proof
+    (M.fromList [("c", ConclusionBlock 0 "Prop→Prop")])
+    (M.fromList [("c", Connection 0 Nothing (Just (BlockPort "c" "in")))])
 
 partialProof = Proof
     (M.fromList [("c", ConclusionBlock 0 "Prop→Prop"),("b", Block 1 "impI")])
