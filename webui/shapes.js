@@ -235,6 +235,7 @@ BlockDescRenderer.positionNumber = function(x,y) {
   if (this.blockDesc.number) {
     // lower right corner
     number = this.el.findOne(".number");
+    if (!number) {return;} // Can happen when loading old proofs
     var bb = number.bbox(true);
     number
       .attr('transform','')
