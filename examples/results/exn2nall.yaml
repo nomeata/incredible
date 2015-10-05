@@ -23,7 +23,6 @@ portLabels:
     out: ⊥
     hyp: P(c₅)→⊥
 cycles: []
-rule: null
 escapedHypotheses: []
 connectionStatus:
   d0ae041d-7605-45b5-a0bc-9a263d1f6cd6: solved

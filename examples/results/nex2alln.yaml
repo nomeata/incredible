@@ -33,7 +33,6 @@ portLabels:
   c:
     in: ∀x.P(x)→⊥
 cycles: []
-rule: null
 escapedHypotheses: []
 connectionStatus:
   7549ecdd-61ab-4ea1-bec6-abcb81226efd: solved

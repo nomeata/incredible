@@ -13,34 +13,32 @@ import Lint
 import Rules
 import Analysis
 import ShapeChecks
+import ProofGraph
 
 incredibleLogic :: Context -> Proof -> Either String Analysis
 incredibleLogic ctxt proof = do
     lintsToEither (lint ctxt proof)
     return $ Analysis {..}
   where
-    usedConnections = findUsedConnections ctxt proof
+    graph = proof2Graph ctxt proof
 
-    scopedProof = prepare ctxt proof
+    usedConnections = findUsedConnections graph
+
+    scopedProof = prepare ctxt proof graph
 
     portLabels = spProps scopedProof'
 
     (scopedProof', connectionStatus) = unifyScopedProof proof scopedProof
 
-    unconnectedGoals = findUnconnectedGoals ctxt proof
-    cycles = findCycles ctxt proof
-    escapedHypotheses = findEscapedHypotheses ctxt proof
+    unconnectedGoals = findUnconnectedGoals graph
+    cycles = findCycles graph
+    escapedHypotheses = findEscapedHypotheses ctxt proof graph
 
     badConnections = S.unions
         [ S.fromList (concat cycles)
         , S.fromList (concat escapedHypotheses)
         , S.fromList [ c | (c, r) <- M.toList connectionStatus, badResult r ]
         ]
-
-    rule = if null unconnectedGoals && S.null badConnections
-      then deriveRule ctxt proof scopedProof'
-      else Nothing
-
     qed = null unconnectedGoals && S.null (usedConnections `S.intersection` badConnections)
 
 incredibleNewRule :: Context -> Proof -> Either String (Maybe Rule)
@@ -48,13 +46,13 @@ incredibleNewRule ctxt proof = do
     lintsToEither (lint ctxt proof)
     return rule
   where
-    scopedProof = prepare ctxt proof
+    graph = proof2Graph ctxt proof
+    scopedProof = prepare ctxt proof graph
 
     (scopedProof', connectionStatus) = unifyScopedProof proof scopedProof
 
-    unconnectedGoals = findUnconnectedGoals ctxt proof
-    cycles = findCycles ctxt proof
-    escapedHypotheses = findEscapedHypotheses ctxt proof
+    cycles = findCycles graph
+    escapedHypotheses = findEscapedHypotheses ctxt proof graph
 
     badConnections = S.unions
         [ S.fromList (concat cycles)
@@ -62,7 +60,7 @@ incredibleNewRule ctxt proof = do
         , S.fromList [ c | (c, r) <- M.toList connectionStatus, badResult r ]
         ]
 
-    rule = if null unconnectedGoals && S.null badConnections
+    rule = if S.null badConnections
       then deriveRule ctxt proof scopedProof'
       else Nothing
 

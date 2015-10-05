@@ -1,4 +1,4 @@
-{-# LANGUAGE LambdaCase, MultiWayIf #-}
+{-# LANGUAGE LambdaCase, MultiWayIf, ViewPatterns, PatternSynonyms #-}
 module Unification
     ( Equality
     , Bindings
@@ -100,14 +100,20 @@ and cases S (s,t) = case (strip s,strip t) of
 cases :: (MonadPlus m, Fresh m) => [Var] -> Bindings -> (Term, Term) -> m ([Var], Bindings)
 cases uvs binds (s,t) = do
     case (strip s, strip t) of
-        ((V f, ym), (V g, zn))
+        ((V f, allBoundVar uvs -> Just ym), (V g, allBoundVar uvs -> Just zn))
             | f `elem` uvs && g `elem` uvs -> flexflex  uvs binds f ym g zn
-        ((V f, ym), _)
+        ((V f, allBoundVar uvs -> Just ym), _)
             | f `elem` uvs                 -> flexrigid uvs binds f ym t
-        (_, (V g, zn))
+        (_, (V g, allBoundVar uvs -> Just zn))
             | g `elem` uvs                 -> flexrigid uvs binds g zn s
+        ((V f, _), _)
+            | f `elem` uvs                 -> return (uvs, binds) -- Non-patterns: Give up
+        (_, (V g, _))
+            | g `elem` uvs                 -> return (uvs, binds) -- Non-patterns: Give up
         ((a, sm), (b, tn))
             -> rigidrigid uvs binds a sm b tn
+
+
 
 {-
 fun flexflex1(F,ym,zn,S) =
@@ -123,34 +129,41 @@ fun flexflex(F,ym,G,zn,S) = if F=G then flexflex1(F,ym,zn,S)
                             else flexflex2(F,ym,G,zn,S);
 -}
 
-flexflex :: (MonadPlus m, Fresh m) => [Var] -> Bindings -> Var -> [Term] -> Var -> [Term] -> m ([Var], Bindings)
+eqs :: (MonadPlus m, Eq a) => [a] -> [a] -> m [a]
+eqs (x:xs) (y:ys) | x == y    = (x :) `liftM` eqs xs ys
+                  | otherwise =               eqs xs ys
+eqs [] [] = return []
+eqs _ _   = mzero
+
+flexflex :: (MonadPlus m, Fresh m) => [Var] -> Bindings -> Var -> [Var] -> Var -> [Var] -> m ([Var], Bindings)
 flexflex uvs binds f ym g zn
     | f == g && ym == zn = return (uvs, binds)
     | f == g
-    , Just ym' <- allBoundVar uvs ym
     = do
         newName <- fresh (string2Name "uni")
-        let rhs = absTerm ym' (App (V newName) (intersect ym zn))
+        args <- eqs ym zn
+        let rhs = absTerm ym $ mkAppVars newName args
             binds' = M.insert f rhs binds
         return (newName:uvs, binds')
-    | f == g = return (uvs, binds) -- non-pattern: Just ignore
-    | Just ym' <- allBoundVar uvs ym
-    , Just zn' <- allBoundVar uvs zn
-    = if | all (`elem` zn') ym' -> do
-             let rhs = absTerm zn' (App (V f) ym)
+    | otherwise
+    = if | all (`elem` zn) ym -> do
+             let rhs = absTerm zn $ mkAppVars f ym
                  binds' = M.insert g rhs binds
              return (uvs, binds')
-         | all (`elem` ym') zn' -> do
-             let rhs = absTerm ym' (App (V g) zn)
+         | all (`elem` ym) zn -> do
+             let rhs = absTerm ym $ mkAppVars g zn
                  binds' = M.insert f rhs binds
              return (uvs, binds')
          | otherwise -> do
              newName <- fresh (string2Name "uni")
-             let rhs1 = absTerm ym' (App (V newName) (intersect ym zn))
-                 rhs2 = absTerm zn' (App (V newName) (intersect ym zn))
+             let body = mkAppVars newName (intersect ym zn)
+                 rhs1 = absTerm ym body
+                 rhs2 = absTerm zn body
                  binds' = M.insert f rhs1 $ M.insert g rhs2 binds
              return (newName:uvs, binds')
-    | otherwise = return (uvs, binds) -- non-pattern: Just ignore
+
+mkAppVars :: Var -> [Var] -> Term
+mkAppVars f vs = App (V f) $ map V vs
 
 {-
 fun occ F S (V G) = (F=G) orelse
@@ -169,15 +182,13 @@ occ binds v t = v `elem` vars || any (maybe False (occ binds v) . (`M.lookup` bi
 fun flexrigid(F,ym,t,S) = if occ F S t then raise Unif
                           else proj (map B1 ym) (((F,abs(ym,t))::S),t);
 -}
-flexrigid :: (MonadPlus m, Fresh m) => [Var] -> Bindings -> Var -> [Term] -> Term -> m ([Var], Bindings)
+flexrigid :: (MonadPlus m, Fresh m) => [Var] -> Bindings -> Var -> [Var] -> Term -> m ([Var], Bindings)
 flexrigid uvs binds f ym t
     | occ binds f t
     = mzero
-    | Just vs <- allBoundVar uvs ym
-    = let binds' = M.insert f (absTerm vs t) binds
-      in proj vs uvs binds' t
     | otherwise
-    = return (uvs, binds) -- not a pattern, ignoring here
+    = let binds' = M.insert f (absTerm ym t) binds
+      in proj ym uvs binds' t
 
 {-
 fun proj W (S,s) = case strip(devar S s) of
@@ -198,7 +209,7 @@ proj w uvs binds s = do
                 Just vs | all (`elem` w) vs -> return (uvs, binds)
                 Just vs -> do
                     newName <- fresh (string2Name "uni")
-                    let rhs = absTerm vs (App (V newName) (ss ++ map V w))
+                    let rhs = absTerm vs (App (V newName) (ss `intersect` map V w))
                     let binds' = M.insert v rhs binds
                     return (newName:uvs, binds')
 

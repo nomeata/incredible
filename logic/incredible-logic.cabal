@@ -30,9 +30,9 @@ library
                      Propositions,
                      Utils,
                      Unification,
-                     Scopes,
                      ConvertAeson,
                      Rules,
+                     ProofGraph,
                      Analysis
   build-depends:     base >=4.7 && <4.9,
                      aeson,
@@ -44,8 +44,7 @@ library
                      parsec,
                      void,
                      tagged,
-                     unbound,
-                     dom-lt
+                     unbound
   default-language:  Haskell2010
   ghc-options:       -Wall -fno-warn-name-shadowing -fno-warn-orphans
 

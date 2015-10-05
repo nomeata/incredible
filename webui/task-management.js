@@ -122,7 +122,7 @@ function setupTaskSelection() {
   $("#addcustomblock").on('click', function (){
     // Instead of reading the displayed rule, we simply re-calculate it. It
     // should be the same, if not, then that is a bug..
-    var proof = buildProof(graph, true);
+    var proof = buildProof(graph, derivedRuleBlockSelector);
     var rule = incredibleNewRule(current_logic(), proof);
     if ($.isEmptyObject(proof.blocks) ||
         typeof rule === 'string' ||

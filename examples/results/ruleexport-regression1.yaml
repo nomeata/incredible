@@ -8,7 +8,6 @@ portLabels:
     out: A₁→B₁
     hyp: A₁
 cycles: []
-rule: null
 escapedHypotheses: []
 connectionStatus:
   4dab100f-7e52-43a1-abbd-df31afdd769f: solved

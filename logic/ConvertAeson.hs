@@ -132,7 +132,6 @@ instance ToJSON Analysis where
         , "unconnectedGoals"  .= unconnectedGoals
         , "cycles"            .= cycles
         , "escapedHypotheses" .= escapedHypotheses
-        , "rule"              .= rule
         , "qed"               .= qed
         ]
 

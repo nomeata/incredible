@@ -25,6 +25,7 @@ import Examples
 import Entry
 import Analysis
 import Rules
+import ProofGraph
 
 
 
@@ -47,6 +48,8 @@ main = do
     -- analysis are not part of the examples, as the latter is also shipped to
     -- the client.
     analyses <- readDirectoryOfYamlFiles "../examples/results"
+    custom_rules <- readDirectoryOfYamlFiles "../examples/custom_rules"
+    custom_rules_out <- readDirectoryOfYamlFiles "../examples/custom_rules_out"
     defaultMain $ testGroup "Tests"
         [ parserTests
         , cycleTests
@@ -55,6 +58,7 @@ main = do
         , unificationTests
         , ruleExportTest
         , exampleTests examples analyses
+        , ruleDerivationTests examples custom_rules custom_rules_out
         ]
 
 parserTests = testGroup "Parsers"
@@ -80,21 +84,26 @@ assertParse f t = do
 
 
 cycleTests = testGroup "Cycle detection"
-  [ testCase "cycle"    $ findCycles oneBlockLogic proofWithCycle @?= [["c"]]
-  , testCase "no cycle" $ findCycles oneBlockLogic proofWithoutCycle @?= []
+  [ testCase "cycle"    $ f proofWithCycle @?= [["c"]]
+  , testCase "no cycle" $ f proofWithoutCycle @?= []
   ]
+ where f proof = findCycles (proof2Graph oneBlockLogic proof)
 
 escapedHypothesesTests = testGroup "Escaped hypotheses"
-  [ testCase "direct"    $ findEscapedHypotheses impILogic directEscape @?= [["c"]]
-  , testCase "indirect"  $ findEscapedHypotheses impILogic indirectEscape @?= [["c", "c2"]]
-  , testCase "ok"        $ findEscapedHypotheses impILogic noEscape @?= []
+  [ testCase "direct"    $ f directEscape @?= [["c"]]
+  , testCase "indirect"  $ f indirectEscape @?= [["c", "c2"]]
+  , testCase "ok"        $ f noEscape @?= []
+  , testCase "tricky"    $ f trickyEscape @?= [["c", "c5", "c3", "c1"]]
   ]
+ where f proof = findEscapedHypotheses impILogic proof (proof2Graph impILogic proof)
 
 unconnectedGoalsTests = testGroup "Unsolved goals"
-  [ testCase "empty"     $ findUnconnectedGoals impILogic emptyProof @?= [BlockPort "c" "in"]
-  , testCase "indirect"  $ findUnconnectedGoals impILogic partialProof @?= [BlockPort "b" "in"]
-  , testCase "complete"  $ findUnconnectedGoals impILogic completeProof @?= []
+  [ testCase "empty"     $ f emptyProof @?= [BlockPort "c" "in"]
+  , testCase "dangling"  $ f danglingProof @?= [BlockPort "c" "in"]
+  , testCase "indirect"  $ f partialProof @?= [BlockPort "b" "in"]
+  , testCase "complete"  $ f completeProof @?= []
   ]
+ where f proof = findUnconnectedGoals (proof2Graph impILogic proof)
 
 
 unificationTests = testGroup "Unification tests"
@@ -138,17 +147,26 @@ unificationTests = testGroup "Unification tests"
         , "y1" >: "c2"
         , "y2" >: "c"
         ]
-  , expectFail $
-    testCase "better unification" $
+  , testCase "better unification" $
     assertUnifies
         [ "P", "y" ]
-        [ "P(c)" >: "f(y)" ] -- here, we can make some progress on P
+        [ "P(V c)" >: "f(y)" ]
         [ "P" >: absTerm ["x"] "f(y)"]
   , testCase "basic pattern-matching" $
     assertUnifies
         [ "P1", "P2" ]
         [ "P1(V c1)" >: "∀x.P2(V c1,x)"]
         [ "P1" >: absTerm ["c1"] "∀x.P2(c1,x)"]
+  , testCase "pattern vs. non-pattern" $
+    assertUnifies
+        [ "P1", "P2", "y"]
+        [ "P1(V c)" >: "P2(V c, y(V c))" ]
+        [ "P1" >: absTerm ["x"] "P2(V x, y(V x))"]
+  , testCase "non-pattern vs. pattern" $
+    assertUnifies
+        [ "P1", "P2", "y"]
+        [ "P2(V c, y(V c))" >: "P1(V c)" ]
+        [ "P1" >: absTerm ["x"] "P2(V x, y(V x))"]
 
   ]
 
@@ -156,7 +174,8 @@ ruleExportTest = testGroup "Rule export"
   [ testCase "full call" $ assertEqualValues (toJSON $ deriveRule oneBlockLogic oneBlockProof sp') $ toJSON renamedRule
   ]
   where
-    sp = prepare oneBlockLogic oneBlockProof
+    graph = proof2Graph oneBlockLogic oneBlockProof
+    sp = prepare oneBlockLogic oneBlockProof graph
     (sp', _) = unifyScopedProof oneBlockProof sp
 
 assertUnifies :: [Var] -> [Equality] -> [(Var, Term)] -> Assertion
@@ -179,7 +198,7 @@ oneBlockProof = Proof
     (M.singleton "b" (Block 1 "r"))
     M.empty
 
-renamedRule = Rule ["A"] ["A"] (M.fromList ["in1" >: Port PTAssumption "A" [], "in2" >: Port PTConclusion "A" []])
+renamedRule = Rule ["A"] ["A"] (M.fromList ["port1" >: Port PTAssumption "A" [], "port2" >: Port PTConclusion "A" []])
 
 f --> t = Connection 1 (Just f) (Just t)
 
@@ -199,9 +218,16 @@ impILogic = Context
             , "out" >: Port PTConclusion "A→B" []
             , "hyp" >: Port (PTLocalHyp "in") "A" []
             ]))
+        , ("two2two", Rule f f (M.fromList
+            [ "in1"  >: Port PTAssumption "A" []
+            , "in2"  >: Port PTAssumption "B" []
+            , "out1" >: Port PTConclusion "A" []
+            , "out2" >: Port PTConclusion "B" []
+            ]))
         ]
     )
   where f = ["A","B"]
+
 
 directEscape = Proof
     (M.fromList ["c" >: ConclusionBlock 0 "P→P", "b" >: Block 1 "impI"])
@@ -221,9 +247,31 @@ indirectEscape = Proof
         , ("c2", BlockPort "b2" "out" --> BlockPort "c" "in")
         ])
 
+trickyEscape = Proof
+    (M.fromList
+        [ "c"  >: ConclusionBlock 0 "P→P"
+        , "i"  >: Block 1 "impI"
+        , "b1" >: Block 2 "two2two"
+        , "b2" >: Block 2 "two2two"
+        , "b3" >: Block 2 "two2two"
+        , "b4" >: Block 2 "two2two"
+        ])
+    (M.fromList
+        [ ("c",  BlockPort "i"  "hyp"  --> BlockPort "b4" "in1")
+        , ("c1", BlockPort "i"  "out"  --> BlockPort "b1" "in1")
+        , ("c2", BlockPort "b1" "out1" --> BlockPort "b3" "in1")
+        , ("c3", BlockPort "b1" "out2" --> BlockPort "b2" "in1")
+        , ("c4", BlockPort "b2" "out1" --> BlockPort "b3" "in2")
+        , ("c5", BlockPort "b2" "out2" --> BlockPort "b4" "in2")
+        ])
+
 emptyProof = Proof
     (M.fromList [("c", ConclusionBlock 0 "Prop→Prop")])
     (M.fromList [])
+
+danglingProof = Proof
+    (M.fromList [("c", ConclusionBlock 0 "Prop→Prop")])
+    (M.fromList [("c", Connection 0 Nothing (Just (BlockPort "c" "in")))])
 
 partialProof = Proof
     (M.fromList [("c", ConclusionBlock 0 "Prop→Prop"),("b", Block 1 "impI")])
@@ -250,12 +298,26 @@ genProp n = do
 
 exampleTests :: Examples -> M.Map String Value -> TestTree
 exampleTests (Examples {..}) exampleAnalyses = testGroup "Examples"
-    [ testCase name $ do
+    [ (if isBad proof then expectFail else id) $
+      testCase name $ do
         result <- assertRight $ incredibleLogic (fromJSON' logic) (fromJSON' proof)
         assertEqualValues (toJSON result) analysis
     | (name, analysis) <- M.toList exampleAnalyses
     , let proof = exampleProofs ! name
     , let logic = exampleLogics ! (proof !!! "logic")
+    ]
+  where
+    value !!! field = either error id $ parseEither (withObject "" (.: field)) value
+    isBad value = either error id $ parseEither (withObject "" (\o -> o .:? "expectedBad" .!= False)) value
+
+ruleDerivationTests :: Examples -> M.Map String Value -> M.Map String Value -> TestTree
+ruleDerivationTests (Examples {..}) inputs outputs = testGroup "Rule derivation"
+    [ testCase name $ do
+        result <- assertRight $ incredibleNewRule (fromJSON' logic) (fromJSON' input)
+        assertEqualValues (toJSON result) expected
+    | (name, input) <- M.toList inputs
+    , let logic = exampleLogics ! (input !!! "logic")
+    , let expected = outputs M.! name
     ]
   where
     value !!! field = either error id $ parseEither (withObject "" (.: field)) value

@@ -1,4 +1,4 @@
-function buildProof(graph, onlySelected) {
+function buildProof(graph, blockFilter) {
   var proof = {};
 
   proof.blocks = {};
@@ -7,7 +7,7 @@ function buildProof(graph, onlySelected) {
       if (e.get('prototypeElement')) {
         return;
       }
-      if (onlySelected && !e.get('selected')) {
+      if (blockFilter && !blockFilter(e)) {
         return;
       }
       var block = {};
@@ -36,11 +36,11 @@ function buildProof(graph, onlySelected) {
     function (l, i) {
       var con = {};
       if (isReversed(l)){
-        con.to =   makeConnEnd(graph, l.get('source'), onlySelected);
-        con.from = makeConnEnd(graph, l.get('target'), onlySelected);
+        con.to =   makeConnEnd(graph, l.get('source'), blockFilter);
+        con.from = makeConnEnd(graph, l.get('target'), blockFilter);
       } else {
-        con.from = makeConnEnd(graph, l.get('source'), onlySelected);
-        con.to =   makeConnEnd(graph, l.get('target'), onlySelected);
+        con.from = makeConnEnd(graph, l.get('source'), blockFilter);
+        con.to =   makeConnEnd(graph, l.get('target'), blockFilter);
       }
       // The sort key might be absent, when loading an old proof.
       // Gracefully use “something” then.
@@ -50,12 +50,12 @@ function buildProof(graph, onlySelected) {
   return proof;
 }
 
-function makeConnEnd(graph, x, onlySelected) {
+function makeConnEnd(graph, x, blockFilter) {
   var c = graph.getCell(x.id);
   if (!c) {
     return null;
   }
-  if (onlySelected && !c.get('selected')) {
+  if (blockFilter && !blockFilter(c)) {
     return null;
   }
   var ret = {};
@@ -229,8 +229,12 @@ function processGraph() {
   }
 }
 
+function derivedRuleBlockSelector(c) {
+  return c.get('selected') && !c.get('assumption') && !c.get('conclusion');
+}
+
 function processDerivedRule() {
-  var proof = buildProof(graph, true);
+  var proof = buildProof(graph, derivedRuleBlockSelector);
   var rule = incredibleNewRule(current_logic(), proof);
 
   if ($.isEmptyObject(proof.blocks) ||

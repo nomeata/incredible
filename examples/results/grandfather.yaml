@@ -1,6 +1,6 @@
 portLabels:
   de3d8a72-a3b9-47b9-b106-1f9886e9f6dd:
-    out: r(y₁₂)∨(r(y₁₂)→⊥)
+    out: r(y₃(y₁₅))∨(r(y₃(y₁₅))→⊥)
   ae6b284a-d8d8-412b-aca6-f7d245b5ce1c:
     in2: r(f(y₃(c₁₀)))→⊥
     in1: (r(f(y₃(c₁₀)))→⊥)→r(f(f(y₃(c₁₀))))
@@ -17,10 +17,10 @@ portLabels:
     in1: r(f(f(y₃(c₁₀))))→⊥
     out: ⊥
   007fe78c-7f29-43f1-b3b8-90e43fe5de7a:
-    hyp1: r(y₁₂)
-    in: r(y₁₂)∨(r(y₁₂)→⊥)
+    hyp1: r(y₃(y₁₅))
+    in: r(y₃(y₁₅))∨(r(y₃(y₁₅))→⊥)
     in2: ∃x.r(y₃(x))
-    hyp2: r(y₁₂)→⊥
+    hyp2: r(y₃(y₁₅))→⊥
     in1: ∃x.r(y₃(x))
     out: ∃x.r(y₃(x))
   2086ce74-d612-43e6-a3e3-38449f435fd2:
@@ -53,7 +53,7 @@ portLabels:
     in1: (r(f(f(y₃(c₁₀))))→⊥)→r(f(f(f(y₃(c₁₀)))))
     out: r(f(f(f(y₃(c₁₀)))))
   ca806f34-a54a-4451-8c85-6852029e7a22:
-    out2: (r(y₁₂)→⊥)→r(f(y₁₂))
+    out2: (r(y₃(y₁₅))→⊥)→r(f(y₃(y₁₅)))
     in1: ∀x.(r(x)→⊥)→r(f(x))
   1029732d-c7db-4601-8b06-85da70d095a1:
     out2: ∃x.r(x)∧r(f(f(x)))
@@ -80,11 +80,10 @@ portLabels:
     out2: (r(f(f(y₃(c₁₀))))→⊥)→r(f(f(f(y₃(c₁₀)))))
     in1: ∀x.(r(x)→⊥)→r(f(x))
   f25ade5d-379e-4186-a2b3-ea4ec5046bd7:
-    in2: r(y₁₂)→⊥
-    in1: (r(y₁₂)→⊥)→r(f(y₁₂))
-    out: r(f(y₁₂))
+    in2: r(y₃(y₁₅))→⊥
+    in1: (r(y₃(y₁₅))→⊥)→r(f(y₃(y₁₅)))
+    out: r(f(y₃(y₁₅)))
 cycles: []
-rule: null
 escapedHypotheses: []
 connectionStatus:
   649e1afa-8379-4e2e-991f-724ee7136139: solved
@@ -113,7 +112,7 @@ connectionStatus:
   cb5c5ffc-4849-4971-b54b-c5edc933fd9a: solved
   0b3a15c2-1129-44ff-a7d5-9aa95c72995b: solved
   9e910993-4b0f-4468-9b0b-4ec79144f3aa: solved
-  ab6d7324-f2b0-45dc-b784-53198fa7d2e4: dunno
+  ab6d7324-f2b0-45dc-b784-53198fa7d2e4: solved
   33652f1c-0d70-44a5-9141-8223f25d1e53: solved
   05a52ea6-aed2-438b-8f96-9646abc07709: solved
   6895cc7d-8f60-4f12-8610-6fca6629ea84: solved

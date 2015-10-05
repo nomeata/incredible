@@ -1,0 +1,14 @@
+logic: predicate
+blocks:
+  b1:
+    rule: impI
+    number: 1
+connections:
+  c1:
+    sortKey: 0
+    from:
+      block: b1
+      port: hyp
+    to:
+      block: b1
+      port: in

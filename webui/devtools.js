@@ -47,6 +47,13 @@ function selectProof(name) {
   $.each(graph.getElements(), function (i, el) {
     if (el.get('prototypeElement')) {el.remove();}
   });
+  // If these have no numbers yet, add them
+  $.each(graph.getCells(), function (i, el) {
+    if (!el.get('number')) {
+      el.set('number', i+1);
+    }
+  });
+
   graph.set('loading', false);
 }
 

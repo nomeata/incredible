@@ -1,0 +1,18 @@
+          free:
+          - P
+          local: []
+          ports:
+            port1:
+              consumedBy: port3
+              proposition: P→⊥
+              type: local hypothesis
+              scoped: []
+            port3:
+              proposition: ⊥
+              type: assumption
+              scoped: []
+            port2:
+              proposition: P
+              type: conclusion
+              scoped: []
+
