@@ -35,9 +35,7 @@ var currentState;
 
 function clearUndo() {
   var g = graph.toJSON();
-  var o = paper.options.origin;
-  var s = V(paper.viewport).scale();
-  undoList = [{graph: g, ox: o.x, oy: o.y, sx: s.sx, sy: s.sy}];
+  undoList = [{graph: g}];
   currentState = 0;
 }
 
@@ -47,18 +45,14 @@ function saveUndo() {
   }
   currentState += 1;
   var g = graph.toJSON();
-  var o = paper.options.origin;
-  var s = V(paper.viewport).scale();
-  undoList[currentState] = {graph: g, ox: o.x, oy: o.y, sx: s.sx, sy: s.sy};
+  undoList[currentState] = {graph: g};
   undoList.length = currentState+1;
 }
 
 function applyUndoState(idx) {
   var state = undoList[idx];
-  if (undefined !== state) {
+  if (state) {
     graph.fromJSON(state.graph);
-    paper.scale(state.sx, state.sy);
-    paper.setOrigin(state.ox, state.oy);
     currentState = idx;
     processGraph();
   }
