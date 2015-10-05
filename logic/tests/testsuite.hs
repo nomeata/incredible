@@ -156,14 +156,12 @@ unificationTests = testGroup "Unification tests"
         [ "P1", "P2" ]
         [ "P1(V c1)" >: "∀x.P2(V c1,x)"]
         [ "P1" >: absTerm ["c1"] "∀x.P2(c1,x)"]
-  , expectFail $
-    testCase "pattern vs. non-pattern" $
+  , testCase "pattern vs. non-pattern" $
     assertUnifies
         [ "P1", "P2", "y"]
         [ "P1(V c)" >: "P2(V c, y(V c))" ]
         [ "P1" >: absTerm ["x"] "P2(V x, y(V x))"]
-  , expectFail $
-    testCase "non-pattern vs. pattern" $
+  , testCase "non-pattern vs. pattern" $
     assertUnifies
         [ "P1", "P2", "y"]
         [ "P2(V c, y(V c))" >: "P1(V c)" ]
