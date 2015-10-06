@@ -181,15 +181,24 @@
                 width: 100%;
             }
 
-            #leftpane {
+            #centerpane {
 		position: absolute;
 		top:100px;
 		left:0px;
-		width:268px;
+		right:0px;
 		bottom:35px;
+                padding:0px;
+                margin:0px;
+
+                display:flex;
+                flex-direction:row;
+            }
+            #leftpane {
+		width:268px;
 		overflow: auto;
 		border-right:2px solid grey;
                 padding:15px;
+                resize: horizontal;
             }
 
 	    #devtools {
@@ -198,19 +207,15 @@
 	    }
 
 	    #mainpane {
-		position: absolute;
-		top:100px;
-		left:300px;
-		right:0px;
-		bottom:35px;
 		overflow: hidden;
+                flex-grow: 1;
 	    }
             #paper {
+                /*
 		position: absolute;
-		top:0px;
-		left:0px;
-		right:0px;
-		bottom:0px;
+                */
+                width:100%;
+                height:100%;
             }
 
 	    #dialog, #help {
@@ -300,6 +305,7 @@
     </head>
     <body>
 
+    <div id="centerpane">
     <div id="leftpane">
       <div id="task">
 	<h3 data-i18n>Current task:</h3>
@@ -347,6 +353,7 @@
 	<button class="iconic" id="savesvg" data-i18n="[title]Save proof as SVG image.">⤓</button>
 	<button class="iconic" id="resettask" data-i18n="[title]Reset this task">🔄</button>
       </div>
+    </div>
     </div>
 
     <div id="header">
