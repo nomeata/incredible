@@ -58,16 +58,25 @@
 		/* ^ too much flickering if loading is quick */
 	    }
 
-	    #header {
+            #vertpane {
 		position: absolute;
 		top:0px;
 		left:0px;
 		right:0px;
+		bottom:0px;
+                padding:0px;
+                margin:0px;
+		overflow: none;
+
+                display:flex;
+                flex-direction:column;
+            }
+
+	    #header {
 		height:80px;
-		overflow: auto;
-		border-bottom: 5px solid grey;
 		padding:10px;
 		text-align: center;
+		border-bottom: 5px solid grey;
             }
 
 	    #task #assumptions, #task #conclusions {
@@ -187,14 +196,10 @@
                 width: 100%;
             }
 
-            #centerpane {
-		position: absolute;
-		top:100px;
-		left:0px;
-		right:0px;
-		bottom:35px;
-                padding:0px;
-                margin:0px;
+            #horizpane {
+                flex-grow: 1;
+		flex-shrink:1;
+		overflow-y: hidden;
 
                 display:flex;
                 flex-direction:row;
@@ -275,16 +280,14 @@
 	    }
 
 	    #taskbottombar {
+                flex-grow: 0;
+		flex-shrink:0;
 		text-align:center;
 		border-top: 5px solid grey;
-		position: absolute;
-		margin:0px;
-		left:0px;
-		right:0px;
-		bottom:0px;
 		height: 20px;
 		background:white;
 		padding: 5px;
+
 	    }
 
 	    #taskbottombar:hover {
@@ -311,7 +314,17 @@
     </head>
     <body>
 
-    <div id="centerpane">
+    <div id="vertpane">
+
+    <div id="header">
+      <h1>The Incredible Proof Machin<span class="e">e</span></h1>
+      <div class="toolbar">
+	<button class="iconic" id="showhelp" data-i18n="[title]Help">ℹ</button>
+	<button class="iconic" id="reset" data-i18n="[title]Forget all stored data">🔄</button>
+      </div>
+    </div>
+
+    <div id="horizpane">
     <div id="leftpane">
       <div id="task">
 	<h3 data-i18n>Current task:</h3>
@@ -362,15 +375,8 @@
     </div>
     </div>
 
-    <div id="header">
-      <h1>The Incredible Proof Machin<span class="e">e</span></h1>
-      <div class="toolbar">
-	<button class="iconic" id="showhelp" data-i18n="[title]Help">ℹ</button>
-	<button class="iconic" id="reset" data-i18n="[title]Forget all stored data">🔄</button>
-      </div>
-
+    <div id="taskbottombar" data-i18n="switch">switch task...</div>
     </div>
-
 
     <div id="dialog">
     <button class="iconic close" id="closedialog">×</button>
@@ -383,7 +389,6 @@
     <textarea  cols=100 rows=20 id="analysis" readonly="readonly"></textarea>
     </div>
 
-    <div id="taskbottombar" data-i18n="switch">switch task...</div>
 
     <div id="taskdialog">
     <h2 data-i18n>What do you want to prove today?</h2>
