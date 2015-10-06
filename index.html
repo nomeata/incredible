@@ -156,6 +156,12 @@
                 border: 1px solid black;
             }
 
+            .blocklist  {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
 	    .tasklist {
                 display: flex;
                 flex-wrap: wrap;
@@ -313,20 +319,20 @@
       </div>
 
       <h3 data-i18n>Logics blocks:</h3>
-      <div id="logic"></div>
+      <div class="blocklist" id="logic"></div>
       <h3 data-i18n>Helper blocks:</h3>
-      <div id="helpers"></div>
+      <div class="blocklist" id="helpers"></div>
 
       <div id="inferredrule">
 	<h3 data-i18n>New custom block:</h3>
-	<div id="inferredrulewrapper">
+	<div class="blocklist" id="inferredrulewrapper">
 	<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="30em" height="100px"></svg>
 	<button id="addcustomblock" data-i18n>Add</button>
 	</div>
       </div>
 
       <h3 data-i18n>Custom blocks:</h3>
-      <div id="custom"></div>
+      <div class="blocklist" id="custom"></div>
 
       <div id="devtools">
       <h3 data-i18n>Developers tools</h3>

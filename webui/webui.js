@@ -99,9 +99,10 @@ function renderBlockDescToDraggable(blockDesc, container) {
   vel.append(g);
   BlockDescRenderer(g, blockDesc, false).renderToSVG();
   gBB = g.bbox(false);
-  g.translate($(el).width()/2, -gBB.y + 5);
+  var width = 2*Math.max(-gBB.x, gBB.width+gBB.x);
+  g.translate(width/2, -gBB.y + 5);
 
-  vel.attr({'width': container.width(), 'height': gBB.height + 10 });
+  vel.attr({'width': width, 'height': gBB.height + 10 });
   $(el).data('elementData', blockDesc.data);
   $(el).draggable({
     appendTo: "body",
