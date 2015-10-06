@@ -5,7 +5,7 @@ var tasks_saved = {};
 var tasks_solved = {};
 var custom_rules = {};
 
-var funnyUnicodeCharacters="☃⚛⚾♛♬☏⚒☸☀☮☘☭";
+var funnyUnicodeCharacters="⚛☃⚾♛♬☏⚒☸☀☮☘☭";
 
 function saveTask() {
   if (task_desc) {
@@ -135,14 +135,23 @@ function setupTaskSelection() {
       }
       var n = custom_rules[logicName].length + 1;
       rule.id = "custom" + n;
-      if (n<= funnyUnicodeCharacters.length) {
-        rule.desc = {label: funnyUnicodeCharacters.substr(n-1,1)};
-      }
+      rule.desc = {label: next_custom_block_name()};
       custom_rules[logicName].push(rule);
       setupPrototypeElements();
       selectNothing();
     }
   });
+}
+
+function next_custom_block_name(){
+  var n = (custom_rules[logicName] || []).length + 1;
+  var m = funnyUnicodeCharacters.length;
+  var res = "";
+  while (n > 0) {
+    res = res + funnyUnicodeCharacters.substr(n % m,1);
+    n = Math.floor(n/m);
+  }
+  return res;
 }
 
 

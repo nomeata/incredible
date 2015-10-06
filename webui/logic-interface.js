@@ -255,7 +255,7 @@ function processDerivedRule() {
       var blockDesc = ruleToBlockDesc(rule);
       blockDesc.canRemove = false;
       blockDesc.isPrototype = true;
-      blockDesc.desc = {label: '☃'};
+      blockDesc.desc = {label: next_custom_block_name()};
       BlockDescRenderer(g, blockDesc, false).renderToSVG();
       gBB = g.bbox(false);
       g.translate($(el).width()/2, -gBB.y + 5);
