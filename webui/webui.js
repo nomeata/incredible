@@ -88,7 +88,6 @@ function setupGraph(graph, task) {
 
   paper.scale(1.0);
   paper.setOrigin(0,0);
-  rescale_paper();
 }
 
 function renderBlockDescToDraggable(blockDesc, container) {

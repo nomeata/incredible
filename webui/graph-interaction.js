@@ -10,8 +10,8 @@ function create_paper() {
   return new joint.dia.Paper({
     el: $('#paper'),
     model: graph,
-    width: 1000,
-    height: 600,
+    width: "100%",
+    height: "100%",
     gridSize: 10,
     snapLinks: true,
     defaultLink: function (elementView, magnet) {
@@ -34,13 +34,6 @@ function create_paper() {
 }
 
 
-function rescale_paper() {
-  paper.setDimensions(1, 1);
-  var w = $("#paper").innerWidth() - 5;
-  var h = $("#paper").innerHeight() - 5;
-  paper.setDimensions(w, h);
-}
-
 /**
  * Rescales the paper.
  *
@@ -59,8 +52,6 @@ function paper_scale(amount, x, y) {
   var dy = (newScale - scale)/scale * (y - paper.options.origin.y);
   paper.setOrigin(paper.options.origin.x - dx, paper.options.origin.y - dy);
 }
-
-$(window).on('resize load', rescale_paper);
 
 function selectNothing() {
   $.each(graph.getElements(), function (i, el) {
