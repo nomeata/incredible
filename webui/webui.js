@@ -107,7 +107,19 @@ function renderBlockDescToDraggable(blockDesc, container) {
     appendTo: "body",
     helper: "clone"
   });
+  return el;
 }
+
+// Do not really delete it, we might need it in proofs.
+function delete_custom_block(id) {
+  $.each(current_custom_rules(), function (_, rule) {
+    if (rule.id == id) {
+      rule.deleted = true;
+    }
+  });
+  setupPrototypeElements();
+}
+
 
 function setupPrototypeElements() {
   var logic_container = $("#logic");
@@ -123,11 +135,16 @@ function setupPrototypeElements() {
   var custom_container = $("#custom");
   custom_container.empty();
   $.each(current_custom_rules(), function (_, rule) {
-    var blockDesc = ruleToBlockDesc(rule);
-    blockDesc.isPrototype = true;
-    blockDesc.canRemove = false;
-    blockDesc.data = {rule: rule};
-    renderBlockDescToDraggable(blockDesc, custom_container);
+    if (!rule.deleted) {
+      var blockDesc = ruleToBlockDesc(rule);
+      blockDesc.isPrototype = true;
+      blockDesc.canRemove = true;
+      blockDesc.data = {rule: rule};
+      el = renderBlockDescToDraggable(blockDesc, custom_container);
+      $(el).find(".tool-remove").on('click', function () {
+        delete_custom_block(rule.id);
+      });
+    }
   });
 
   var helpers_container = $("#helpers");
