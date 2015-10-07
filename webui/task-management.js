@@ -60,7 +60,8 @@ function selectSessionTask(evt) {
   });
 }
 
-function taskToHTML(task) {
+function taskToHTML(task, canRemove, idx) {
+  var container = $("<div class='inferencerule'>");
   d1 = $("<ul class='assumptions'>");
   $.each(task.assumptions || [], function (i, el) {
     d1.append($("<li>").text(incredibleFormatTerm(el)));
@@ -69,7 +70,23 @@ function taskToHTML(task) {
   $.each(task.conclusions || [], function (i, el) {
     d2.append($("<li>").text(incredibleFormatTerm(el)));
   });
- return $("<div class='inferencerule'>").append(d1, $("<hr/>"), d2);
+  if (!!canRemove) {
+    var tool = $('<div class="tool-remove"><svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" transfomr="translate(50,-17.5)"></div>');
+    var svg = V(tool.find("svg").get(0));
+    var markup = ['<g transform="translate(16,16)">',
+        '<circle r="11" />',
+        '<path transform="scale(.8) translate(-16, -16)" d="M24.778,21.419 19.276,15.917 24.777,10.415 21.949,7.585 16.447,13.087 10.945,7.585 8.117,10.415 13.618,15.917 8.116,21.419 10.946,24.248 16.447,18.746 21.948,24.248z"/>',
+        '<title>Remove task.</title>',
+        '</g>'].join('');
+    svg.append(V(markup));
+    tool.on('click', function () {
+      sessions.custom.tasks.splice(idx, 1);
+      container.css('display', 'none');
+    });
+
+    container.append(tool);
+  }
+  return container.append(d1, $("<hr/>"), d2); 
 }
 
 $(function () {
@@ -94,10 +111,14 @@ function setupTaskSelection() {
   });
 
   $.each(sessions.custom.tasks, function (j,thisTask) {
-    taskToHTML(thisTask)
+    taskToHTML(thisTask, true, j)
       .addClass("sessiontask")
       .data({session: 'custom', task: j, desc: taskToDesc(sessions.custom.logic||'predicate', thisTask)})
-      .on('click', with_graph_loading(selectSessionTask))
+      .on('click', function (evt) {
+        if (evt.target == this) {
+          with_graph_loading(selectSessionTask)(evt);
+        }
+      })
       .insertBefore("#customtask");
   });
 
@@ -108,10 +129,14 @@ function setupTaskSelection() {
     if (thisTask) {
       var j = sessions.custom.tasks.length;
       sessions.custom.tasks.push(thisTask);
-      taskToHTML(thisTask)
+      taskToHTML(thisTask, true, sessions.custom.tasks.length - 1)
         .addClass("sessiontask")
         .data({session: 'custom', task: j, desc: taskToDesc(sessions.custom.logic||'predicate', thisTask)})
-        .on('click', with_graph_loading(selectSessionTask))
+        .on('click', function (evt) {
+          if (evt.target == this) {
+            with_graph_loading(selectSessionTask)(evt);
+          }
+        })
         .insertBefore("#customtask");
       updateTaskSelectionInfo(); // A bit overhead re-doing all of them, but that’s ok, I hope
       saveSession();
