@@ -25,13 +25,17 @@ var translations = {
     "Help": "Hilfe",
     "Save proof as SVG image.": "Den Beweis als SVG-Datei speichern.",
     "Forget all stored data": "Alle gespeicherten Daten löschen.",
-    "Reset this task": "Diesen Task neu beginnen"
+    "Reset this task": "Diesen Task neu beginnen",
+    "Unlock": "Entsperren",
+    "password": "Passwort",
+    "wrong-password": "Das ist leider nicht das richtige Passwort."
   }},
 
   en: { translation: {
     "confirm-reset": "Are you sure you want to remove all saved data (proofs, custom tasks, custom blocks)?",
     "nothing": "nothing",
-    "task-parse-error": "Sorry, I could not understand this task."
+    "task-parse-error": "Sorry, I could not understand this task.",
+    "wrong-password": "Sorry, this is not the right password"
   }}
 };
 

@@ -4,6 +4,7 @@ var tasks_saved = {};
 var tasks_solved = {};
 var custom_tasks = {};
 var custom_rules = {};
+var session_passwords = [];
 
 var funnyUnicodeCharacters="⚛☃⚾♛♬☏⚒☸☀☮☘☭";
 
@@ -20,7 +21,8 @@ function saveSession() {
     saved: tasks_saved,
     solved: tasks_solved,
     custom: custom_tasks,
-    rules: custom_rules
+    rules: custom_rules,
+    passwords: session_passwords
   });
 }
 
@@ -31,6 +33,7 @@ function loadSession() {
     tasks_solved = stored.solved || {};
     custom_tasks = stored.custom || {};
     custom_rules = stored.rules || {};
+    session_passwords = stored.passwords || [];
   }
 }
 function taskToDesc(logic, task) {
@@ -100,51 +103,77 @@ $(function () {
 function setupTaskSelection() {
   $("#sessiontasks").empty();
   $.each(sessions, function (i,session) {
-    $("<h3>").text(i18n.t(session.name)).appendTo("#sessiontasks");
-    var container = $("<div>").addClass("tasklist").appendTo("#sessiontasks");
-    $.each(session.tasks, function (j,thisTask) {
-      taskToHTML(thisTask)
-        .addClass("sessiontask")
-        .data({session: i, task: j, desc: taskToDesc(session.logic||'predicate', thisTask)})
-        .on('click', with_graph_loading(selectSessionTask))
-        .appendTo(container);
-    });
+    if (!session.password || $.inArray(session.password, session_passwords) >= 0) {
+      $("<h3>").text(i18n.t(session.name)).appendTo("#sessiontasks");
+      var container = $("<div>").addClass("tasklist").appendTo("#sessiontasks");
+      $.each(session.tasks, function (j,thisTask) {
+        taskToHTML(thisTask)
+          .addClass("sessiontask")
+          .data({session: i, task: j, desc: taskToDesc(session.logic||'predicate', thisTask)})
+          .on('click', with_graph_loading(selectSessionTask))
+          .appendTo(container);
+      });
 
-    $.each(custom_tasks[session.name] || [], function (j,thisTask) {
-      taskToHTML(thisTask,
-          function () {
-            custom_tasks[session.name].splice(j, 1);
-            setupTaskSelection();
-          }
-       ).addClass("sessiontask")
-        .data({session: i, custom_task: j, desc: taskToDesc(session.logic||'predicate', thisTask)})
-        .on('click', with_graph_loading(selectSessionTask))
-        .appendTo(container);
-    });
-
-    var textarea = $('<textarea>A&#10;────────────&#10;A</textarea>');
-
-    $('<div id="customtasks" class="tasklist">')
-      .append($('<div class="customtaskentry">')
-        .append(textarea)
-        .append($('<button>')
-          .text(i18n.t('Add'))
-          .on('click', function (){
-            var thisTask = taskFromText(textarea.val());
-            if (thisTask) {
-              if (!custom_tasks[session.name]) {
-                custom_tasks[session.name] = [];
-              }
-              custom_tasks[session.name].push(thisTask);
+      $.each(custom_tasks[session.name] || [], function (j,thisTask) {
+        taskToHTML(thisTask,
+            function () {
+              custom_tasks[session.name].splice(j, 1);
               setupTaskSelection();
-              saveSession();
-            } else {
-              alert(i18n.t('task-parse-error'));
             }
-          })
+         ).addClass("sessiontask")
+          .data({session: i, custom_task: j, desc: taskToDesc(session.logic||'predicate', thisTask)})
+          .on('click', with_graph_loading(selectSessionTask))
+          .appendTo(container);
+      });
+
+      var textarea = $('<textarea>A&#10;────────────&#10;A</textarea>');
+
+      $('<div id="customtasks" class="tasklist">')
+        .append($('<div class="customtaskentry">')
+          .append(textarea)
+          .append($('<button>')
+            .text(i18n.t('Add'))
+            .on('click', function (){
+              var thisTask = taskFromText(textarea.val());
+              if (thisTask) {
+                if (!custom_tasks[session.name]) {
+                  custom_tasks[session.name] = [];
+                }
+                custom_tasks[session.name].push(thisTask);
+                setupTaskSelection();
+                saveSession();
+              } else {
+                alert(i18n.t('task-parse-error'));
+              }
+            })
+          )
         )
-      )
-      .appendTo(container);
+        .appendTo(container);
+    } else {
+      $("<h3>").text(i18n.t(session.name)).appendTo("#sessiontasks");
+      var button;
+      var input;
+      input = $("<input type='text'>")
+        .attr('placeholder',i18n.t('password'))
+        .on('keydown',function(e) {
+          if (e.keyCode == 13) {
+            button.click();
+          }
+        })
+        .appendTo("#sessiontasks");
+      button = $("<button>")
+        .text(i18n.t('Unlock'))
+        .on('click',function() {
+          if (input.val() == session.password) {
+            session_passwords.push(session.password);
+            setupTaskSelection();
+          } else {
+            alert(i18n.t('wrong-password'));
+          }
+          return true;
+        })
+        .appendTo("#sessiontasks");
+    }
   });
 
   updateTaskSelectionInfo();
