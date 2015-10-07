@@ -121,7 +121,7 @@
 }
 
 .block.qed .body {
-    fill:#0f0;
+    fill:rgb(40,220,30);
 }
 
 .block:hover .body {
