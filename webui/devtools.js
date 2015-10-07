@@ -57,6 +57,12 @@ function selectProof(name) {
   graph.set('loading', false);
 }
 
+function reset_everything() {
+  $(window).off("unload"); /* Otherwise we’d just save it again */
+  localStorage.removeItem("incredible-session");
+  window.location.reload(false);
+}
+
 
 $(function (){
   $("#taskselect").change(with_graph_loading(function () {
@@ -89,9 +95,7 @@ $(function (){
 
   $("#reset").click(function(){
     if (window.confirm(i18n.t("confirm-reset"))) {
-      $(window).off("unload"); /* Otherwise we’d just save it again */
-      localStorage.removeItem("incredible-session");
-      window.location.reload(false);
+      reset_everything();
     }
   });
 
