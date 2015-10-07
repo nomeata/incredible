@@ -96,6 +96,10 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     _.each(this.vel.find(".resize-right"), function (vel) {
       vel.node.addEventListener("mousedown", resizeSchieblehre);
     });
+
+    if (this.model.get('conclusion')) {
+      V(this.vel.findOne(".block")).addClass('conclusion');
+    }
   },
 
   updateSizes: function () {
@@ -118,10 +122,6 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
       V(this.vel).toggleClass('selected', true);
     } else {
       V(this.vel).toggleClass('selected', false);
-    }
-
-    if (this.model.get('conclusion')) {
-      V(this.vel.findOne(".block")).toggleClass('qed', !!this.model.get('qed'));
     }
 
     if (this.model.get('annotation')) {

@@ -100,14 +100,10 @@ function processGraph() {
         .set('labels', []);
     });
 
-    // We set this simly for all elements, even if only
-    // the view for conclusion elements listens for it
-    $.each(graph.getElements(), function (i, el) {
-      el.set('qed', analysis.qed);
-    });
     // We _also_ set it on the graph itself, so that the status of a serialized
     // task is immediately visible.
     graph.set('qed', analysis.qed);
+    $("#paper").toggleClass("qed", analysis.qed);
 
     // Collect errors
     $.each(analysis.cycles, function (i, path) {

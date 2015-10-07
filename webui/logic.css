@@ -120,14 +120,14 @@
     fill:#ecf0f1;
 }
 
-.block.qed .body {
+.qed .block.conclusion .body {
     fill:rgb(40,220,30);
 }
 
 .block:hover .body {
     fill:white;
 }
-.block.qed:hover .body {
+.qed .block.conclusion:hover .body {
     fill:#afa;
 }
 
