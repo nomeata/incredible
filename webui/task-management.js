@@ -101,6 +101,8 @@ function setupTaskSelection() {
       .insertBefore("#customtask");
   });
 
+  updateTaskSelectionInfo();
+
   $("#customtask #addcustomtask").on('click', function (){
     var thisTask = taskFromText($("#customtask textarea").val());
     if (thisTask) {
