@@ -100,7 +100,7 @@ printTerm p = runLFreshM (prP (0::Int) p) ""
 isInFix :: String -> Maybe (Int, OpAssoc)
 isInFix "↑" = Just (5, L)
 isInFix "∧" = Just (4, L)
-isInFix "∨" = Just (3, L)
+isInFix "∨" = Just (4, L)
 isInFix "→" = Just (2, R)
 isInFix _   = Nothing
 
