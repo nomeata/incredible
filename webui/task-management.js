@@ -71,7 +71,7 @@ function taskToHTML(task, canRemove, idx) {
     d2.append($("<li>").text(incredibleFormatTerm(el)));
   });
   if (!!canRemove) {
-    var tool = $('<div class="tool-remove"><svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" transfomr="translate(50,-17.5)"></div>');
+    var tool = $('<div class="tool-remove"><svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px"></div>');
     var svg = V(tool.find("svg").get(0));
     var markup = ['<g transform="translate(16,16)">',
         '<circle r="11" />',
