@@ -128,6 +128,7 @@
     conclusions: ["A"]
   - assumptions: ["⊥∧A"]
     conclusions: ["⊥"]
+  - conclusions: ["⊥→A"]
   - assumptions: ["A→B"]
     conclusions: ["(B→⊥)→(A→⊥)"]
   - assumptions: ["(A∨B)→⊥"]
