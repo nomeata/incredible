@@ -48,9 +48,11 @@ function paper_scale(amount, x, y) {
   var newScale = scale*amount;
   paper.scale(newScale, newScale);
 
-  var dx = (newScale - scale)/scale * (x - paper.options.origin.x);
-  var dy = (newScale - scale)/scale * (y - paper.options.origin.y);
-  paper.setOrigin(paper.options.origin.x - dx, paper.options.origin.y - dy);
+  var ox = paper.options.origin.x;
+  var oy = paper.options.origin.y;
+  var dx = (newScale - scale)/scale * (x - ox);
+  var dy = (newScale - scale)/scale * (y - oy);
+  paper.setOrigin(ox - dx, oy - dy);
 }
 
 function selectNothing() {
@@ -216,15 +218,15 @@ $(function() {
   });
 
   $("#zoom-in").on('click', function (){
-    paper_scale(1.2, paper.options.width / 2, paper.options.height / 2);
+    paper_scale(1.2, $("#paper").innerWidth() / 2, $("#paper").innerHeight() / 2);
   });
 
   $("#zoom-out").on('click', function (){
-    paper_scale(1/1.2, paper.options.width / 2, paper.options.height / 2);
+    paper_scale(1/1.2, $("#paper").innerWidth() / 2, $("#paper").innerHeight() / 2);
    });
 
   $("#zoom-orig").on('click', function (){
-    paper_scale(1/V(paper.viewport).scale().sx, paper.options.width / 2, paper.options.height / 2);
+    paper_scale(1/V(paper.viewport).scale().sx, $("#paper").innerWidth() / 2, $("#paper").innerHeight() / 2);
   });
 
   $("#zoom-fit").on('click', function (){
@@ -233,13 +235,15 @@ $(function() {
     if (cbb.width !== 0 && cbb.height !== 0) {
       // Only rescale and pan if we have content.
       var scale = V(paper.viewport).scale().sx;
-      scale *= Math.min((paper.options.width - padding) / cbb.width,
-                       (paper.options.height - padding) / cbb.height);
+      var w = $("#paper").innerWidth();
+      var h = $("#paper").innerHeight();
+      scale *= Math.min((w - padding) / cbb.width,
+                       (h - padding) / cbb.height);
       paper.scale(scale, scale);
 
       cbb = paper.getContentBBox();
-      var ox = paper.options.origin.x + (paper.options.width - cbb.width) / 2 - cbb.x;
-      var oy = paper.options.origin.y + (paper.options.height - cbb.height) / 2 - cbb.y;
+      var ox = paper.options.origin.x + (w - cbb.width) / 2 - cbb.x;
+      var oy = paper.options.origin.y + (h - cbb.height) / 2 - cbb.y;
       paper.setOrigin(ox, oy);
     }
   });
