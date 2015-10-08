@@ -60,7 +60,8 @@ function selectSessionTask(evt) {
   });
 }
 
-function taskToHTML(task) {
+function taskToHTML(task, onRemove) {
+  var container = $("<div class='inferencerule'>");
   d1 = $("<ul class='assumptions'>");
   $.each(task.assumptions || [], function (i, el) {
     d1.append($("<li>").text(incredibleFormatTerm(el)));
@@ -69,7 +70,15 @@ function taskToHTML(task) {
   $.each(task.conclusions || [], function (i, el) {
     d2.append($("<li>").text(incredibleFormatTerm(el)));
   });
- return $("<div class='inferencerule'>").append(d1, $("<hr/>"), d2);
+  if (!!onRemove) {
+    var tool = $('<div class="task-tools"><svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px"></div>');
+    V(tool.find("svg").get(0))
+      .append(render_delete_tool("Remove task.").translate(16,16));
+    tool
+      .on('click', onRemove)
+      .appendTo(container);
+  }
+  return container.append(d1, $("<hr/>"), d2); 
 }
 
 $(function () {
@@ -81,6 +90,7 @@ $(function () {
 });
 
 function setupTaskSelection() {
+  $("#sessiontasks").empty();
   $.each(sessions, function (i,session) {
     $("<h3>").text(i18n.t(session.name)).appendTo("#sessiontasks");
     var container = $("<div>").addClass("tasklist").appendTo("#sessiontasks");
@@ -93,27 +103,32 @@ function setupTaskSelection() {
     });
   });
 
+  $("#customtasks").find(".inferencerule").remove(); // Cannot use empty() due to the entry field
   $.each(sessions.custom.tasks, function (j,thisTask) {
-    taskToHTML(thisTask)
-      .addClass("sessiontask")
+    taskToHTML(thisTask,
+        function () {
+          sessions.custom.tasks.splice(j, 1);
+          setupTaskSelection();
+        }
+     ).addClass("sessiontask")
       .data({session: 'custom', task: j, desc: taskToDesc(sessions.custom.logic||'predicate', thisTask)})
-      .on('click', with_graph_loading(selectSessionTask))
+      .on('click', function (evt) {
+        if (evt.target == this) {
+          with_graph_loading(selectSessionTask)(evt);
+        }
+      })
       .insertBefore("#customtask");
   });
 
   updateTaskSelectionInfo();
+}
 
+$(function (){
   $("#customtask #addcustomtask").on('click', function (){
     var thisTask = taskFromText($("#customtask textarea").val());
     if (thisTask) {
-      var j = sessions.custom.tasks.length;
       sessions.custom.tasks.push(thisTask);
-      taskToHTML(thisTask)
-        .addClass("sessiontask")
-        .data({session: 'custom', task: j, desc: taskToDesc(sessions.custom.logic||'predicate', thisTask)})
-        .on('click', with_graph_loading(selectSessionTask))
-        .insertBefore("#customtask");
-      updateTaskSelectionInfo(); // A bit overhead re-doing all of them, but that’s ok, I hope
+      setupTaskSelection();
       saveSession();
     } else {
       alert(i18n.t('task-parse-error'));
@@ -143,7 +158,7 @@ function setupTaskSelection() {
       selectNothing();
     }
   });
-}
+});
 
 function next_custom_block_name(){
   var n = (custom_rules[logicName] || []).length + 1;
