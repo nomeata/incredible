@@ -196,42 +196,18 @@
             #customtask button {
                 width: 100%;
             }
-            #customtasks.tasklist .tool-remove {
-               position: relative;
+            #customtasks.tasklist .inferencerule {
+		position:relative;
+	    }
+            #customtasks.tasklist .inferencerule .tool-remove {
+               position: absolute;
                top: -20px;
-               left: 150px;
+               right: 30px;
                width: 0px;
                height: 0px;
-               opacity: 0;
-               cursor: pointer;
             }
-            #customtasks.tasklist:hover .tool-remove {
+            #customtasks.tasklist .inferencerule:hover .tool-remove {
                opacity: 1;
-            }
-            
-            #customtasks.tasklist .tool-remove circle {
-                fill: white;
-                stroke: #ccc;
-                stroke-width: 1px;
-                stroke-opacity: .5;
-            }
-            
-            #customtasks.tasklist .tool-remove:hover circle {
-                fill: #e74c3c;
-                stroke: #c0392b;
-            }
-            
-            #customtasks.tasklist .tool-remove path {
-                fill: white;
-                stroke: #ccc;
-            }
-            
-            #customtasks.tasklist .tool-remove circle {
-                transition: fill 1s;
-            }
-            
-            #customtasks.tasklist .tool-remove:hover path {
-                stroke: none;
             }
 
             #horizpane {

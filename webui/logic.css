@@ -17,30 +17,6 @@
     transition: all 0s;
 }
 
-.link-tools .tool-remove circle {
-    fill: white;
-    stroke: #ccc;
-    stroke-width: 1px;
-    stroke-opacity: .5;
-}
-
-.link-tools .tool-remove:hover circle {
-    fill: #e74c3c;
-    stroke: #c0392b;
-}
-
-.link-tools .tool-remove path {
-    stroke: #ccc;
-}
-
-.link-tools .tool-remove circle {
-    transition: fill 1s;
-}
-
-.link-tools .tool-remove:hover path {
-    stroke: none;
-}
-
 .marker-arrowhead, .marker-vertex {
     fill: #fff;
     stroke: #7f8c8d;
@@ -141,36 +117,36 @@
     fill:black;
 }
 
-.block .tool-remove {
+.tool-remove {
    opacity: 0;
    cursor: pointer;
 }
+
 .block:hover .tool-remove {
    opacity: 1;
 }
 
-.block .tool-remove circle {
+
+.tool-remove circle {
     fill: white;
     stroke: #ccc;
     stroke-width: 1px;
     stroke-opacity: .5;
 }
 
-.block .tool-remove:hover circle {
+.tool-remove:hover circle {
     fill: #e74c3c;
     stroke: #c0392b;
 }
 
-.block .tool-remove path {
-    fill: white;
+.tool-remove path {
     stroke: #ccc;
 }
 
-.block .tool-remove circle {
+.tool-remove circle {
     transition: fill 1s;
 }
 
-.block .tool-remove:hover path {
+.tool-remove:hover path {
     stroke: none;
 }
-
