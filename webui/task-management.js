@@ -60,7 +60,7 @@ function selectSessionTask(evt) {
   });
 }
 
-function taskToHTML(task, canRemove, idx) {
+function taskToHTML(task, onRemove) {
   var container = $("<div class='inferencerule'>");
   d1 = $("<ul class='assumptions'>");
   $.each(task.assumptions || [], function (i, el) {
@@ -70,21 +70,13 @@ function taskToHTML(task, canRemove, idx) {
   $.each(task.conclusions || [], function (i, el) {
     d2.append($("<li>").text(incredibleFormatTerm(el)));
   });
-  if (!!canRemove) {
-    var tool = $('<div class="tool-remove"><svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px"></div>');
-    var svg = V(tool.find("svg").get(0));
-    var markup = ['<g transform="translate(16,16)">',
-        '<circle r="11" />',
-        '<path transform="scale(.8) translate(-16, -16)" d="M24.778,21.419 19.276,15.917 24.777,10.415 21.949,7.585 16.447,13.087 10.945,7.585 8.117,10.415 13.618,15.917 8.116,21.419 10.946,24.248 16.447,18.746 21.948,24.248z"/>',
-        '<title>Remove task.</title>',
-        '</g>'].join('');
-    svg.append(V(markup));
-    tool.on('click', function () {
-      sessions.custom.tasks.splice(idx, 1);
-      container.css('display', 'none');
-    });
-
-    container.append(tool);
+  if (!!onRemove) {
+    var tool = $('<div class="task-tools"><svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px"></div>');
+    V(tool.find("svg").get(0))
+      .append(render_delete_tool("Remove task.").translate(16,16));
+    tool
+      .on('click', onRemove)
+      .appendTo(container);
   }
   return container.append(d1, $("<hr/>"), d2); 
 }
@@ -98,6 +90,7 @@ $(function () {
 });
 
 function setupTaskSelection() {
+  $("#sessiontasks").empty();
   $.each(sessions, function (i,session) {
     $("<h3>").text(i18n.t(session.name)).appendTo("#sessiontasks");
     var container = $("<div>").addClass("tasklist").appendTo("#sessiontasks");
@@ -110,9 +103,14 @@ function setupTaskSelection() {
     });
   });
 
+  $("#customtasks").find(".inferencerule").remove(); // Cannot use empty() due to the entry field
   $.each(sessions.custom.tasks, function (j,thisTask) {
-    taskToHTML(thisTask, true, j)
-      .addClass("sessiontask")
+    taskToHTML(thisTask,
+        function () {
+          sessions.custom.tasks.splice(j, 1);
+          setupTaskSelection();
+        }
+     ).addClass("sessiontask")
       .data({session: 'custom', task: j, desc: taskToDesc(sessions.custom.logic||'predicate', thisTask)})
       .on('click', function (evt) {
         if (evt.target == this) {
@@ -123,22 +121,14 @@ function setupTaskSelection() {
   });
 
   updateTaskSelectionInfo();
+}
 
+$(function (){
   $("#customtask #addcustomtask").on('click', function (){
     var thisTask = taskFromText($("#customtask textarea").val());
     if (thisTask) {
-      var j = sessions.custom.tasks.length;
       sessions.custom.tasks.push(thisTask);
-      taskToHTML(thisTask, true, sessions.custom.tasks.length - 1)
-        .addClass("sessiontask")
-        .data({session: 'custom', task: j, desc: taskToDesc(sessions.custom.logic||'predicate', thisTask)})
-        .on('click', function (evt) {
-          if (evt.target == this) {
-            with_graph_loading(selectSessionTask)(evt);
-          }
-        })
-        .insertBefore("#customtask");
-      updateTaskSelectionInfo(); // A bit overhead re-doing all of them, but that’s ok, I hope
+      setupTaskSelection();
       saveSession();
     } else {
       alert(i18n.t('task-parse-error'));
@@ -168,7 +158,7 @@ function setupTaskSelection() {
       selectNothing();
     }
   });
-}
+});
 
 function next_custom_block_name(){
   var n = (custom_rules[logicName] || []).length + 1;
