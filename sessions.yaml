@@ -195,6 +195,9 @@
     conclusions: ["∀y.∃x.P(x,y)"]
   - assumptions: ["(∀x.P(x))→A"]
     conclusions: ["∃x.P(x)→A"]
+- name: Session 7
+  logic: predicate
+  tasks:
   - conclusions: ["∃x.t(x)→(∀x.t(x))"]
   - assumptions: ["∀x.(r(x)→⊥)→r(f(x))"]
     conclusions: ["∃x.r(x)∧r(f(f(x)))"]
