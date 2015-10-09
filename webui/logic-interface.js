@@ -167,14 +167,8 @@ function processGraph() {
         // not very nice, see http://stackoverflow.com/questions/32010888
         conn.attr({'.connection': {class: 'connection error'}});
 
-        if (isReversed(conn)) {
-          f = function (pos) {return 1-pos;};
-        } else {
-          f = function (pos) {return pos;};
-        }
-
         conn.set('labels', [{
-          position: f(0.1),
+          position: 0.2,
           attrs: {
             text: {
               text: propFrom
@@ -182,7 +176,7 @@ function processGraph() {
           }
         },
           {
-            position: f(0.5),
+            position: 0.5,
             attrs: {
               text: {
                 text: symbol
@@ -190,7 +184,7 @@ function processGraph() {
             }
           },
           {
-            position: f(0.9),
+            position: 0.8,
             attrs: {
               text: {
                 text: propTo
