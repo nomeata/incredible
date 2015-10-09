@@ -122,6 +122,9 @@
    cursor: pointer;
 }
 
+.link:hover .tool-remove {
+   opacity: 1;
+}
 .block:hover .tool-remove {
    opacity: 1;
 }
