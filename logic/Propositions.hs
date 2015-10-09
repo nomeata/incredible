@@ -10,6 +10,7 @@ import Control.Applicative hiding ((<|>))
 import Control.Monad
 import Data.List
 import Utils
+import Data.Char
 
 import Unbound.LocallyNameless hiding (Infix)
 
@@ -191,7 +192,21 @@ varOrConstP = do
     -- makes it a variable
     con <- option C (l $ V <$ (try (string "V ")))
     n <- nameP
-    return $ con n
+    choice
+      [ do
+        _ <- l $ char '_'
+        index <- read <$> many1 digit
+        return $ V (makeName (name2String n) index)
+      , do
+        index <- parseSubscript
+        return $ V (makeName (name2String n) index)
+      , return $ con n
+      ]
+
+parseSubscript :: Parser Integer
+parseSubscript = read <$> many1 go
+  where
+   go = choice [ n <$ char c | (n,c) <- subscripts ]
 
 nameP :: Rep a => Parser (Name a)
-nameP = l $ string2Name <$> many1 alphaNum
+nameP = l $ string2Name <$> many1 (satisfy (\c -> isAlphaNum c && c `notElem` map snd subscripts))
