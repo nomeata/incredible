@@ -105,7 +105,7 @@ isInFix "→" = Just (2, R)
 isInFix _   = Nothing
 
 isQuant :: String -> Bool
-isQuant = (`elem` words "∃ ∀")
+isQuant = (`elem` map ((:"") . fst) quantifiers)
 
 isPrefix :: String -> Maybe Int
 isPrefix "¬" = Just 4
@@ -144,6 +144,7 @@ quantifiers :: [(Char, [Char])]
 quantifiers =
     [ ('∀', ['!'])
     , ('∃', ['?'])
+    , ('ε', [])
     , ('λ', ['\\'])
     ]
 
@@ -165,9 +166,11 @@ atomP = choice
         p <- atomP
         return $ s "¬" [p]
     , do
-        q <- quantP
-        vname <- nameP
-        _ <- l $ char '.'
+        (q,vname) <- try $ do -- allow backtracking after the ., for "ε(P)"
+            q <- quantP
+            vname <- nameP
+            _ <- l $ char '.'
+            return (q,vname)
         p <- termP
         return $ mkQuant q vname $ p
     , parenthesized termP

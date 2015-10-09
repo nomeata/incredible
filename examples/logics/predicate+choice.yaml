@@ -1,0 +1,187 @@
+rules:
+- id: allI
+  desc:
+    intro: ∀
+  free: ["P"]
+  local: ["c"]
+  ports:
+    in1:
+      type: assumption
+      proposition: P(c)
+      scoped: ["c"]
+    out2:
+      type: conclusion
+      proposition: ∀x.P(x)
+- id: allE
+  desc:
+    elim: ∀
+  free: ["P","y"]
+  ports:
+    in1:
+      type: assumption
+      proposition: ∀x.P(x)
+    out2:
+      type: conclusion
+      proposition: P(y)
+- id: exI
+  desc:
+    intro: ∃
+  free: ["P", "y"]
+  ports:
+    in1:
+      type: assumption
+      proposition: P(y)
+    out2:
+      type: conclusion
+      proposition: ∃x.P(x)
+- id: exE
+  desc:
+    elim: ∃
+  free: ["P","Q"]
+  local: ["c"]
+  ports:
+    in1:
+      type: assumption
+      proposition: ∃x.P(x)
+    in2:
+      type: assumption
+      proposition: Q
+      scoped: ["c"]
+    hyp:
+      type: local hypothesis
+      proposition: P(c)
+      consumedBy: in2
+    out:
+      type: conclusion
+      proposition: Q
+- id: conjI
+  free: ["A","B"]
+  desc:
+    intro: ∧
+  ports:
+    in1:
+      type: assumption
+      proposition: A
+    in2:
+      type: assumption
+      proposition: B
+    out:
+      type: conclusion
+      proposition: A∧B
+- id: conjE
+  free: ["A","B"]
+  desc:
+    elim: ∧
+  ports:
+    in:
+      type: assumption
+      proposition: A∧B
+    out1:
+      type: conclusion
+      proposition: A
+    out2:
+      type: conclusion
+      proposition: B
+- id: impI
+  desc:
+    intro: →
+  free: ["A","B"]
+  ports:
+    hyp:
+      type: local hypothesis
+      consumedBy: in
+      proposition: A
+    in:
+      type: assumption
+      proposition: B
+    out:
+      type: conclusion
+      proposition: A→B
+- id: impE
+  desc:
+    elim: →
+  free: ["A","B"]
+  ports:
+    in1:
+      type: assumption
+      proposition: A→B
+    in2:
+      type: assumption
+      proposition: A
+    out:
+      type: conclusion
+      proposition: B
+- id: disjI1
+  desc:
+    intro: ·∨
+  free: ["A","B"]
+  ports:
+    in:
+      type: assumption
+      proposition: A
+    out:
+      type: conclusion
+      proposition: A∨B
+- id: disjI2
+  desc:
+    intro: ∨·
+  free: ["A","B"]
+  ports:
+    in:
+      type: assumption
+      proposition: B
+    out:
+      type: conclusion
+      proposition: A∨B
+- id: disjE
+  desc:
+    elim: ∨
+  free: ["A","B","P"]
+  ports:
+    in:
+      type: assumption
+      proposition: A∨B
+    hyp1:
+      type: local hypothesis
+      proposition: A
+      consumedBy: in1
+    in1:
+      type: assumption
+      proposition: P
+    hyp2:
+      type: local hypothesis
+      proposition: B
+      consumedBy: in2
+    in2:
+      type: assumption
+      proposition: P
+    out:
+      type: conclusion
+      proposition: P
+- id: falseE
+  desc:
+    elim: ⊥
+  free: ["P"]
+  ports:
+    in:
+      type: assumption
+      proposition: "⊥"
+    out:
+      type: conclusion
+      proposition: P
+- id: TND
+  free: ["P"]
+  ports:
+    out:
+      type: conclusion
+      proposition: "P∨(P→⊥)"
+- id: AoC
+  free: ["P", "y"]
+  ports:
+    in:
+       type: assumption
+       proposition: "P(y)"
+    out:
+       type: conclusion
+       proposition: "P(ε(P))"
+

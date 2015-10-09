@@ -184,9 +184,6 @@
     conclusions: ["∀x.P(x)→A"]
   - assumptions: ["∀x.(P(x)→Q(x))", "P(a)"]
     conclusions: ["Q(a)"]
-# Das tut noch nicht. Bug?
-#  - assumptions: ["∀x.∃y.P(x,y)"]
-#    conclusions: ["∃f.∀x.P(x,f(x))"]
   - assumptions: ["∀x.∀y.P(x,y)"]
     conclusions: ["∀y.∀x.P(x,y)"]
   - assumptions: ["∃x.∃y.P(x,y)"]
@@ -201,6 +198,11 @@
   - conclusions: ["∃x.t(x)→(∀x.t(x))"]
   - assumptions: ["∀x.(r(x)→⊥)→r(f(x))"]
     conclusions: ["∃x.r(x)∧r(f(f(x)))"]
+- name: Session 8
+  logic: predicate+choice
+  tasks:
+  - assumptions: ["∀x.∃y.P(x,y)"]
+    conclusions: ["∃f.∀x.P(x,f(x))"]
 - name: Hilbert system
   logic: hilbert
   tasks:
