@@ -182,6 +182,11 @@
     conclusions: ["∃x.P(x)∨Q(x)"]
   - assumptions: ["(∃x.P(x))→A"]
     conclusions: ["∀x.P(x)→A"]
+  - assumptions: ["∀x.(P(x)→Q(x))", "P(a)"]
+    conclusions: ["Q(a)"]
+# Das tut noch nicht. Bug?
+#  - assumptions: ["∀x.∃y.P(x,y)"]
+#    conclusions: ["∃f.∀x.P(x,f(x))"]
   - assumptions: ["∀x.∀y.P(x,y)"]
     conclusions: ["∀y.∀x.P(x,y)"]
   - assumptions: ["∃x.∃y.P(x,y)"]
