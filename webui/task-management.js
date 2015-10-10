@@ -1,8 +1,8 @@
 var task_desc; // A string describing the current task
-sessions.custom = {tasks: []};
 
 var tasks_saved = {};
 var tasks_solved = {};
+var custom_tasks = {};
 var custom_rules = {};
 
 var funnyUnicodeCharacters="⚛☃⚾♛♬☏⚒☸☀☮☘☭";
@@ -19,7 +19,7 @@ function saveSession() {
   localStorage["incredible-session"] = JSON.stringify({
     saved: tasks_saved,
     solved: tasks_solved,
-    custom: sessions.custom,
+    custom: custom_tasks,
     rules: custom_rules
   });
 }
@@ -29,7 +29,7 @@ function loadSession() {
     var stored = JSON.parse(localStorage["incredible-session"]);
     tasks_saved = stored.saved || {};
     tasks_solved = stored.solved || {};
-    sessions.custom = stored.custom || {tasks: []};
+    custom_tasks = stored.custom || {};
     custom_rules = stored.rules || {};
   }
 }
@@ -40,8 +40,16 @@ function taskToDesc(logic, task) {
 function selectSessionTask(evt) {
   saveTask();
 
-  var session = sessions[$(evt.currentTarget).data('session')];
-  var thisTask = session.tasks[$(evt.currentTarget).data('task')];
+  var target = $(evt.currentTarget);
+  var session = sessions[target.data('session')];
+  var thisTask;
+  if (target.data('task') !== undefined) {
+    thisTask = session.tasks[target.data('task')];
+  } else if (target.data('custom_task') !== undefined) {
+    thisTask = custom_tasks[session.name][target.data('custom_task')];
+  } else {
+    throw Error("selectSessionTask");
+  }
 
   task_desc = $(evt.currentTarget).data('desc');
 
@@ -101,40 +109,48 @@ function setupTaskSelection() {
         .on('click', with_graph_loading(selectSessionTask))
         .appendTo(container);
     });
-  });
 
-  $("#customtasks").find(".inferencerule").remove(); // Cannot use empty() due to the entry field
-  $.each(sessions.custom.tasks, function (j,thisTask) {
-    taskToHTML(thisTask,
-        function () {
-          sessions.custom.tasks.splice(j, 1);
-          setupTaskSelection();
-        }
-     ).addClass("sessiontask")
-      .data({session: 'custom', task: j, desc: taskToDesc(sessions.custom.logic||'predicate', thisTask)})
-      .on('click', function (evt) {
-        if (evt.target == this) {
-          with_graph_loading(selectSessionTask)(evt);
-        }
-      })
-      .insertBefore("#customtask");
+    $.each(custom_tasks[session.name] || [], function (j,thisTask) {
+      taskToHTML(thisTask,
+          function () {
+            custom_tasks[session.name].splice(j, 1);
+            setupTaskSelection();
+          }
+       ).addClass("sessiontask")
+        .data({session: i, custom_task: j, desc: taskToDesc(session.logic||'predicate', thisTask)})
+        .on('click', with_graph_loading(selectSessionTask))
+        .appendTo(container);
+    });
+
+    var textarea = $('<textarea>A&#10;────────────&#10;A</textarea>');
+
+    $('<div id="customtasks" class="tasklist">')
+      .append($('<div class="customtaskentry">')
+        .append(textarea)
+        .append($('<button>')
+          .text(i18n.t('Add'))
+          .on('click', function (){
+            var thisTask = taskFromText(textarea.val());
+            if (thisTask) {
+              if (!custom_tasks[session.name]) {
+                custom_tasks[session.name] = [];
+              }
+              custom_tasks[session.name].push(thisTask);
+              setupTaskSelection();
+              saveSession();
+            } else {
+              alert(i18n.t('task-parse-error'));
+            }
+          })
+        )
+      )
+      .appendTo(container);
   });
 
   updateTaskSelectionInfo();
 }
 
 $(function (){
-  $("#customtask #addcustomtask").on('click', function (){
-    var thisTask = taskFromText($("#customtask textarea").val());
-    if (thisTask) {
-      sessions.custom.tasks.push(thisTask);
-      setupTaskSelection();
-      saveSession();
-    } else {
-      alert(i18n.t('task-parse-error'));
-    }
-  });
-
   $("#addcustomblock").on('click', function (){
     // Instead of reading the displayed rule, we simply re-calculate it. It
     // should be the same, if not, then that is a bug..

@@ -180,33 +180,34 @@
                 align-items: center;
 	    }
 
-            #customtask {
+            .customtaskentry {
                 width: 200px;
                 padding: 4px;
                 margin: 0 1em 1em 1em;
                 text-align: center;
             }
-            #customtask textarea {
+            .customtaskentry textarea {
                 width: 100%;
                 height: 80px;
                 display: inline-block;
                 font-family: sans-serif;
                 text-align: center;
             }
-            #customtask button {
+            .customtaskentry button {
                 width: 100%;
             }
-            #customtasks.tasklist .inferencerule {
+
+            .tasklist .inferencerule {
 		position:relative;
 	    }
-            #customtasks.tasklist .inferencerule .task-tools {
+            .tasklist .inferencerule .task-tools {
                position: absolute;
                top: -20px;
                right: 30px;
                width: 0px;
                height: 0px;
             }
-            #customtasks.tasklist .inferencerule:hover .tool-remove {
+            .tasklist .inferencerule:hover .tool-remove {
                opacity: 1;
             }
 
@@ -408,13 +409,6 @@
     <div id="taskdialog">
     <h2 data-i18n>What do you want to prove today?</h2>
     <div id="sessiontasks"></div>
-    <h3 data-i18n>Custom tasks</h3>
-    <div id="customtasks" class="tasklist">
-    <div id="customtask">
-    <textarea>A&#10;────────────&#10;A</textarea>
-    <button id="addcustomtask" data-i18n>Add</button>
-    </div>
-    </div>
     </div>
 
 
