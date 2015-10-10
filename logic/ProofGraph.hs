@@ -10,8 +10,9 @@
 -- to the successor.
 module ProofGraph where
 
+import qualified Data.IntMap as IM
 import qualified Data.Map as M
-import qualified Data.Set as S
+import qualified Data.IntSet as IS
 import Data.Map ((!))
 import Data.List
 import Data.Monoid
@@ -20,6 +21,7 @@ import Control.Monad
 import Control.Monad.Trans.State.Strict
 import Control.Monad.Trans.Writer.Strict
 import Control.Monad.Trans.Class
+import Control.Arrow
 
 import Types
 
@@ -49,31 +51,22 @@ type family NodeKey a where
     NodeKey 'InPortNodeType  = PortSpec
     NodeKey 'ConnNodeType    = Key Connection
 
-data ANodeKey
-    = BlockNodeKey   (NodeKey BlockNodeType)
-    | OutPortNodeKey (NodeKey OutPortNodeType)
-    | InPortNodeKey  (NodeKey InPortNodeType)
-    | ConnNodeKey    (NodeKey ConnNodeType)
-    deriving (Show, Eq, Ord)
+type NodePath = [NodeUniq]
 
-type NodePath = [ANodeKey]
+type NodeUniq = Int
 
 data Node a = Node
     { nodeType :: NodeTag a
     , nodeKey  :: NodeKey a
     , nodePred :: [Node (Pred a)]
     , nodeSucc :: [Node (Succ a)]
+    , nodeUniq :: NodeUniq
     }
-
-node2ANodeKey :: Node a -> ANodeKey
-node2ANodeKey (Node BlockNodeTag k _ _) = BlockNodeKey k
-node2ANodeKey (Node InPortNodeTag k _ _) = InPortNodeKey k
-node2ANodeKey (Node OutPortNodeTag k _ _) = OutPortNodeKey k
-node2ANodeKey (Node ConnNodeTag k _ _) = ConnNodeKey k
 
 data ANode = forall a. ANode (Node a)
 
 type NodeMap a = M.Map (NodeKey a) (Node a)
+type UniqMap a = IM.IntMap (NodeKey a)
 
 data Graph = Graph
     { blockNodes      :: NodeMap 'BlockNodeType
@@ -81,7 +74,11 @@ data Graph = Graph
     , outPortNodes    :: NodeMap 'OutPortNodeType
     , connectionNodes :: NodeMap 'ConnNodeType
 
-    , localHypNodes   :: S.Set ANodeKey
+    , uniquesToBlock  :: UniqMap BlockNodeType
+    , uniquesToInPort :: UniqMap InPortNodeType
+    , uniquesToConn   :: UniqMap ConnNodeType
+
+    , localHypNodes   :: UniqSet
     , conclusionNodes :: [Node 'BlockNodeType]
     }
 
@@ -97,13 +94,27 @@ ppGraph Graph{..} = unlines $ concat $
       [ "  → " ++ show (nodeKey p) | p <- nodeSucc n ]
     | n <- M.elems connectionNodes]
 
-mkNodeMap :: Ord (NodeKey a) => [Node a] -> NodeMap a
-mkNodeMap nodes = M.fromList [ (nodeKey n, n) | n <- nodes ]
+mkNodeMap :: Ord (NodeKey a) => Int -> [Int -> Node a] -> NodeMap a
+mkNodeMap i nodes =
+    M.fromList [ (nodeKey node, node) | (n,nodeGen) <- zip [i..] nodes, let node = nodeGen n ]
+
+mkNodeMap' :: Ord (NodeKey a) => Int -> [Int -> Node a] -> (NodeMap a, UniqMap a)
+mkNodeMap' i nodes =
+    (M.fromList *** IM.fromList) $
+    unzip $
+    [ ( (key, node)
+      , (n,key)
+      )
+    | (n,nodeGen) <- zip [i..] nodes
+    , let node = nodeGen n
+    , let key = nodeKey node
+    ]
 
 proof2Graph :: Context -> Proof -> Graph
 proof2Graph ctxt proof = Graph {..}
   where
-    blockNodes = mkNodeMap $ map go $ M.toList (blocks proof)
+    (blockNodes, uniquesToBlock)= mkNodeMap' 0 $
+        map go $ M.toList (blocks proof)
       where
         go (blockKey, block) =
             Node BlockNodeTag
@@ -114,8 +125,9 @@ proof2Graph ctxt proof = Graph {..}
             (inPorts, outPorts) =
               partition (isPortTypeIn . portType . snd) $
               M.toList $ ports (block2Rule ctxt block)
+    n1 = M.size (blocks proof)
 
-    outPortNodes = mkNodeMap
+    outPortNodes = mkNodeMap n1 $
         [ Node OutPortNodeTag ps [blockNodes ! blockKey] succs
         | (blockKey, block) <- M.toList (blocks proof)
         , let rule = block2Rule ctxt block
@@ -124,6 +136,7 @@ proof2Graph ctxt proof = Graph {..}
         , let ps = BlockPort blockKey portKey
         , let succs = map (connectionNodes !) $ M.findWithDefault [] ps outPortToConn
         ]
+    n2 = n1 + M.size outPortNodes
 
     outPortToConn :: M.Map PortSpec [Key Connection]
     outPortToConn = M.fromListWith (++)
@@ -132,7 +145,7 @@ proof2Graph ctxt proof = Graph {..}
         , Just ps <- return $ connFrom conn
         ]
 
-    inPortNodes = mkNodeMap
+    (inPortNodes, uniquesToInPort) = mkNodeMap' n2 $
         [ Node InPortNodeTag ps preds [blockNodes ! blockKey]
         | (blockKey, block) <- M.toList (blocks proof)
         , let rule = block2Rule ctxt block
@@ -141,6 +154,7 @@ proof2Graph ctxt proof = Graph {..}
         , let ps = BlockPort blockKey portKey
         , let preds = map (connectionNodes !) $ M.findWithDefault [] ps inPortToConn
         ]
+    n3 = n2 + M.size inPortNodes
 
     inPortToConn :: M.Map PortSpec [Key Connection]
     inPortToConn = M.fromListWith (++)
@@ -149,7 +163,7 @@ proof2Graph ctxt proof = Graph {..}
         , Just ps <- return $ connTo conn
         ]
 
-    connectionNodes = mkNodeMap
+    (connectionNodes, uniquesToConn)= mkNodeMap' n3 $
         [ Node ConnNodeTag
                connKey
                [outPortNodes ! ps | Just ps <- return $ connFrom conn]
@@ -157,12 +171,14 @@ proof2Graph ctxt proof = Graph {..}
         | (connKey, conn) <- M.toList (connections proof)
         ]
 
+    -- Some cached lists of special nodes
     localHypNodes =
-        S.fromList
-        [ OutPortNodeKey (BlockPort blockKey hypKey)
+        IS.fromList
+        [ nodeUniq node
         | (blockKey, block) <- M.toList (blocks proof)
         , let rule = block2Rule ctxt block
         , (hypKey, Port {portType = PTLocalHyp{}}) <- M.toList (ports rule)
+        , let node = outPortNodes ! BlockPort blockKey hypKey
         ]
 
     conclusionNodes = [ blockNodes ! blockKey
@@ -171,18 +187,18 @@ proof2Graph ctxt proof = Graph {..}
 
 -- | Finds a list of cycles from the given node to itself, ignoring the nodes
 -- from stopAt along the way, and returns such paths.
-calcCycle :: Node a -> S.Set ANodeKey -> [NodePath]
+calcCycle :: Node a -> UniqSet -> [NodePath]
 calcCycle start stopAt = evalMarkM $ goBeyond [] start
   where
     goBeyond :: NodePath -> Node a -> MarkM [NodePath]
     goBeyond path n = concat <$> mapM remember (nodeSucc n)
       where
-        remember n = go (node2ANodeKey n:path) n
+        remember n = go (nodeUniq n:path) n
 
     go :: NodePath -> Node a -> MarkM [NodePath]
-    go path n | node2ANodeKey n == node2ANodeKey start = return [path]
-    go _    n | node2ANodeKey n `S.member` stopAt = return []
-    go path n = markAndFollow (node2ANodeKey n) $ goBeyond path n
+    go path n | nodeUniq n == nodeUniq start  = return [path]
+    go _    n | nodeUniq n `IS.member` stopAt = return []
+    go path n = markAndFollow (nodeUniq n) $ goBeyond path n
 
 
 
@@ -194,76 +210,74 @@ calcCycle start stopAt = evalMarkM $ goBeyond [] start
 -- to the visited node as values.
 --
 -- The nodes mentiond in stopAt are _not_ included in the returned map.
-calcNonScope :: Node a -> S.Set ANodeKey -> S.Set ANodeKey -> M.Map ANodeKey NodePath
-calcNonScope start stopAtForward stopAtBackward = flip execState M.empty $ do
+calcNonScope :: Node a -> UniqSet -> UniqSet -> IM.IntMap NodePath
+calcNonScope start stopAtForward stopAtBackward = flip execState IM.empty $ do
     backActions <- execWriterT (goForward [] start)
     sequence_ backActions
   where
     -- This goes only forward. It does not go backwards directly, but rather remembers
     -- where to start going backwards and returns these actions in a list.
     -- Going back too early might cut off certain paths (see trickyEscape test case)
-    goForward :: [ANodeKey] -> Node a -> NonScopeDeferM ()
-    goForward path n | nk `S.member` stopAtForward = return ()
+    goForward :: NodePath -> Node a -> NonScopeDeferM ()
+    goForward path n | nu `IS.member` stopAtForward = return ()
                      | otherwise = do
-        seen <- lift $ gets (nk `M.member`)
+        seen <- lift $ gets (nu `IM.member`)
         unless seen $ do
-            lift $ modify $ M.insert nk path'
+            lift $ modify $ IM.insert nu path'
             tell $ map (goBackward path') (nodePred n)
             mapM_ (goForward  path') (nodeSucc n)
-      where nk = node2ANodeKey n
-            path' = nk:path
+      where nu = nodeUniq n
+            path' = nu:path
 
-    goBackward :: [ANodeKey] -> Node a -> NonScopeM ()
-    goBackward path n | nk `S.member` stopAtBackward = return ()
+    goBackward :: NodePath -> Node a -> NonScopeM ()
+    goBackward path n | nu `IS.member` stopAtBackward = return ()
                       | otherwise = do
-        seen <- gets (nk `M.member`)
+        seen <- gets (nu `IM.member`)
         unless seen $ do
-            modify $ M.insert nk path'
+            modify $ IM.insert nu path'
             mapM_ (goBackward path') (nodePred n)
-      where nk = node2ANodeKey n
-            path' = nk:path
+      where nu = nodeUniq n
+            path' = nu:path
 
-type NonScopeM = State (M.Map ANodeKey [ANodeKey])
+type NonScopeM = State (IM.IntMap NodePath)
 type NonScopeDeferM = WriterT [NonScopeM ()] NonScopeM
 
-calcSCC :: Node a -> S.Set ANodeKey
+calcSCC :: Node a -> UniqSet
 calcSCC start = execMarkM $ go start
   where
     go :: Node a -> MarkM ()
-    go n = markAndFollow (node2ANodeKey n) $ do
+    go n = markAndFollow (nodeUniq n) $ do
         mapM_ go (nodePred n)
         mapM_ go (nodeSucc n)
 
-backwardsSlice :: [Node a] -> S.Set ANodeKey
-backwardsSlice starts = execMarkM $ mapM_ goBackward starts
+backwardsSlice :: [Node a] -> [NodeUniq]
+backwardsSlice starts = IS.toList $ execMarkM $ mapM_ goBackward starts
   where
     goBackward :: Node a -> MarkM ()
-    goBackward n = markAndFollow (node2ANodeKey n) $ do
+    goBackward n = markAndFollow (nodeUniq n) $ do
         mapM_ goBackward (nodePred n)
 
-toBlockNodeKey :: ANodeKey -> Maybe (Key Block)
-toBlockNodeKey (BlockNodeKey k) = Just k
-toBlockNodeKey _ = Nothing
+toBlockNodeKey :: Graph -> NodeUniq -> Maybe (Key Block)
+toBlockNodeKey graph nu = IM.lookup nu (uniquesToBlock graph)
 
-toConnKey :: ANodeKey -> Maybe (Key Connection)
-toConnKey (ConnNodeKey k) = Just k
-toConnKey _ = Nothing
+toConnKey :: Graph -> NodeUniq -> Maybe (Key Connection)
+toConnKey graph nu = IM.lookup nu (uniquesToConn graph)
 
-toInPortKey :: ANodeKey -> Maybe PortSpec
-toInPortKey (InPortNodeKey k) = Just k
-toInPortKey _ = Nothing
+toInPortKey :: Graph -> NodeUniq -> Maybe PortSpec
+toInPortKey graph nu = IM.lookup nu (uniquesToInPort graph)
 
 
-type MarkM = State (S.Set ANodeKey)
+type UniqSet = IS.IntSet
+type MarkM = State UniqSet
 
-execMarkM :: MarkM a -> S.Set ANodeKey
-execMarkM a = execState a S.empty
+execMarkM :: MarkM a -> UniqSet
+execMarkM a = execState a IS.empty
 
 evalMarkM :: MarkM a -> a
-evalMarkM a = evalState a S.empty
+evalMarkM a = evalState a IS.empty
 
-markAndFollow :: Monoid m => ANodeKey -> MarkM m -> MarkM m
+markAndFollow :: Monoid m => Int -> MarkM m -> MarkM m
 markAndFollow k a = do
-    seen <- gets (k `S.member`)
+    seen <- gets (k `IS.member`)
     if seen then return mempty
-            else modify (S.insert k) >> a
+            else modify (IS.insert k) >> a
