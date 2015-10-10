@@ -124,9 +124,9 @@ function processGraph() {
     $.each(analysis.unconnectedGoals, function (i, goal) {
       if (goal.block) {
         el = graph.getCell(goal.block);
-	var bp = _.clone(el.get('brokenPorts'));
-	bp[goal.port] = true;
-	el.set('brokenPorts', bp);
+        var bp = _.clone(el.get('brokenPorts'));
+        bp[goal.port] = true;
+        el.set('brokenPorts', bp);
       }
       if (goal.conclusion) {
         $.each(graph.getElements(), function (i, el) {
@@ -158,6 +158,7 @@ function processGraph() {
 
       var stat = analysis.connectionStatus[conn.id] || "unconnected";
 
+      var labels = [];
       if (stat == "failed" || stat == "dunno") {
         var symbol;
         if (stat == "failed")   {symbol = "☠";}
@@ -167,7 +168,7 @@ function processGraph() {
         // not very nice, see http://stackoverflow.com/questions/32010888
         conn.attr({'.connection': {class: 'connection error'}});
 
-        conn.set('labels', [{
+        labels = [{
           position: 0.2,
           attrs: {
             text: {
@@ -191,28 +192,29 @@ function processGraph() {
               }
             }
           }
-        ]);
+        ];
       } else if (stat == "solved") {
-        conn.set('labels', [{
+        labels = [{
           position: 0.5,
           attrs: {
             text: {
               text: propFrom
             }
           }
-        }]);
+        }];
       } else if (stat == "unconnected") {
-        conn.set('labels', [{
+        labels = [{
           position: 0.5,
           attrs: {
             text: {
               text: propFrom || propTo
             }
           }
-        }]);
+        }];
       } else {
         throw new Error("processGraph(): Unknown connection status: " + stat);
       }
+      conn.set('labels', labels);
     });
 
     processDerivedRule();
