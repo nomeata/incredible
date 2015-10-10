@@ -194,10 +194,6 @@ function selectLogic(name, visible) {
 function loadTask(thisTask) {
   task = thisTask;
 
-  // Normalize the input here
-  task.assumptions = (task.assumptions || []).map(incredibleFormatTerm);
-  task.conclusions = (task.conclusions || []).map(incredibleFormatTerm);
-
   $("#proofselect").val("");
 
   $("#taskwrap")
@@ -257,10 +253,22 @@ $(function (){
   });
 
   loadSession();
+  normalizeSession();
   setupTaskSelection();
   showTaskSelection();
   $("#loading").fadeOut({duration: 500});
 });
+
+function normalizeSession() {
+  // Normalize the input here
+  $.each(sessions, function (i,session) {
+    $.each(session.tasks, function (j,task) {
+      task.assumptions = (task.assumptions || []).map(incredibleFormatTerm);
+      task.conclusions = (task.conclusions || []).map(incredibleFormatTerm);
+    });
+  });
+}
+
 
 
 graph.on('add remove change:annotation change:loading', function () {
