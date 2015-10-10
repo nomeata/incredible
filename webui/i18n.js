@@ -9,7 +9,7 @@ var translations = {
     "Custom blocks:": "Eigene Bausteine:",
     "Developers tools:": "Entwicklertools",
     "New custom block:": "Neuer eigener Baustein:",
-    "switch task...": "Aufgabe wechseln",
+    "switch": "Eine andere Aufgabe bearbeiten...",
     "confirm-reset": "Willst du wirklich alle gespeicherten Daten löschen (Beweise, eigene Aufgaben, eigene Bausteine)?",
     "nothing": "nichts",
     "task-parse-error": "Leider verstehe ich die Aufgabe nicht.",
@@ -35,6 +35,7 @@ var translations = {
   en: { translation: {
     "confirm-reset": "Are you sure you want to remove all saved data (proofs, custom tasks, custom blocks)?",
     "nothing": "nothing",
+    "switch": "switch task...",
     "task-parse-error": "Sorry, I could not understand this task.",
     "wrong-password": "Sorry, this is not the right password",
     "add-title": "Add a new task to this session."
