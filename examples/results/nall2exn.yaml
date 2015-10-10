@@ -15,10 +15,10 @@ portLabels:
   fb8af3ce-aba5-4491-a0ee-1e5b7a7f2de2:
     out: P(c₇)∨(P(c₇)→⊥)
   d5314483-d2a8-436a-9c1a-b3b0e099bd8f:
-    hyp1: A₅
-    in: A₅∨B₅
+    hyp1: X₅
+    in: X₅∨Y₅
     in2: P₅
-    hyp2: B₅
+    hyp2: Y₅
     in1: P₅
     out: P₅
   f512c3b6-36e4-4480-8a5e-33908d6d7fe9:

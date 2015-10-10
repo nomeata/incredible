@@ -1,12 +1,12 @@
 portLabels:
   e06f2b14-56cc-4e66-85cf-c835cb44c5ce:
-    in2: A₁
-    in1: A₂
-    out: A₂∧A₁
+    in2: X₁
+    in1: X₂
+    out: X₂∧X₁
   db0953ed-21c6-4a26-be6c-470869917231:
-    in: B₁
-    out: A₁→B₁
-    hyp: A₁
+    in: Y₁
+    out: X₁→Y₁
+    hyp: X₁
 cycles: []
 escapedHypotheses: []
 connectionStatus:

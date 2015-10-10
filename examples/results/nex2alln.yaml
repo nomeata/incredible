@@ -13,9 +13,9 @@ portLabels:
     in1: (∃x.P(x))→⊥
     out: ⊥
   e601a863-e50c-4b7f-a696-a3dbac4df9a7:
-    in2: A₄
-    in1: A₄→B₄
-    out: B₄
+    in2: X₄
+    in1: X₄→Y₄
+    out: Y₄
   9036d3fe-4a1d-4611-a22a-979bb343127e:
     in: ⊥
     out: P(c₇)→⊥

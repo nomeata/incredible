@@ -1,16 +1,16 @@
 portLabels:
   d:
-    hyp1: A₄(c₃)
-    in: A₄(c₃)∨B₄(c₃)
+    hyp1: X₄(c₃)
+    in: X₄(c₃)∨Y₄(c₃)
     in2: Q₃
-    hyp2: B₄(c₃)
+    hyp2: Y₄(c₃)
     in1: Q₃
     out: Q₃
   e:
     in2: Q₃
-    in1: ∃x.A₄(x)∨B₄(x)
+    in1: ∃x.X₄(x)∨Y₄(x)
     out: Q₃
-    hyp: A₄(c₃)∨B₄(c₃)
+    hyp: X₄(c₃)∨Y₄(c₃)
 cycles: []
 escapedHypotheses: []
 connectionStatus:
