@@ -133,6 +133,7 @@ function setupTaskSelection() {
           .append(textarea)
           .append($('<button>')
             .text(i18n.t('Add'))
+            .attr('title', i18n.t('add-title'))
             .on('click', function (){
               var thisTask = taskFromText(textarea.val());
               if (thisTask) {

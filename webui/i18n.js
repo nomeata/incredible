@@ -28,14 +28,16 @@ var translations = {
     "Reset this task": "Diesen Task neu beginnen",
     "Unlock": "Entsperren",
     "password": "Passwort",
-    "wrong-password": "Das ist leider nicht das richtige Passwort."
+    "wrong-password": "Das ist leider nicht das richtige Passwort.",
+    "add-title": "Eine neue Aufgabe hinzufügen."
   }},
 
   en: { translation: {
     "confirm-reset": "Are you sure you want to remove all saved data (proofs, custom tasks, custom blocks)?",
     "nothing": "nothing",
     "task-parse-error": "Sorry, I could not understand this task.",
-    "wrong-password": "Sorry, this is not the right password"
+    "wrong-password": "Sorry, this is not the right password",
+    "add-title": "Add a new task to this session."
   }}
 };
 
