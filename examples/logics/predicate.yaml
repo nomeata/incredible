@@ -55,102 +55,102 @@ rules:
       type: conclusion
       proposition: Q
 - id: conjI
-  free: ["A","B"]
+  free: ["X","Y"]
   desc:
     intro: ∧
   ports:
     in1:
       type: assumption
-      proposition: A
+      proposition: X
     in2:
       type: assumption
-      proposition: B
+      proposition: "Y"
     out:
       type: conclusion
-      proposition: A∧B
+      proposition: X∧Y
 - id: conjE
-  free: ["A","B"]
+  free: ["X","Y"]
   desc:
     elim: ∧
   ports:
     in:
       type: assumption
-      proposition: A∧B
+      proposition: X∧Y
     out1:
       type: conclusion
-      proposition: A
+      proposition: X
     out2:
       type: conclusion
-      proposition: B
+      proposition: "Y"
 - id: impI
   desc:
     intro: →
-  free: ["A","B"]
+  free: ["X","Y"]
   ports:
     hyp:
       type: local hypothesis
       consumedBy: in
-      proposition: A
+      proposition: X
     in:
       type: assumption
-      proposition: B
+      proposition: "Y"
     out:
       type: conclusion
-      proposition: A→B
+      proposition: X→Y
 - id: impE
   desc:
     elim: →
-  free: ["A","B"]
+  free: ["X","Y"]
   ports:
     in1:
       type: assumption
-      proposition: A→B
+      proposition: X→Y
     in2:
       type: assumption
-      proposition: A
+      proposition: X
     out:
       type: conclusion
-      proposition: B
+      proposition: "Y"
 - id: disjI1
   desc:
     intro: ·∨
-  free: ["A","B"]
+  free: ["X","Y"]
   ports:
     in:
       type: assumption
-      proposition: A
+      proposition: X
     out:
       type: conclusion
-      proposition: A∨B
+      proposition: X∨Y
 - id: disjI2
   desc:
     intro: ∨·
-  free: ["A","B"]
+  free: ["X","Y"]
   ports:
     in:
       type: assumption
-      proposition: B
+      proposition: "Y"
     out:
       type: conclusion
-      proposition: A∨B
+      proposition: X∨Y
 - id: disjE
   desc:
     elim: ∨
-  free: ["A","B","P"]
+  free: ["X","Y","P"]
   ports:
     in:
       type: assumption
-      proposition: A∨B
+      proposition: X∨Y
     hyp1:
       type: local hypothesis
-      proposition: A
+      proposition: X
       consumedBy: in1
     in1:
       type: assumption
       proposition: P
     hyp2:
       type: local hypothesis
-      proposition: B
+      proposition: "Y"
       consumedBy: in2
     in2:
       type: assumption
