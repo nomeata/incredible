@@ -16,8 +16,8 @@ js-libs:
 
 
 prepare: js-libs
-	cd logic && cabal install --dependencies-only --enable-tests
-	cd logic && cabal install --ghcjs --dependencies-only --disable-tests
+	cd logic && cabal install -j1 --dependencies-only --enable-tests
+	cd logic && cabal install -j1 --ghcjs --dependencies-only --disable-tests
 
 docs:
 	cd logic && \
