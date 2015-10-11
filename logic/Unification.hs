@@ -13,7 +13,7 @@ module Unification
 import qualified Data.Map as M
 import Control.Monad
 import Control.Applicative
-import Control.Monad.Trans.Maybe
+import Control.Monad.Trans.Either
 --import Debug.Trace
 import Data.List
 
@@ -44,7 +44,7 @@ unifyLiberally uvs eqns = flip contFreshM highest $
     highest = firstFree (uvs, map snd eqns)
 
     -- Repeatedly go through the list of equalities until we can solve no more
-    iter :: Fresh m => (Unifiable, Bindings) -> [(a, UnificationResult, Equality)] -> m (Bindings, [(a, UnificationResult)])
+    iter ::(Unifiable, Bindings) -> [(a, UnificationResult, Equality)] -> FreshM (Bindings, [(a, UnificationResult)])
     iter (uvs, bind) eqns = do
         ((uvs', bind'), eqns') <- mapAccumM go (uvs,bind) eqns
         if M.size bind' > M.size bind
@@ -53,19 +53,14 @@ unifyLiberally uvs eqns = flip contFreshM highest $
                 -- we learned something, so retry
 
 
-    go :: Fresh m => (Unifiable, Bindings) -> (a,UnificationResult, Equality) -> m ((Unifiable, Bindings), (a,UnificationResult, Equality))
+    go :: (Unifiable, Bindings) -> (a,UnificationResult, Equality) -> FreshM ((Unifiable, Bindings), (a,UnificationResult, Equality))
     go uvs_bind (n,Dunno,x) = do
-        maybe_uvs_bind' <- runMaybeT (uncurry unif uvs_bind x)
-        case maybe_uvs_bind' of
-            Just (uvs',bind') -> do
-                solved <- x `solvedBy` bind'
-                if solved
-                then return ((uvs',bind'), (n,Solved, x))
-                -- Discard the results of this dunno,
-                -- potentially less complete, but makes the output easier to understand
-                else return (uvs_bind,     (n,Dunno, x))
-            Nothing ->
-                return (uvs_bind, (n, Failed, x))
+        either_uvs_bind' <- runUnifM (uncurry unif uvs_bind x)
+        return $ case either_uvs_bind' of
+            Left Dunno -> (uvs_bind,     (n,Dunno, x))
+            Left Failed -> (uvs_bind, (n, Failed, x))
+            Left Solved -> error "unreachable"
+            Right (uvs',bind') -> ((uvs',bind'), (n,Solved, x))
     -- Do not look at solved or failed equations again
     go uvs_bind (n,r,x) = return (uvs_bind, (n,r,x))
 
@@ -78,6 +73,11 @@ mapAccumM f s = go s
             (s'',ys) <- go s' xs
             return (s'', y:ys)
 
+type UnifM a = EitherT UnificationResult FreshM a
+
+runUnifM :: UnifM a -> FreshM (Either UnificationResult a)
+runUnifM = runEitherT
+
 -- Code taken from http://www21.in.tum.de/~nipkow/pubs/lics93.html
 
 {-
@@ -87,7 +87,7 @@ fun unif (S,(s,t)) = case (devar S s,devar S t) of
       | (s,x\t)   => unif (S,(s$(B x),t))
       | (s,t)     => cases S (s,t)
 -}
-unif :: (MonadPlus m, Fresh m) => [Var] -> Bindings -> (Term, Term) -> m ([Var], Bindings)
+unif :: [Var] -> Bindings -> (Term, Term) -> UnifM ([Var], Bindings)
 unif uvs binds (s,t) = do
     s' <- devar binds s
     t' <- devar binds t
@@ -103,7 +103,7 @@ and cases S (s,t) = case (strip s,strip t) of
                     | (_,(V F,ym))        => flexrigid(F,ym,s,S)
                     | ((a,sm),(b,tn))     => rigidrigid(a,sm,b,tn,S)
 -}
-cases :: (MonadPlus m, Fresh m) => [Var] -> Bindings -> (Term, Term) -> m ([Var], Bindings)
+cases :: [Var] -> Bindings -> (Term, Term) -> UnifM ([Var], Bindings)
 cases uvs binds (s,t) = do
     case (strip s, strip t) of
         ((V f, allBoundVar uvs -> Just ym), (V g, allBoundVar uvs -> Just zn))
@@ -113,9 +113,9 @@ cases uvs binds (s,t) = do
         (_, (V g, allBoundVar uvs -> Just zn))
             | g `elem` uvs                 -> flexrigid uvs binds g zn s
         ((V f, _), _)
-            | f `elem` uvs                 -> return (uvs, binds) -- Non-patterns: Give up
+            | f `elem` uvs                 -> left Dunno
         (_, (V g, _))
-            | g `elem` uvs                 -> return (uvs, binds) -- Non-patterns: Give up
+            | g `elem` uvs                 -> left Dunno
         ((a, sm), (b, tn))
             -> rigidrigid uvs binds a sm b tn
 
@@ -135,13 +135,13 @@ fun flexflex(F,ym,G,zn,S) = if F=G then flexflex1(F,ym,zn,S)
                             else flexflex2(F,ym,G,zn,S);
 -}
 
-eqs :: (MonadPlus m, Eq a) => [a] -> [a] -> m [a]
+eqs :: Eq a => [a] -> [a] -> UnifM [a]
 eqs (x:xs) (y:ys) | x == y    = (x :) `liftM` eqs xs ys
                   | otherwise =               eqs xs ys
 eqs [] [] = return []
-eqs _ _   = mzero
+eqs _ _   = left Failed
 
-flexflex :: (MonadPlus m, Fresh m) => [Var] -> Bindings -> Var -> [Var] -> Var -> [Var] -> m ([Var], Bindings)
+flexflex :: [Var] -> Bindings -> Var -> [Var] -> Var -> [Var] -> UnifM ([Var], Bindings)
 flexflex uvs binds f ym g zn
     | f == g && ym == zn = return (uvs, binds)
     | f == g
@@ -188,10 +188,10 @@ occ binds v t = v `elem` vars || any (maybe False (occ binds v) . (`M.lookup` bi
 fun flexrigid(F,ym,t,S) = if occ F S t then raise Unif
                           else proj (map B1 ym) (((F,abs(ym,t))::S),t);
 -}
-flexrigid :: (MonadPlus m, Fresh m) => [Var] -> Bindings -> Var -> [Var] -> Term -> m ([Var], Bindings)
+flexrigid :: [Var] -> Bindings -> Var -> [Var] -> Term -> UnifM ([Var], Bindings)
 flexrigid uvs binds f ym t
     | occ binds f t
-    = mzero
+    = left Failed
     | otherwise
     = let binds' = M.insert f (absTerm ym t) binds
       in proj ym uvs binds' t
@@ -204,7 +204,7 @@ fun proj W (S,s) = case strip(devar S s) of
     | (V F,ss) => if (map B1 ss) subset W then S
                   else (F, hnf(ss, newV(), ss /\ (map B W))) :: S;
 -}
-proj :: (MonadPlus m, Fresh m) => [Var] -> [Var] -> Bindings -> Term -> m ([Var], Bindings)
+proj :: [Var] -> [Var] -> Bindings -> Term -> UnifM ([Var], Bindings)
 proj w uvs binds s = do
     s' <- devar binds s
     case strip s' of
@@ -223,7 +223,7 @@ proj w uvs binds s = do
                 -- (The correctness of this is a guess by Joachim)
                 Nothing        -> recurse ss
                   | v `elem` w -> recurse ss
-                  | otherwise  -> mzero
+                  | otherwise  -> left Failed
         (C _, ss)              -> recurse ss
         (App _ _, _)          -> error "Unreachable"
   where
@@ -239,12 +239,12 @@ allBoundVar _ _                            = Nothing
 and rigidrigid(a,ss,b,ts,S) = if a <> b then raise Unif
                               else foldl unif (S,zip ss ts);
 -}
-rigidrigid :: (MonadPlus m, Fresh m) => [Var] -> Bindings -> Term -> [Term] -> Term -> [Term] -> m ([Var], Bindings)
+rigidrigid :: [Var] -> Bindings -> Term -> [Term] -> Term -> [Term] -> UnifM ([Var], Bindings)
 rigidrigid uvs binds a sm b tn
     | a `aeq` b && length sm == length tn
     = foldM (uncurry unif) (uvs, binds) (zip sm tn)
     | otherwise
-    = mzero
+    = left Failed
 
 
 {-
@@ -270,9 +270,6 @@ strip :: Term -> (Term, [Term])
 strip t = go t []
   where go (App t args) args' = go t (args++args')
         go t             args' = (t, args')
-
-solvedBy :: Fresh m => Equality -> Bindings -> m Bool
-solvedBy (t1,t2) b = liftM2 aeq (applyBindingM b t1) (applyBindingM b t2)
 
 -- | This is slow. If possible, use 'applyBinding'' or 'applyBindingM'
 applyBinding :: Bindings -> Term -> Term
@@ -308,3 +305,5 @@ lunbind' b c = unbind b >>= c
 lunbind2' :: (Fresh m, Alpha p1, Alpha p2, Alpha t1, Alpha t2) => Bind p1 t1 -> Bind p2 t2 -> (Maybe (p1, t1, p2, t2) -> m r) -> m r
 lunbind2' b1 b2 c = unbind2 b1 b2 >>= c
 
+instance Fresh m => Fresh (EitherT e m) where
+    fresh n = EitherT $ liftM Right $ fresh n
