@@ -229,7 +229,7 @@ function taskFromText(text) {
     } else {
       var prop = incredibleFormatTerm(l);
       if (prop) {
-        task[now].push(l);
+        task[now].push(prop);
       } else {
         ok = false;
       }
