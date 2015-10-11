@@ -141,6 +141,10 @@
     conclusions: ["A→⊥"]
   - assumptions: ["(A→⊥)∨B"]
     conclusions: ["A→B"]
+  - assumptions: ["A→⊥", "B→A"]
+    conclusions: ["B→⊥"]
+  - assumptions: ["(A→⊥)∨(B→⊥)∨(C→⊥)"]
+    conclusions: ["(A∧B∧C)→⊥"]
 - name: Session 5
   logic: predicate
   visible-rules:
@@ -163,6 +167,12 @@
     conclusions: ["A"]
   - assumptions: ["A→B"]
     conclusions: ["(A→⊥)∨B"]
+  - assumptions: ["A→B", "B→C"]
+    conclusions: ["(A→⊥)∨C"]
+  - assumptions: ["(A∧B∧C)→⊥"]
+    conclusions: ["(A→⊥)∨(B→⊥)∨(C→⊥)"]
+  - assumptions: ["(A→B)→⊥"]
+    conclusions: ["A∧(B→⊥)"]
 - name: Session 6
   logic: predicate
   tasks:
