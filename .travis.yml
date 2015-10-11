@@ -39,13 +39,12 @@ install:
     - cabal-1.22 update
     - cabal-1.22 install Cabal
     - test -e $HOME/.cabal/bin/HsColour || cabal-1.22 install hscolour
-    - test -e $HOME/.cabal/bin/ghcjs || git clone https://github.com/ghcjs/ghcjs-prim.git
-    - test -e $HOME/.cabal/bin/ghcjs || git clone https://github.com/ghcjs/haddock-internal.git
-    - test -e $HOME/.cabal/bin/ghcjs || git clone https://github.com/ghcjs/ghcjs.git
-    - test -e $HOME/.cabal/bin/ghcjs || cabal-1.22 install ./ghcjs-prim ./haddock-internal ./ghcjs
+    - test -e $HOME/.cabal/bin/ghcjs || git clone https://github.com/ghcjs/ghcjs.git -b old-base-ghc-7.8
+    - test -e $HOME/.cabal/bin/ghcjs || cabal-1.22 install ./ghcjs ./ghcjs/lib/ghcjs-prim ./haddock-internal
     - ghcjs --version
     - ghcjs-boot --version
-    - test -e $HOME/.ghcjs/*/ghcjs/ghcjs_boot.completed || ghcjs-boot --dev --no-haddock --no-prof
+    - test -e $HOME/.ghcjs/*/ghcjs/ghcjs_boot.completed || ghcjs-boot --dev --no-haddock --no-prof --ghcjs-boot-dev-branch old-base-ghc-7.8 --shims-dev-branch old-base-ghc-7.8
+
     - npm install jshint
 
     # install dependencies
