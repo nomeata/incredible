@@ -31,11 +31,11 @@ instructions, but here is a quick way.
     install Cabal`
   * Now you can install GHCJS including most of its libraries
 
-        git clone https://github.com/ghcjs/ghcjs-prim.git
+        git clone --recursive https://github.com/ghcjs/ghcjs.git -b old-base-ghc-7.8
         git clone https://github.com/ghcjs/haddock-internal.git
         git clone https://github.com/ghcjs/ghcjs.git
-        cabal install ./ghcjs-prim ./haddock-internal ./ghcjs
-        ghcjs-boot --dev --no-prof
+	cabal install ./ghcjs ./ghcjs/lib/ghcjs-prim ./haddock-internal
+	ghcjs-boot --dev --no-prof --ghcjs-boot-dev-branch old-base-ghc-7.8 --shims-dev-branch old-base-ghc-7.8
 
   * Install any further dependencies
 
@@ -48,6 +48,9 @@ instructions, but here is a quick way.
 
   * To run the testsuite, run `cabal test` in the `logic/` directory or `make
     test` in the project root
+
+It should also work with GHC-7.10. In this case, replace `old-base-ghc-7.8` by
+`old-base-ghc-7.10` in the above instructions.
 
 Alternatively, if you do not want to hack on these parts of the project, but simply run them locally, you can run
 
