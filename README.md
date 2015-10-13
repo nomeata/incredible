@@ -34,8 +34,8 @@ instructions, but here is a quick way.
         git clone --recursive https://github.com/ghcjs/ghcjs.git -b old-base-ghc-7.8
         git clone https://github.com/ghcjs/haddock-internal.git
         git clone https://github.com/ghcjs/ghcjs.git
-	cabal install ./ghcjs ./ghcjs/lib/ghcjs-prim ./haddock-internal
-	ghcjs-boot --dev --no-prof --ghcjs-boot-dev-branch old-base-ghc-7.8 --shims-dev-branch old-base-ghc-7.8
+        cabal install ./ghcjs ./ghcjs/lib/ghcjs-prim ./haddock-internal
+        ghcjs-boot --dev --no-prof --ghcjs-boot-dev-branch old-base-ghc-7.8 --shims-dev-branch old-base-ghc-7.8
 
   * Install any further dependencies
 
