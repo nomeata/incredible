@@ -64,7 +64,7 @@ name2ExternalString n
 -- Pretty printer
 
 printTerm :: Proposition -> String
-printTerm p = runLFreshM (prP (0::Int) p) ""
+printTerm p = runLFreshM (avoid (fvAny p) $ prP (0::Int) p) ""
   where
     prP :: Int -> Proposition -> LFreshM (String -> String)
     prP _ (C v) = prN v
