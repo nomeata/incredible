@@ -207,6 +207,10 @@
     conclusions: ["∃y.∃x.P(x,y)"]
   - assumptions: ["∃x.∀y.P(x,y)"]
     conclusions: ["∀y.∃x.P(x,y)"]
+  - assumptions: ["∀x.P(x)"]
+    conclusions: ["(∃x.P(x)→⊥)→⊥"]
+  - assumptions: ["(∀x.P(x))→⊥"]
+    conclusions: ["∃x.P(x)→⊥"]
   - assumptions: ["(∀x.P(x))→A"]
     conclusions: ["∃x.P(x)→A"]
 - name: Session 7
