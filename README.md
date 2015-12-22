@@ -18,12 +18,12 @@ The Logic core is implemented in Haskell, and compiled to JavaScript using
 [GHCJS](https://github.com/ghcjs/ghcjs). See there for more detailed
 instructions, but here is a quick way.
 
-  * Install GHC version 7.8 and cabal-install version 1.22. On Ubuntu, run
+  * Install GHC version 7.10 and cabal-install version 1.22. On Ubuntu, run
 
         $ add-apt-repository -y ppa:hvr/ghc
         $ apt-get update
-        $ apt-get install cabal-install-1.22  alex-3.1.4 happy-1.19.5 ghc-7.8.4
-        $ export PATH=$HOME/.cabal/bin:/opt/ghc/7.8.4/bin:/opt/cabal/1.22/bin:/opt/alex/3.1.4/bin:/opt/happy/1.19.5/bin:$PATH
+        $ apt-get install cabal-install-1.22  alex-3.1.4 happy-1.19.5 ghc-7.10.3
+        $ export PATH=$HOME/.cabal/bin:/opt/ghc/7.10.3/bin:/opt/cabal/1.22/bin:/opt/alex/3.1.4/bin:/opt/happy/1.19.5/bin:$PATH
 
   * Run `cabal update`
   * Make sure the Cabal library is at least version 1.22. You can check that
@@ -31,11 +31,8 @@ instructions, but here is a quick way.
     install Cabal`
   * Now you can install GHCJS including most of its libraries
 
-        git clone --recursive https://github.com/ghcjs/ghcjs.git -b old-base-ghc-7.8
-        git clone https://github.com/ghcjs/haddock-internal.git
-        git clone https://github.com/ghcjs/ghcjs.git
-        cabal install ./ghcjs ./ghcjs/lib/ghcjs-prim ./haddock-internal
-        ghcjs-boot --dev --no-prof --ghcjs-boot-dev-branch old-base-ghc-7.8 --shims-dev-branch old-base-ghc-7.8
+	cabal install http://ghcjs.luite.com/master-20151222.tar.gz
+	ghcjs-boot --no-prof
 
   * Install any further dependencies
 
@@ -48,9 +45,6 @@ instructions, but here is a quick way.
 
   * To run the testsuite, run `cabal test` in the `logic/` directory or `make
     test` in the project root
-
-It should also work with GHC-7.10. In this case, replace `old-base-ghc-7.8` by
-`old-base-ghc-7.10` in the above instructions.
 
 Alternatively, if you do not want to hack on these parts of the project, but simply run them locally, you can run
 

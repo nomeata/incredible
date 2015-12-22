@@ -6,7 +6,6 @@ import qualified Data.Text as T
 import Data.Aeson.Types
 import qualified Data.Map as M
 import qualified Data.HashMap.Strict as HM
-import Control.Applicative
 import Control.Monad
 import Data.List
 

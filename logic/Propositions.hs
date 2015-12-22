@@ -6,7 +6,6 @@ import Text.Parsec
 import Text.Parsec.Expr
 import Text.Parsec.String
 import Data.Functor.Identity
-import Control.Applicative hiding ((<|>))
 import Control.Monad
 import Data.List
 import Utils

@@ -13,7 +13,6 @@ module Lint where
 
 import qualified Data.Map as M
 import Text.Printf
-import Data.Monoid
 import Data.Tagged
 
 import Types

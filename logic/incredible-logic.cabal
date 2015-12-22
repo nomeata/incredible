@@ -34,7 +34,7 @@ library
                      Rules,
                      ProofGraph,
                      Analysis
-  build-depends:     base >=4.7 && <4.9,
+  build-depends:     base >=4.8 && <4.9,
                      aeson,
                      text,
                      vector,
@@ -56,10 +56,10 @@ executable js-interface
   if impl(ghcjs)
     buildable: True
     other-modules:     ConvertJS
-    build-depends:     base >=4.7 && <4.9,
+    build-depends:     base >=4.8 && <4.9,
                        incredible-logic,
                        aeson,
-                       ghcjs-base
+                       ghcjs-base == 0.2.*
     js-sources:        js/js-interface-wrapper.js
     hs-source-dirs:    js/
   else
@@ -73,7 +73,7 @@ executable bundle-examples
   if impl(ghcjs)
     buildable: False
   else
-    build-depends:   base >=4.7 && <4.9,
+    build-depends:   base >=4.8 && <4.9,
                      containers,
                      bytestring,
                      aeson,

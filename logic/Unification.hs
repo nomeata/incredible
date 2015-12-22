@@ -12,7 +12,6 @@ module Unification
 
 import qualified Data.Map as M
 import Control.Monad
-import Control.Applicative
 import Control.Monad.Trans.Either
 --import Debug.Trace
 import Data.List

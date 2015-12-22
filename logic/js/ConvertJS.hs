@@ -9,28 +9,22 @@ import Types
 
 -- Conversion from/to JSRef
 
-toContext :: JSRef a -> IO (Either String Context)
-toContext ref = do
-    valMB <- fromJSRef (castRef ref)
+toContext :: JSVal -> IO (Either String Context)
+toContext val = do
+    valMB <- fromJSVal val
     case valMB of
         Just v -> return $ A.toContext v
         Nothing -> return $ Left $ "Context: Could not turn JSRef into a Value"
 
-toProof :: JSRef a -> IO (Either String Proof)
-toProof ref = do
-    valMB <- fromJSRef (castRef ref)
+toProof :: JSVal -> IO (Either String Proof)
+toProof val = do
+    valMB <- fromJSVal val
     case valMB of
         Just v -> return $ A.toProof v
         Nothing -> return $ Left $ "Proof: Could not turn JSRef into a Value"
 
-fromAnalysis :: Analysis -> IO (JSRef a)
-fromAnalysis analysis = do
-    let v = A.fromAnalysis analysis
-    r <- toJSRef v
-    return $ castRef r
+fromAnalysis :: Analysis -> IO JSVal
+fromAnalysis = toJSVal . A.fromAnalysis
 
-fromRule :: Rule -> IO (JSRef a)
-fromRule rule = do
-    let v = A.fromRule rule
-    r <- toJSRef v
-    return $ castRef r
+fromRule :: Rule -> IO JSVal
+fromRule = toJSVal . A.fromRule

@@ -15,8 +15,6 @@ import qualified Data.Map as M
 import qualified Data.IntSet as IS
 import Data.Map ((!))
 import Data.List
-import Data.Monoid
-import Data.Functor
 import Control.Monad
 import Control.Monad.Trans.State.Strict
 import Control.Monad.Trans.Writer.Strict
@@ -74,9 +72,9 @@ data Graph = Graph
     , outPortNodes    :: NodeMap 'OutPortNodeType
     , connectionNodes :: NodeMap 'ConnNodeType
 
-    , uniquesToBlock  :: UniqMap BlockNodeType
-    , uniquesToInPort :: UniqMap InPortNodeType
-    , uniquesToConn   :: UniqMap ConnNodeType
+    , uniquesToBlock  :: UniqMap 'BlockNodeType
+    , uniquesToInPort :: UniqMap 'InPortNodeType
+    , uniquesToConn   :: UniqMap 'ConnNodeType
 
     , localHypNodes   :: UniqSet
     , conclusionNodes :: [Node 'BlockNodeType]
