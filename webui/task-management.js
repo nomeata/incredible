@@ -8,6 +8,16 @@ var session_passwords = [];
 
 var funnyUnicodeCharacters="⚛☃⚾♛♬☏⚒☸☀☮☘☭";
 
+var hasStorage = (function() {
+  try {
+    localStorage.setItem('test', 'text');
+    localStorage.removeItem('text');
+    return true;
+  } catch (exception) {
+    return false;
+  }
+}());
+
 function saveTask() {
   if (task_desc) {
     tasks_saved[task_desc] = _.omit(graph.toJSON(), 'loading');
@@ -17,17 +27,19 @@ function saveTask() {
 }
 
 function saveSession() {
-  localStorage["incredible-session"] = JSON.stringify({
-    saved: tasks_saved,
-    solved: tasks_solved,
-    custom: custom_tasks,
-    rules: custom_rules,
-    passwords: session_passwords
-  });
+  if (hasStorage) {
+    localStorage["incredible-session"] = JSON.stringify({
+      saved: tasks_saved,
+      solved: tasks_solved,
+      custom: custom_tasks,
+      rules: custom_rules,
+      passwords: session_passwords
+    });
+  }
 }
 
 function loadSession() {
-  if (localStorage["incredible-session"]) {
+  if (hasStorage && localStorage["incredible-session"]) {
     var stored = JSON.parse(localStorage["incredible-session"]);
     tasks_saved = stored.saved || {};
     tasks_solved = stored.solved || {};
