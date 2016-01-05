@@ -153,3 +153,11 @@
 .tool-remove:hover path {
     stroke: none;
 }
+
+/*
+ * Override default in JointJS, otherwise the elements are not shown at all.
+ * (Workaround for Firefox bug?)
+ */
+.element * {
+    vector-effect: none;
+}
