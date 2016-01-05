@@ -29,7 +29,7 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
     // Listen to some incredible-specific change events
     this.listenTo(this.model, 'change:brokenPorts change:selected change:annotation', this.update);
     if (this.model.get('conclusion')) {
-      this.listenTo(this.model, 'change:qed', this.update);
+      this.listenTo(this.model.graph, 'change:qed', this.update);
     }
     this.listenTo(this.model, 'change:schieblehrewidth', this.updateSizes);
     this.listenTo(this.model, 'change:schieblehrewidth', this.updateSizes);
