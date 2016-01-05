@@ -124,6 +124,10 @@ joint.shapes.incredible.GenericView = joint.dia.ElementView.extend({
       V(this.vel).toggleClass('selected', false);
     }
 
+    if (this.model.get('conclusion')){
+      V(this.vel).toggleClass('qed', this.model.graph.get('qed'));
+    }
+
     if (this.model.get('annotation')) {
       var textV = V(this.vel.findOne(".label"));
       var text = "✎"+this.model.get('annotation');

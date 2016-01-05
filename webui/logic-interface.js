@@ -100,10 +100,8 @@ function processGraph() {
         .set('labels', []);
     });
 
-    // We _also_ set it on the graph itself, so that the status of a serialized
-    // task is immediately visible.
+    // Note whether this is proven now
     graph.set('qed', analysis.qed);
-    $("#paper").toggleClass("qed", analysis.qed);
 
     // Collect errors
     $.each(analysis.cycles, function (i, path) {
