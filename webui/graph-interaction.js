@@ -208,7 +208,8 @@ $(function() {
       .attr({width: bb.x + bb.width + 10, height: bb.y + bb.height + 10})
       .wrap('<div>')
       .parent()
-      .html();
+      .html()
+      .replace(/&nbsp;/g,"&#160;");
     saveAs(new Blob([svg], {type:"application/svg+xml"}), "incredible-proof.svg");
   });
 
