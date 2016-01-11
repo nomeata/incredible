@@ -4,8 +4,8 @@ Welcome to **The Incredible Proof Machine**. The Incredible Proof Machine is a
 non-textual interactive theorem prover, or at least it will hopefully become
 one.
 
-If you want to try it out, go to <http://incredible.nomeata.de/> for the
-current state of the graphical UI and <http://incredible.nomeata.de/text-ui.html>
+If you want to try it out, go to <http://incredible.pm/> for the
+current state of the graphical UI and <http://incredible.pm/text-ui.html>
 for the text-based debug interface.
 
 
@@ -48,8 +48,8 @@ instructions, but here is a quick way.
 
 Alternatively, if you do not want to hack on these parts of the project, but simply run them locally, you can run
 
-    wget http://incredible.nomeata.de/logic.js -O logic.js
-    wget http://incredible.nomeata.de/examples.js -O examples.js
+    wget http://incredible.pm/logic.js -O logic.js
+    wget http://incredible.pm/examples.js -O examples.js
 
 You can check that this part is working by opening `text-ui.html` in your browser.
 
@@ -73,7 +73,7 @@ runtime into the directory `dir/`, which should not exist before.
 
 If Travis thinks the build succeeds, it uses the above deploy script, together
 with `.travis-push-gh-pages.sh`, to push the final result to to
-<http://incredible.nomeata.de/>.
+<http://incredible.pm/>.
 As this is a [Github Pages](http://pages.github.com/) page, this means that the
 sources are always the contents of the `gh-pages` branch of the
 `incredible-demo` repository, which is otherwise unused.
