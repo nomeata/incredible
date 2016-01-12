@@ -1,0 +1,28 @@
+rules:
+- id: abs
+  free: ["e","σ","τ"]
+  local: ["x"]
+  ports:
+    hyp:
+      type: local hypothesis
+      proposition: type(x,σ)
+      consumedBy: in
+    in:
+      type: assumption
+      proposition: type(e(x),τ)
+      scoped: ["x"]
+    out:
+      type: conclusion
+      proposition: type(l(e),σ→τ)
+- id: app
+  free: ["f","e","σ","τ"]
+  ports:
+    in1:
+      type: assumption
+      proposition: type(f,σ→τ)
+    in2:
+      type: assumption
+      proposition: type(e,σ)
+    out:
+      type: conclusion
+      proposition: type(a(f,e),τ)

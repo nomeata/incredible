@@ -239,3 +239,9 @@
     conclusions: ["A↑B↑(A↑B)"]
   - assumptions: ["A↑B↑(A↑B)"]
     conclusions: ["A","B"]
+#- name: Simply type lambda calculus
+#  logic: STLC
+#  tasks:
+#  - conclusions: ["type(l(λx.x),a→a)"]
+#  - conclusions: ["type(l(λx.l(λy.x)),a→b→a)"]
+#  - conclusions: ["type(l(λx.l(λy.l(λz.a(a(x,z),a(y,z))))),(a→b→c)→(a→b)→a→c)"]
