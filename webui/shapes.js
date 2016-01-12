@@ -298,7 +298,7 @@ blockrenderers.RoughlyRectangular.updateSizes = function () {
 
   // Calculate minimum width/height based on number of ports and label length
   var height = 35;
-  var width = 80;
+  var width = 100;
   _.each(this.blockDesc.portsGroup, function (thesePorts, portType) {
     var total = _.size(thesePorts);
     if (portType == 'local hypothesis') {
@@ -445,8 +445,8 @@ blockrenderers.Schieblehre1.updateSizes = function() {
   // Minimum sizes
   var impIConfig = {
     leftWidth: 10,
-    innerWidthLeft:  20,
-    innerWidthRight: 20,
+    innerWidthLeft:  30,
+    innerWidthRight: 30,
     rightWidth: 10,
     leftHeight: 30,
     rightHeight: 30
