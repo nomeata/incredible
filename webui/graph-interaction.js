@@ -191,26 +191,7 @@ $(function() {
   });
 
   $("#savesvg").on('click', function (){
-    // Connect all SVG data that is possibly relevant
-    var rules = [];
-    $.each(document.styleSheets, function(sheetIndex, sheet) {
-      if (sheet.ownerNode.dataset.css) {
-        $.each(sheet.cssRules || sheet.rules, function(ruleIndex, rule) {
-            rules.push(rule.cssText);
-        });
-      }
-    });
-    var bb = paper.getContentBBox();
-    var css = rules.join("\n");
-    var svg = $("#paper svg")
-      .clone()
-      .prepend($("<style type='text/css'>").text(css))
-      .attr({width: bb.x + bb.width + 10, height: bb.y + bb.height + 10})
-      .wrap('<div>')
-      .parent()
-      .html()
-      .replace(/&nbsp;/g,"&#160;");
-    saveAs(new Blob([svg], {type:"application/svg+xml"}), "incredible-proof.svg");
+    save_svg("#paper svg", "incredible-proof.svg");
   });
 
   $("#paper").on('wheel', function (evt) {
@@ -250,3 +231,28 @@ $(function() {
   });
 
 });
+
+// Separate function, to use it from the developer’s console on other SVG
+// elements.
+function save_svg(element, filename) {
+  // Connect all CSS data that is possibly relevant
+  var rules = [];
+  $.each(document.styleSheets, function(sheetIndex, sheet) {
+    if (sheet.ownerNode.dataset.css) {
+      $.each(sheet.cssRules || sheet.rules, function(ruleIndex, rule) {
+          rules.push(rule.cssText);
+      });
+    }
+  });
+  var bb = paper.getContentBBox();
+  var css = rules.join("\n");
+  var svg = $(element) // this way, element can be a selector, dom node or jquery object
+    .clone()
+    .prepend($("<style type='text/css'>").text(css))
+    .attr({width: bb.x + bb.width + 10, height: bb.y + bb.height + 10})
+    .wrap('<div>')
+    .parent()
+    .html()
+    .replace(/&nbsp;/g,"&#160;");
+  saveAs(new Blob([svg], {type:"application/svg+xml"}), filename);
+}
