@@ -59,12 +59,24 @@ function applyUndoState(idx) {
 }
 
 function setupGraph(graph, task) {
+  paper.setOrigin(0,0);
+  // Lets preserve the scale; why not.
+  // paper.scale(1.0);
+
   var cells = [];
-  // Fixed blocks for input and output
+
+  var scale = V(paper.viewport).scale();
+  var w = $("#paper").innerWidth() / scale.sx;
+  var h = $("#paper").innerHeight() / scale.sy;
+
+  var ac = task.assumptions.length;
+  var cc = task.conclusions.length;
+
+  // Fixed blocks for assumptions and conclusions
   $.each(task.assumptions || [], function (i, c) {
     var n = i + 1;
     var gate = new joint.shapes.incredible.Generic({
-      position: {x: 120, y: 30 + 50 * i},
+      position: {x: 50, y: h / 2 - (ac-1)*25 + i*50},
       assumption: n,
       task: task,
       number: cells.length + 1
@@ -74,7 +86,7 @@ function setupGraph(graph, task) {
   $.each(task.conclusions || [], function (i, c) {
     var n = i + 1;
     var gate = new joint.shapes.incredible.Generic({
-      position: {x: 590, y: 30 + 50 * i},
+      position: {x: w-50, y: h / 2 - (cc-1)*25 + i*50},
       conclusion: n,
       task: task,
       number: cells.length + 1
@@ -85,9 +97,6 @@ function setupGraph(graph, task) {
   graph.resetCells(cells);
 
   setupPrototypeElements();
-
-  paper.scale(1.0);
-  paper.setOrigin(0,0);
 }
 
 function renderBlockDescToDraggable(blockDesc, container) {
