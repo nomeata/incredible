@@ -244,6 +244,8 @@ function save_svg(element, filename) {
       });
     }
   });
+  // This is wrong in general, as the SVG is not necessary the paper. How else
+  // can we get the width?
   var bb = paper.getContentBBox();
   var css = rules.join("\n");
   var svg = $(element) // this way, element can be a selector, dom node or jquery object
