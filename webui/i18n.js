@@ -52,7 +52,8 @@ i18n.init({
     fallbackLng: 'en',
     debug: true,
     nsseparator: "::unused::",
-    keyseparator: "::unused::"
+    keyseparator: "::unused::",
+    // lng: 'en', // hardcoding, for screenshots
   }, function(err, t) {
   $("body").i18n();
 });
