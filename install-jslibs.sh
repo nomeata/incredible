@@ -18,9 +18,9 @@ test -e lodash.min.js ||
 test -e backbone-min.js ||
 	wget -c  http://jointjs.com/js/vendor/backbone/backbone-min.js
 test -e joint.min.js ||
-	wget -c http://jointjs.com/downloads/joint.min.js
+	wget -c http://jointjs.com/cms/downloads/joint.min.js
 test -e joint.min.css ||
-	wget -c http://jointjs.com/downloads/joint.min.css
+	wget -c http://jointjs.com/cms/downloads/joint.min.css
 test -e i18next-1.10.1.min.js ||
         wget -c https://raw.githubusercontent.com/i18next/i18next/1.10.1/release/i18next-1.10.1.min.js
 test -e FileSaver.min.js ||
