@@ -44,11 +44,14 @@
     conclusions: ["C"]
   - assumptions: ["A","A→B","A→C","C→D", "B→D"]
     conclusions: ["D"]
-  - assumptions:
-    - A→C
-    - B→C
-    conclusions:
-    - (A∧B)→C
+  - assumptions: ["A→C","B→C","A∧B"]
+    conclusions: ["C"]
+  - assumptions: ["A→C","B→C"]
+    conclusions: ["(A∧B)→C"]
+  - assumptions: []
+    conclusions: ["A→A"]
+  - assumptions: ["A→B","B→C"]
+    conclusions: ["A→C"]
   - assumptions:
     - A→B
     - A→B→C
