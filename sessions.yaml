@@ -38,40 +38,28 @@
   tasks:
   - assumptions: ["A","A→B"]
     conclusions: ["B"]
-  - assumptions: ["A","A→A"]
-    conclusions: ["A"]
   - assumptions: ["A","A→B","B→C"]
     conclusions: ["C"]
-  - assumptions: ["A","A→B","A→C","C→D", "B→D"]
+  - assumptions: ["A","A→B","A→C","B→D", "C→D"]
     conclusions: ["D"]
+  - assumptions: ["A","A→A"]
+    conclusions: ["A"]
+  - assumptions: ["A→B","B→C"]
+    conclusions: ["A→C"]
+  - assumptions: ["A→B","A→B→C"]
+    conclusions: ["A→C"]
+  - assumptions: []
+    conclusions: ["A→A"]
   - assumptions: ["A→C","B→C","A∧B"]
     conclusions: ["C"]
   - assumptions: ["A→C","B→C"]
     conclusions: ["(A∧B)→C"]
-  - assumptions: []
-    conclusions: ["A→A"]
-  - assumptions: ["A→B","B→C"]
-    conclusions: ["A→C"]
-  - assumptions:
-    - A→B
-    - A→B→C
-    conclusions:
-    - A→C
   - assumptions: ["B"]
     conclusions: ["A→B"]
-  - assumptions:
-    - (A→B)∧(B→A)
-    - A→C
-    conclusions:
-    - B→C
-  - assumptions:
-    - (A∧B)→C
-    conclusions:
-    - A→B→C
-  - assumptions:
-    - A→B→C
-    conclusions:
-    - (A∧B)→C
+  - assumptions: ["(A∧B)→C"]
+    conclusions: ["A→B→C"]
+  - assumptions: ["A→B→C"]
+    conclusions: ["(A∧B)→C"]
   - assumptions: ["(A→B)∧(A→C)"]
     conclusions: ["A→(B∧C)"]
 - name: Session 3
