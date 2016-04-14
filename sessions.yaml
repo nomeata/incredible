@@ -164,6 +164,7 @@
     conclusions: ["(A→⊥)∨(B→⊥)∨(C→⊥)"]
   - assumptions: ["(A→B)→⊥"]
     conclusions: ["A∧(B→⊥)"]
+  - conclusions: ["((A→B)→A)→A"]
 - name: Session 6
   logic: predicate
   tasks:
