@@ -7,7 +7,7 @@ synopsis:            The Incredible Proof Machine – Core
 description:
   This package contains the logical core of The Incredible Proof Machine, an
   interactive theorem prover with a non-textual interface, mainly aimed to teach
-  formal proves to students.
+  formal proofs to students.
   .
   The library is mainly for use by the various executables defined herein, and
   does not guaratnee any usefulness outside that.
