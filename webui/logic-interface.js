@@ -65,6 +65,21 @@ function makeConnEnd(graph, x, blockFilter) {
 }
 
 
+function countBlocks(onlySelected) {
+    var count = 0;
+    $.each(graph.getElements(), function (i, el) {
+	if ((!onlySelected) || derivedRuleBlockSelector(el)) {
+	    rule = el.get('rule');
+	    if (rule && rule.containedBlocks) {
+		count += rule.containedBlocks;
+	    } else {
+		count += 1;
+	    }
+	}
+    });
+    return count;
+}
+
 function processGraph() {
   $("#analysis").val();
   var proof = buildProof(graph);
@@ -75,7 +90,7 @@ function processGraph() {
   $("#took").text("processing took " + (timeAfter - timeBefore).toFixed(1) + "ms");
 
   // Set number of blocks used
-  setBlockCountBar('blockcount',graph.getElements().length);
+  setBlockCountBar('blockcount', countBlocks(false));
 
 
   if (typeof analysis === 'string' || analysis instanceof String) {
