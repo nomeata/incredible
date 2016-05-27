@@ -74,6 +74,10 @@ function processGraph() {
 
   $("#took").text("processing took " + (timeAfter - timeBefore).toFixed(1) + "ms");
 
+  // Set number of blocks used
+  setBlockCountBar('blockcount',graph.getElements().length);
+
+
   if (typeof analysis === 'string' || analysis instanceof String) {
     $("#analysis").val(analysis);
     $("#errors").text(analysis);

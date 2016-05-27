@@ -83,6 +83,10 @@
 		text-align: center;
 	    }
 
+	    #blockcount-div {
+		text-align: center;
+	    }
+
 
 	    .close {
 		position: absolute;
@@ -165,6 +169,35 @@
             #taskdialog .inferencerule:hover{
                 border: 1px solid black;
             }
+
+	    #complexitywrap {
+		background-color: lightgray;
+                border-radius: 0 5px 0 5px;
+		padding:5px;
+	    }
+
+	    #complexitywrap .number {
+		display:inline-block;
+		text-align: right;
+		width:10%;
+	    }
+
+	    #complexitywrap .bar {
+		display:inline-block;
+		background-color: purple;
+		vertical-align:middle;
+		height: 1em;
+                border-radius: .5em .5em .5em .5em;
+		width:30%;
+	    }
+	    #complexitywrap #blockcount .bar {
+		background-color: purple;
+		width:30%;
+	    }
+	    #complexitywrap #min-blockcount .bar {
+		background-color: green;
+		width:30%;
+	    }
 
             .blocklist  {
                 display: flex;
@@ -345,6 +378,19 @@
       <div id="task">
 	<h3 data-i18n>Current task:</h3>
         <div id="taskwrap"></div>
+	<h3 data-i18n>Block count:</h3>
+	<div id="complexitywrap">
+	 <div id="blockcount" data-i18n="[title]Your proof block count. Try to minimize it!">
+	  <span class="number"></span>
+	  <span class="bar"></span>
+	 </div>
+	 <div id="min-blockcount-div">
+	  <div id="min-blockcount" data-i18n="[title]The best known proof count. Did you beat it? Let us know!">
+	   <span class="number"></span>
+	   <span class="bar"></span>
+	  </div>
+	 </div>
+	</div>
       </div>
 
       <h3 data-i18n>Logics blocks:</h3>

@@ -6,28 +6,40 @@
   tasks:
   - assumptions: ["A"]
     conclusions: ["A"]
+    min-blocks: 2
   - assumptions: ["A", "B"]
     conclusions: ["A"]
+    min-blocks: 3
   - assumptions: ["A", "B"]
     conclusions: ["B", "A"]
+    min-blocks: 4
   - assumptions: ["A", "B"]
     conclusions: ["A∧B"]
+    min-blocks: 4
   - assumptions: ["A"]
     conclusions: ["A∧A"]
+    min-blocks: 3
   - assumptions: ["A∧B"]
     conclusions: ["A"]
+    min-blocks: 3
   - assumptions: ["A∧B"]
     conclusions: ["A", "B"]
+    min-blocks: 4
   - assumptions: ["A∧B"]
     conclusions: ["A∧B"]
+    min-blocks: 2
   - assumptions: ["A∧B"]
     conclusions: ["B∧A"]
+    min-blocks: 4
   - assumptions: ["A∧B∧C"]
     conclusions: ["A","B","C"]
+    min-blocks: 6
   - assumptions: ["A∧B∧C"]
     conclusions: ["A∧C"]
+    min-blocks: 5
   - assumptions: ["A∧B∧C"]
     conclusions: ["A∧(B∧C)"]
+    min-blocks: 6
 - name: Session 2
   logic: predicate
   visible-rules:
