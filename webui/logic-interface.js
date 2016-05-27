@@ -89,8 +89,9 @@ function processGraph() {
 
   $("#took").text("processing took " + (timeAfter - timeBefore).toFixed(1) + "ms");
 
-  // Set number of blocks used
-  setBlockCountBar('blockcount', countBlocks(false));
+  // Set number of blocks
+  var blockCount = countBlocks(false);
+  var countColor = 'purple';
 
 
   if (typeof analysis === 'string' || analysis instanceof String) {
@@ -121,6 +122,14 @@ function processGraph() {
 
     // Note whether this is proven now
     graph.set('qed', analysis.qed);
+
+    if (analysis.qed && task["min-blocks"]) {
+	if (blockCount <= task["min-blocks"]) {
+	    countColor = 'rgb(40,220,30)';
+	} else {
+	    countColor = 'wheat';
+	}
+    }
 
     // Collect errors
     $.each(analysis.cycles, function (i, path) {
@@ -236,6 +245,9 @@ function processGraph() {
 
     processDerivedRule();
   }
+
+  setBlockCountBar('blockcount', blockCount);
+  $("#blockcount .bar").css('background-color', countColor);
 }
 
 function derivedRuleBlockSelector(c) {
