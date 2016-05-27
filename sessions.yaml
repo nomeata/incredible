@@ -50,30 +50,43 @@
   tasks:
   - assumptions: ["A","A→B"]
     conclusions: ["B"]
+    min-blocks: 4
   - assumptions: ["A","A→B","B→C"]
     conclusions: ["C"]
+    min-blocks: 6
   - assumptions: ["A","A→B","A→C","B→D", "C→D"]
     conclusions: ["D"]
+    min-blocks: 8
   - assumptions: ["A","A→A"]
     conclusions: ["A"]
+    min-blocks: 3
   - assumptions: ["A→B","B→C"]
     conclusions: ["A→C"]
+    min-blocks: 6
   - assumptions: ["A→B","A→B→C"]
     conclusions: ["A→C"]
+    min-blocks: 7
   - assumptions: []
     conclusions: ["A→A"]
+    min-blocks: 2
   - assumptions: ["A→C","B→C","A∧B"]
     conclusions: ["C"]
+    min-blocks: 6
   - assumptions: ["A→C","B→C"]
     conclusions: ["(A∧B)→C"]
+    min-blocks: 6
   - assumptions: ["B"]
     conclusions: ["A→B"]
+    min-blocks: 3
   - assumptions: ["(A∧B)→C"]
     conclusions: ["A→B→C"]
+    min-blocks: 6
   - assumptions: ["A→B→C"]
     conclusions: ["(A∧B)→C"]
+    min-blocks: 6
   - assumptions: ["(A→B)∧(A→C)"]
     conclusions: ["A→(B∧C)"]
+    min-blocks: 7
 - name: Session 3
   logic: predicate
   visible-rules:
@@ -87,28 +100,40 @@
   tasks:
   - assumptions: ["A", "B"]
     conclusions: ["A∨B"]
+    min-blocks: 4
   - assumptions: ["A"]
     conclusions: ["A∨B"]
+    min-blocks: 3
   - assumptions: ["B"]
     conclusions: ["A∨B"]
+    min-blocks: 3
   - assumptions: ["A"]
     conclusions: ["A∨A"]
+    min-blocks: 3
   - assumptions: ["A∨B"]
     conclusions: ["B∨A"]
+    min-blocks: 5
   - assumptions: ["A∨(B∨C)"]
     conclusions: ["(A∨B)∨C"]
+    min-blocks: 9
   - assumptions: ["A∧B"]
     conclusions: ["A∨B"]
+    min-blocks: 4
   - assumptions: ["(A∧B)∨C"]
     conclusions: ["(A∨C)∧(B∨C)"]
+    min-blocks: 11
   - assumptions: ["(A∨B)∧C"]
     conclusions: ["(A∧C)∨(B∧C)"]
+    min-blocks: 8
   - assumptions: ["(A→C)∧(B→C)"]
     conclusions: ["(A∨B)→C"]
+    min-blocks: 7
   - assumptions: ["(A∨B)→C"]
     conclusions: ["(A→C)∧(B→C)"]
+    min-blocks: 9
   - assumptions: ["(A→B)∨(A→C)"]
     conclusions: ["A→(B∨C)"]
+    min-blocks: 9
 - name: Session 4
   logic: predicate
   visible-rules:
@@ -123,31 +148,45 @@
   tasks:
   - assumptions: ["⊥"]
     conclusions: ["A"]
+    min-blocks: 3
   - assumptions: ["⊥"]
     conclusions: ["A","B"]
+    min-blocks: 5
   - assumptions: ["A"]
     conclusions: ["⊥∨A"]
+    min-blocks: 3
   - assumptions: ["⊥∨A"]
     conclusions: ["A"]
+    min-blocks: 4
   - assumptions: ["⊥∧A"]
     conclusions: ["⊥"]
+    min-blocks: 3
   - conclusions: ["⊥→A"]
+    min-blocks: 3
   - assumptions: ["A→B"]
     conclusions: ["(B→⊥)→(A→⊥)"]
+    min-blocks: 6
   - assumptions: ["(A∨B)→⊥"]
     conclusions: ["(A→⊥)∧(B→⊥)"]
+    min-blocks: 9
   - assumptions: ["(A→⊥)∧(B→⊥)"]
     conclusions: ["(A∨B)→⊥"]
+    min-blocks: 7
   - assumptions: ["(A→⊥)∨(B→⊥)"]
     conclusions: ["(A∧B)→⊥"]
+    min-blocks: 7
   - assumptions: ["(((A→⊥)→⊥)→⊥)"]
     conclusions: ["A→⊥"]
+    min-blocks: 6
   - assumptions: ["(A→⊥)∨B"]
     conclusions: ["A→B"]
+    min-blocks: 7
   - assumptions: ["A→⊥", "B→A"]
     conclusions: ["B→⊥"]
+    min-blocks: 6
   - assumptions: ["(A→⊥)∨(B→⊥)∨(C→⊥)"]
     conclusions: ["(A∧B∧C)→⊥"]
+    min-blocks: 10
 - name: Session 5
   logic: predicate
   visible-rules:
@@ -162,20 +201,28 @@
     - TND
   tasks:
   - conclusions: ["A∨(A→⊥)"]
+    min-blocks: 2
   - assumptions: ["(B→⊥)→(A→⊥)"]
     conclusions: ["A→B"]
+    min-blocks: 9
   - assumptions: ["(A∧B)→⊥"]
     conclusions: ["(A→⊥)∨(B→⊥)"]
+    min-blocks: 11
   - assumptions: ["((A→⊥)→⊥)"]
     conclusions: ["A"]
+    min-blocks: 6
   - assumptions: ["A→B"]
     conclusions: ["(A→⊥)∨B"]
+    min-blocks: 7
   - assumptions: ["A→B", "B→C"]
     conclusions: ["(A→⊥)∨C"]
+    min-blocks: 9
   - assumptions: ["(A∧B∧C)→⊥"]
     conclusions: ["(A→⊥)∨(B→⊥)∨(C→⊥)"]
+    min-blocks: 16
   - assumptions: ["(A→B)→⊥"]
     conclusions: ["A∧(B→⊥)"]
+    min-blocks: 14
 - name: Session 6
   logic: predicate
   tasks:
