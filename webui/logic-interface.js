@@ -65,6 +65,21 @@ function makeConnEnd(graph, x, blockFilter) {
 }
 
 
+function countBlocks(onlySelected) {
+    var count = 0;
+    $.each(graph.getElements(), function (i, el) {
+	if ((!onlySelected) || derivedRuleBlockSelector(el)) {
+	    rule = el.get('rule');
+	    if (rule && rule.containedBlocks) {
+		count += rule.containedBlocks;
+	    } else {
+		count += 1;
+	    }
+	}
+    });
+    return count;
+}
+
 function processGraph() {
   $("#analysis").val();
   var proof = buildProof(graph);
@@ -73,6 +88,11 @@ function processGraph() {
   var timeAfter = performance.now();
 
   $("#took").text("processing took " + (timeAfter - timeBefore).toFixed(1) + "ms");
+
+  // Set number of blocks
+  var blockCount = countBlocks(false);
+  var countColor = 'purple';
+
 
   if (typeof analysis === 'string' || analysis instanceof String) {
     $("#analysis").val(analysis);
@@ -102,6 +122,14 @@ function processGraph() {
 
     // Note whether this is proven now
     graph.set('qed', analysis.qed);
+
+    if (analysis.qed && task["min-blocks"]) {
+	if (blockCount <= task["min-blocks"]) {
+	    countColor = 'rgb(40,220,30)';
+	} else {
+	    countColor = 'wheat';
+	}
+    }
 
     // Collect errors
     $.each(analysis.cycles, function (i, path) {
@@ -217,6 +245,9 @@ function processGraph() {
 
     processDerivedRule();
   }
+
+  setBlockCountBar('blockcount', blockCount);
+  $("#blockcount .bar").css('background-color', countColor);
 }
 
 function derivedRuleBlockSelector(c) {

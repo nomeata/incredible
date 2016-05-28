@@ -1,4 +1,4 @@
-{-# LANGUAGE StandaloneDeriving, FlexibleInstances, FlexibleContexts, GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE StandaloneDeriving, FlexibleInstances, FlexibleContexts, GeneralizedNewtypeDeriving, CPP #-}
 module TaggedMap where
 
 import Data.Aeson.Types
@@ -18,5 +18,8 @@ deriving instance ToJSON v => ToJSON (Tagged k v)
 
 -- Slight hack, which allows us to use "foo" instead of (Tagged "foo"), e.g.
 -- when writing test input.
+#if MIN_VERSION_tagged(0,8,4)
+#else
 deriving instance IsString v => IsString (Tagged k v)
+#endif
 

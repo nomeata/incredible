@@ -58,6 +58,13 @@ function applyUndoState(idx) {
   }
 }
 
+function setBlockCountBar(name, number) {
+    $("#" + name + " span.number").text(number);
+    // Up to 80% is ok...
+    var width = Math.round(80 * (2/(1+Math.exp(-0.1 * number)) - 1));
+    $("#" + name + " span.bar").css('width', width + "%");
+}
+
 function setupGraph(graph, task) {
   paper.setOrigin(0,0);
   // Lets preserve the scale; why not.
@@ -71,6 +78,13 @@ function setupGraph(graph, task) {
 
   var ac = task.assumptions.length;
   var cc = task.conclusions.length;
+
+  if (task["min-blocks"]) {
+    $("#min-blockcount-div").show();
+    setBlockCountBar('min-blockcount',task["min-blocks"]);
+  } else {
+    $("#min-blockcount-div").hide();
+  }
 
   // Fixed blocks for assumptions and conclusions
   $.each(task.assumptions || [], function (i, c) {

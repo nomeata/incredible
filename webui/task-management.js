@@ -211,6 +211,7 @@ $(function (){
       var n = custom_rules[logicName].length + 1;
       rule.id = "custom" + n;
       rule.desc = {label: next_custom_block_name()};
+      rule.containedBlocks = countBlocks(true);
       custom_rules[logicName].push(rule);
       setupPrototypeElements();
       selectNothing();

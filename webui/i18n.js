@@ -33,7 +33,10 @@ var translations = {
     "Unlock": "Entsperren",
     "password": "Passwort",
     "wrong-password": "Das ist leider nicht das richtige Passwort.",
-    "add-title": "Eine neue Aufgabe hinzufügen."
+    "add-title": "Eine neue Aufgabe hinzufügen.",
+    "Block count": "Bausteinzähler",
+    "Your proof block count. Try to minimize it!": "So viele Beweisblöcke verwendest du. Geht es auch mit weniger?",
+    "The best known proof count. Did you beat it? Let us know!": "Das ist die beste bekannte Blockanzahl. Du hast es mit weniger geschafft? Lass es uns wissen!"
   }},
 
   en: { translation: {
