@@ -121,7 +121,7 @@
     min-blocks: 4
   - assumptions: ["(A∧B)∨C"]
     conclusions: ["(A∨C)∧(B∨C)"]
-    min-blocks: 11
+    min-blocks: 10
   - assumptions: ["(A∨B)∧C"]
     conclusions: ["(A∧C)∨(B∧C)"]
     min-blocks: 8
@@ -133,7 +133,7 @@
     min-blocks: 9
   - assumptions: ["(A→B)∨(A→C)"]
     conclusions: ["A→(B∨C)"]
-    min-blocks: 9
+    min-blocks: 8
 - name: Session 4
   logic: predicate
   visible-rules:
@@ -189,7 +189,7 @@
     min-blocks: 10
   - assumptions: []
     conclusions: ["((A∨(A→⊥))→⊥)→⊥"]
-    min-blocks: 10
+    min-blocks: 7
 - name: Session 5
   logic: predicate
   visible-rules:
