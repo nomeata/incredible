@@ -133,7 +133,7 @@
     min-blocks: 9
   - assumptions: ["(A→B)∨(A→C)"]
     conclusions: ["A→(B∨C)"]
-    min-blocks: 9
+    min-blocks: 8
 - name: Session 4
   logic: predicate
   visible-rules:
@@ -180,7 +180,7 @@
     min-blocks: 6
   - assumptions: ["(A→⊥)∨B"]
     conclusions: ["A→B"]
-    min-blocks: 7
+    min-blocks: 6
   - assumptions: ["A→⊥", "B→A"]
     conclusions: ["B→⊥"]
     min-blocks: 6
