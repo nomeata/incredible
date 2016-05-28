@@ -189,7 +189,7 @@
     min-blocks: 10
   - assumptions: []
     conclusions: ["((A∨(A→⊥))→⊥)→⊥"]
-    min-blocks: 10
+    min-blocks: 7
 - name: Session 5
   logic: predicate
   visible-rules:
