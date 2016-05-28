@@ -231,37 +231,52 @@
   tasks:
   - assumptions: ["∀x.P(x)"]
     conclusions: ["P(a)"]
+    min-blocks: 3
   - assumptions: ["∀x.P(x)"]
     conclusions: ["P(a) ∧  P(b)"]
+    min-blocks: 5
   - assumptions: ["P(a)"]
     conclusions: ["∃x.P(x)"]
+    min-blocks: 3
   - assumptions: ["∀x.P(x)"]
     conclusions: ["∃x.P(x)"]
+    min-blocks: 4
   - assumptions: ["∀x.A"]
     conclusions: ["A"]
+    min-blocks: 3
   - assumptions: ["∃x.A"]
     conclusions: ["A"]
+    min-blocks: 3
   - assumptions: ["A∧(∀x.P(x))"]
     conclusions: ["∀x.A∧P(x)"]
+    min-blocks: 6
   - assumptions: ["(∀x.P(x)) ∧ (∀x.Q(x))"]
     conclusions: ["∀x.P(x)∧Q(x)"]
+    min-blocks: 7
   - assumptions: ["(∃x.P(x)) ∨ (∃x.Q(x))"]
     conclusions: ["∃x.P(x)∨Q(x)"]
+    min-blocks: 9
   - assumptions: ["(∃x.P(x))→A"]
     conclusions: ["∀x.P(x)→A"]
+    min-blocks: 6
   - assumptions: ["∀x.(P(x)→Q(x))", "P(a)"]
     conclusions: ["Q(a)"]
+    min-blocks: 5
 # Das tut noch nicht. Bug?
 #  - assumptions: ["∀x.∃y.P(x,y)"]
 #    conclusions: ["∃f.∀x.P(x,f(x))"]
   - assumptions: ["∀x.∀y.P(x,y)"]
     conclusions: ["∀y.∀x.P(x,y)"]
+    min-blocks: 6
   - assumptions: ["∃x.∃y.P(x,y)"]
     conclusions: ["∃y.∃x.P(x,y)"]
+    min-blocks: 6
   - assumptions: ["∃x.∀y.P(x,y)"]
     conclusions: ["∀y.∃x.P(x,y)"]
+    min-blocks: 6
   - assumptions: ["∀x.P(x)"]
     conclusions: ["(∃x.P(x)→⊥)→⊥"]
+    min-blocks: 6
   - assumptions: ["(∀x.P(x))→⊥"]
     conclusions: ["∃x.P(x)→⊥"]
   - assumptions: ["(∀x.P(x))→A"]
