@@ -180,12 +180,15 @@
     min-blocks: 6
   - assumptions: ["(A→⊥)∨B"]
     conclusions: ["A→B"]
-    min-blocks: 7
+    min-blocks: 6
   - assumptions: ["A→⊥", "B→A"]
     conclusions: ["B→⊥"]
     min-blocks: 6
   - assumptions: ["(A→⊥)∨(B→⊥)∨(C→⊥)"]
     conclusions: ["(A∧B∧C)→⊥"]
+    min-blocks: 10
+  - assumptions: []
+    conclusions: ["((A∨(A→⊥))→⊥)→⊥"]
     min-blocks: 10
 - name: Session 5
   logic: predicate
