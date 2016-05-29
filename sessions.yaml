@@ -207,7 +207,7 @@
     min-blocks: 2
   - assumptions: ["(B→⊥)→(A→⊥)"]
     conclusions: ["A→B"]
-    min-blocks: 9
+    min-blocks: 8
   - assumptions: ["(A∧B)→⊥"]
     conclusions: ["(A→⊥)∨(B→⊥)"]
     min-blocks: 11
@@ -220,12 +220,14 @@
   - assumptions: ["A→B", "B→C"]
     conclusions: ["(A→⊥)∨C"]
     min-blocks: 9
+  - conclusions: ["((A→B)→A)→A"]
+    min-blocks: 8
   - assumptions: ["(A∧B∧C)→⊥"]
     conclusions: ["(A→⊥)∨(B→⊥)∨(C→⊥)"]
     min-blocks: 16
   - assumptions: ["(A→B)→⊥"]
     conclusions: ["A∧(B→⊥)"]
-    min-blocks: 14
+    min-blocks: 13
 - name: Session 6
   logic: predicate
   tasks:
