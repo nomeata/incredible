@@ -111,6 +111,8 @@ function setupGraph(graph, task) {
   graph.resetCells(cells);
 
   setupPrototypeElements();
+  processGraph();
+
 }
 
 function renderBlockDescToDraggable(blockDesc, container) {
@@ -316,7 +318,6 @@ graph.on('change:source change:target', function (model, end) {
     model.set('connection_state', connection_state);
     if (!graph.get('loading')) {
       processGraph();
-      processDerivedRule();
     }
   }
 });
