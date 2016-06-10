@@ -264,6 +264,23 @@ $(function (){
 });
 
 $(function (){
+  $("#showhelp").click(function(){
+    $("#help").toggle();
+  });
+  $("#closehelp").click(function(){
+    $("#help").hide();
+  });
+
+  $("#closedialog").click(function(){
+    $("#dialog").hide();
+  });
+
+  $("#reset").click(function(){
+    if (window.confirm(i18n.t("confirm-reset"))) {
+      reset_everything();
+    }
+  });
+
   $("#resettask").on('click', function () {
     setupGraph(graph, task);
     clearUndo(); // Is this what we want?
@@ -331,7 +348,7 @@ paper.listenTo(graph, 'batch:stop', function(evt) {
 });
 
 // time arg is in milliseconds
-// Use only to simulate heave calculations!
+// Use only to simulate heavy calculations!
 // from http://stackoverflow.com/a/3048834/946226
 function fakedelay(time) {
   var d1 = new Date();
@@ -339,4 +356,18 @@ function fakedelay(time) {
   while (d2.valueOf() < d1.valueOf() + time) {
     d2 = new Date();
   }
+}
+
+/* Can only be started manually */
+function reset_everything() {
+  $(window).off("unload"); /* Otherwise we’d just save it again */
+  localStorage.removeItem("incredible-session");
+  window.location.reload(false);
+}
+
+/* Can only be started manually */
+function showDetails() {
+    $("#graph").val(JSON.stringify(graph.toJSON(),null,2));
+    $("#proof").val(JSON.stringify(buildProof(graph)));
+    $("#dialog").toggle();
 }

@@ -257,11 +257,6 @@
                 resize: horizontal;
             }
 
-	    #devtools {
-		margin-top: 6em;
-		color: gray;
-	    }
-
             #mainpane {
                 overflow: hidden;
                 flex-grow: 1;
@@ -405,17 +400,8 @@
 
       <h3 data-i18n>Custom blocks:</h3>
       <div class="blocklist" id="custom"></div>
-
-      <div id="devtools">
-      <h3 data-i18n>Developers tools</h3>
-	Example tasks: <select id="taskselect"></select><br/>
-	<button id="freeproof">Start empty proof</button><br/>
-	Example proofs: <select id="proofselect"><option value="" label=""></option></select><br/>
-	<button id="showdialog">Details</button>
-	<div id="errors"></div>
-
-        <!-- <label><input type="checkbox" id="unify" checked="checked" /> Run unification</label> -->
-     </div>
+ 
+      <div id="errors"></div>
     </div>
 
 
@@ -560,7 +546,6 @@
         <script src="./webui/incredible-elements.js"></script>
         <script src="./webui/task-management.js"></script>
         <script src="./webui/graph-interaction.js"></script>
-        <script src="./webui/devtools.js"></script>
         <script src="./webui/webui.js"></script>
 
     </body>

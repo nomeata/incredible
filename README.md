@@ -4,10 +4,7 @@ Welcome to **The Incredible Proof Machine**. The Incredible Proof Machine is a
 non-textual interactive theorem prover, or at least it will hopefully become
 one.
 
-If you want to try it out, go to <http://incredible.pm/> for the
-current state of the graphical UI and <http://incredible.pm/text-ui.html>
-for the text-based debug interface.
-
+If you want to try it out, go to <http://incredible.pm/>.
 
 The project consists of both Haskell and JavaScript code, so there are a few
 dependencies to install.
