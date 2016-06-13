@@ -48,8 +48,6 @@ Alternatively, if you do not want to hack on these parts of the project, but sim
     wget http://incredible.pm/logic.js -O logic.js
     wget http://incredible.pm/examples.js -O examples.js
 
-You can check that this part is working by opening `text-ui.html` in your browser.
-
 ## Installing JavaScript dependencies
 
 The JavaScript part of the project uses a few external libraries. To obtain these, run `./install-jslib.sh`.
