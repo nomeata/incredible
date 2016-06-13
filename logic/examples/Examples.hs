@@ -44,6 +44,6 @@ readDirectoryOfYamlFiles dir = do
 
 readExamples :: FilePath -> IO Examples
 readExamples dir = Examples <$> readDirectoryOfYamlFiles (dir </> "logics")
-                            <*> readDirectoryOfYamlFiles (dir </> "tasks")
-                            <*> readDirectoryOfYamlFiles (dir </> "proofs")
-                            <*> readDirectoryOfYamlFiles (dir </> "graphs")
+                            <*> readDirectoryOfYamlFiles (dir </> "examples/tasks")
+                            <*> readDirectoryOfYamlFiles (dir </> "examples/proofs")
+                            <*> readDirectoryOfYamlFiles (dir </> "examples/graphs")

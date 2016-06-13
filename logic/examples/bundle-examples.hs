@@ -14,8 +14,6 @@ assignment varname value =  B.concat [ varname, " = ", encode value, ";"]
 main = do
     args <- getArgs
     case args of
-        [dir] -> do
-            readExamples dir >>= B.putStr . assignment "examples"
-        _ -> do
-            hPutStrLn stderr "Usage: bundle-examples <dir> > examples.js"
+        [dir] -> readDirectoryOfYamlFiles dir >>= B.putStr . assignment "logics"
+        _ ->     hPutStrLn stderr "Usage: bundle-examples <dir> > examples.js"
 

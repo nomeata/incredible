@@ -1,4 +1,4 @@
-targets := logic.js examples.js sessions.js
+targets := logic.js logics.js sessions.js
 
 all: ${targets}
 
@@ -23,10 +23,10 @@ docs:
 	cd logic && \
 	cabal haddock --hyperlink-source --html-location='http://hackage.haskell.org/package/$$pkg/docs'
 
-test: sessions.js examples.js
+test: sessions.js logics.js
 	cd logic && \
 	cabal test --show-details=streaming
-	! which jshint || jshint webui/*.js sessions.js examples.js
+	! which jshint || jshint webui/*.js sessions.js logics.js
 
 logic/dist-ghcjs/build/js-interface/js-interface.jsexe/all.js: logic/*.hs logic/js/*.hs
 	cd logic && \
@@ -41,8 +41,8 @@ logic/dist/build/bundle-examples/bundle-examples: logic/*.hs logic/examples/*.hs
 	cabal configure --enable-tests --disable-library-profiling && \
 	cabal build
 
-examples.js: examples/*/* logic/dist/build/bundle-examples/bundle-examples
-	logic/dist/build/bundle-examples/bundle-examples examples > $@
+logics.js: logics/* logic/dist/build/bundle-examples/bundle-examples
+	logic/dist/build/bundle-examples/bundle-examples logics > $@
 
 sessions.js: sessions.yaml
 	cd logic cabal && \

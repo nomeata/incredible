@@ -20,6 +20,7 @@ node_modules
 npm-debug.log
 logic.js
 examples.js
+logics.js
 sessions.js
 gh-page/
 vendor/

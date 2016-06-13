@@ -3,9 +3,6 @@ var task; // The current task
 var logicName; // The name of the current logic, important for custom blocks etc.
 var ruleFilter = constant_true;
 
-// Shortcut.
-var logics = examples.logics;
-
 
 function constant_true (r) {
   return true;
@@ -199,7 +196,7 @@ function selectLogic(name, visible) {
   logicName = name || 'predicate';
 
   // Normalize the input here
-  $.each(examples.logics[logicName].rules, function (_,r) {
+  $.each(logics[logicName].rules, function (_,r) {
     $.each(r.ports, function (_,p) {
       p.proposition = incredibleFormatTerm(p.proposition);
     });
