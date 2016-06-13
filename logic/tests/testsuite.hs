@@ -44,7 +44,7 @@ instance IsString GroundTerm where
 -}
 
 main = do
-    examples <- readExamples "../examples"
+    examples <- readExamples ".."
     -- analysis are not part of the examples, as the latter is also shipped to
     -- the client.
     analyses <- readDirectoryOfYamlFiles "../examples/results"
