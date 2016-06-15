@@ -1,7 +1,7 @@
 Core-API
 =======
 
-This file summaries the signature of the logical core, as exported from Haskell to the JavaScript world:
+This file summarises the signature of the logical core, as exported from Haskell to the JavaScript world:
 
 ```haskell
 type Key k = Tagged k String
@@ -27,22 +27,22 @@ data Block
   | Block           Int (Key Rule)
 
 data Connection = Connection {connSortKey :: Integer,
-                              connFrom :: Maybe PortSpec,
-                              connTo :: Maybe PortSpec}
+                              connFrom    :: Maybe PortSpec,
+                              connTo      :: Maybe PortSpec}
 
 data Proof = Proof {blocks :: KMap Block, connections :: KMap Connection}
 
 -- Result
 data UnificationResult = Solved | Failed | Dunno
 type Cycle = [Key Connection]
-type Path = [Key Connection]
-data Analysis
-  = Analysis {connectionStatus :: M.Map (Key Connection) UnificationResult,
-              portLabels :: M.Map PortSpec Term,
-              unconnectedGoals :: [PortSpec],
-              cycles :: [Cycle],
-              escapedHypotheses :: [Path],
-              qed :: Bool}
+type Path =  [Key Connection]
+data Analysis = Analysis { qed              :: Bool,
+                           connectionStatus :: M.Map (Key Connection) UnificationResult,
+                           portLabels       :: M.Map PortSpec Term,
+                           unconnectedGoals :: [PortSpec],
+                           cycles           :: [Cycle],
+                           escapedHypotheses :: [Path]}
 
+-- The actual function
 incredibleLogic :: Context -> Proof -> Either String Analysis
 ```
