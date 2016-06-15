@@ -36,11 +36,11 @@ data Proof = Proof {blocks :: KMap Block, connections :: KMap Connection}
 data UnificationResult = Solved | Failed | Dunno
 type Cycle = [Key Connection]
 type Path =  [Key Connection]
-data Analysis = Analysis { qed              :: Bool,
-                           connectionStatus :: M.Map (Key Connection) UnificationResult,
-                           portLabels       :: M.Map PortSpec Term,
-                           unconnectedGoals :: [PortSpec],
-                           cycles           :: [Cycle],
+data Analysis = Analysis { qed               :: Bool,
+                           connectionStatus  :: M.Map (Key Connection) UnificationResult,
+                           portLabels        :: M.Map PortSpec Term,
+                           unconnectedGoals  :: [PortSpec],
+                           cycles            :: [Cycle],
                            escapedHypotheses :: [Path]}
 
 -- The actual function
