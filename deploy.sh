@@ -14,7 +14,7 @@ then
 	exit 1
 fi
 
-if [ ! -e logic.js -o ! -e examples.js ]
+if [ ! -e logic.js -o ! -e sessions.js ]
 then
 	echo "Please run \"make\" first."
 	exit 1
