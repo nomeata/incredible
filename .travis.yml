@@ -39,7 +39,7 @@ install:
     - cabal-1.22 update
     - cabal-1.22 install Cabal
     - test -e $HOME/.cabal/bin/HsColour || cabal-1.22 install hscolour
-    - test -e $HOME/.cabal/bin/ghcjs || cabal install http://ghcjs.luite.com/master-20151222.tar.gz
+    - test -e $HOME/.cabal/bin/ghcjs || cabal install http://ghcjs.luite.com/master-20160628.tar.gz
     - ghcjs --version
     - ghcjs-boot --version
     - test -e $HOME/.ghcjs/*/ghcjs/ghcjs_boot.completed || ghcjs-boot --no-haddock --no-prof
