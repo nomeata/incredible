@@ -210,7 +210,7 @@
     min-blocks: 8
   - assumptions: ["(A∧B)→⊥"]
     conclusions: ["(A→⊥)∨(B→⊥)"]
-    min-blocks: 11
+    min-blocks: 9
   - assumptions: ["((A→⊥)→⊥)"]
     conclusions: ["A"]
     min-blocks: 6
@@ -224,7 +224,7 @@
     min-blocks: 8
   - assumptions: ["(A∧B∧C)→⊥"]
     conclusions: ["(A→⊥)∨(B→⊥)∨(C→⊥)"]
-    min-blocks: 16
+    min-blocks: 15
   - assumptions: ["(A→B)→⊥"]
     conclusions: ["A∧(B→⊥)"]
     min-blocks: 13
