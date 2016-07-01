@@ -77,7 +77,7 @@ printTerm p = runLFreshM (avoid (fvAny p) $ prP (0::Int) p) ""
         prN f <> prN v <> prS "." <> prP 1 t
     prP _ (App f args) = prP 4 f <> prS "(" <> prCommas [prP 0 a | a <- args] <> prS ")"
     prP d (Lam b) = prParens (1 < d) $ lunbind b $ \(v,t) ->
-        prS "λ" <> prN v <> prS "." <> prP 1 t
+        prS "Λ" <> prN v <> prS "." <> prP 1 t
 
     prN n = prS (name2String n)
         <> (if i > 0 then prS (map subscriptify (show i)) else return id)
@@ -97,14 +97,16 @@ printTerm p = runLFreshM (avoid (fvAny p) $ prP (0::Int) p) ""
 
 -- Is it infix? What precedences?
 isInFix :: String -> Maybe (Int, OpAssoc)
+isInFix "⋅" = Just (6, L)
 isInFix "↑" = Just (5, L)
 isInFix "∧" = Just (4, L)
 isInFix "∨" = Just (4, L)
-isInFix "→" = Just (2, R)
+isInFix "→" = Just (3, R)
+isInFix ":" = Just (2, R)
 isInFix _   = Nothing
 
 isQuant :: String -> Bool
-isQuant = (`elem` words "∃ ∀")
+isQuant = (`elem` words "∃ ∀ λ")
 
 isPrefix :: String -> Maybe Int
 isPrefix "¬" = Just 4
@@ -127,13 +129,17 @@ termP :: Parser Proposition
 termP =  buildExpressionParser table atomP <?> "proposition"
 
 table :: OperatorTable String () Identity Proposition
-table = [ [ binary "↑" ["^"] AssocLeft
+table = [ [ binary "⋅" [] AssocLeft
+          ]
+        , [ binary "↑" ["^"] AssocLeft
           ]
         , [ binary "∧" ["&"] AssocLeft
           ]
         , [ binary "∨" ["|"] AssocLeft
           ]
         , [ binary "→" ["->"] AssocRight
+          ]
+        , [ binary ":" []     AssocRight
           ]
         ]
   where
@@ -144,10 +150,11 @@ quantifiers =
     [ ('∀', ['!'])
     , ('∃', ['?'])
     , ('λ', ['\\'])
+    , ('Λ', [])
     ]
 
 mkQuant :: String -> Var -> Term -> Term
-mkQuant "λ" n t = mkLam n t
+mkQuant "Λ" n t = mkLam n t
 mkQuant q   n t = App (C (string2Name q)) [mkLam n t]
 
 quantP :: Parser String
@@ -172,7 +179,7 @@ atomP = choice
     , parenthesized termP
     , do
         head <- varOrConstP
-        option head $ parenthesized $ do
+        option head $ parenthesized $
             App head <$> termP `sepBy1` (l $ char ',')
     ]
   where

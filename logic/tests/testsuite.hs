@@ -75,6 +75,9 @@ parserTests = testGroup "Parsers"
              , ("A↑B", "A↑B")
              , ("(A↑B)↑C", "(A↑B)↑C")
              , ("A↑(B↑C)", "A↑(B↑C)")
+             , ("(λx.x):a→a", "(λx.x):a→a")
+             , ("(λx.(λy.(λz.(x⋅z)⋅(y⋅z)))):(a→b→c)→(a→b)→a→c",
+                "(λx.λy.λz.(x⋅z)⋅(y⋅z)):(a→(b→c))→((a→b)→(a→c))")
              ]
   ]
 
