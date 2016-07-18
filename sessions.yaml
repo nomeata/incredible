@@ -287,8 +287,10 @@
   logic: predicate
   tasks:
   - conclusions: ["∃x.t(x)→(∀x.t(x))"]
+    min-blocks: 17
   - assumptions: ["∀x.(r(x)→⊥)→r(f(x))"]
     conclusions: ["∃x.r(x)∧r(f(f(x)))"]
+    min-blocks: 24
 - name: Hilbert system
   logic: hilbert
   tasks:
