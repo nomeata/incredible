@@ -281,8 +281,10 @@
     min-blocks: 6
   - assumptions: ["(∀x.P(x))→⊥"]
     conclusions: ["∃x.P(x)→⊥"]
+    min-blocks: 12
   - assumptions: ["(∀x.P(x))→A"]
     conclusions: ["∃x.P(x)→A"]
+    min-blocks: 20
 - name: Session 7
   logic: predicate
   tasks:
