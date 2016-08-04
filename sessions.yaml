@@ -224,7 +224,7 @@
     min-blocks: 8
   - assumptions: ["(A∧B∧C)→⊥"]
     conclusions: ["(A→⊥)∨(B→⊥)∨(C→⊥)"]
-    min-blocks: 15
+    min-blocks: 14
   - assumptions: ["(A→B)→⊥"]
     conclusions: ["A∧(B→⊥)"]
     min-blocks: 13
