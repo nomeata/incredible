@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, TypeSynonymInstances, FlexibleInstances, TupleSections, RecordWildCards, StandaloneDeriving #-}
+{-# LANGUAGE OverloadedStrings, TypeSynonymInstances, FlexibleInstances, TupleSections, RecordWildCards, StandaloneDeriving, MultiWayIf #-}
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
@@ -127,6 +127,22 @@ unificationTests = testGroup "Unification tests"
     assertUnifies ["P","V"] [("∀y.P(x)", "∀y.Q(y)")]
         []
   -}
+  , testCase "Renaming variables 1" $
+    assertUnifies ["Z","Z1","Z2"] [("f(g(Z),h(Z))", "f(Z1,Z2)")]
+        [("Z1", "g(Z)"), ("Z2", "h(Z)")]
+  , testCase "Renaming variables 2" $
+    assertUnifies ["Z","Z1","Z2"]
+        [ "∀x.∀y.f(g(Z(x)),h(Z(x)))" >: "∀x.∀y.f(Z1(x,y),Z2(x,y))" ]
+        [ "Z1" >: absTerm ["x","y"] "g(Z(x))"
+        , "Z2" >: absTerm ["x","y"] "h(Z(x))"
+        ]
+  , testCase "Renaming variables 3" $
+    assertUnifies ["Z","Z1","Z2"]
+        [ "∀x.∀y.f(g(Z(x)),h(Z(x)))" >: "∀x.∀y.f(Z1(x),Z2(y))" ]
+        [ "Z"  >: absTerm ["x"] "V 3 uni"
+        , "Z1" >: absTerm ["x"] "g(Z(x))"
+        , "Z2" >: absTerm ["y"] "h(Z(V 1 x))"
+        ]
   , testCase "regression2" $
     assertUnifies
         -- P1: exE
@@ -185,13 +201,16 @@ assertUnifies :: [Var] -> [Equality] -> [(Var, Term)] -> Assertion
 assertUnifies vars eqns expt = do
     let expt' = M.fromList $ map (second (const2Var vars)) expt
     let eqns' = map (both (const2Var vars)) eqns
-    let (res,_) = unifyLiberally vars (map ((),) eqns')
-    unless (res == expt') $ do
-        assertFailure $ unlines $
-            ["expected: "] ++
-            map (\(k,v) -> "    " ++ show k ++ ": " ++ printTerm v) (M.toList expt') ++
-            [" but got: "] ++
-            map (\(k,v) -> "    " ++ show k ++ ": " ++ printTerm v) (M.toList res)
+    let (binds,res) = unifyLiberally vars (map ((),) eqns')
+    if | any (badResult .snd) res -> assertFailure $ unlines $
+                ["got unification failure"] ++
+                map (\(k,v) -> "    " ++ show k ++ ": " ++ printTerm v) (M.toList expt')
+       | binds /= expt' -> assertFailure $ unlines $
+                ["expected: "] ++
+                map (\(k,v) -> "    " ++ show k ++ ": " ++ printTerm v) (M.toList expt') ++
+                [" but got: "] ++
+                map (\(k,v) -> "    " ++ show k ++ ": " ++ printTerm v) (M.toList binds)
+       | otherwise -> return ()
 
 oneBlockLogic :: Context
 oneBlockLogic = Context

@@ -189,12 +189,17 @@ atomP = choice
     parenthesized = between (l $ char '(') (l $ char ')')
 
 varOrConstP :: Parser Term
-varOrConstP = do
+varOrConstP = choice
+  [ do
     -- A hack for the test suite etc: prepending the name of a constant with V
     -- makes it a variable
-    con <- option C (l $ V <$ (try (string "V ")))
-    n <- nameP
-    return $ con n
+    _ <- try (string "V ")
+    num <- l $ option 0 (read <$> many1 digit)
+    s <- l $ many1 alphaNum
+    return $ V $ makeName s num
+  , C <$> nameP
+  ]
+
 
 nameP :: Rep a => Parser (Name a)
 nameP = l $ string2Name <$> many1 alphaNum

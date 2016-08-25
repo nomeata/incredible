@@ -168,7 +168,7 @@ flexflex uvs binds f ym g zn
              return (newName:uvs, binds')
 
 mkAppVars :: Var -> [Var] -> Term
-mkAppVars f vs = App (V f) $ map V vs
+mkAppVars f vs = mkApps (V f) $ map V vs
 
 {-
 fun occ F S (V G) = (F=G) orelse
@@ -214,7 +214,7 @@ proj w uvs binds s = do
                 Just vs | all (`elem` w) vs -> return (uvs, binds)
                 Just vs -> do
                     newName <- fresh (string2Name "uni")
-                    let rhs = absTerm vs (App (V newName) (ss `intersect` map V w))
+                    let rhs = absTerm vs (mkApps (V newName) (ss `intersect` map V w))
                     let binds' = M.insert v rhs binds
                     return (newName:uvs, binds')
 
@@ -263,7 +263,7 @@ devar binds t = case strip t of
 redsTerm :: Fresh m => Term -> [Term] -> m Term
 redsTerm t [] = return t
 redsTerm (Lam b) (x:xs) = lunbind' b $ \(v,body) -> redsTerm (subst v x body) xs
-redsTerm t xs = return $ App t xs
+redsTerm t xs = return $ mkApps t xs
 
 strip :: Term -> (Term, [Term])
 strip t = go t []
@@ -283,10 +283,10 @@ applyBindingM bindings t = go [] t
     go args (V v) | Just t <- M.lookup v bindings
                   = go args t
     go []   (V v) = return $ V v
-    go args (V v) = App (V v) <$> mapM (go []) args
+    go args (V v) = mkApps (V v) <$> mapM (go []) args
 
     go []   (C v) = return $ C v
-    go args (C v) = App (C v) <$> mapM (go []) args
+    go args (C v) = mkApps (C v) <$> mapM (go []) args
 
 
     go args (App t args') = go (args' ++ args) t
