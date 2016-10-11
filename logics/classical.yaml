@@ -1,0 +1,156 @@
+rules:
+- id: "True"
+  desc:
+    intro: ⊤
+  ports:
+    out2:
+      type: conclusion
+      proposition: p(⊤)
+- id: "Abort"
+  desc:
+    intro: ⊥
+  ports:
+    out2:
+      type: conclusion
+      proposition: r(⊥)
+- id: conjP
+  free: ["a","b"]
+  ports:
+    in1:
+      type: assumption
+      proposition: p(a)
+    in2:
+      type: assumption
+      proposition: p(b)
+    out2:
+      type: conclusion
+      proposition: p(a ∧ b)
+- id: conjR1
+  free: ["a","b"]
+  ports:
+    in1:
+      type: assumption
+      proposition: r(a)
+    out2:
+      type: conclusion
+      proposition: r(a ∧ b)
+- id: conjR2
+  free: ["a","b"]
+  ports:
+    in1:
+      type: assumption
+      proposition: r(b)
+    out2:
+      type: conclusion
+      proposition: r(a ∧ b)
+- id: disjP
+  free: ["a","b"]
+  ports:
+    in1:
+      type: assumption
+      proposition: p(a)
+    in2:
+      type: assumption
+      proposition: p(b)
+    out2:
+      type: conclusion
+      proposition: p(a ∨ b)
+- id: disjR1
+  free: ["a","b"]
+  ports:
+    in1:
+      type: assumption
+      proposition: r(a)
+    out2:
+      type: conclusion
+      proposition: r(a ∨ b)
+- id: disjR2
+  free: ["a","b"]
+  ports:
+    in1:
+      type: assumption
+      proposition: r(b)
+    out2:
+      type: conclusion
+      proposition: r(a ∨ b)
+- id: impP
+  free: ["a","b"]
+  ports:
+    hyp:
+      type: local hypothesis
+      consumedBy: in
+      proposition: p(a)
+    in:
+      type: assumption
+      proposition: p(b)
+    out:
+      type: conclusion
+      proposition: p(a → b)
+- id: impR
+  free: ["a","b"]
+  ports:
+    in1:
+      type: assumption
+      proposition: p(a)
+    in2:
+      type: assumption
+      proposition: r(b)
+    out:
+      type: conclusion
+      proposition: r(a → b)
+- id: notP
+  free: ["a"]
+  ports:
+    in:
+      type: assumption
+      proposition: r(a)
+    out:
+      type: conclusion
+      proposition: p(¬a)
+- id: notR
+  free: ["a"]
+  ports:
+    in:
+      type: assumption
+      proposition: p(a)
+    out:
+      type: conclusion
+      proposition: r(¬a)
+- id: contra
+  free: ["a","b"]
+  ports:
+    in1:
+      type: assumption
+      proposition: p(a)
+    in2:
+      type: assumption
+      proposition: r(a)
+    out:
+      type: conclusion
+      proposition: "HASH"
+- id: ccp
+  free: ["a"]
+  ports:
+    hyp:
+      type: local hypothesis
+      consumedBy: in
+      proposition: p(a)
+    in:
+      type: assumption
+      proposition: "HASH"
+    out:
+      type: conclusion
+      proposition: r(a)
+- id: ccr
+  free: ["a"]
+  ports:
+    hyp:
+      type: local hypothesis
+      consumedBy: in
+      proposition: r(a)
+    in:
+      type: assumption
+      proposition: "HASH"
+    out:
+      type: conclusion
+      proposition: p(a)
