@@ -97,7 +97,7 @@ printTerm p = runLFreshM (avoid (fvAny p) $ prP (0::Int) p) ""
 
 -- Is it infix? What precedences?
 isInFix :: String -> Maybe (Int, OpAssoc)
-isInFix "⋅" = Just (6, L)
+isInFix "⋅" = Just (7, L)
 isInFix "↑" = Just (5, L)
 isInFix "∧" = Just (4, L)
 isInFix "∨" = Just (4, L)
@@ -109,7 +109,7 @@ isQuant :: String -> Bool
 isQuant = (`elem` words "∃ ∀ λ")
 
 isPrefix :: String -> Maybe Int
-isPrefix "¬" = Just 4
+isPrefix "¬" = Just 6
 isPrefix _   = Nothing
 
 -- Parser

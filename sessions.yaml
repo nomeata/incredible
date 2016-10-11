@@ -319,3 +319,8 @@
   - conclusions: ["(λx.x):a→a"]
   - conclusions: ["(λx.(λy.x)):a→b→a"]
   - conclusions: ["(λx.(λy.(λz.(x⋅z)⋅(y⋅z)))):(a→b→c)→(a→b)→a→c"]
+# - name: Classical logic
+#   logic: classical
+#   tasks:
+#   - conclusions: ["p(¬(⊥ ∧ ⊥))"]
+#   - conclusions: ["p((A∧B∧C) → (A∧C))"]
