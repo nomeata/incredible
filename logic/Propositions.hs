@@ -202,4 +202,4 @@ varOrConstP = choice
 
 
 nameP :: Rep a => Parser (Name a)
-nameP = l $ string2Name <$> many1 alphaNum
+nameP = l $ string2Name <$> many1 (alphaNum <|> char '_')
