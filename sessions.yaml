@@ -289,7 +289,7 @@
   logic: predicate
   tasks:
   - conclusions: ["∃x.t(x)→(∀x.t(x))"]
-    min-blocks: 17
+    min-blocks: 16
   - assumptions: ["∀x.(r(x)→⊥)→r(f(x))"]
     conclusions: ["∃x.r(x)∧r(f(f(x)))"]
     min-blocks: 24
