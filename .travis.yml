@@ -13,7 +13,7 @@ addons:
     sources:
     - hvr-ghc
     packages:
-    - cabal-install-1.22
+    - cabal-install-2.0
     - ghc-7.10.3
     - alex-3.1.4
     - happy-1.19.5
@@ -29,20 +29,20 @@ cache:
 
 before_install:
     - export PATH=$HOME/.cabal/bin:$PATH
-    - export PATH=/opt/cabal/1.22/bin:$PATH
+    - export PATH=/opt/cabal/bin:$PATH
     - export PATH=/opt/alex/3.1.4/bin:$PATH
     - export PATH=/opt/happy/1.19.5/bin:$PATH
-    - export PATH=/opt/ghc/7.10.3/bin:$PATH
+    - export PATH=/opt/ghc/bin:$PATH
     - export PATH=$TRAVIS_BUILD_DIR/node_modules/.bin:$PATH
     - du -sh $HOME/.ghcjs $HOME/.ghc $HOME/.cabal/bin $HOME/.cabal/lib $HOME/.cabal/share
-    - cabal-1.22 update
+    - cabal update
 
 jobs:
  include:
    - stage: install ghcjs
      install:
-      - cabal-1.22 install Cabal
-      - test -e $HOME/.cabal/bin/HsColour || cabal-1.22 install hscolour
+      - cabal install Cabal
+      - test -e $HOME/.cabal/bin/HsColour || cabal install hscolour
       - test -e $HOME/.cabal/bin/ghcjs || cabal install http://ghcjs.luite.com/master-20160628.tar.gz
       - ghcjs --version
       - ghcjs-boot --version
