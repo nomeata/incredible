@@ -40,11 +40,11 @@ install:
     # install ghcjs
     - cabal-1.22 update
     - cabal-1.22 install Cabal
-    - test -e $HOME/.cabal/bin/HsColour || cabal-1.22 install hscolour
-    - test -e $HOME/.cabal/bin/ghcjs || cabal install http://ghcjs.luite.com/master-20160628.tar.gz
+    - test -e $HOME/.cabal/bin/HsColour || { cabal-1.22 install hscolour; exit; }
+    - test -e $HOME/.cabal/bin/ghcjs || { cabal install http://ghcjs.luite.com/master-20160628.tar.gz ; exit; }
     - ghcjs --version
     - ghcjs-boot --version
-    - test -e $HOME/.ghcjs/*/ghcjs/ghcjs_boot.completed || ghcjs-boot --no-haddock --no-prof
+    - test -e $HOME/.ghcjs/*/ghcjs/ghcjs_boot.completed || { ghcjs-boot --no-haddock --no-prof; exit;}
 
     - npm install jshint
 
@@ -58,7 +58,7 @@ script:
     - make docs
 
 after_success:
-    - '[ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_SECURE_ENV_VARS" = "true" ] &&  [ "$TRAVIS_PULL_REQUEST" = "false" ] && ./.travis-push-gh-pages.sh'
+    - '[ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_SECURE_ENV_VARS" = "true" ] && [ "$TRAVIS_PULL_REQUEST" = "false" ] && [ -d logic/dist/doc/html/incredible-logic/ ] &&./.travis-push-gh-pages.sh'
 
 before_cache:
   - rm -rf $HOME/.ghcjs/*/ghcjs/ghcjs-boot/
