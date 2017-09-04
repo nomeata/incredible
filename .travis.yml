@@ -46,18 +46,21 @@ jobs:
       - test -e $HOME/.cabal/bin/ghcjs || cabal install http://ghcjs.luite.com/master-20160628.tar.gz
       - ghcjs --version
       - ghcjs-boot --version
-     script: true
-   - stage: boot ghcjs
-     install:
+     script:
       - ghcjs --version
       - ghcjs-boot --version
+   - stage: boot ghcjs
+     install:
       - test -e $HOME/.ghcjs/*/ghcjs/ghcjs_boot.completed || ghcjs-boot --no-haddock --no-prof
-     script: true
+     script:
+       - ghcjs-pkg list
    - stage: install dependencies
      install:
       # install dependencies
       - make prepare
-     script: true
+     script:
+       - ghc-pkg list
+       - ghcjs-pkg list
    - stage: build, test and deploy
      install:
       - npm install jshint
