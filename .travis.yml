@@ -51,8 +51,8 @@ jobs:
       - ghcjs-boot --version
    - stage: boot ghcjs
      install:
-      - test -e $HOME/.ghcjs/*/ghcjs/ghcjs_boot.completed || ghcjs-boot --no-haddock --no-prof
       - cabal install --ghcjs Cabal --constraint 'Cabal <2.0'
+      - test -e $HOME/.ghcjs/*/ghcjs/ghcjs_boot.completed || ghcjs-boot --no-haddock --no-prof
      script:
        - ghcjs-pkg list
    - stage: install ghc dependencies
