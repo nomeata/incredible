@@ -35,12 +35,12 @@ before_install:
     - export PATH=/opt/ghc/7.10.3/bin:$PATH
     - export PATH=$TRAVIS_BUILD_DIR/node_modules/.bin:$PATH
     - du -sh $HOME/.ghcjs $HOME/.ghc $HOME/.cabal/bin $HOME/.cabal/lib $HOME/.cabal/share
+    - cabal-1.22 update
 
 jobs:
  include:
    - stage: install ghcjs
      install:
-      - cabal-1.22 update
       - cabal-1.22 install Cabal
       - test -e $HOME/.cabal/bin/HsColour || cabal-1.22 install hscolour
       - test -e $HOME/.cabal/bin/ghcjs || cabal install http://ghcjs.luite.com/master-20160628.tar.gz
