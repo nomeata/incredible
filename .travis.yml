@@ -54,12 +54,15 @@ jobs:
       - test -e $HOME/.ghcjs/*/ghcjs/ghcjs_boot.completed || ghcjs-boot --no-haddock --no-prof
      script:
        - ghcjs-pkg list
-   - stage: install dependencies
+   - stage: install ghc dependencies
      install:
-      # install dependencies
-      - make prepare
+      - make prepare-ghc
      script:
        - ghc-pkg list
+   - stage: install ghcjs dependencies
+     install:
+      - make prepare-ghcjs
+     script:
        - ghcjs-pkg list
    - stage: build, test and deploy
      install:
