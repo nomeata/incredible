@@ -43,7 +43,7 @@ jobs:
      install:
       - cabal install Cabal
       - test -e $HOME/.cabal/bin/HsColour || cabal install hscolour
-      - test -e $HOME/.cabal/bin/ghcjs || cabal install http://ghcjs.luite.com/master-20160628.tar.gz --constraint 'distributive <0.5.1'
+      - test -e $HOME/.cabal/bin/ghcjs || cabal install http://ghcjs.luite.com/master-20160628.tar.gz
       - ghcjs --version
       - ghcjs-boot --version
      script:
@@ -52,6 +52,7 @@ jobs:
    - stage: boot ghcjs
      install:
       - test -e $HOME/.ghcjs/*/ghcjs/ghcjs_boot.completed || ghcjs-boot --no-haddock --no-prof
+      - cabal install --ghcjs Cabal
      script:
        - ghcjs-pkg list
    - stage: install ghc dependencies
