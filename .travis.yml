@@ -36,29 +36,40 @@ before_install:
     - export PATH=$TRAVIS_BUILD_DIR/node_modules/.bin:$PATH
     - du -sh $HOME/.ghcjs $HOME/.ghc $HOME/.cabal/bin $HOME/.cabal/lib $HOME/.cabal/share
 
-install:
-    # install ghcjs
-    - cabal-1.22 update
-    - cabal-1.22 install Cabal
-    - test -e $HOME/.cabal/bin/HsColour || { cabal-1.22 install hscolour; exit; }
-    - test -e $HOME/.cabal/bin/ghcjs || { cabal install http://ghcjs.luite.com/master-20160628.tar.gz ; exit; }
-    - ghcjs --version
-    - ghcjs-boot --version
-    - test -e $HOME/.ghcjs/*/ghcjs/ghcjs_boot.completed || { ghcjs-boot --no-haddock --no-prof; exit;}
+jobs:
+ include:
+   - stage: install ghcjs
+     install:
+      - cabal-1.22 update
+      - cabal-1.22 install Cabal
+      - test -e $HOME/.cabal/bin/HsColour || cabal-1.22 install hscolour
+      - test -e $HOME/.cabal/bin/ghcjs || cabal install http://ghcjs.luite.com/master-20160628.tar.gz
+      - ghcjs --version
+      - ghcjs-boot --version
+     script: pass
+   - stage: boot ghcjs
+     install:
+      - ghcjs --version
+      - ghcjs-boot --version
+      - test -e $HOME/.ghcjs/*/ghcjs/ghcjs_boot.completed || ghcjs-boot --no-haddock --no-prof
+     script: pass
+   - stage: install jshint ghcjs
+     install:
+      - npm install jshint
+     script: pass
+   - stage: install dependencies
+     install:
+      # install dependencies
+      - make prepare
+     script: pass
+   - stage: build, test and deploy
+     script:
+       - make
+       - make test
+       - make docs
 
-    - npm install jshint
-
-    # install dependencies
-    - make prepare
-
-
-script:
-    - make
-    - make test
-    - make docs
-
-after_success:
-    - '[ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_SECURE_ENV_VARS" = "true" ] && [ "$TRAVIS_PULL_REQUEST" = "false" ] && [ -d logic/dist/doc/html/incredible-logic/ ] &&./.travis-push-gh-pages.sh'
+     after_success:
+        - '[ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_SECURE_ENV_VARS" = "true" ] && [ "$TRAVIS_PULL_REQUEST" = "false" ] && [ -d logic/dist/doc/html/incredible-logic/ ] &&./.travis-push-gh-pages.sh'
 
 before_cache:
   - rm -rf $HOME/.ghcjs/*/ghcjs/ghcjs-boot/
