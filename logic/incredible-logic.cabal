@@ -45,8 +45,7 @@ library
                      void,
                      tagged,
                      unbound,
-                     either,
-                     distributive <0.5.2
+                     either
                      -- avoid problem with old Cabal
   default-language:  Haskell2010
   ghc-options:       -Wall -fno-warn-name-shadowing -fno-warn-orphans

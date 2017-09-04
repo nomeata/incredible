@@ -16,10 +16,10 @@ js-libs:
 
 
 prepare-ghcj: js-libs
-	cd logic && cabal install -j1 --ghcjs --dependencies-only --disable-tests --force-reinstalls
+	cd logic && cabal install -j1 --ghcjs --dependencies-only --disable-tests --force-reinstalls  --constraint 'distributive <0.5.1'
 
 prepare-ghc:
-	cd logic && cabal install -j1 --dependencies-only --enable-tests --force-reinstalls
+	cd logic && cabal install -j1 --dependencies-only --enable-tests --force-reinstalls  --constraint 'distributive <0.5.1'
 
 prepare: prepare-ghc prepare-ghcjs
 
