@@ -41,7 +41,7 @@ jobs:
  include:
    - stage: install ghcjs
      install:
-      - cabal install Cabal --constraint 'Cabal <2.0'
+      - cabal install Cabal
       - test -e $HOME/.cabal/bin/HsColour || cabal install hscolour
       - test -e $HOME/.cabal/bin/ghcjs || cabal install http://ghcjs.luite.com/master-20170914.tar.gz
       - ghcjs --version
