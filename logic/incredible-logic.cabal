@@ -34,7 +34,7 @@ library
                      Rules,
                      ProofGraph,
                      Analysis
-  build-depends:     base >=4.8 && <4.9,
+  build-depends:     base >=4.9 && <4.10,
                      aeson,
                      text,
                      vector,
@@ -43,10 +43,9 @@ library
                      transformers,
                      parsec,
                      void,
-                     tagged,
+                     tagged == 0.8.4,
                      unbound,
                      either
-                     -- avoid problem with old Cabal
   default-language:  Haskell2010
   ghc-options:       -Wall -fno-warn-name-shadowing -fno-warn-orphans
 
@@ -57,7 +56,7 @@ executable js-interface
   if impl(ghcjs)
     buildable: True
     other-modules:     ConvertJS
-    build-depends:     base >=4.8 && <4.9,
+    build-depends:     base >=4.9 && <4.10,
                        incredible-logic,
                        aeson,
                        ghcjs-base == 0.2.*
@@ -74,7 +73,7 @@ executable bundle-examples
   if impl(ghcjs)
     buildable: False
   else
-    build-depends:   base >=4.8 && <4.9,
+    build-depends:   base >=4.9 && <4.10,
                      containers,
                      bytestring,
                      aeson,
