@@ -15,7 +15,7 @@ js-libs:
 	./install-jslibs.sh
 
 
-prepare-ghcj: js-libs
+prepare-ghcjs: js-libs
 	cd logic && cabal install -j1 --ghcjs --dependencies-only --disable-tests
 
 prepare-ghc:
