@@ -87,6 +87,9 @@
   - assumptions: ["(A→B)∧(A→C)"]
     conclusions: ["A→(B∧C)"]
     min-blocks: 7
+  - assumptions: ["A→(A→B)", "(A→B)→A"]
+    conclusions: ["B"]
+    min-blocks: 8
 - name: Session 3
   logic: predicate
   visible-rules:
