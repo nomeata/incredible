@@ -17,7 +17,7 @@ addons:
     - sourceline: 'deb https://deb.nodesource.com/node_6.x trusty main'
       key_url: 'https://deb.nodesource.com/gpgkey/nodesource.gpg.key'
     packages:
-    - cabal-install-2.2
+    - cabal-install-head
     - ghc-8.2.2
     - ghcjs-8.2
     - alex-3.1.4
@@ -34,7 +34,6 @@ cache:
 
 before_install:
     - export PATH=$HOME/.cabal/bin:$PATH
-    - export PATH=/opt/cabal/2.2/bin:$PATH
     - export PATH=/opt/alex/3.1.4/bin:$PATH
     - export PATH=/opt/happy/1.19.5/bin:$PATH
     - export PATH=/opt/ghc/bin:$PATH
