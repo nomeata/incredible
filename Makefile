@@ -1,12 +1,12 @@
 targets := logic.js logics.js sessions.js
 
+CABAL_FLAGS=--allow-newer=template-haskell --constraint 'primitive<0.6.4' 
+
 all: ${targets}
 
 clean:
-	${RM} ${targets}
-	cd logic && \
-	cabal clean && \
-	cabal clean --distdir=dist-ghcjs
+	${RM} ${targets} bundle-examples
+	rm -rf logic/dist-*
 
 vendor:
 	mkdir vendor
@@ -16,38 +16,32 @@ js-libs:
 
 
 prepare-ghcjs: js-libs
-	cd logic && cabal install -j1 --ghcjs --dependencies-only --disable-tests
+	cd logic && cabal new-build --distdir=dist-newstyle-ghcjs --ghcjs --dependencies-only --disable-tests
 
 prepare-ghc:
-	cd logic && cabal install -j1 --dependencies-only --enable-tests --force-reinstalls
+	cd logic && cabal new-build $(CABAL_FLAGS) --dependencies-only --disable-tests
 
 prepare: prepare-ghc prepare-ghcjs
 
-docs:
-	cd logic && \
-	cabal haddock --hyperlink-source --html-location='http://hackage.haskell.org/package/$$pkg/docs'
-
 test: sessions.js logics.js
-	cd logic && \
-	cabal test --show-details=streaming
+	cd logic && cabal new-test $(CABAL_FLAGS) --show-details=streaming
 	! which jshint || jshint webui/*.js sessions.js logics.js
 
-logic/dist-ghcjs/build/js-interface/js-interface.jsexe/all.js: logic/*.hs logic/js/*.hs
-	cd logic && \
-	cabal configure --distdir=dist-ghcjs --ghcjs --disable-library-profiling && \
-	cabal build --distdir=dist-ghcjs
+logic.js: logic/*.cabal logic/*.hs logic/js/*.hs
+	cd logic && cabal new-build --distdir=dist-newstyle-ghcjs --ghcjs $(CABAL_FLAGS)
+	cp -v logic/dist-newstyle-ghcjs/build/*/*/incredible-logic-0.1/x/js-interface/build/js-interface/js-interface.jsexe/all.js $@
 
-logic.js: logic/dist-ghcjs/build/js-interface/js-interface.jsexe/all.js
-	cp -v $< $@
+bundle-examples: logic/*.cabal logic/*.hs logic/examples/*.hs
+	cd logic && cabal new-build $(CABAL_FLAGS)
+	cp -v logic/dist-newstyle/build/*/*/incredible-logic-0.1/x/bundle-examples/build/bundle-examples/bundle-examples $@
 
-logic/dist/build/bundle-examples/bundle-examples: logic/*.hs logic/examples/*.hs
-	cd logic && \
-	cabal configure --enable-tests --disable-library-profiling && \
-	cabal build
+logics.js: logics/* bundle-examples
+	./bundle-examples logics > $@
 
-logics.js: logics/* logic/dist/build/bundle-examples/bundle-examples
-	logic/dist/build/bundle-examples/bundle-examples logics > $@
+yaml2json: logic/*.cabal logic/*.hs logic/examples/*.hs
+	cd logic && cabal new-build $(CABAL_FLAGS)
+	cp -v logic/dist-newstyle/build/*/*/incredible-logic-0.1/x/yaml2json/build/yaml2json/yaml2json $@
 
-sessions.js: sessions.yaml
-	cd logic cabal && \
-	(echo -n "sessions = "; cabal run -v0 yaml2json -- ../sessions.yaml ; echo \;) > ../sessions.js
+
+sessions.js: yaml2json sessions.yaml
+	(echo -n "sessions = "; ./yaml2json sessions.yaml ; echo \;) > $@

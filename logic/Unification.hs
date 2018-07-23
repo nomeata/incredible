@@ -12,7 +12,7 @@ module Unification
 
 import qualified Data.Map as M
 import Control.Monad
-import Control.Monad.Trans.Either
+import Control.Monad.Trans.Except
 --import Debug.Trace
 import Data.List
 
@@ -72,10 +72,10 @@ mapAccumM f s = go s
             (s'',ys) <- go s' xs
             return (s'', y:ys)
 
-type UnifM a = EitherT UnificationResult FreshM a
+type UnifM a = ExceptT UnificationResult FreshM a
 
 runUnifM :: UnifM a -> FreshM (Either UnificationResult a)
-runUnifM = runEitherT
+runUnifM = runExceptT
 
 -- Code taken from http://www21.in.tum.de/~nipkow/pubs/lics93.html
 
@@ -112,9 +112,9 @@ cases uvs binds (s,t) = do
         (_, (V g, allBoundVar uvs -> Just zn))
             | g `elem` uvs                 -> flexrigid uvs binds g zn s
         ((V f, _), _)
-            | f `elem` uvs                 -> left Dunno
+            | f `elem` uvs                 -> throwE Dunno
         (_, (V g, _))
-            | g `elem` uvs                 -> left Dunno
+            | g `elem` uvs                 -> throwE Dunno
         ((a, sm), (b, tn))
             -> rigidrigid uvs binds a sm b tn
 
@@ -138,7 +138,7 @@ eqs :: Eq a => [a] -> [a] -> UnifM [a]
 eqs (x:xs) (y:ys) | x == y    = (x :) `liftM` eqs xs ys
                   | otherwise =               eqs xs ys
 eqs [] [] = return []
-eqs _ _   = left Failed
+eqs _ _   = throwE Failed
 
 flexflex :: [Var] -> Bindings -> Var -> [Var] -> Var -> [Var] -> UnifM ([Var], Bindings)
 flexflex uvs binds f ym g zn
@@ -190,7 +190,7 @@ fun flexrigid(F,ym,t,S) = if occ F S t then raise Unif
 flexrigid :: [Var] -> Bindings -> Var -> [Var] -> Term -> UnifM ([Var], Bindings)
 flexrigid uvs binds f ym t
     | occ binds f t
-    = left Failed
+    = throwE Failed
     | otherwise
     = let binds' = M.insert f (absTerm ym t) binds
       in proj ym uvs binds' t
@@ -222,7 +222,7 @@ proj w uvs binds s = do
                 -- (The correctness of this is a guess by Joachim)
                 Nothing        -> recurse ss
                   | v `elem` w -> recurse ss
-                  | otherwise  -> left Failed
+                  | otherwise  -> throwE Failed
         (C _, ss)              -> recurse ss
         (App _ _, _)          -> error "Unreachable"
   where
@@ -243,7 +243,7 @@ rigidrigid uvs binds a sm b tn
     | a `aeq` b && length sm == length tn
     = foldM (uncurry unif) (uvs, binds) (zip sm tn)
     | otherwise
-    = left Failed
+    = throwE Failed
 
 
 {-
@@ -303,6 +303,3 @@ lunbind' b c = unbind b >>= c
 
 lunbind2' :: (Fresh m, Alpha p1, Alpha p2, Alpha t1, Alpha t2) => Bind p1 t1 -> Bind p2 t2 -> (Maybe (p1, t1, p2, t2) -> m r) -> m r
 lunbind2' b1 b2 c = unbind2 b1 b2 >>= c
-
-instance Fresh m => Fresh (EitherT e m) where
-    fresh n = EitherT $ liftM Right $ fresh n

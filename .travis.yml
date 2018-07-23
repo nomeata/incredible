@@ -1,4 +1,4 @@
-sudo: false
+sudo: required
 dist: trusty
 language: generic
 
@@ -12,9 +12,14 @@ addons:
   apt:
     sources:
     - hvr-ghc
+    - sourceline: 'ppa:hvr/ghcjs'
+    - ubuntu-toolchain-r-test
+    - sourceline: 'deb https://deb.nodesource.com/node_6.x trusty main'
+      key_url: 'https://deb.nodesource.com/gpgkey/nodesource.gpg.key'
     packages:
-    - cabal-install-1.24
-    - ghc-8.0.2
+    - cabal-install-2.2
+    - ghc-8.2
+    - ghcjs-8.2
     - alex-3.1.4
     - happy-1.19.5
 
@@ -29,52 +34,38 @@ cache:
 
 before_install:
     - export PATH=$HOME/.cabal/bin:$PATH
-    - export PATH=/opt/cabal/8.0.2/bin:$PATH
+    - export PATH=/opt/cabal/2.2/bin:$PATH
     - export PATH=/opt/alex/3.1.4/bin:$PATH
     - export PATH=/opt/happy/1.19.5/bin:$PATH
     - export PATH=/opt/ghc/bin:$PATH
+    - export PATH=/opt/ghcjs/8.2/bin:$PATH
     - export PATH=$TRAVIS_BUILD_DIR/node_modules/.bin:$PATH
     - du -sh $HOME/.ghcjs $HOME/.ghc $HOME/.cabal/bin $HOME/.cabal/lib $HOME/.cabal/share
     - cabal update
 
 jobs:
  include:
-   - stage: install ghcjs
-     install:
-      #- cabal install Cabal
-      - test -e $HOME/.cabal/bin/HsColour || cabal install hscolour
-      - test -e $HOME/.cabal/bin/hsc2hs || cabal install hsc2hs
-      - test -e $HOME/.cabal/bin/ghcjs || cabal install http://ghcjs.luite.com/ghc-8.0-20170916.tar.gz
-      - ghcjs --version
-      - ghcjs-boot --version
-     script:
-      - ghcjs --version
-      - ghcjs-boot --version
-   - stage: boot ghcjs
-     install:
-      - test -e $HOME/.ghcjs/*/ghcjs/ghcjs_boot.completed || ghcjs-boot --no-haddock --no-prof
-     script:
-       - ghcjs-pkg list
    - stage: install ghc dependencies
+     if: type = api
      install:
       - make prepare-ghc
      script:
        - ghc-pkg list
    - stage: install ghcjs dependencies
+     if: type = api
      install:
       - make prepare-ghcjs
      script:
        - ghcjs-pkg list
    - stage: build, test and deploy
      install:
-      - npm install jshint
+       - make prepare
      script:
        - make
        - make test
-       - make docs
 
      after_success:
-        - '[ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_SECURE_ENV_VARS" = "true" ] && [ "$TRAVIS_PULL_REQUEST" = "false" ] && [ -d logic/dist/doc/html/incredible-logic/ ] &&./.travis-push-gh-pages.sh'
+        - '[ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_SECURE_ENV_VARS" = "true" ] && [ "$TRAVIS_PULL_REQUEST" = "false" ] && ./.travis-push-gh-pages.sh'
 
 before_cache:
   - rm -rf $HOME/.ghcjs/*/ghcjs/ghcjs-boot/

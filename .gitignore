@@ -1,5 +1,5 @@
 dist
-dist-ghcjs
+dist-*
 cabal-dev
 *.o
 *.hi
@@ -23,3 +23,5 @@ examples.js
 logics.js
 sessions.js
 gh-page/
+yaml2json
+bundle-examples
