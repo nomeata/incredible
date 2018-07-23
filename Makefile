@@ -1,6 +1,6 @@
 targets := logic.js logics.js sessions.js
 
-CABAL_FLAGS=--allow-newer=template-haskell --constraint 'primitive<0.6.4' 
+CABAL_FLAGS=--allow-newer=template-haskell --constraint 'primitive<0.6.4'
 
 all: ${targets}
 
@@ -16,7 +16,7 @@ js-libs:
 
 
 prepare-ghcjs: js-libs
-	cd logic && cabal new-build --distdir=dist-newstyle-ghcjs --ghcjs --dependencies-only --disable-tests
+	cd logic && cabal new-build --distdir=dist-newstyle-ghcjs --ghcjs $(CABAL_FLAGS) --dependencies-only --disable-tests
 
 prepare-ghc:
 	cd logic && cabal new-build $(CABAL_FLAGS) --dependencies-only --disable-tests
