@@ -27,7 +27,8 @@ prepare: prepare-ghc prepare-ghcjs
 
 test: sessions.js logics.js
 	rm -vf logic/.ghc.environment*
-	cd logic && cabal new-test $(CABAL_FLAGS) --show-details=streaming
+	# see https://github.com/haskell/cabal/issues/4766 for --show-details=streaming
+	cd logic && cabal new-test $(CABAL_FLAGS)
 	! which jshint || jshint webui/*.js sessions.js logics.js
 
 logic.js: logic/*.cabal logic/*.hs logic/js/*.hs
