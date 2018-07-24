@@ -67,6 +67,7 @@ jobs:
        - ./deploy.sh gh-page
 
      deploy:
+       repo: nomeata/incredible-demo
        provider: pages
        local-dir: gh-page
        fqdn: incredible.pm
