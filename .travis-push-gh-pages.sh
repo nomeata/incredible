@@ -5,7 +5,7 @@
 
 ./deploy.sh gh-page
 
-cp -vr logic/dist/doc/html/incredible-logic/ gh-page/doc
+# cp -vr logic/dist/doc/html/incredible-logic/ gh-page/doc
 
 echo 'incredible.pm' > gh-page/CNAME
 
