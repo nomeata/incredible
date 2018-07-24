@@ -64,7 +64,7 @@ jobs:
        - make test
 
      before_deploy:
-       - ./deploy gh-page
+       - ./deploy.sh gh-page
 
      deploy:
        provider: pages
