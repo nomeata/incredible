@@ -302,6 +302,12 @@
   - conclusions: ["A→A"]
   - conclusions: ["~A→A→B"]
   - conclusions: ["(A→B)→(~A→B)→B"]
+  - conclusions: ["(B→C)→(A→B)→A→C"]
+  - conclusions: ["(A→B→C)→B→A→C"]
+  - conclusions: ["(~A→A)→A"]
+  - conclusions: ["~~A→A"]
+  - conclusions: ["A→~~A"]
+  - conclusions: ["(B→A)→~A→~B"]
 - name: NAND calculus
   logic: nand
   tasks:
