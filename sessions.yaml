@@ -306,7 +306,7 @@
   - conclusions: ["(A→B→C)→B→A→C"]
     min-blocks: 20
   - conclusions: ["~A→A→B"]
-    min-blocks: 32
+    min-blocks: 12
   - conclusions: ["(~A→A)→A"]
     min-blocks: 32
   - conclusions: ["~~A→A"]
