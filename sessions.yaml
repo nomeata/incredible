@@ -300,14 +300,23 @@
   logic: hilbert
   tasks:
   - conclusions: ["A→A"]
-  - conclusions: ["~A→A→B"]
-  - conclusions: ["(A→B)→(~A→B)→B"]
+    min-blocks: 6
   - conclusions: ["(B→C)→(A→B)→A→C"]
+    min-blocks: 8
   - conclusions: ["(A→B→C)→B→A→C"]
+    min-blocks: 20
+  - conclusions: ["~A→A→B"]
+    min-blocks: 32
   - conclusions: ["(~A→A)→A"]
+    min-blocks: 32
   - conclusions: ["~~A→A"]
+    min-blocks: 30
   - conclusions: ["A→~~A"]
+    min-blocks: 32
   - conclusions: ["(B→A)→~A→~B"]
+    min-blocks: 116
+  - conclusions: ["(A→B)→(~A→B)→B"]
+    min-blocks: 200
 - name: NAND calculus
   logic: nand
   tasks:
