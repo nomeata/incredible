@@ -306,29 +306,34 @@
   - conclusions: ["(A→B→C)→B→A→C"]
     min-blocks: 20
   - conclusions: ["~A→A→B"]
-    min-blocks: 12
+    min-blocks: 8
   - conclusions: ["(~A→A)→A"]
-    min-blocks: 32
+    min-blocks: 20
   - conclusions: ["~~A→A"]
-    min-blocks: 30
+    min-blocks: 18
   - conclusions: ["A→~~A"]
-    min-blocks: 32
+    min-blocks: 20
   - conclusions: ["(B→A)→~A→~B"]
-    min-blocks: 116
+    min-blocks: 60
   - conclusions: ["(A→B)→(~A→B)→B"]
-    min-blocks: 200
+    min-blocks: 82
 - name: NAND calculus
   logic: nand
   tasks:
   - assumptions: ["A↑B"]
     conclusions: ["B↑A"]
+    min-blocks: 4
   - assumptions: ["A"]
     conclusions: ["(A↑A)↑(A↑A)"]
+    min-blocks: 4
   - conclusions: ["A↑A↑A"]
+    min-blocks: 2
   - assumptions: ["(A↑A)↑(A↑A)"]
     conclusions: ["A"]
+    min-blocks: 6
   - assumptions: ["A","B"]
     conclusions: ["A↑B↑(A↑B)"]
+    min-blocks: 6
   - assumptions: ["A↑B↑(A↑B)"]
     conclusions: ["A","B"]
 - name: Simply type lambda calculus
