@@ -4,7 +4,7 @@ var translations = {
     "Custom tasks": "Eigene Aufgaben",
     "Add": "Hinzufügen",
     "Current task:": "Aktuelle Aufgabe:",
-    "Logics blocks:": "Logikbausteine:",
+    "Logic blocks:": "Logikbausteine:",
     "Helper blocks:": "Hilfsbausteine:",
     "Custom blocks:": "Eigene Bausteine:",
     "Developers tools:": "Entwicklertools",
