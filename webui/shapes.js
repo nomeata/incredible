@@ -204,7 +204,7 @@ BlockDescRenderer.addPort = function (portDesc, direction, orientation) {
   var label;
   var labelBB;
   if (this.blockDesc.isPrototype) {
-    label = V("<text font-family='sans' fill='#000' font-size='14px'/>");
+    label = V("<text font-family='sans-serif' fill='#000' font-size='14px'/>");
     label.text(portDesc.proposition);
     g.append(label);
     labelBB = label.bbox(true);
