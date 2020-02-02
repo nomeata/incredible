@@ -101,7 +101,6 @@ $(function() {
 
   paper.on('blank:pointerclick', function (evt, x, y) {
     if (dragging) {
-      document.onmousemove = null;
       dragging = false;
 
       if (dragged) {
@@ -119,7 +118,6 @@ $(function() {
     var cell = cellView.model;
 
     if (dragging) {
-      document.onmousemove = null;
       dragging = false;
 
       if (dragged) {
