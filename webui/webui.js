@@ -29,14 +29,19 @@ var paper = create_paper();
 var undoList = [];
 var currentState = -1;
 
-function clearUndo() {
-  var g = graph.toJSON();
-  undoList = [{graph: g}];
-  currentState = 0;
+function resetUndo() {
+  if (!hasTask()) {
+    undoList = [];
+    currentState = -1;
+  } else {
+    var g = graph.toJSON();
+    undoList = [{graph: g}];
+    currentState = 0;
+  }
 }
 
 function saveUndo() {
-  if (currentState < 0) throw Error("Usage of clearUndo() before saveUndo() is required.");
+  if (currentState < 0) return;
 
   currentState += 1;
   var g = graph.toJSON();
@@ -45,6 +50,8 @@ function saveUndo() {
 }
 
 function applyUndoState(idx) {
+  if (currentState < 0) return;
+
   var state = undoList[idx];
   if (state) {
     graph.fromJSON(state.graph);
@@ -186,7 +193,7 @@ function with_graph_loading(func) {
     graph.set('loading', false);
     processGraph();
     // $("#loading").hide();
-    clearUndo();
+    resetUndo();
   };
 }
 
@@ -233,6 +240,10 @@ function unloadTask() {
 
   undoList = [];
   currentState = -1;
+}
+
+function hasTask() {
+  return task != null;
 }
 
 function blockNumberMap() {
@@ -288,19 +299,34 @@ $(function (){
   });
 
   $("#resettask").on('click', function () {
-    if (task == null) return;
+    if (!hasTask()) return;
+
     setupGraph(graph, task);
-    clearUndo(); // Is this what we want?
+    resetUndo(); // Is this what we want?
   });
 
   $("#undo").on('click', function () {
-    if (task == null) return;
+    if (!hasTask()) return;
+
     applyUndoState(currentState-1);
   });
 
   $("#redo").on('click', function () {
-    if (task == null) return;
+    if (!hasTask()) return;
+
     applyUndoState(currentState+1);
+  });
+
+  $(document).on('keypress', function(e) {
+    if (e.ctrlKey && e.keyCode == 26) {
+      if (!hasTask()) return;
+
+      applyUndoState(currentState-1);
+    } else if (e.ctrlKey && e.keyCode == 25) {
+      if (!hasTask()) return;
+
+      applyUndoState(currentState+1);
+    }
   });
 
   loadSession();
