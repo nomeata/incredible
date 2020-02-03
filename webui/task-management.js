@@ -67,15 +67,7 @@ function selectSessionTask(evt) {
   }
 
   task_desc = $(evt.currentTarget).data('desc');
-
-  selectLogic(session.logic, session["visible-rules"]);
-
-  setupPrototypeElements();
-
-  loadTask(thisTask);
-  if (tasks_saved[task_desc]) {
-    graph.fromJSON(tasks_saved[task_desc]);
-  }
+  loadTask(thisTask, tasks_saved[task_desc], session.logic, session["visible-rules"]);
 
   // Start the animation at the end
   $("#taskdialog").hide("slide", {direction:"down"}, 800, function () {
@@ -106,9 +98,14 @@ function taskToHTML(task, onRemove) {
 
 $(function () {
   $("#taskbottombar").on('click', function () {
-    $("#taskbottombar").stop();
+    $("#taskbottombar").stop(true, true);
+    $("#taskdialog").stop(true, true);
+
     saveTask(); // to update session_saved
     showTaskSelection();
+
+    task_desc = null;
+    unloadTask();
   });
 });
 
