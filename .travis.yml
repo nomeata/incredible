@@ -11,7 +11,7 @@ addons:
     - sourceline: 'deb https://deb.nodesource.com/node_6.x trusty main'
       key_url: 'https://deb.nodesource.com/gpgkey/nodesource.gpg.key'
     packages:
-    - cabal-install-head
+    - cabal-install-2.4
     - ghc-8.2.2
     - ghcjs-8.2
     - alex-3.1.4
