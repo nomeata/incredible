@@ -5,6 +5,9 @@ other parts of the system.
 
 // A way to order the connection by creation age
 var connection_counter = 0;
+var pos0 = null;
+var dragging = false;
+var dragged = false;
 
 function create_paper() {
   return new joint.dia.Paper({
@@ -62,6 +65,18 @@ function selectNothing() {
 }
 
 $(function() {
+  $(document).on('mousemove', function(e) {
+    if (dragging && pos0 != null) {
+      var pos1 = {x: e.pageX, y: e.pageY};
+      paper.setOrigin(
+        paper.options.origin.x + pos1.x - pos0.x,
+        paper.options.origin.y + pos1.y - pos0.y
+      );
+      pos0 = pos1;
+      dragged = true;
+    }
+  })
+
   paper.on('cell:pointerdown', function (cellView, evt, x, y) {
     var cell = cellView.model;
 
@@ -80,60 +95,61 @@ $(function() {
   paper.on('blank:pointerdown', function (e, x, y) {
     if (e.shiftKey) { return; }
 
-    var pos0 = {x: e.pageX, y: e.pageY};
-
-    document.onmousemove = function(e){
-      var pos1 = {x: e.pageX, y: e.pageY};
-      paper.setOrigin(
-        paper.options.origin.x + pos1.x - pos0.x,
-        paper.options.origin.y + pos1.y - pos0.y
-      );
-      pos0 = pos1;
-    };
-
-    document.onmouseup = function(e){
-      document.onmousemove = null;
-      document.onmouseup = null;
-    };
-    e.stopPropagation();
+    pos0 = {x: e.pageX, y: e.pageY};
+    dragging = true;
   });
 
   paper.on('blank:pointerclick', function (evt, x, y) {
-    if (evt.shiftKey) {
-      // ignore
-    } else {
-      selectNothing();
+    if (dragging) {
+      dragging = false;
+
+      if (dragged) {
+        dragged = false;
+        return;
+      }
     }
+
+    if (evt.shiftKey) { return; }
+
+    selectNothing();
   });
 
   paper.on('cell:pointerclick', function (cellView, evt, x, y) {
     var cell = cellView.model;
 
+    if (dragging) {
+      dragging = false;
+
+      if (dragged) {
+        dragged = false;
+        return;
+      }
+    }
+
     if (evt.shiftKey) {
       cell.set('selected', ! cell.get('selected'));
-    } else {
-      // Deselect everything
-      $.each(graph.getElements(), function (i, el) {
-        el.set('selected', false);
-      });
+      return;
+    }
 
-      if (cell.get('annotation')) {
-        var done = false;
-        var prmpt = i18n.t('Input proposition');
-        var val = cell.get('annotation');
-        while (!done) {
-          val = window.prompt(prmpt, val);
-          if (val) {
-            var prettyPrinted = incredibleFormatTerm(val);
-            if (prettyPrinted) {
-              done = true;
-              cell.set('annotation', prettyPrinted);
-            } else {
-              prmpt = i18n.t('Could not parse, please try again:');
-            }
-          } else {
+    // Deselect everything
+    selectNothing();
+
+    if (cell.get('annotation')) {
+      var done = false;
+      var prmpt = i18n.t('Input proposition');
+      var val = cell.get('annotation');
+      while (!done) {
+        val = window.prompt(prmpt, val);
+        if (val) {
+          var prettyPrinted = incredibleFormatTerm(val);
+          if (prettyPrinted) {
             done = true;
+            cell.set('annotation', prettyPrinted);
+          } else {
+            prmpt = i18n.t('Could not parse, please try again:');
           }
+        } else {
+          done = true;
         }
       }
     }
