@@ -1,6 +1,6 @@
 // Some global variables
-var task; // The current task
-var logicName; // The name of the current logic, important for custom blocks etc.
+var task = null; // The current task
+var logicName = null; // The name of the current logic, important for custom blocks etc.
 var ruleFilter = constant_true;
 
 
@@ -9,10 +9,10 @@ function constant_true (r) {
 }
 
 function current_logic_rules() {
-  return _.filter(logics[logicName].rules, ruleFilter).concat();
+  return logicName == null ? [] : _.filter(logics[logicName].rules, ruleFilter).concat();
 }
 function current_custom_rules() {
-  return custom_rules[logicName]||[];
+  return logicName == null ? [] : (custom_rules[logicName] || []);
 }
 function current_logic() {
   return {
@@ -24,22 +24,25 @@ function current_logic() {
 var graph = new joint.dia.Graph({
   loading: true
 });
-
 var paper = create_paper();
 
 var undoList = [];
-var currentState;
+var currentState = -1;
 
-function clearUndo() {
-  var g = graph.toJSON();
-  undoList = [{graph: g}];
-  currentState = 0;
+function resetUndo() {
+  if (!hasTask()) {
+    undoList = [];
+    currentState = -1;
+  } else {
+    var g = graph.toJSON();
+    undoList = [{graph: g}];
+    currentState = 0;
+  }
 }
 
 function saveUndo() {
-  if (undefined === currentState) {
-    throw Error("Usage of clearUndo() before saveUndo() is required.");
-  }
+  if (currentState < 0) return;
+
   currentState += 1;
   var g = graph.toJSON();
   undoList[currentState] = {graph: g};
@@ -47,6 +50,8 @@ function saveUndo() {
 }
 
 function applyUndoState(idx) {
+  if (currentState < 0) return;
+
   var state = undoList[idx];
   if (state) {
     graph.fromJSON(state.graph);
@@ -188,12 +193,13 @@ function with_graph_loading(func) {
     graph.set('loading', false);
     processGraph();
     // $("#loading").hide();
-    clearUndo();
+    resetUndo();
   };
 }
 
-function selectLogic(name, visible) {
-  logicName = name || 'predicate';
+function loadTask(thisTask, taskSaved, thisLogicName, visibleRules) {
+  task = thisTask;
+  logicName = thisLogicName || 'predicate';
 
   // Normalize the input here
   $.each(logics[logicName].rules, function (_,r) {
@@ -202,19 +208,13 @@ function selectLogic(name, visible) {
     });
   });
 
-  if (visible) {
+  if (visibleRules) {
     ruleFilter= function (r) {
-      return _.includes(visible, r.id);
+      return _.includes(visibleRules, r.id);
     };
   } else {
     ruleFilter = constant_true;
   }
-
-  setupPrototypeElements();
-}
-
-function loadTask(thisTask) {
-  task = thisTask;
 
   $("#proofselect").val("");
 
@@ -223,7 +223,27 @@ function loadTask(thisTask) {
     .append(taskToHTML(task))
     .show();
   $("#inferredrule").hide();
+
   setupGraph(graph, task);
+  setupPrototypeElements();
+
+  if (taskSaved) graph.fromJSON(taskSaved);
+}
+
+function unloadTask() {
+  task = null;
+  logicName = null;
+  ruleFilter = constant_true;
+
+  graph.set('loading', true);
+  graph.clear();
+
+  undoList = [];
+  currentState = -1;
+}
+
+function hasTask() {
+  return task != null;
 }
 
 function blockNumberMap() {
@@ -279,16 +299,34 @@ $(function (){
   });
 
   $("#resettask").on('click', function () {
+    if (!hasTask()) return;
+
     setupGraph(graph, task);
-    clearUndo(); // Is this what we want?
+    resetUndo(); // Is this what we want?
   });
 
   $("#undo").on('click', function () {
+    if (!hasTask()) return;
+
     applyUndoState(currentState-1);
   });
 
   $("#redo").on('click', function () {
+    if (!hasTask()) return;
+
     applyUndoState(currentState+1);
+  });
+
+  $(document).on('keypress', function(e) {
+    if (e.ctrlKey && e.keyCode == 26) {
+      if (!hasTask()) return;
+
+      applyUndoState(currentState-1);
+    } else if (e.ctrlKey && e.keyCode == 25) {
+      if (!hasTask()) return;
+
+      applyUndoState(currentState+1);
+    }
   });
 
   loadSession();
