@@ -1,577 +1,665 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8"/>
-        <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
 
-        <title>The Incredible Proof Machine</title>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
 
-        <link rel="stylesheet" data-css="true" type="text/css" href="./vendor/joint.min.css" />
-        <link rel="stylesheet" type="text/css" href="./webui/loader.css" />
-        <link rel="stylesheet" data-css="true" type="text/css" href="./webui/logic.css" />
-        <link rel="stylesheet" type="text/css" href="./fonts/lintsec_regular_macroman/stylesheet.css" />
+    <title>The Incredible Proof Machine</title>
 
-	<link rel="icon" href="incredible-favicon.png" type="image/png">
+    <link rel="stylesheet" data-css="true" type="text/css" href="./vendor/joint.min.css" />
+    <link rel="stylesheet" type="text/css" href="./webui/loader.css" />
+    <link rel="stylesheet" data-css="true" type="text/css" href="./webui/logic.css" />
+    <link rel="stylesheet" type="text/css" href="./fonts/lintsec_regular_macroman/stylesheet.css" />
 
-        <style>
-            body {
-                font-family: sans-serif;
-            }
+    <link rel="icon" href="incredible-favicon.png" type="image/png">
 
-            /* Because we try to animate something with a rotation, we need ot include that here */
-            @keyframes wiggle {
-               0%   { transform: skewX(9deg)  rotate(180deg) ; }
-               10%  { transform: skewX(-8deg) rotate(180deg) ; }
-               20%  { transform: skewX(7deg)  rotate(180deg) ; }
-               30%  { transform: skewX(-6deg) rotate(180deg) ; }
-               40%  { transform: skewX(5deg)  rotate(180deg) ; }
-               50%  { transform: skewX(-4deg) rotate(180deg) ; }
-               60%  { transform: skewX(3deg)  rotate(180deg) ; }
-               70%  { transform: skewX(-2deg) rotate(180deg) ; }
-               80%  { transform: skewX(1deg)  rotate(180deg) ; }
-               90%  { transform: skewX(0.001deg)  rotate(180deg) ; }
-               100% { transform: skewX(9deg)  rotate(180deg) ; }
-            }
-            :hover > .e {
-                animation: wiggle;
-                animation-duration: 2s;
-                animation-direction: alternate;
-                animation-iteration-count: 30;
-                animation-fill-mode: both;
-                animation-timing-function: linear;
-            }
-
-            .e {
-		display: inline-block;
-		transform: skewX(0.001deg) rotate(180deg);
-
-		transform-origin: center 43%;
-	    }
-
-	    #loading {
-		position: absolute;
-		top:0px;
-		left:0px;
-		right:0px;
-		bottom:0px;
-		/* background: lightgray; */
-		/* ^ too much flickering if loading is quick */
-	    }
-
-            #vertpane {
-		position: absolute;
-		top:0px;
-		left:0px;
-		right:0px;
-		bottom:0px;
-                padding:0px;
-                margin:0px;
-		overflow: none;
-
-                display:flex;
-                flex-direction:column;
-            }
-
-	    #header {
-		height:80px;
-		padding:10px;
-		text-align: center;
-		border-bottom: 5px solid grey;
-            }
-
-	    #task #assumptions, #task #conclusions {
-		text-align: center;
-	    }
-
-	    #blockcount-div {
-		text-align: center;
-	    }
-
-        #selection-region {
-        position: absolute;
-        border-style: solid;
-        border-color: #3399FF;
-        border-width: 1px;
-        background: #3399ff66;
-        display: none;
+    <style>
+        body {
+            font-family: sans-serif;
         }
 
-	    .close {
-		position: absolute;
-		top: 2px;
-		right: 2px;
-	    }
-	    button.iconic {
-		font-size:120%;
-		color: white;
-		margin: 2px;
-		padding: 1px;
-		border: 0px;
-		border-radius: 5px;
-		background: lightgrey;
-		cursor: pointer;
-	    }
-            button.iconic:hover {
-		opacity:0.5;
-	    }
-
-            .toolbar {
-		position: absolute;
-		top:0px;
-		right:0px;
-		padding:1em;
-		display: flex;
-		justify-content: flex-end;
-	    }
-            .toolbar button {
-		width:40px;
-		flex-grow:1;
-		flex-basis:0;
-	    }
-            .toolbar button#showhelp {
-		background: blue;
-	    }
-	    #inferredrule {
-		display:none;
-            }
-            #inferredrule button {
-		display:block;
-		margin-left:auto;
-		margin-right:auto;
-                width: 80px;
+        /* Because we try to animate something with a rotation, we need ot include that here */
+        @keyframes wiggle {
+            0% {
+                transform: skewX(9deg) rotate(180deg);
             }
 
-            #taskwrap {
-		text-align: center;
-            }
-            .inferencerule {
-                width: 200px;
-                padding: 4px;
-                margin: 0 1em 1em 1em;
-            }
-            .inferencerule ul {
-                display: flex;
-		flex-wrap: wrap;
-		justify-content: space-around;
-		align-items: baseline;
-                padding: 0px;
-                margin: 0px;
-            }
-            .inferencerule li {
-                display: block;
-                padding: 0px;
-                margin: 1px 1ex 1px 1ex;
-		text-align: center;
-            }
-            #taskdialog .inferencerule.attempted {
-                background: wheat;
-            }
-            #taskdialog .inferencerule {
-                border: 1px solid lightgray;
-                border-radius: 0 5px 0 5px;
-                cursor: pointer;
-            }
-            #taskdialog .inferencerule.solved {
-                background: rgb(40,220,30);
-            }
-            #taskdialog .inferencerule:hover{
-                border: 1px solid black;
+            10% {
+                transform: skewX(-8deg) rotate(180deg);
             }
 
-	    #complexitywrap {
-	    }
-
-	    #complexitywrap .number {
-		display:inline-block;
-		text-align: right;
-		width:10%;
-	    }
-
-	    #complexitywrap .bar {
-		display:inline-block;
-		background-color: purple;
-		vertical-align:middle;
-		height: 1em;
-                border-radius: .5em .5em .5em .5em;
-		width:30%;
-	    }
-	    #complexitywrap #blockcount .bar {
-		background-color: purple;
-		width:30%;
-	    }
-	    #complexitywrap #min-blockcount .bar {
-		background-color: blue;
-		width:30%;
-	    }
-
-            .blocklist  {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
+            20% {
+                transform: skewX(7deg) rotate(180deg);
             }
 
-	    .tasklist {
-                display: flex;
-                flex-wrap: wrap;
-                /* justify-content: space-between;
-                   ^ not a good idea, see http://stackoverflow.com/questions/1637797 */
-                align-items: center;
-	    }
-
-            .customtaskentry {
-                width: 200px;
-                padding: 4px;
-                margin: 0 1em 1em 1em;
-                text-align: center;
-            }
-            .customtaskentry textarea {
-                width: 100%;
-                height: 80px;
-                display: inline-block;
-                font-family: sans-serif;
-                text-align: center;
-            }
-            .customtaskentry button {
-                width: 100%;
+            30% {
+                transform: skewX(-6deg) rotate(180deg);
             }
 
-            .tasklist .inferencerule {
-		position:relative;
-	    }
-            .tasklist .inferencerule .task-tools {
-               position: absolute;
-               top: -20px;
-               right: 30px;
-               width: 0px;
-               height: 0px;
-            }
-            .tasklist .inferencerule:hover .tool-remove {
-               opacity: 1;
+            40% {
+                transform: skewX(5deg) rotate(180deg);
             }
 
-            #horizpane {
-                flex-grow: 1;
-		flex-shrink:1;
-		overflow-y: hidden;
-
-                display:flex;
-                flex-direction:row;
-            }
-            #leftpane {
-		width:268px;
-		overflow: auto;
-		border-right:2px solid grey;
-                padding:15px;
-                resize: horizontal;
+            50% {
+                transform: skewX(-4deg) rotate(180deg);
             }
 
-            #mainpane {
-                overflow: hidden;
-                flex-grow: 1;
-                position: relative;
-            }
-            #paper {
-                position: absolute;
-                top:0;
-                bottom:0;
-                left:0;
-                right:0;
+            60% {
+                transform: skewX(3deg) rotate(180deg);
             }
 
-	    #dialog, #help {
-		border:2px solid grey;
-                border-radius: 5px;
-		background:white;
-		display:none;
-		position: absolute;
-		top:120px;
-		left:0px;
-		right:0px;
-		margin-left:auto;
-		margin-right:auto;
-		width:1000px;
-		bottom:120px;
-		overflow: auto;
-		padding:15px;
-	    }
-
-            .symboltable {
-		margin-left:auto;
-		margin-right:auto;
-                border: 2px solid lightgray;
-                border-radius: 0 5px 0 5px;
-            }
-            .symboltable td  {
-                padding-left: 10px;
-                padding-right: 10px;
-		text-align: center;
-            }
-            .symboltable th {
-                padding-left: 10px;
-                padding-right: 10px;
-                text-align:right;
-                font-weight:normal;
-                /* border-right: 2px solid lightgray; */
+            70% {
+                transform: skewX(-2deg) rotate(180deg);
             }
 
-	    #taskdialog {
-		border-top: 5px solid grey;
-		position: absolute;
-		margin:0px;
-		top:100px;
-		left:0px;
-		right:0px;
-		bottom:0px;
-		background:white;
-		overflow: auto;
-		padding:15px;
+            80% {
+                transform: skewX(1deg) rotate(180deg);
+            }
 
-	    }
+            90% {
+                transform: skewX(0.001deg) rotate(180deg);
+            }
 
-	    #taskbottombar {
-                flex-grow: 0;
-		flex-shrink:0;
-		text-align:center;
-		border-top: 5px solid grey;
-		height: 20px;
-		background:white;
-		padding: 5px;
+            100% {
+                transform: skewX(9deg) rotate(180deg);
+            }
+        }
 
-	    }
+        :hover>.e {
+            animation: wiggle;
+            animation-duration: 2s;
+            animation-direction: alternate;
+            animation-iteration-count: 30;
+            animation-fill-mode: both;
+            animation-timing-function: linear;
+        }
 
-	    #taskbottombar:hover {
-		background:lightgrey
-	    }
+        .e {
+            display: inline-block;
+            transform: skewX(0.001deg) rotate(180deg);
 
-	    .incrediblefont {
-	       font-family: 'lintsecregular', Arial, sans-serif;
-	    }
+            transform-origin: center 43%;
+        }
 
-	    h1 {
-	       font-family: 'lintsecregular', Arial, sans-serif;
-	    }
+        #loading {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            /* background: lightgray; */
+            /* ^ too much flickering if loading is quick */
+        }
 
-	    h2, h3 {
-		font-family: sans-serif
-	    }
+        #vertpane {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            padding: 0px;
+            margin: 0px;
+            overflow: none;
 
-	    #errors {
-		white-space: pre-line;
-	    }
+            display: flex;
+            flex-direction: column;
+        }
 
-        </style>
-    </head>
-    <body>
+        #header {
+            height: 80px;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 5px solid grey;
+        }
+
+        #task #assumptions,
+        #task #conclusions {
+            text-align: center;
+        }
+
+        #blockcount-div {
+            text-align: center;
+        }
+
+        #selection-region {
+            position: absolute;
+            border-style: solid;
+            border-color: #3399FF;
+            border-width: 1px;
+            background: #3399ff66;
+            display: none;
+        }
+
+        .close {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+        }
+
+        button.iconic {
+            font-size: 120%;
+            color: white;
+            margin: 2px;
+            padding: 1px;
+            border: 0px;
+            border-radius: 5px;
+            background: lightgrey;
+            cursor: pointer;
+        }
+
+        button.iconic:hover {
+            opacity: 0.5;
+        }
+
+        .toolbar {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            padding: 1em;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .toolbar button {
+            width: 40px;
+            flex-grow: 1;
+            flex-basis: 0;
+        }
+
+        .toolbar button#showhelp {
+            background: blue;
+        }
+
+        #inferredrule {
+            display: none;
+        }
+
+        #inferredrule button {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 80px;
+        }
+
+        #taskwrap {
+            text-align: center;
+        }
+
+        .inferencerule {
+            width: 200px;
+            padding: 4px;
+            margin: 0 1em 1em 1em;
+        }
+
+        .inferencerule ul {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-items: baseline;
+            padding: 0px;
+            margin: 0px;
+        }
+
+        .inferencerule li {
+            display: block;
+            padding: 0px;
+            margin: 1px 1ex 1px 1ex;
+            text-align: center;
+        }
+
+        #taskdialog .inferencerule.attempted {
+            background: wheat;
+        }
+
+        #taskdialog .inferencerule {
+            border: 1px solid lightgray;
+            border-radius: 0 5px 0 5px;
+            cursor: pointer;
+        }
+
+        #taskdialog .inferencerule.solved {
+            background: rgb(40, 220, 30);
+        }
+
+        #taskdialog .inferencerule:hover {
+            border: 1px solid black;
+        }
+
+        #complexitywrap .number {
+            display: inline-block;
+            text-align: right;
+            width: 10%;
+        }
+
+        #complexitywrap .bar {
+            display: inline-block;
+            background-color: purple;
+            vertical-align: middle;
+            height: 1em;
+            border-radius: .5em .5em .5em .5em;
+            width: 30%;
+        }
+
+        #complexitywrap #blockcount .bar {
+            background-color: purple;
+            width: 30%;
+        }
+
+        #complexitywrap #min-blockcount .bar {
+            background-color: blue;
+            width: 30%;
+        }
+
+        .blocklist {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tasklist {
+            display: flex;
+            flex-wrap: wrap;
+            /* justify-content: space-between; */
+            /* ^ not a good idea, see http://stackoverflow.com/questions/1637797 */
+            align-items: center;
+        }
+
+        .customtaskentry {
+            width: 200px;
+            padding: 4px;
+            margin: 0 1em 1em 1em;
+            text-align: center;
+        }
+
+        .customtaskentry textarea {
+            width: 100%;
+            height: 80px;
+            display: inline-block;
+            font-family: sans-serif;
+            text-align: center;
+        }
+
+        .customtaskentry button {
+            width: 100%;
+        }
+
+        .tasklist .inferencerule {
+            position: relative;
+        }
+
+        .tasklist .inferencerule .task-tools {
+            position: absolute;
+            top: -20px;
+            right: 30px;
+            width: 0px;
+            height: 0px;
+        }
+
+        .tasklist .inferencerule:hover .tool-remove {
+            opacity: 1;
+        }
+
+        #horizpane {
+            flex-grow: 1;
+            flex-shrink: 1;
+            overflow-y: hidden;
+
+            display: flex;
+            flex-direction: row;
+        }
+
+        #leftpane {
+            width: 268px;
+            overflow: auto;
+            border-right: 2px solid grey;
+            padding: 15px;
+            resize: horizontal;
+        }
+
+        #mainpane {
+            overflow: hidden;
+            flex-grow: 1;
+            position: relative;
+        }
+
+        #paper {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        #dialog,
+        #help {
+            border: 2px solid grey;
+            border-radius: 5px;
+            background: white;
+            display: none;
+            position: absolute;
+            top: 120px;
+            left: 0px;
+            right: 0px;
+            margin-left: auto;
+            margin-right: auto;
+            width: 1000px;
+            bottom: 120px;
+            overflow: auto;
+            padding: 15px;
+        }
+
+        .symboltable {
+            margin-left: auto;
+            margin-right: auto;
+            border: 2px solid lightgray;
+            border-radius: 0 5px 0 5px;
+        }
+
+        .symboltable td {
+            padding-left: 10px;
+            padding-right: 10px;
+            text-align: center;
+        }
+
+        .symboltable th {
+            padding-left: 10px;
+            padding-right: 10px;
+            text-align: right;
+            font-weight: normal;
+            /* border-right: 2px solid lightgray; */
+        }
+
+        #taskdialog {
+            border-top: 5px solid grey;
+            position: absolute;
+            margin: 0px;
+            top: 100px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            background: white;
+            overflow: auto;
+            padding: 15px;
+
+        }
+
+        #taskbottombar {
+            flex-grow: 0;
+            flex-shrink: 0;
+            text-align: center;
+            border-top: 5px solid grey;
+            height: 20px;
+            background: white;
+            padding: 5px;
+
+        }
+
+        #taskbottombar:hover {
+            background: lightgrey
+        }
+
+        .incrediblefont {
+            font-family: 'lintsecregular', Arial, sans-serif;
+        }
+
+        h1 {
+            font-family: 'lintsecregular', Arial, sans-serif;
+        }
+
+        h2,
+        h3 {
+            font-family: sans-serif
+        }
+
+        #errors {
+            white-space: pre-line;
+        }
+    </style>
+</head>
+
+<body>
 
     <div id="vertpane">
 
-    <div id="header">
-      <h1>The Incredible Proof Machin<span class="e">e</span></h1>
-      <div class="toolbar">
-	<button class="iconic" id="showhelp" data-i18n="[title]Help">ℹ</button>
-	<button class="iconic" id="reset" data-i18n="[title]Forget all stored data">🔄</button>
-      </div>
-    </div>
+        <div id="header">
+            <h1>The Incredible Proof Machin<span class="e">e</span></h1>
+            <div class="toolbar">
+                <button class="iconic" id="showhelp" data-i18n="[title]Help">ℹ</button>
+                <button class="iconic" id="reset" data-i18n="[title]Forget all stored data">🔄</button>
+            </div>
+        </div>
 
-    <div id="horizpane">
-    <div id="leftpane">
-      <div id="task">
-	<h3 data-i18n>Current task:</h3>
-        <div id="taskwrap"></div>
-	<h3 data-i18n>Block count:</h3>
-	<div id="complexitywrap">
-	 <div id="blockcount" data-i18n="[title]Your proof block count. Try to minimize it!">
-	  <span class="number"></span>
-	  <span class="bar"></span>
-	 </div>
-	 <div id="min-blockcount" data-i18n="[title]The best known proof count. Did you beat it? Let us know!">
-	  <span class="number"></span>
-	  <span class="bar"></span>
-	 </div>
-	</div>
-      </div>
+        <div id="horizpane">
+            <div id="leftpane">
+                <div id="task">
+                    <h3 data-i18n>Current task:</h3>
+                    <div id="taskwrap"></div>
+                    <h3 data-i18n>Block count:</h3>
+                    <div id="complexitywrap">
+                        <div id="blockcount" data-i18n="[title]Your proof block count. Try to minimize it!">
+                            <span class="number"></span>
+                            <span class="bar"></span>
+                        </div>
+                        <div id="min-blockcount"
+                            data-i18n="[title]The best known proof count. Did you beat it? Let us know!">
+                            <span class="number"></span>
+                            <span class="bar"></span>
+                        </div>
+                    </div>
+                </div>
 
-      <h3 data-i18n>Logic blocks:</h3>
-      <div class="blocklist" id="logic"></div>
-      <h3 data-i18n>Helper blocks:</h3>
-      <div class="blocklist" id="helpers"></div>
+                <h3 data-i18n>Logic blocks:</h3>
+                <div class="blocklist" id="logic"></div>
+                <h3 data-i18n>Helper blocks:</h3>
+                <div class="blocklist" id="helpers"></div>
 
-      <div id="inferredrule">
-	<h3 data-i18n>New custom block:</h3>
-	<div class="blocklist" id="inferredrulewrapper">
-	<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="30em" height="100px"></svg>
-	<button id="addcustomblock" data-i18n>Add</button>
-	</div>
-      </div>
+                <div id="inferredrule">
+                    <h3 data-i18n>New custom block:</h3>
+                    <div class="blocklist" id="inferredrulewrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="30em" height="100px"></svg>
+                        <button id="addcustomblock" data-i18n>Add</button>
+                    </div>
+                </div>
 
-      <h3 data-i18n>Custom blocks:</h3>
-      <div class="blocklist" id="custom"></div>
- 
-      <div id="errors"></div>
-    </div>
+                <h3 data-i18n>Custom blocks:</h3>
+                <div class="blocklist" id="custom"></div>
+
+                <div id="errors"></div>
+            </div>
 
 
-    <div id="mainpane">
-      <div id="paper"></div>
-      <div id="selection-region"></div>
-      <div id="paper-toolbar" class="toolbar">
-        <button class="iconic" id="undo">↶</button>
-        <button class="iconic" id="redo">↷</button>
-        <button class="iconic" id="zoom-in">+</button>
-        <button class="iconic" id="zoom-out">−</button>
-        <button class="iconic" id="zoom-orig">1:1</button>
-        <button class="iconic" id="zoom-fit">Fit</button>
-	<button class="iconic" id="savesvg" data-i18n="[title]Save proof as SVG image.">⤓</button>
-	<button class="iconic" id="resettask" data-i18n="[title]Reset this task">🔄</button>
-      </div>
-    </div>
-    </div>
+            <div id="mainpane">
+                <div id="paper"></div>
+                <div id="selection-region"></div>
+                <div id="paper-toolbar" class="toolbar">
+                    <button class="iconic" id="undo">↶</button>
+                    <button class="iconic" id="redo">↷</button>
+                    <button class="iconic" id="zoom-in">+</button>
+                    <button class="iconic" id="zoom-out">−</button>
+                    <button class="iconic" id="zoom-orig">1:1</button>
+                    <button class="iconic" id="zoom-fit">Fit</button>
+                    <button class="iconic" id="savesvg" data-i18n="[title]Save proof as SVG image.">⤓</button>
+                    <button class="iconic" id="resettask" data-i18n="[title]Reset this task">🔄</button>
+                </div>
+            </div>
+        </div>
 
-    <div id="taskbottombar" data-i18n="switch"></div>
+        <div id="taskbottombar" data-i18n="switch"></div>
     </div>
 
     <div id="dialog">
-    <button class="iconic close" id="closedialog">×</button>
-    <span id="took"></span>
-    <br/>
-    <textarea  cols=100 rows=20 id="graph" readonly="readonly"></textarea>
-    <br/>
-    <textarea  cols=100 rows=20 id="proof" readonly="readonly"></textarea>
-    <br/>
-    <textarea  cols=100 rows=20 id="analysis" readonly="readonly"></textarea>
+        <button class="iconic close" id="closedialog">×</button>
+        <span id="took"></span>
+        <br />
+        <textarea cols=100 rows=20 id="graph" readonly="readonly"></textarea>
+        <br />
+        <textarea cols=100 rows=20 id="proof" readonly="readonly"></textarea>
+        <br />
+        <textarea cols=100 rows=20 id="analysis" readonly="readonly"></textarea>
     </div>
 
 
     <div id="taskdialog">
-    <h2 data-i18n>What do you want to prove today?</h2>
-    <div id="sessiontasks"></div>
+        <h2 data-i18n>What do you want to prove today?</h2>
+        <div id="sessiontasks"></div>
     </div>
 
 
     <div id="help">
-    <button class="iconic close" id="closehelp">×</button>
-    <h2>Welcome to <span class="incrediblefont">The Incredible Proof Machin<span class="e">e</span></span>!</h2>
+        <button class="iconic close" id="closehelp">×</button>
+        <h2>Welcome to <span class="incrediblefont">The Incredible Proof Machin<span class="e">e</span></span>!</h2>
 
-    <h3>What is this?</h3>
-    <p>
-    This is a tool to perform proofs in various logics (e.g. propositional, predicate logic) visually: You simply add blocks that represent the various proofs steps, connect them properly, and if the conclusion turns green, then you have created a complete proof!
-	    Simply drag and drop to connect two dots; for some examples of completed proofs, see <a href="https://www.joachim-breitner.de/publications/Incredible_ITP2016_preprint.pdf">this paper</a>.
-    </p>
+        <h3>What is this?</h3>
+        <p>
+            This is a tool to perform proofs in various logics (e.g. propositional, predicate logic) visually: You
+            simply add blocks that represent the various proofs steps, connect them properly, and if the conclusion
+            turns green, then you have created a complete proof!
+            Simply drag and drop to connect two dots; for some examples of completed proofs, see <a
+                href="https://www.joachim-breitner.de/publications/Incredible_ITP2016_preprint.pdf">this paper</a>.
+        </p>
 
-    <h3>Why is this?</h3>
-    <p>
-    <span class="incrediblefont">The Incredible Proof Machin<span class="e">e</span></span> was created to convey the fun and joy of doing proofs, especially in a computer aided way, without first having to learn the syntax of a “real” thereom prover like <a href="http://isabelle.in.tum.de/">Isabelle</a>.
-    </p>
+        <h3>Why is this?</h3>
+        <p>
+            <span class="incrediblefont">The Incredible Proof Machin<span class="e">e</span></span> was created to
+            convey the fun and joy of doing proofs, especially in a computer aided way, without first having to learn
+            the syntax of a “real” thereom prover like <a href="http://isabelle.in.tum.de/">Isabelle</a>.
+        </p>
 
-    <h3>Why is the conclusion not green?</h3>
-    <p>
-     Because your proof is not a proof (yet). This can have these reasons:
-    </p>
-    <ul>
-     <li>
-     Some of your blocks have an input (an assumption) that is not connected to
-     anything. These are red.
-     </li>
-     <li>
-     Some of your connections connect propositions that are obvoiusly different (marked red and marked with ☠), or they are underspecified and it is not clear whether they might be different or not (marked red and with ?). In the latter case, inserting an annotation block (✎P) can help.
-     </li>
-     <li>You have cycles in the proof. These are (you guessed it) marked red.</li>
-     <li>You have wired up local hypotheses wrongly. Local hypotheses are those outputs that come out on the left of a dent in the block, and can only be used in the part of the proof that connects to the corresponding input on the right of the dent. Do I need to mention that these are marked red?</li>
-    </ul>
+        <h3>Why is the conclusion not green?</h3>
+        <p>
+            Because your proof is not a proof (yet). This can have these reasons:
+        </p>
+        <ul>
+            <li>
+                Some of your blocks have an input (an assumption) that is not connected to
+                anything. These are red.
+            </li>
+            <li>
+                Some of your connections connect propositions that are obvoiusly different (marked red and marked with
+                ☠), or they are underspecified and it is not clear whether they might be different or not (marked red
+                and with ?). In the latter case, inserting an annotation block (✎P) can help.
+            </li>
+            <li>You have cycles in the proof. These are (you guessed it) marked red.</li>
+            <li>You have wired up local hypotheses wrongly. Local hypotheses are those outputs that come out on the left
+                of a dent in the block, and can only be used in the part of the proof that connects to the corresponding
+                input on the right of the dent. Do I need to mention that these are marked red?</li>
+        </ul>
 
-    <h3>How do I enter these funny characters?</h3>
-    <p>
-    There are only a few places where you actually have to enter formulas, mostly if you want to use the ✎P-block or define your own tasks. There, you can use the following abbreviations:
-    </p>
-    <table class="symboltable">
-    <tr>
-        <th>Instead of</th>
-	<td>∧</td>
-        <td>∨</td>
-        <td>→</td>
-        <td>↑</td>
-        <td>¬</td>
-        <td>∀</td>
-        <td>∃</td>
-        <!-- <td>λ</td> -->
-        <td>⊥</td>
-    </tr>
-    <tr>
-        <th>you can write</th>
-	<td>&amp;</td>
-        <td>|</td>
-        <td>-&gt;</td>
-        <td>^</td>
-        <td>~</td>
-        <td>!</td>
-        <td>?</td>
-        <!-- <td>\</td> -->
-        <td>False</td>
-    </tr>
-    </table>
+        <h3>How do I enter these funny characters?</h3>
+        <p>
+            There are only a few places where you actually have to enter formulas, mostly if you want to use the
+            ✎P-block or define your own tasks. There, you can use the following abbreviations:
+        </p>
+        <table class="symboltable">
+            <tr>
+                <th>Instead of</th>
+                <td>∧</td>
+                <td>∨</td>
+                <td>→</td>
+                <td>↑</td>
+                <td>¬</td>
+                <td>∀</td>
+                <td>∃</td>
+                <!-- <td>λ</td> -->
+                <td>⊥</td>
+            </tr>
+            <tr>
+                <th>you can write</th>
+                <td>&amp;</td>
+                <td>|</td>
+                <td>-&gt;</td>
+                <td>^</td>
+                <td>~</td>
+                <td>!</td>
+                <td>?</td>
+                <!-- <td>\</td> -->
+                <td>False</td>
+            </tr>
+        </table>
 
-    <h3>How do I create a custom task with multiple assumptions or conclusions?</h3>
-    <p>
-    Just put each assumption and conclusion on its own line, i.e. press enter after each of them.
-    </p>
+        <h3>How do I create a custom task with multiple assumptions or conclusions?</h3>
+        <p>
+            Just put each assumption and conclusion on its own line, i.e. press enter after each of them.
+        </p>
 
-    <h3>How do I create custom blocks?</h3>
-    <p>
-    You can select blocks in a proof by clicking them while holding down Shift. Then, the option to create a custom block wrapping the ones you've selected will appear.
-    </p>
+        <h3>How do I create custom blocks?</h3>
+        <p>
+            You can select blocks in a proof by clicking them while holding down Shift. Then, the option to create a
+            custom block wrapping the ones you've selected will appear.
+        </p>
 
-    <h3>Where did my proofs go?</h3>
-    <p>
-    Currently, your proofs will only be saved in your own browser. This means they will be lost when you delete your local storage after you close this window/tab, or if this is a private browsing session or similar. We have plans to save your progress on our server in a future version.
-    </p>
+        <h3>Where did my proofs go?</h3>
+        <p>
+            Currently, your proofs will only be saved in your own browser. This means they will be lost when you delete
+            your local storage after you close this window/tab, or if this is a private browsing session or similar. We
+            have plans to save your progress on our server in a future version.
+        </p>
 
-    <h3>Who did this?</h3>
-    <p>
-    Mostly <a href="http://www.joachim-breitner.de/">Joachim Breitner</a>, with valuable help from <a href="https://github.com/nomeata/incredible/graphs/contributors">some colleagues and friends</a>.
-    </p>
+        <h3>Who did this?</h3>
+        <p>
+            Mostly <a href="http://www.joachim-breitner.de/">Joachim Breitner</a>, with valuable help from <a
+                href="https://github.com/nomeata/incredible/graphs/contributors">some colleagues and friends</a>.
+        </p>
 
-    <h3>Where can I read more about this?</h3>
-    <p>
-    For more information about the Incredible Proof Machine, especially from an academic point of view, please see the following publications:
-    </p>
-    <ul>
-    <li>Joachim Breitner: <a href="https://www.joachim-breitner.de/publications/Incredible_ITP2016_preprint.pdf"><strong>Visual theorem proving with the Incredible Proof Machine</strong></a>, accepted paper at <a href="http://itp2016.inria.fr/">ITP 2016</a>, August 2016</li>
-    <li>Joachim Breitner: <a href="https://www.joachim-breitner.de/publications/Incredible_LFMTP_2016-06-23.pdf"><strong>The Incredible Proof Machine</strong></a>, Invited talk at <a href="http://dlicata.web.wesleyan.edu/events/lfmtp2016/program.html">LFMTP 2016</a>, June 2016</li>
-    <li>Joachim Breitner, Denis Lohner: <a href="http://isa-afp.org/entries/Incredible_Proof_Machine.shtml"><strong>The meta theory of the Incredible Proof Machine</strong></a>, Isabelle formalisation in the Archive of Formal Proofs, May 2016</li>
-    <li><a href="http://modellansatz.de/incredible-proof-machine"><strong>Incredible Proof Machine</strong></a>, Interview of Joachim Breitner by Sebastian Ritterbusch, episode 78 of the science podcast “Modellansatz”, German, 2016
-    </li>
-    </ul>
+        <h3>Where can I read more about this?</h3>
+        <p>
+            For more information about the Incredible Proof Machine, especially from an academic point of view, please
+            see the following publications:
+        </p>
+        <ul>
+            <li>Joachim Breitner: <a
+                    href="https://www.joachim-breitner.de/publications/Incredible_ITP2016_preprint.pdf"><strong>Visual
+                        theorem proving with the Incredible Proof Machine</strong></a>, accepted paper at <a
+                    href="http://itp2016.inria.fr/">ITP 2016</a>, August 2016</li>
+            <li>Joachim Breitner: <a
+                    href="https://www.joachim-breitner.de/publications/Incredible_LFMTP_2016-06-23.pdf"><strong>The
+                        Incredible Proof Machine</strong></a>, Invited talk at <a
+                    href="http://dlicata.web.wesleyan.edu/events/lfmtp2016/program.html">LFMTP 2016</a>, June 2016</li>
+            <li>Joachim Breitner, Denis Lohner: <a
+                    href="http://isa-afp.org/entries/Incredible_Proof_Machine.shtml"><strong>The meta theory of the
+                        Incredible Proof Machine</strong></a>, Isabelle formalisation in the Archive of Formal Proofs,
+                May 2016</li>
+            <li><a href="http://modellansatz.de/incredible-proof-machine"><strong>Incredible Proof Machine</strong></a>,
+                Interview of Joachim Breitner by Sebastian Ritterbusch, episode 78 of the science podcast
+                “Modellansatz”, German, 2016
+            </li>
+        </ul>
 
-    <h3>Can I help?</h3>
-    <p>
-    Most certainly! Everything is Free Software, so you can jump right in, <a href="https://github.com/nomeata/incredible">fetch the code</a> and start contributing. The more people contribute, the more incredible the <span class="incrediblefont">The Incredible Proof Machin<span class="e">e</span></span> becomes.
-    </p>
+        <h3>Can I help?</h3>
+        <p>
+            Most certainly! Everything is Free Software, so you can jump right in, <a
+                href="https://github.com/nomeata/incredible">fetch the code</a> and start contributing. The more people
+            contribute, the more incredible the <span class="incrediblefont">The Incredible Proof Machin<span
+                    class="e">e</span></span> becomes.
+        </p>
     </div>
 
     <div id="loading">
-	<div class="signal"></div>
+        <div class="signal"></div>
     </div>
 
 
-        <script src="./vendor/jquery-2.1.4.min.js"></script>
-        <script type="text/javascript">$.holdReady( true );</script>
-        <script src="./vendor/i18next-1.10.1.min.js"></script>
-        <script src="./webui/i18n.js"></script>
-	<script src="./vendor/jquery-ui/jquery-ui.js"></script>
-        <script src="./vendor/lodash.min.js"></script>
-        <script src="./vendor/backbone-min.js"></script>
-        <script src="./vendor/joint.min.js"></script>
-        <script src="./vendor/FileSaver.min.js"></script>
+    <script src="./vendor/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript">$.holdReady(true);</script>
+    <script src="./vendor/i18next-1.10.1.min.js"></script>
+    <script src="./webui/i18n.js"></script>
+    <script src="./vendor/jquery-ui/jquery-ui.js"></script>
+    <script src="./vendor/lodash.min.js"></script>
+    <script src="./vendor/backbone-min.js"></script>
+    <script src="./vendor/joint.min.js"></script>
+    <script src="./vendor/FileSaver.min.js"></script>
 
-        <script src="./logic.js"></script>
-        <script src="./logics.js"></script>
-        <script src="./sessions.js"></script>
-        <script src="./webui/shapes.js"></script>
-        <script src="./webui/logic-interface.js"></script>
-        <script src="./webui/incredible-elements.js"></script>
-        <script src="./webui/task-management.js"></script>
-        <script src="./webui/graph-interaction.js"></script>
-        <script src="./webui/webui.js"></script>
+    <script src="./logic.js"></script>
+    <script src="./logics.js"></script>
+    <script src="./sessions.js"></script>
+    <script src="./webui/shapes.js"></script>
+    <script src="./webui/logic-interface.js"></script>
+    <script src="./webui/incredible-elements.js"></script>
+    <script src="./webui/task-management.js"></script>
+    <script src="./webui/graph-interaction.js"></script>
+    <script src="./webui/webui.js"></script>
 
-    </body>
+</body>
+
 </html>
