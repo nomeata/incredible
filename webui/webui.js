@@ -225,11 +225,11 @@ function loadTask(thisTask, taskSaved, thisLogicName, visibleRules) {
     .show();
   $("#inferredrule").hide();
 
-  setupGraph(graph, task);
-  setupPrototypeElements();
-
   $("#paper-toolbar").show();
   $("#leftpane").show();
+
+  setupGraph(graph, task);
+  setupPrototypeElements();
 
   if (taskSaved) graph.fromJSON(taskSaved);
 }

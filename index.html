@@ -87,6 +87,14 @@
 		text-align: center;
 	    }
 
+        #selection-region {
+        position: absolute;
+        border-style: solid;
+        border-color: #3399FF;
+        border-width: 1px;
+        background: #3399ff66;
+        display: none;
+        }
 
 	    .close {
 		position: absolute;
@@ -405,6 +413,7 @@
 
     <div id="mainpane">
       <div id="paper"></div>
+      <div id="selection-region"></div>
       <div id="paper-toolbar" class="toolbar">
         <button class="iconic" id="undo">↶</button>
         <button class="iconic" id="redo">↷</button>
