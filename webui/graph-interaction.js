@@ -80,7 +80,10 @@ $(function() {
   paper.on('cell:pointerdown', function (cellView, evt, x, y) {
     var cell = cellView.model;
 
-    if (evt.shiftKey) { return; }
+    if (evt.shiftKey) {
+      cell.set('selected', ! cell.get('selected'));
+      return;
+    }
 
     // Check if this was a click on a delete element
     // This assumes that all visible elements of the delete SVG are direct childs
@@ -126,10 +129,7 @@ $(function() {
       }
     }
 
-    if (evt.shiftKey) {
-      cell.set('selected', ! cell.get('selected'));
-      return;
-    }
+    if (evt.shiftKey) { return; }
 
     // Deselect everything
     selectNothing();
