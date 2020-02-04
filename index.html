@@ -87,6 +87,14 @@
 		text-align: center;
 	    }
 
+        #selection-region {
+        position: absolute;
+        border-style: solid;
+        border-color: #3399FF;
+        border-width: 1px;
+        background: #3399ff66;
+        display: none;
+        }
 
 	    .close {
 		position: absolute;
@@ -376,11 +384,9 @@
 	  <span class="number"></span>
 	  <span class="bar"></span>
 	 </div>
-	 <div id="min-blockcount-div">
-	  <div id="min-blockcount" data-i18n="[title]The best known proof count. Did you beat it? Let us know!">
-	   <span class="number"></span>
-	   <span class="bar"></span>
-	  </div>
+	 <div id="min-blockcount" data-i18n="[title]The best known proof count. Did you beat it? Let us know!">
+	  <span class="number"></span>
+	  <span class="bar"></span>
 	 </div>
 	</div>
       </div>
@@ -407,7 +413,8 @@
 
     <div id="mainpane">
       <div id="paper"></div>
-      <div class="toolbar">
+      <div id="selection-region"></div>
+      <div id="paper-toolbar" class="toolbar">
         <button class="iconic" id="undo">↶</button>
         <button class="iconic" id="redo">↷</button>
         <button class="iconic" id="zoom-in">+</button>

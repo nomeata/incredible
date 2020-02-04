@@ -5,9 +5,14 @@ other parts of the system.
 
 // A way to order the connection by creation age
 var connection_counter = 0;
-var pos0 = null;
+
+var dragPosPrev = null;
 var dragging = false;
 var dragged = false;
+
+var regionSelectionPosEnd = null;
+var regionSelectionPosBegin = null;
+var regionSelecting = false;
 
 function create_paper() {
   return new joint.dia.Paper({
@@ -64,77 +69,190 @@ function selectNothing() {
   });
 }
 
+function initialDrag(e) {
+    if (dragging || regionSelecting) return false;
+
+    // Begin paper drag
+    dragPosPrev = {x: e.pageX, y: e.pageY};
+    dragging = true;
+
+    return true;
+}
+
+function updateDrag(e) {
+  if (dragging) {
+    var dragPosNew = {x: e.pageX, y: e.pageY};
+
+    if (dragPosNew.x == dragPosPrev.x && dragPosNew.y == dragPosPrev.y) return;
+
+    paper.setOrigin(
+      paper.options.origin.x + dragPosNew.x - dragPosPrev.x,
+      paper.options.origin.y + dragPosNew.y - dragPosPrev.y
+    );
+
+    dragPosPrev = dragPosNew;
+    dragged = true;
+  }
+}
+
+function checkDragged(e) {
+  if (!dragging) return false;
+
+  // End paper drag
+  dragPosPrev = null;
+  dragging = false;
+
+  if (dragged) {
+    dragged = false;
+    return true;
+  }
+  return false;
+}
+
+function initialRegionSelect(e) {
+  if (dragging || regionSelecting) return false;
+
+  if (!e.shiftKey) return false;
+
+  // Begin region selection
+
+  regionSelectionPosBegin = {x: e.offsetX, y: e.offsetY};
+  regionSelectionPosEnd = {x: e.offsetX, y: e.offsetY};
+
+  $("#selection-region").css({
+    "left": Math.min(regionSelectionPosBegin.x, regionSelectionPosEnd.x),
+    "top": Math.min(regionSelectionPosBegin.y, regionSelectionPosEnd.y),
+    "width": Math.abs(regionSelectionPosEnd.x - regionSelectionPosBegin.x),
+    "height": Math.abs(regionSelectionPosEnd.y - regionSelectionPosBegin.y)
+  }).show();
+
+  regionSelecting = true;
+
+  return true;
+}
+
+function updateRegionSelect(e) {
+  if (regionSelecting) {
+    var offset = $("#selection-region").parent().offset();
+    var regionSelectionPosNew = {x: e.pageX - offset.left, y: e.pageY - offset.top};
+
+    var regionOld = {
+      x: Math.min(regionSelectionPosBegin.x, regionSelectionPosEnd.x),
+      y: Math.min(regionSelectionPosBegin.y, regionSelectionPosEnd.y),
+      width: Math.abs(regionSelectionPosEnd.x - regionSelectionPosBegin.x),
+      height: Math.abs(regionSelectionPosEnd.y - regionSelectionPosBegin.y)
+    };
+    var regionNew = {
+      x: Math.min(regionSelectionPosBegin.x, regionSelectionPosNew.x),
+      y: Math.min(regionSelectionPosBegin.y, regionSelectionPosNew.y),
+      width: Math.abs(regionSelectionPosNew.x - regionSelectionPosBegin.x),
+      height: Math.abs(regionSelectionPosNew.y - regionSelectionPosBegin.y)
+    };
+
+    var scale = V(paper.viewport).scale().sx;
+
+    graph.getCells().forEach(function(cell) {
+      if (cell.attributes.type != "incredible.Generic") return;
+
+      var selectionBox = {
+        width: 20,
+        height: 20
+      };
+      if (cell.attributes.schieblehrewidth) selectionBox.width = cell.attributes.schieblehrewidth + 20;
+
+      var position = cell.position();
+      var regionCell = {
+        x: (position.x - 10) * scale + paper.options.origin.x,
+        y: (position.y - 10) * scale + paper.options.origin.y,
+        width: selectionBox.width * scale,
+        height: selectionBox.height * scale
+      };
+
+      var inOld = isRegionIntersected(regionCell, regionOld);
+      var inNew = isRegionIntersected(regionCell, regionNew);
+
+      if (inNew) cell.set('selected', true);
+      else if (inOld)  cell.set('selected', false);
+    });
+
+    $("#selection-region").css({
+      "left": regionNew.x,
+      "top": regionNew.y,
+      "width": regionNew.width,
+      "height": regionNew.height
+    });
+
+    regionSelectionPosEnd = regionSelectionPosNew;
+  }
+}
+
+function checkRegionSelected(e) {
+  if (!regionSelecting) return false;
+
+  $("#selection-region").hide();
+
+  regionSelectionPosBegin = null;
+  regionSelectionPosEnd = null;
+  regionSelecting = false;
+
+  return false;
+}
+
+function isRegionIntersected(region1, region2) {
+  return !(
+    region1.x > region2.x + region2.width ||
+    region1.y > region2.y + region2.height ||
+    region2.x > region1.x + region1.width ||
+    region2.y > region1.y + region1.height
+  );
+}
+
 $(function() {
   $(document).on('mousemove', function(e) {
-    if (dragging && pos0 != null) {
-      var pos1 = {x: e.pageX, y: e.pageY};
-      paper.setOrigin(
-        paper.options.origin.x + pos1.x - pos0.x,
-        paper.options.origin.y + pos1.y - pos0.y
-      );
-      pos0 = pos1;
-      dragged = true;
-    }
+    updateDrag(e);
+    updateRegionSelect(e);
   })
 
-  paper.on('cell:pointerdown', function (cellView, evt, x, y) {
+  paper.on('blank:pointerdown', function (e, x, y) {
+    if (initialRegionSelect(e)) return;
+    if (initialDrag(e)) return;
+  });
+
+  paper.on('blank:pointerup', function (e, x, y) {
+    if (checkDragged(e)) return;
+    if (checkRegionSelected(e)) return;
+
+    if (!e.shiftKey) selectNothing();
+  });
+
+  paper.on('cell:pointerdown', function (cellView, e, x, y) {
     var cell = cellView.model;
 
-    if (evt.shiftKey) { return; }
+    if (e.shiftKey) {
+      // Select block under pointer
+      cell.set('selected', ! cell.get('selected'));
+      return;
+    }
 
     // Check if this was a click on a delete element
     // This assumes that all visible elements of the delete SVG are direct childs
     // of a <g> element with event="remove" set
-    var targetParentEvent = evt.target.parentNode.getAttribute('event');
+    var targetParentEvent = e.target.parentNode.getAttribute('event');
     if (targetParentEvent && targetParentEvent == "remove" ) {
       cell.remove();
       return;
     }
   });
 
-  paper.on('blank:pointerdown', function (e, x, y) {
-    if (e.shiftKey) { return; }
-
-    pos0 = {x: e.pageX, y: e.pageY};
-    dragging = true;
-  });
-
-  paper.on('blank:pointerclick', function (evt, x, y) {
-    if (dragging) {
-      dragging = false;
-
-      if (dragged) {
-        dragged = false;
-        return;
-      }
-    }
-
-    if (evt.shiftKey) { return; }
-
-    selectNothing();
-  });
-
-  paper.on('cell:pointerclick', function (cellView, evt, x, y) {
+  paper.on('cell:pointerup', function (cellView, e, x, y) {
     var cell = cellView.model;
 
-    if (dragging) {
-      dragging = false;
+    if (checkDragged(e)) return;
+    if (checkRegionSelected(e)) return;
 
-      if (dragged) {
-        dragged = false;
-        return;
-      }
-    }
+    if (!e.shiftKey) selectNothing();
 
-    if (evt.shiftKey) {
-      cell.set('selected', ! cell.get('selected'));
-      return;
-    }
-
-    // Deselect everything
-    selectNothing();
-
-    if (cell.get('annotation')) {
+    if (!e.shiftKey && cell.get('annotation')) {
       var done = false;
       var prmpt = i18n.t('Input proposition');
       var val = cell.get('annotation');
@@ -194,14 +312,14 @@ $(function() {
         }
       });
       $.each(graph.getLinks(), function (i, conn) {
-	var source = conn.get('source');
-	var target = conn.get('target');
-	var connected = source.id || target.id;
-	var sourceSelected = source.id && graph.getCell(source.id).get('selected');
-	var targetSelected = target.id && graph.getCell(target.id).get('selected');
-	if (connected && (!source.id || sourceSelected) && (!target.id || targetSelected)) {
+        var source = conn.get('source');
+        var target = conn.get('target');
+        var connected = source.id || target.id;
+        var sourceSelected = source.id && graph.getCell(source.id).get('selected');
+        var targetSelected = target.id && graph.getCell(target.id).get('selected');
+        if (connected && (!source.id || sourceSelected) && (!target.id || targetSelected)) {
           conn.translate(dx,dy, { derivedMove : true });
-	}
+        }
       });
     }
   });
