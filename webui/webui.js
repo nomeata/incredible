@@ -81,11 +81,12 @@ function setupGraph(graph, task) {
   var ac = task.assumptions.length;
   var cc = task.conclusions.length;
 
+  $("#blockcount").show();
   if (task["min-blocks"]) {
-    $("#min-blockcount-div").show();
+    $("#min-blockcount").show();
     setBlockCountBar('min-blockcount',task["min-blocks"]);
   } else {
-    $("#min-blockcount-div").hide();
+    $("#min-blockcount").hide();
   }
 
   // Fixed blocks for assumptions and conclusions
@@ -227,6 +228,9 @@ function loadTask(thisTask, taskSaved, thisLogicName, visibleRules) {
   setupGraph(graph, task);
   setupPrototypeElements();
 
+  $("#paper-toolbar").show();
+  $("#leftpane").show();
+
   if (taskSaved) graph.fromJSON(taskSaved);
 }
 
@@ -240,6 +244,18 @@ function unloadTask() {
 
   undoList = [];
   currentState = -1;
+
+  $("#taskwrap").empty();
+
+  $("#blockcount").hide();
+  $("#min-blockcount").hide();
+
+  $("#logic").empty();
+  $("#custom").empty();
+  $("#helpers").empty();
+  
+  $("#paper-toolbar").hide();
+  $("#leftpane").hide();
 }
 
 function hasTask() {
