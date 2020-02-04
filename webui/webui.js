@@ -362,7 +362,17 @@ function normalizeSession() {
   });
 }
 
+var batchSelecting = false;
 
+function beginBatchSelect() {
+  batchSelecting = true;
+}
+
+function finishBatchSelect() {
+  processDerivedRule();
+
+  batchSelecting = false;
+}
 
 graph.on('add remove change:annotation change:loading', function () {
   // Do not process the graph when loading is one, which happens during startup
@@ -373,8 +383,9 @@ graph.on('add remove change:annotation change:loading', function () {
 });
 graph.on('change:selected', function () {
   // Do not process the graph when loading is one, which happens during startup
-  // and during batch changes.
-  if (!graph.get('loading')) {
+  // and during batch changes. And do not process the graph when in batch
+  // selection to reduce lag.
+  if (!graph.get('loading') && !batchSelecting) {
     processDerivedRule();
   }
 });

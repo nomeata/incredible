@@ -64,9 +64,13 @@ function paper_scale(amount, x, y) {
 }
 
 function selectNothing() {
+  beginBatchSelect();
+
   $.each(graph.getElements(), function (i, el) {
     el.set('selected', false);
   });
+
+  finishBatchSelect();
 }
 
 function initialDrag(e) {
@@ -115,6 +119,10 @@ function initialRegionSelect(e) {
   if (!e.shiftKey) return false;
 
   // Begin region selection
+
+  // Derived rule processing is delayed until region selection is completed to
+  // significantly reduce lag.
+  beginBatchSelect();
 
   regionSelectionPosBegin = {x: e.offsetX, y: e.offsetY};
   regionSelectionPosEnd = {x: e.offsetX, y: e.offsetY};
@@ -190,6 +198,8 @@ function checkRegionSelected(e) {
   if (!regionSelecting) return false;
 
   $("#selection-region").hide();
+
+  finishBatchSelect();
 
   regionSelectionPosBegin = null;
   regionSelectionPosEnd = null;
