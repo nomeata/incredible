@@ -81,6 +81,7 @@ function batchDelete() {
   graph.getCells().forEach(function(cell) {
     if (cell.attributes.type != "incredible.Generic") return;
     if (!cell.attributes.rule && !cell.attributes.annotation) return;
+    if (!cell.get('selected')) return;
 
     cell.remove();
 
