@@ -189,10 +189,9 @@ function with_graph_loading(func) {
   return function() {
     // Doesn't actually work
     // $("#loading").show();
-    graph.set('loading', true);
+    beginBatchProcess();
     func.apply(this,arguments);
-    graph.set('loading', false);
-    processGraph();
+    finishBatchProcess();
     // $("#loading").hide();
     resetUndo();
   };
@@ -239,7 +238,6 @@ function unloadTask() {
   logicName = null;
   ruleFilter = constant_true;
 
-  graph.set('loading', true);
   graph.clear();
 
   undoList = [];
@@ -333,15 +331,27 @@ $(function (){
     applyUndoState(currentState+1);
   });
 
-  $(document).on('keypress', function(e) {
-    if (e.ctrlKey && e.keyCode == 26) {
+  $(document).on('keydown', function(e) {
+    if (e.ctrlKey && e.key == 'z') {
       if (!hasTask()) return;
 
       applyUndoState(currentState-1);
-    } else if (e.ctrlKey && e.keyCode == 25) {
+      e.preventDefault();
+    } else if (e.ctrlKey && e.key == 'y') {
       if (!hasTask()) return;
 
       applyUndoState(currentState+1);
+      e.preventDefault();
+    } else if (e.ctrlKey && e.key == 'a') {
+      if (!hasTask()) return;
+
+      batchSelect(true);
+      e.preventDefault();
+    } else if (e.key == 'Backspace' || e.key == 'Delete') {
+      if (!hasTask()) return;
+
+      batchDelete();
+      e.preventDefault();
     }
   });
 
@@ -362,51 +372,82 @@ function normalizeSession() {
   });
 }
 
-var batchSelecting = false;
+var activedBatchModification = 0;
+var activedBatchSelection = 0;
+
+function beginBatchModify() {
+  activedBatchModification++;
+}
+
+function finishBatchModify() {
+  if (activedBatchModification <= 0) throw new Error("No actived batch modification");
+  activedBatchModification--;
+  if (activedBatchModification == 0) processGraph();
+}
 
 function beginBatchSelect() {
-  batchSelecting = true;
+  activedBatchSelection++;
 }
 
 function finishBatchSelect() {
-  processDerivedRule();
+  if (activedBatchSelection <= 0) throw new Error("No actived batch selection");
+  activedBatchSelection--;
+  if (activedBatchSelection == 0) processDerivedRule();
+}
 
-  batchSelecting = false;
+function beginBatchProcess() {
+  beginBatchModify();
+  beginBatchSelect();
+}
+
+function finishBatchProcess() {
+  finishBatchModify();
+  finishBatchSelect();
 }
 
 graph.on('add remove change:annotation change:loading', function () {
+  if (!hasTask()) return;
+
   // Do not process the graph when loading is one, which happens during startup
   // and during batch changes.
-  if (!graph.get('loading')) {
+  if (activedBatchModification == 0) {
     processGraph();
   }
 });
 graph.on('change:selected', function () {
+  if (!hasTask()) return;
+
   // Do not process the graph when loading is one, which happens during startup
   // and during batch changes. And do not process the graph when in batch
   // selection to reduce lag.
-  if (!graph.get('loading') && !batchSelecting) {
+  if (activedBatchSelection == 0) {
     processDerivedRule();
   }
 });
 graph.on('change:source change:target', function (model, end) {
+  if (!hasTask()) return;
+
   var connection_state = model.get('source').id + model.get('source').port +
     model.get('target').id + model.get('target').port;
   var connection_state_old = model.get('connection_state');
   if (connection_state != connection_state_old) {
     model.set('connection_state', connection_state);
-    if (!graph.get('loading')) {
+    if (activedBatchModification == 0) {
       processGraph();
     }
   }
 });
 
-paper.on('element:schieblehre:ready', saveUndo);
+paper.on('element:schieblehre:ready', function(evt) {
+  if (!hasTask()) return;
+
+  saveUndo();
+});
 
 paper.listenTo(graph, 'batch:stop', function(evt) {
-  if (evt.batchName === 'pointer') {
-    saveUndo();
-  }
+  if (!hasTask()) return;
+
+  if (evt.batchName === 'pointer') saveUndo();
 });
 
 // time arg is in milliseconds
