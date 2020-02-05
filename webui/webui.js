@@ -189,10 +189,9 @@ function with_graph_loading(func) {
   return function() {
     // Doesn't actually work
     // $("#loading").show();
-    graph.set('loading', true);
+    beginBatchProcess();
     func.apply(this,arguments);
-    graph.set('loading', false);
-    processGraph();
+    finishBatchProcess();
     // $("#loading").hide();
     resetUndo();
   };
@@ -239,7 +238,6 @@ function unloadTask() {
   logicName = null;
   ruleFilter = constant_true;
 
-  graph.set('loading', true);
   graph.clear();
 
   undoList = [];
@@ -369,7 +367,18 @@ function normalizeSession() {
   });
 }
 
+var activedBatchModification = 0;
 var activedBatchSelection = 0;
+
+function beginBatchModify() {
+  activedBatchModification++;
+}
+
+function finishBatchModify() {
+  if (activedBatchModification <= 0) throw new Error("No actived batch modification");
+  activedBatchModification--;
+  if (activedBatchModification == 0) processGraph();
+}
 
 function beginBatchSelect() {
   activedBatchSelection++;
@@ -381,10 +390,20 @@ function finishBatchSelect() {
   if (activedBatchSelection == 0) processDerivedRule();
 }
 
+function beginBatchProcess() {
+  beginBatchModify();
+  beginBatchSelect();
+}
+
+function finishBatchProcess() {
+  finishBatchModify();
+  finishBatchSelect();
+}
+
 graph.on('add remove change:annotation change:loading', function () {
   // Do not process the graph when loading is one, which happens during startup
   // and during batch changes.
-  if (!graph.get('loading')) {
+  if (activedBatchModification == 0) {
     processGraph();
   }
 });
@@ -392,7 +411,7 @@ graph.on('change:selected', function () {
   // Do not process the graph when loading is one, which happens during startup
   // and during batch changes. And do not process the graph when in batch
   // selection to reduce lag.
-  if (!graph.get('loading') && activedBatchSelection == 0) {
+  if (activedBatchSelection == 0) {
     processDerivedRule();
   }
 });
@@ -402,7 +421,7 @@ graph.on('change:source change:target', function (model, end) {
   var connection_state_old = model.get('connection_state');
   if (connection_state != connection_state_old) {
     model.set('connection_state', connection_state);
-    if (!graph.get('loading')) {
+    if (activedBatchModification == 0) {
       processGraph();
     }
   }
