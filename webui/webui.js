@@ -332,20 +332,25 @@ $(function (){
   });
 
   $(document).on('keydown', function(e) {
-    if (e.ctrlKey && e.keyCode == 'Z'.charCodeAt()) {
+    if (e.ctrlKey && e.key == 'z') {
       if (!hasTask()) return;
 
       applyUndoState(currentState-1);
       e.preventDefault();
-    } else if (e.ctrlKey && e.keyCode == 'Y'.charCodeAt()) {
+    } else if (e.ctrlKey && e.key == 'y') {
       if (!hasTask()) return;
 
       applyUndoState(currentState+1);
       e.preventDefault();
-    } else if (e.ctrlKey && e.keyCode == 'A'.charCodeAt()) {
+    } else if (e.ctrlKey && e.key == 'a') {
       if (!hasTask()) return;
 
       batchSelect(true);
+      e.preventDefault();
+    } else if (e.key == 'Backspace' || e.key == 'Delete') {
+      if (!hasTask()) return;
+
+      batchDelete();
       e.preventDefault();
     }
   });
@@ -401,6 +406,8 @@ function finishBatchProcess() {
 }
 
 graph.on('add remove change:annotation change:loading', function () {
+  if (!hasTask()) return;
+
   // Do not process the graph when loading is one, which happens during startup
   // and during batch changes.
   if (activedBatchModification == 0) {
@@ -408,6 +415,8 @@ graph.on('add remove change:annotation change:loading', function () {
   }
 });
 graph.on('change:selected', function () {
+  if (!hasTask()) return;
+
   // Do not process the graph when loading is one, which happens during startup
   // and during batch changes. And do not process the graph when in batch
   // selection to reduce lag.
@@ -416,6 +425,8 @@ graph.on('change:selected', function () {
   }
 });
 graph.on('change:source change:target', function (model, end) {
+  if (!hasTask()) return;
+
   var connection_state = model.get('source').id + model.get('source').port +
     model.get('target').id + model.get('target').port;
   var connection_state_old = model.get('connection_state');
@@ -427,12 +438,16 @@ graph.on('change:source change:target', function (model, end) {
   }
 });
 
-paper.on('element:schieblehre:ready', saveUndo);
+paper.on('element:schieblehre:ready', function(evt) {
+  if (!hasTask()) return;
+
+  saveUndo();
+});
 
 paper.listenTo(graph, 'batch:stop', function(evt) {
-  if (evt.batchName === 'pointer') {
-    saveUndo();
-  }
+  if (!hasTask()) return;
+
+  if (evt.batchName === 'pointer') saveUndo();
 });
 
 // time arg is in milliseconds

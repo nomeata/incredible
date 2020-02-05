@@ -66,11 +66,30 @@ function paper_scale(amount, x, y) {
 function batchSelect(selected) {
   beginBatchSelect();
 
-  $.each(graph.getElements(), function (i, el) {
-    el.set('selected', selected);
+  graph.getCells().forEach(function(cell) {
+    cell.set('selected', selected);
   });
 
   finishBatchSelect();
+}
+
+function batchDelete() {
+  beginBatchModify();
+
+  var modified = false;
+
+  graph.getCells().forEach(function(cell) {
+    if (cell.attributes.type != "incredible.Generic") return;
+    if (!cell.attributes.rule && !cell.attributes.annotation) return;
+
+    cell.remove();
+
+    modified = true;
+  });
+
+  if (modified) saveUndo();
+
+  finishBatchModify();
 }
 
 function initialDrag(e) {
@@ -232,7 +251,16 @@ $(function() {
     if (checkDragged(e)) return;
     if (checkRegionSelected(e)) return;
 
-    if (!e.shiftKey) batchSelect(false);
+    if (!e.shiftKey) {
+      var offset = paper.options.el.offset();
+
+      if (
+        e.pageX > offset.left &&
+        e.pageY > offset.top &&
+        e.pageX < paper.options.el.width() + offset.left &&
+        e.pageY < paper.options.el.height() + offset.top
+      ) batchSelect(false);
+    }
   });
 
   paper.on('cell:pointerdown', function (cellView, e, x, y) {
