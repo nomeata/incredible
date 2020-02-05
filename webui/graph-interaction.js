@@ -63,11 +63,11 @@ function paper_scale(amount, x, y) {
   paper.setOrigin(ox - dx, oy - dy);
 }
 
-function selectNothing() {
+function batchSelect(selected) {
   beginBatchSelect();
 
   $.each(graph.getElements(), function (i, el) {
-    el.set('selected', false);
+    el.set('selected', selected);
   });
 
   finishBatchSelect();
@@ -205,7 +205,7 @@ function checkRegionSelected(e) {
   regionSelectionPosEnd = null;
   regionSelecting = false;
 
-  return false;
+  return true;
 }
 
 function isRegionIntersected(region1, region2) {
@@ -232,7 +232,7 @@ $(function() {
     if (checkDragged(e)) return;
     if (checkRegionSelected(e)) return;
 
-    if (!e.shiftKey) selectNothing();
+    if (!e.shiftKey) batchSelect(false);
   });
 
   paper.on('cell:pointerdown', function (cellView, e, x, y) {
@@ -260,7 +260,7 @@ $(function() {
     if (checkDragged(e)) return;
     if (checkRegionSelected(e)) return;
 
-    if (!e.shiftKey) selectNothing();
+    if (!e.shiftKey) batchSelect(false);
 
     if (!e.shiftKey && cell.get('annotation')) {
       var done = false;

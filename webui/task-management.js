@@ -211,7 +211,7 @@ $(function (){
       rule.containedBlocks = countBlocks(true);
       custom_rules[logicName].push(rule);
       setupPrototypeElements();
-      selectNothing();
+      batchSelect(false);
     }
   });
 });

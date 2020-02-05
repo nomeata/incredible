@@ -333,15 +333,22 @@ $(function (){
     applyUndoState(currentState+1);
   });
 
-  $(document).on('keypress', function(e) {
-    if (e.ctrlKey && e.keyCode == 26) {
+  $(document).on('keydown', function(e) {
+    if (e.ctrlKey && e.keyCode == 'Z'.charCodeAt()) {
       if (!hasTask()) return;
 
       applyUndoState(currentState-1);
-    } else if (e.ctrlKey && e.keyCode == 25) {
+      e.preventDefault();
+    } else if (e.ctrlKey && e.keyCode == 'Y'.charCodeAt()) {
       if (!hasTask()) return;
 
       applyUndoState(currentState+1);
+      e.preventDefault();
+    } else if (e.ctrlKey && e.keyCode == 'A'.charCodeAt()) {
+      if (!hasTask()) return;
+
+      batchSelect(true);
+      e.preventDefault();
     }
   });
 
@@ -362,16 +369,16 @@ function normalizeSession() {
   });
 }
 
-var batchSelecting = false;
+var activedBatchSelection = 0;
 
 function beginBatchSelect() {
-  batchSelecting = true;
+  activedBatchSelection++;
 }
 
 function finishBatchSelect() {
-  processDerivedRule();
-
-  batchSelecting = false;
+  if (activedBatchSelection <= 0) throw new Error("No actived batch selection");
+  activedBatchSelection--;
+  if (activedBatchSelection == 0) processDerivedRule();
 }
 
 graph.on('add remove change:annotation change:loading', function () {
@@ -385,7 +392,7 @@ graph.on('change:selected', function () {
   // Do not process the graph when loading is one, which happens during startup
   // and during batch changes. And do not process the graph when in batch
   // selection to reduce lag.
-  if (!graph.get('loading') && !batchSelecting) {
+  if (!graph.get('loading') && activedBatchSelection == 0) {
     processDerivedRule();
   }
 });
