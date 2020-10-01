@@ -295,7 +295,7 @@
     min-blocks: 14
   - assumptions: ["∀x.(r(x)→⊥)→r(f(x))"]
     conclusions: ["∃x.r(x)∧r(f(f(x)))"]
-    min-blocks: 24
+    min-blocks: 22
 - name: Hilbert system
   logic: hilbert
   tasks:
