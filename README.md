@@ -75,4 +75,4 @@ sources are always the contents of the `gh-pages` branch of the
 
 ## Contact
 
-Please join [our mailing list](https://lists.nomeata.de/mailman/listinfo/incredible) (or directly Joachim Breitner <mail@joachim-breitner.de> if preferred) if you have question or want to help out.
+Please contact Joachim Breitner <mail@joachim-breitner.de> if you have question or want to help out.
