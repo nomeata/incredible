@@ -337,7 +337,7 @@
   - assumptions: ["A↑B↑(A↑B)"]
     conclusions: ["A","B"]
     min-blocks: 14
-- name: Simply type lambda calculus
+- name: Simply typed lambda calculus
   logic: STLC
   tasks:
   - conclusions: ["(λx.x):a→a"]
