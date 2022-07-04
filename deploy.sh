@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 
@@ -38,3 +38,4 @@ else
 	echo "incredibleVersion = \"UNKNOWN\";" > $dirname/version.js
 fi
 
+echo incredible.pm > $dirname/CNAME
