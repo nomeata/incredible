@@ -10,7 +10,7 @@ import Data.Map ((!))
 import Data.String
 import Control.Monad
 import Data.Maybe
-import Unbound.LocallyNameless
+import Unbound.Generics.LocallyNameless
 import Control.Arrow
 import Data.Aeson.Types
 import qualified Data.Yaml

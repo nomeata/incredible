@@ -5,12 +5,11 @@ import qualified Data.Vector as V
 import qualified Data.Text as T
 import Data.Aeson.Types
 import qualified Data.Map as M
-import qualified Data.HashMap.Strict as HM
+import qualified Data.Aeson.KeyMap as KM
 import Control.Monad
 import Data.List
 
 import Types
-import TaggedMap ()
 import Propositions
 import Unification (UnificationResult(..))
 
@@ -20,7 +19,7 @@ toContext :: Value -> Either String Context
 toContext = parseEither parseJSON
 
 
-varList :: Object -> T.Text -> Parser [Var]
+varList :: Object -> Data.Aeson.Types.Key -> Parser [Var]
 varList o field = map (string2Name) <$> o .:? field .!= []
 
 
@@ -64,7 +63,7 @@ instance FromJSON Context where
   parseJSON = withObject "context" $ \o -> do
     Context <$> (mapFromList "id" =<< o .: "rules")
 
-mapFromList :: (FromJSON k, FromJSON v, Ord k) => T.Text -> Value -> Parser (M.Map k v)
+mapFromList :: (FromJSON k, FromJSON v, Ord k) => Data.Aeson.Types.Key -> Value -> Parser (M.Map k v)
 mapFromList idField = withArray "rules" $ \a -> do
     entries <- forM (V.toList a) $ \v -> do
         k <- withObject "rule" (.: idField) v
@@ -77,10 +76,10 @@ toProof = parseEither parseJSON
 
 instance FromJSON Block where
   parseJSON = withObject "block" $ \o ->
-    if | "rule"       `HM.member` o -> Block <$> o.: "number" <*> o .: "rule"
-       | "annotation" `HM.member` o -> AnnotationBlock <$> o.: "number" <*> o .: "annotation"
-       | "assumption" `HM.member` o -> AssumptionBlock <$> o.: "number" <*> o .: "assumption"
-       | "conclusion" `HM.member` o -> ConclusionBlock <$> o.: "number" <*> o .: "conclusion"
+    if | "rule"       `KM.member` o -> Block <$> o.: "number" <*> o .: "rule"
+       | "annotation" `KM.member` o -> AnnotationBlock <$> o.: "number" <*> o .: "annotation"
+       | "assumption" `KM.member` o -> AssumptionBlock <$> o.: "number" <*> o .: "assumption"
+       | "conclusion" `KM.member` o -> ConclusionBlock <$> o.: "number" <*> o .: "conclusion"
 
 
 instance FromJSON Connection where
@@ -127,15 +126,17 @@ instance ToJSON Rule where
 instance ToJSON Analysis where
     toJSON (Analysis {..}) = object
         [ "connectionStatus"  .= connectionStatus
-        , "portLabels"        .= portLabels
+        , "portLabels"        .= PortSpecMap portLabels
         , "unconnectedGoals"  .= unconnectedGoals
         , "cycles"            .= cycles
         , "escapedHypotheses" .= escapedHypotheses
         , "qed"               .= qed
         ]
 
-instance ToJSON a => ToJSON (M.Map PortSpec a) where
-    toJSON = toJSON . M.fromListWith M.union . map go . M.toList 
+newtype PortSpecMap a = PortSpecMap { unPortSpecMap :: M.Map PortSpec a }
+
+instance ToJSON a => ToJSON (PortSpecMap a) where
+    toJSON = toJSON . M.fromListWith M.union . map go . M.toList . unPortSpecMap
       where
         go (BlockPort bk pk, a) = (bk, M.singleton pk a)
 

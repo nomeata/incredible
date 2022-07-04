@@ -22,7 +22,6 @@ library
   exposed-modules:   Types,
                      Entry,
                      Lint,
-                     TaggedMap,
                      ShapeChecks,
                      Propositions,
                      Utils,
@@ -31,8 +30,8 @@ library
                      Rules,
                      ProofGraph,
                      Analysis
-  build-depends:     base >=4.10 && <4.13,
-                     aeson >=0.11 && <0.15,
+  build-depends:     base >=4.10 && <4.15,
+                     aeson >2,
                      text,
                      vector,
                      containers,
@@ -41,7 +40,7 @@ library
                      parsec,
                      void,
                      tagged,
-                     unbound,
+                     unbound-generics,
                      either
   default-language:  Haskell2010
   ghc-options:       -Wall -fno-warn-name-shadowing -fno-warn-orphans
@@ -53,7 +52,7 @@ executable js-interface
   if impl(ghcjs)
     buildable: True
     other-modules:     ConvertJS
-    build-depends:     base >=4.10 && <4.13,
+    build-depends:     base >=4.10 && <4.15,
                        incredible-logic,
                        aeson,
                        ghcjs-base >=0.2 && <0.3
@@ -70,7 +69,7 @@ executable bundle-examples
   if impl(ghcjs)
     buildable: False
   else
-    build-depends:   base >=4.10 && <4.13,
+    build-depends:   base >=4.10 && <4.15,
                      containers,
                      bytestring,
                      aeson,
@@ -95,7 +94,7 @@ test-suite test
     , tasty-hunit >= 0.9
     , tasty-quickcheck >= 0.8
     , incredible-logic
-    , unbound
+    , unbound-generics
     , tagged
     , bytestring
     , extra

@@ -1,5 +1,6 @@
 {-# LANGUAGE TemplateHaskell, FlexibleInstances, MultiParamTypeClasses, FlexibleContexts, UndecidableInstances #-}
 {-# LANGUAGE TypeFamilies #-} -- for the ~ type signature trick
+{-# LANGUAGE DeriveGeneric #-}
 module Propositions (module Propositions, string2Name) where
 
 import Text.Parsec
@@ -9,8 +10,10 @@ import Data.Functor.Identity
 import Control.Monad
 import Data.List
 import Utils
+import GHC.Generics (Generic)
 
-import Unbound.LocallyNameless hiding (Infix)
+import Unbound.Generics.LocallyNameless
+import Unbound.Generics.LocallyNameless.Internal.Fold
 
 
 type Var = Name Term
@@ -21,9 +24,9 @@ data Term
     | V Var
     | C Var
     | Lam (Bind Var Term)
-    deriving Show
+    deriving (Show, Generic)
 
-$(derive [''Term])
+-- $(derive [''Term])
 
 data OpAssoc
     = L
@@ -38,7 +41,8 @@ instance Subst Term Term where
    isvar _     = Nothing
 
 firstFree :: Alpha a => a -> Integer
-firstFree = (1+) . maximum . (0:) . map anyName2Integer . fvAny
+firstFree = (1+) . maximum . (0:) . map anyName2Integer . toListOf fvAny
+  where anyName2Integer (AnyName n) = name2Integer n
 
 type Proposition = Term
 
@@ -63,7 +67,7 @@ name2ExternalString n
 -- Pretty printer
 
 printTerm :: Proposition -> String
-printTerm p = runLFreshM (avoid (fvAny p) $ prP (0::Int) p) ""
+printTerm p = runLFreshM (avoid (toListOf fvAny p) $ prP (0::Int) p) ""
   where
     prP :: Int -> Proposition -> LFreshM (String -> String)
     prP _ (C v) = prN v
@@ -201,5 +205,5 @@ varOrConstP = choice
   ]
 
 
-nameP :: Rep a => Parser (Name a)
+nameP :: {- Rep a => -} Parser (Name a)
 nameP = l $ string2Name <$> many1 (alphaNum <|> char '_')

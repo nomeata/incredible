@@ -1,6 +1,6 @@
 targets := logic.js logics.js sessions.js
 
-CABAL_FLAGS=--allow-newer=template-haskell --constraint 'primitive<0.6.4'
+CABAL_FLAGS=
 
 all: ${targets}
 
@@ -31,10 +31,13 @@ test: sessions.js logics.js
 	cd logic && cabal new-test $(CABAL_FLAGS)
 	! which jshint || jshint webui/*.js sessions.js logics.js
 
-logic.js: logic/*.cabal logic/*.hs logic/js/*.hs
+logic.js: logic/*.cabal logic/*.hs logic/js/*.hs logic/js/*.js
 	rm -vf logic/.ghc.environment*
 	cd logic && cabal new-build --distdir=dist-newstyle-ghcjs --ghcjs $(CABAL_FLAGS)
-	cp -v logic/dist-newstyle-ghcjs/build/*/*/incredible-logic-0.1/x/js-interface/build/js-interface/js-interface.jsexe/all.js $@
+	# js-sources in the cabal file stopped working? So concatenate manually
+	# related to https://github.com/haskell/cabal/pull/5443 maybe?
+	cat logic/js/js-interface-wrapper.js > $@
+	cat logic/dist-newstyle-ghcjs/build/*/*/incredible-logic-0.1/x/js-interface/build/js-interface/js-interface.jsexe/all.js >> $@
 
 bundle-examples: logic/*.cabal logic/*.hs logic/examples/*.hs
 	rm -vf logic/.ghc.environment*

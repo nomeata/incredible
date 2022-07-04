@@ -10,7 +10,8 @@ import qualified Data.Map as M
 import Data.Map ((!))
 import qualified Data.Set as S
 
-import Unbound.LocallyNameless hiding (Infix)
+import Unbound.Generics.LocallyNameless
+import Unbound.Generics.LocallyNameless.Internal.Fold
 
 import Types
 import Analysis
@@ -74,7 +75,7 @@ deriveRule ctxt proof (ScopedProof {..}) =
         ]
 
     allVars :: S.Set Var
-    allVars = S.fromList $ fv (map portProp updatedPorts)
+    allVars = S.fromList $ toListOf fv (map portProp updatedPorts)
 
     localVars = S.toList $ S.filter (\v -> name2Integer v > 0) allVars
 
@@ -135,7 +136,7 @@ renameRule r = rule'
     allVars :: [Var]
     allVars = S.toList $ S.fromList $
         freeVars r ++ localVars r ++
-        concat [ portScopes p ++ fv (portProp p) | p <- M.elems (ports r) ]
+        concat [ portScopes p ++ toListOf fv (portProp p) | p <- M.elems (ports r) ]
     (toRename, takenNames) =
         second (S.fromList . map name2String) $
         partition (\n -> name2Integer n > 0) $

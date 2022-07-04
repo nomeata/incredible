@@ -18,8 +18,8 @@ import Data.List
 
 import Propositions
 
-import Unbound.LocallyNameless
-import Unbound.LocallyNameless.Fresh
+import Unbound.Generics.LocallyNameless
+import Unbound.Generics.LocallyNameless.Internal.Fold
 
 
 type Equality = (Term, Term)
@@ -180,7 +180,7 @@ fun occ F S (V G) = (F=G) orelse
 
 occ :: Alpha b => Bindings -> Name Term -> b -> Bool
 occ binds v t = v `elem` vars || any (maybe False (occ binds v) . (`M.lookup` binds)) vars
-   where vars = fv t::[Var]
+   where vars = toListOf fv t::[Var]
 
 
 {-

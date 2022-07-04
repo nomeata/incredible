@@ -14,7 +14,7 @@ import Propositions
 import ProofGraph (Graph)
 import ShapeChecks
 
-import Unbound.LocallyNameless
+import Unbound.Generics.LocallyNameless
 
 -- | This function turns a proof into something that is easier to work on in
 -- unfication:
