@@ -230,7 +230,7 @@
     min-blocks: 14
   - assumptions: ["(A→B)→⊥"]
     conclusions: ["A∧(B→⊥)"]
-    min-blocks: 13
+    min-blocks: 12
 - name: Session 6
   logic: predicate
   tasks:
