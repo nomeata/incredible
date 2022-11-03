@@ -17,7 +17,6 @@ import qualified Data.Yaml
 
 import ShapeChecks
 import Types
-import TaggedMap
 import Propositions
 import Unification
 import ConvertAeson

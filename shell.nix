@@ -52,6 +52,8 @@ stdenv.mkDerivation rec {
        either
        ghcjs-base
       ]))
+
+    nodePackages.jshint
   ];
 }
 
