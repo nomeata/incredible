@@ -34,9 +34,9 @@ jobs:
 
     - name: Deploy to Github Pages
       if: github.ref == 'refs/heads/master'
-      uses: JamesIves/github-pages-deploy-action@releases/v3
+      uses: JamesIves/github-pages-deploy-action@releases/v4
       with:
-        ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-        BRANCH: gh-pages
-        FOLDER: _out
-        SINGLE_COMMIT: true
+        token: ${{ secrets.GH_ACCESS_TOKEN }}
+        branch: gh-pages
+        folder: _out
+        single-commit: true
