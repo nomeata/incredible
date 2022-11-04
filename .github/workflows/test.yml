@@ -36,7 +36,6 @@ jobs:
       if: github.ref == 'refs/heads/master'
       uses: JamesIves/github-pages-deploy-action@releases/v4
       with:
-        token: ${{ secrets.GH_ACCESS_TOKEN }}
         branch: gh-pages
         folder: _out
         single-commit: true
