@@ -18,6 +18,7 @@ mkShellNoCC rec {
        tasty-hunit
        tasty-quickcheck
        criterion
+       void
       ]))
 
     ((haskell.packages.ghcjs
@@ -51,6 +52,7 @@ mkShellNoCC rec {
        unbound-generics
        either
        ghcjs-base
+       void
       ]))
 
     nodePackages.jshint
