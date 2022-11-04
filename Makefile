@@ -5,7 +5,7 @@ all: ${targets}
 
 clean:
 	${RM} -f ${targets} bundle-examples yaml2json
-	rm -rf logic/dist-*
+	rm -rf logic/dist*
 
 vendor:
 	mkdir vendor
