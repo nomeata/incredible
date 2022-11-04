@@ -4,7 +4,7 @@
 with import (builtins.fetchTarball https://github.com/NixOS/nixpkgs/archive/d3551b986a714071360b75feffa0ce117417f09c.tar.gz) { };
 with haskell.lib;
 mkShellNoCC rec {
-  name = "env";
+  name = "incredible-proof-machine-env";
   buildInputs = [
     cabal-install
 
