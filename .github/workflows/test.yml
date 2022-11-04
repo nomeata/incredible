@@ -25,13 +25,13 @@ jobs:
 
 
     - name: Build all
-      run: nix-shell --command make
+      run: nix-shell --pure --command make
 
     - name: Run tests
-      run: nix-shell --command "make test"
+      run: nix-shell --pure --command "make test"
 
     - name: Deploy
-      run: ./deploy _out
+      run: ./deploy.sh _out
 
     - name: Deploy to Github Pages
       if: github.ref == 'refs/heads/master'

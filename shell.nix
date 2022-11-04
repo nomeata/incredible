@@ -6,6 +6,8 @@ with haskell.lib;
 mkShellNoCC rec {
   name = "env";
   buildInputs = [
+    cabal-install
+
     (haskell.packages.ghc8107.ghc.withPackages(p: with p; [
        aeson
        parsec
