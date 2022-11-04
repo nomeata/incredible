@@ -19,6 +19,7 @@ mkShellNoCC rec {
        tasty-quickcheck
        criterion
        void
+       extra
       ]))
 
     ((haskell.packages.ghcjs
