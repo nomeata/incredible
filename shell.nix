@@ -36,6 +36,9 @@ mkShellNoCC rec {
         text-short = dontCheck super.text-short;
 
 
+        # Can be dropped when nixpkgs includes
+        # https://github.com/NixOS/nixpkgs/pull/177489/files
+        # Keep synced with kaleidogen for better cache usage!
         ghcjs-base = super.ghcjs-base.overrideAttrs(d: {
           src = pkgs.fetchFromGitHub {
             owner = "ghcjs";
