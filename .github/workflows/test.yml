@@ -1,0 +1,32 @@
+name: "Test"
+on:
+  push:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: cachix/install-nix-action@v16
+    - name: Add kaleidogen cachix
+      uses: cachix/cachix-action@v8
+      with:
+        name: kaleidogen
+
+    #    signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
+    # until https://github.com/cachix/cachix-action/issues/86 is fixed:
+    #- run: cachix watch-store kaleidogen &
+
+    - name: Prepare nix shell
+      run: nix-build --no-out-link shell.nix
+
+    - name: Build all
+      run: nix-shell --command make
+
+    # - name: Deploy to Github Pages
+    #   if: github.ref == 'refs/heads/master'
+    #   uses: JamesIves/github-pages-deploy-action@releases/v3
+    #   with:
+    #     ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+    #     BRANCH: gh-pages
+    #     FOLDER: gh-page
+    #     SINGLE_COMMIT: true

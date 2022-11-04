@@ -3,7 +3,7 @@
 # roughly release-22.05
 with import (builtins.fetchTarball https://github.com/NixOS/nixpkgs/archive/d3551b986a714071360b75feffa0ce117417f09c.tar.gz) { };
 with haskell.lib;
-stdenv.mkDerivation rec {
+mkShellNoCC rec {
   name = "env";
   buildInputs = [
     (haskell.packages.ghc8107.ghc.withPackages(p: with p; [
