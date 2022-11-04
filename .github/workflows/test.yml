@@ -1,6 +1,10 @@
 name: "Test"
 on:
   push:
+env:
+  # This is for the benefit of nix-shell, as we do not
+  # have a NIXPATH nixpkgs configured
+  NIX_BUILD_SHELL: /bin/bash
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -19,8 +23,12 @@ jobs:
     - name: Prepare nix shell
       run: nix-build --no-out-link shell.nix
 
+
     - name: Build all
       run: nix-shell --command make
+
+    - name: Run tests
+      run: nix-shell --command "make test"
 
     # - name: Deploy to Github Pages
     #   if: github.ref == 'refs/heads/master'

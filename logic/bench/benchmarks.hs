@@ -13,7 +13,7 @@ import Criterion.Main
 
 
 main = do
-    Examples {..} <- readExamples "../examples"
+    Examples {..} <- readExamples ".."
     defaultMain [
         bgroup "examples"
             [ bench name $ nf (toJSON . func) proof
