@@ -27,7 +27,7 @@ test-bench:
 	cd logic && cabal run bench -- -n 1
 
 test-hs:
-	cd logic && cabal test --test-show-details=direct
+	cd logic && LANG=C.utf8 cabal test --test-show-details=direct
 
 test-js: webui/*.js sessions.js logics.js
 	jshint webui/*.js sessions.js logics.js
