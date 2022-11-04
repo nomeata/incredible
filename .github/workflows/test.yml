@@ -30,11 +30,14 @@ jobs:
     - name: Run tests
       run: nix-shell --command "make test"
 
-    # - name: Deploy to Github Pages
-    #   if: github.ref == 'refs/heads/master'
-    #   uses: JamesIves/github-pages-deploy-action@releases/v3
-    #   with:
-    #     ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-    #     BRANCH: gh-pages
-    #     FOLDER: gh-page
-    #     SINGLE_COMMIT: true
+    - name: Deploy
+      run: ./deploy _out
+
+    - name: Deploy to Github Pages
+      if: github.ref == 'refs/heads/master'
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+        BRANCH: gh-pages
+        FOLDER: _out
+        SINGLE_COMMIT: true

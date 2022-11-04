@@ -41,7 +41,7 @@ function resetUndo() {
 }
 
 function saveUndo() {
-  if (currentState < 0) return;
+  if (currentState < 0) { return; }
 
   currentState += 1;
   var g = graph.toJSON();
@@ -50,7 +50,7 @@ function saveUndo() {
 }
 
 function applyUndoState(idx) {
-  if (currentState < 0) return;
+  if (currentState < 0) { return; }
 
   var state = undoList[idx];
   if (state) {
@@ -230,7 +230,7 @@ function loadTask(thisTask, taskSaved, thisLogicName, visibleRules) {
   setupGraph(graph, task);
   setupPrototypeElements();
 
-  if (taskSaved) graph.fromJSON(taskSaved);
+  if (taskSaved) { graph.fromJSON(taskSaved); }
 }
 
 function unloadTask() {
@@ -251,7 +251,7 @@ function unloadTask() {
   $("#logic").empty();
   $("#custom").empty();
   $("#helpers").empty();
-  
+
   $("#paper-toolbar").hide();
   $("#leftpane").hide();
 }
@@ -313,42 +313,42 @@ $(function (){
   });
 
   $("#resettask").on('click', function () {
-    if (!hasTask()) return;
+    if (!hasTask()) { return; }
 
     setupGraph(graph, task);
     resetUndo(); // Is this what we want?
   });
 
   $("#undo").on('click', function () {
-    if (!hasTask()) return;
+    if (!hasTask()) { return; }
 
     applyUndoState(currentState-1);
   });
 
   $("#redo").on('click', function () {
-    if (!hasTask()) return;
+    if (!hasTask()) { return; }
 
     applyUndoState(currentState+1);
   });
 
   $(document).on('keydown', function(e) {
     if (e.ctrlKey && e.key == 'z') {
-      if (!hasTask()) return;
+      if (!hasTask()) { return; }
 
       applyUndoState(currentState-1);
       e.preventDefault();
     } else if (e.ctrlKey && e.key == 'y') {
-      if (!hasTask()) return;
+      if (!hasTask()) { return; }
 
       applyUndoState(currentState+1);
       e.preventDefault();
     } else if (e.ctrlKey && e.key == 'a') {
-      if (!hasTask()) return;
+      if (!hasTask()) { return; }
 
       batchSelect(true);
       e.preventDefault();
     } else if (e.key == 'Backspace' || e.key == 'Delete') {
-      if (!hasTask()) return;
+      if (!hasTask()) { return; }
 
       batchDelete();
       e.preventDefault();
@@ -380,9 +380,13 @@ function beginBatchModify() {
 }
 
 function finishBatchModify() {
-  if (activedBatchModification <= 0) throw new Error("No actived batch modification");
+  if (activedBatchModification <= 0) {
+    throw new Error("No actived batch modification");
+  }
   activedBatchModification--;
-  if (activedBatchModification == 0) processGraph();
+  if (activedBatchModification == 0) {
+    processGraph();
+  }
 }
 
 function beginBatchSelect() {
@@ -390,9 +394,13 @@ function beginBatchSelect() {
 }
 
 function finishBatchSelect() {
-  if (activedBatchSelection <= 0) throw new Error("No actived batch selection");
+  if (activedBatchSelection <= 0) {
+    throw new Error("No actived batch selection");
+  }
   activedBatchSelection--;
-  if (activedBatchSelection == 0) processDerivedRule();
+  if (activedBatchSelection == 0) {
+    processDerivedRule();
+  }
 }
 
 function beginBatchProcess() {
@@ -406,7 +414,9 @@ function finishBatchProcess() {
 }
 
 graph.on('add remove change:annotation change:loading', function () {
-  if (!hasTask()) return;
+  if (!hasTask()) {
+    return;
+  }
 
   // Do not process the graph when loading is one, which happens during startup
   // and during batch changes.
@@ -415,7 +425,9 @@ graph.on('add remove change:annotation change:loading', function () {
   }
 });
 graph.on('change:selected', function () {
-  if (!hasTask()) return;
+  if (!hasTask()) {
+    return;
+  }
 
   // Do not process the graph when loading is one, which happens during startup
   // and during batch changes. And do not process the graph when in batch
@@ -425,7 +437,9 @@ graph.on('change:selected', function () {
   }
 });
 graph.on('change:source change:target', function (model, end) {
-  if (!hasTask()) return;
+  if (!hasTask()) {
+    return;
+  }
 
   var connection_state = model.get('source').id + model.get('source').port +
     model.get('target').id + model.get('target').port;
@@ -439,15 +453,21 @@ graph.on('change:source change:target', function (model, end) {
 });
 
 paper.on('element:schieblehre:ready', function(evt) {
-  if (!hasTask()) return;
+  if (!hasTask()) {
+    return;
+  }
 
   saveUndo();
 });
 
 paper.listenTo(graph, 'batch:stop', function(evt) {
-  if (!hasTask()) return;
+  if (!hasTask()) {
+    return;
+  }
 
-  if (evt.batchName === 'pointer') saveUndo();
+  if (evt.batchName === 'pointer') {
+    saveUndo();
+  }
 });
 
 // time arg is in milliseconds

@@ -79,22 +79,22 @@ function batchDelete() {
   var modified = false;
 
   graph.getCells().forEach(function(cell) {
-    if (cell.attributes.type != "incredible.Generic") return;
-    if (!cell.attributes.rule && !cell.attributes.annotation) return;
-    if (!cell.get('selected')) return;
+    if (cell.attributes.type != "incredible.Generic") { return; }
+    if (!cell.attributes.rule && !cell.attributes.annotation) { return; }
+    if (!cell.get('selected')) { return; }
 
     cell.remove();
 
     modified = true;
   });
 
-  if (modified) saveUndo();
+  if (modified) { saveUndo(); }
 
   finishBatchModify();
 }
 
 function initialDrag(e) {
-    if (dragging || regionSelecting) return false;
+    if (dragging || regionSelecting) { return false; }
 
     // Begin paper drag
     dragPosPrev = {x: e.pageX, y: e.pageY};
@@ -107,7 +107,7 @@ function updateDrag(e) {
   if (dragging) {
     var dragPosNew = {x: e.pageX, y: e.pageY};
 
-    if (dragPosNew.x == dragPosPrev.x && dragPosNew.y == dragPosPrev.y) return;
+    if (dragPosNew.x == dragPosPrev.x && dragPosNew.y == dragPosPrev.y) { return; }
 
     paper.setOrigin(
       paper.options.origin.x + dragPosNew.x - dragPosPrev.x,
@@ -120,7 +120,7 @@ function updateDrag(e) {
 }
 
 function checkDragged(e) {
-  if (!dragging) return false;
+  if (!dragging) { return false; }
 
   // End paper drag
   dragPosPrev = null;
@@ -134,9 +134,9 @@ function checkDragged(e) {
 }
 
 function initialRegionSelect(e) {
-  if (dragging || regionSelecting) return false;
+  if (dragging || regionSelecting) { return false; }
 
-  if (!e.shiftKey) return false;
+  if (!e.shiftKey) { return false; }
 
   // Begin region selection
 
@@ -180,13 +180,15 @@ function updateRegionSelect(e) {
     var scale = V(paper.viewport).scale().sx;
 
     graph.getCells().forEach(function(cell) {
-      if (cell.attributes.type != "incredible.Generic") return;
+      if (cell.attributes.type != "incredible.Generic") { return; }
 
       var selectionBox = {
         width: 20,
         height: 20
       };
-      if (cell.attributes.schieblehrewidth) selectionBox.width = cell.attributes.schieblehrewidth + 20;
+      if (cell.attributes.schieblehrewidth) {
+        selectionBox.width = cell.attributes.schieblehrewidth + 20;
+      }
 
       var position = cell.position();
       var regionCell = {
@@ -199,8 +201,11 @@ function updateRegionSelect(e) {
       var inOld = isRegionIntersected(regionCell, regionOld);
       var inNew = isRegionIntersected(regionCell, regionNew);
 
-      if (inNew) cell.set('selected', true);
-      else if (inOld)  cell.set('selected', false);
+      if (inNew) {
+        cell.set('selected', true);
+      } else if (inOld) {
+        cell.set('selected', false);
+      }
     });
 
     $("#selection-region").css({
@@ -215,7 +220,9 @@ function updateRegionSelect(e) {
 }
 
 function checkRegionSelected(e) {
-  if (!regionSelecting) return false;
+  if (!regionSelecting) {
+    return false;
+  }
 
   $("#selection-region").hide();
 
@@ -241,16 +248,16 @@ $(function() {
   $(document).on('mousemove', function(e) {
     updateDrag(e);
     updateRegionSelect(e);
-  })
+  });
 
   paper.on('blank:pointerdown', function (e, x, y) {
-    if (initialRegionSelect(e)) return;
-    if (initialDrag(e)) return;
+    if (initialRegionSelect(e)) { return; }
+    if (initialDrag(e)) { return; }
   });
 
   paper.on('blank:pointerup', function (e, x, y) {
-    if (checkDragged(e)) return;
-    if (checkRegionSelected(e)) return;
+    if (checkDragged(e)) { return; }
+    if (checkRegionSelected(e)) { return; }
 
     if (!e.shiftKey) {
       var offset = paper.options.el.offset();
@@ -260,7 +267,9 @@ $(function() {
         e.pageY > offset.top &&
         e.pageX < paper.options.el.width() + offset.left &&
         e.pageY < paper.options.el.height() + offset.top
-      ) batchSelect(false);
+      ) {
+        batchSelect(false);
+      }
     }
   });
 
@@ -286,10 +295,10 @@ $(function() {
   paper.on('cell:pointerup', function (cellView, e, x, y) {
     var cell = cellView.model;
 
-    if (checkDragged(e)) return;
-    if (checkRegionSelected(e)) return;
+    if (checkDragged(e)) { return; }
+    if (checkRegionSelected(e)) { return; }
 
-    if (!e.shiftKey) batchSelect(false);
+    if (!e.shiftKey) { batchSelect(false); }
 
     if (!e.shiftKey && cell.get('annotation')) {
       var done = false;

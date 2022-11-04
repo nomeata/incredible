@@ -21,11 +21,18 @@ prepare-ghc:
 
 prepare: prepare-ghc prepare-ghcjs
 
-test: sessions.js logics.js
-	cd logic && cabal test --test-show-details=direct
+
+test-bench:
 	# check that the benchmarks have not bitrotted
 	cd logic && cabal run bench -- -n 1
+
+test-hs:
+	cd logic && cabal test --test-show-details=direct
+
+test-js: webui/*.js sessions.js logics.js
 	jshint webui/*.js sessions.js logics.js
+
+test: test-js test-hs test-bench
 
 logic.js: logic/*.cabal logic/*.hs logic/js/*.hs logic/js/*.js
 	cd logic && cabal new-build --distdir=dist-newstyle-ghcjs --ghcjs
