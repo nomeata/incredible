@@ -5,8 +5,8 @@ set -x
 
 test -d vendor || mkdir vendor
 cd vendor
-test -e jquery-2.1.4.min.js ||
-	wget -c http://code.jquery.com/jquery-2.1.4.min.js
+test -e jquery-3.6.4.min.js ||
+	wget -c http://code.jquery.com/jquery-3.6.4.min.js
 test -d jquery-ui || {
         wget -c http://jqueryui.com/resources/download/jquery-ui-1.11.4.zip
 	unzip jquery-ui-1.11.4.zip

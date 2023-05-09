@@ -1,0 +1,24 @@
+Abstract:
+
+Logic is useful and proving things is fun and really useful. Also, Computers are great at assisting such proofs, and checking that they are rigrous, and that’s why we have these tools called Interactive Theorem Provers. But they are quite hard to use for beginners. What would an Interactive Theorem Prover look like that can be used by kids even, without having to type syntax?
+
+The Incredible Proof Machine (https://incredible.pm) is an interactive, visual theorem prover. It looks like a game with ever more tricky (and thus nicely addictivie) puzzles, where you have place and connect boxes the right way, but in fact you are doing real rigorous mathematical proofs!
+
+Let’s see how that looks, why it looks that way, and what these proofs really mean.
+
+Outline:
+
+(2min) The need for an accessible theorem prover.
+I’ll begin explaining how important logical thinking and the value of rigorous theorem proving is, even for young kids (think 12 years ), and how it’s the basis of lots of stuff talked about at !!Con, and that computers are great at assisting such theorem proving and checking solutions. Yet the “real” interactive theorem provers (Coq, Isabelle) are clearly not accessible for beginners, as you need to learn syntax etc. Maybe I’ll flash some screenshots from these tools.
+
+(3min) A mental model of proofs, and how they turn into a nice UI.
+Proofs realy take given assumption, modify them using the axioms lof the logic, and then produce results. Sounds like a big machine, with conveyor belts and little machines, all connected.
+This leads relatively directly to the interface provided by the Incredible Proof Machines: a bit like in blockly or Lego Mindstorms, the kids (and the non-kids) connect boxes until everything is green. It’s an addictive puzzle.
+
+I’ll also briefly tell how it went when I actually used this in a workshop with kids aged 13-17.
+
+(3min) A demo
+Using s suitably complex task  from the Incredible Proof Machine, I’ll both explain how to use the tool, and along the way also teach something about basic logic.
+
+(2min) Is it rigorous?
+For the more formally interested, I’ll outline the metatheory of the Incredible Proof Machine: When are proofs actually correct, and that we have a formal proof (in Isabelle, though) that these conditions are correct.
