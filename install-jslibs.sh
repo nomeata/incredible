@@ -13,6 +13,8 @@ test -d jquery-ui || {
 	mv jquery-ui-1.11.4 jquery-ui
 	rm -f jquery-ui-1.11.4.zip
 	}
+test -e jquery.ui.touch-punch.min.js ||
+	wget -c https://raw.githubusercontent.com/furf/jquery-ui-touch-punch/master/jquery.ui.touch-punch.min.js
 test -e lodash.min.js ||
 	wget -c https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js
 test -e backbone-min.js ||
