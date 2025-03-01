@@ -14,6 +14,8 @@ var regionSelectionPosEnd = null;
 var regionSelectionPosBegin = null;
 var regionSelecting = false;
 
+var clickingHelper = false;
+
 function create_paper() {
   return new joint.dia.Paper({
     el: $('#paper'),
@@ -235,6 +237,34 @@ function checkRegionSelected(e) {
   return true;
 }
 
+function initialHelperClick(e, cell) {
+  if (!clickingHelper && !e.shiftKey && cell.get('annotation')) {
+    clickingHelper = true;
+    return true;
+  }
+  return false;
+}
+
+function checkHelperClicked(e, cell) {
+  if (clickingHelper && !e.shiftKey && cell.get('annotation')) {
+    clickingHelper = false;
+    var prmpt = i18n.t('Input proposition');
+    var val = cell.get('annotation');
+    while (true) {
+      val = window.prompt(prmpt, val);
+      if (!val) { return true; } // Canceled
+
+      var prettyPrinted = incredibleFormatTerm(val);
+      if (prettyPrinted) {
+        cell.set('annotation', prettyPrinted);
+        return true;
+      }
+      prmpt = i18n.t('Could not parse, please try again:');
+    }
+  }
+  return false;
+}
+
 function isRegionIntersected(region1, region2) {
   return !(
     region1.x > region2.x + region2.width ||
@@ -248,6 +278,7 @@ $(function() {
   $(document).on('mousemove', function(e) {
     updateDrag(e);
     updateRegionSelect(e);
+    clickingHelper = false;
   });
 
   paper.on('blank:pointerdown', function (e, x, y) {
@@ -290,6 +321,8 @@ $(function() {
       cell.remove();
       return;
     }
+
+    initialHelperClick(e, cell);
   });
 
   paper.on('cell:pointerup', function (cellView, e, x, y) {
@@ -300,25 +333,7 @@ $(function() {
 
     if (!e.shiftKey) { batchSelect(false); }
 
-    if (!e.shiftKey && cell.get('annotation')) {
-      var done = false;
-      var prmpt = i18n.t('Input proposition');
-      var val = cell.get('annotation');
-      while (!done) {
-        val = window.prompt(prmpt, val);
-        if (val) {
-          var prettyPrinted = incredibleFormatTerm(val);
-          if (prettyPrinted) {
-            done = true;
-            cell.set('annotation', prettyPrinted);
-          } else {
-            prmpt = i18n.t('Could not parse, please try again:');
-          }
-        } else {
-          done = true;
-        }
-      }
-    }
+    checkHelperClicked(e, cell);
   });
 
   paper.on('element:schieblehre',function(cellView, direction, dx, dy) {
