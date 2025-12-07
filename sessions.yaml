@@ -238,7 +238,7 @@
     conclusions: ["P(a)"]
     min-blocks: 3
   - assumptions: ["∀x.P(x)"]
-    conclusions: ["P(a) ∧  P(b)"]
+    conclusions: ["P(a) ∧ P(b)"]
     min-blocks: 5
   - assumptions: ["P(a)"]
     conclusions: ["∃x.P(x)"]
