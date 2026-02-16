@@ -1,0 +1,167 @@
+svg {
+    font-family: sans-serif;
+}
+
+.connection {
+    stroke: #999;
+}
+
+.connection.error {
+    stroke: #F00;
+}
+
+.connection-wrap {
+    stroke-linecap: butt;
+    transition: all 0.5s linear 0.2s;
+}
+
+.connection-wrap:hover {
+    stroke: black;
+    stroke-width: 9px;
+    transition: all 0s;
+}
+
+.marker-arrowhead, .marker-vertex {
+    fill: #fff;
+    stroke: #7f8c8d;
+    stroke-opacity: 0.4;
+    stroke-width: 2px;
+}
+
+.marker-arrowhead:hover, .marker-vertex:hover {
+    fill: #ecf0f1;
+    stroke: #bdc3c7;
+}
+
+.marker-vertex-remove-area {
+    fill: white;
+    stroke: #ccc;
+    stroke-opacity: .5;
+}
+
+.marker-vertex-remove-group:hover .marker-vertex-remove-area {
+    transition: fill 1s;
+    fill: #e74c3c;
+    stroke: #c0392b;
+}
+
+.marker-vertex-remove {
+    stroke: #eee;
+}
+
+.marker-vertex-remove-group:hover .marker-vertex-remove {
+    stroke: none;
+}
+
+.live .connection {
+    stroke: #2ecc71;
+    stroke-width: 3px;
+}
+
+.live .connection-wrap {
+    stroke: #2ecc71;
+}
+
+.element.live .body {
+    fill: #2ecc71;
+    stroke: #27ae60;
+}
+
+.element.live text {
+    fill: #ffffff;
+}
+
+
+/* Custom incredible rules */
+.ui-draggable {
+    cursor: move
+}
+
+.block .label {
+    font-family: sans;
+    font-size: 17px;
+    fill: black;
+}
+
+.block .resize-left {
+    cursor: ew-resize
+}
+.block .resize-right {
+    cursor: ew-resize
+}
+.block .number {
+    fill: #000;
+    opacity: 0.5;
+    font-size: 8px;
+}
+
+
+.block .body {
+    fill:#ecf0f1;
+}
+
+.qed .block.conclusion .body {
+    fill:rgb(40,220,30);
+}
+
+.block:hover .body {
+    fill:white;
+}
+.qed .block.conclusion:hover .body {
+    fill:#afa;
+}
+
+.selected .block .body {
+    stroke:blue;
+    stroke-opacity:1;
+}
+
+
+.port-body[magnet=true]:hover {
+    fill:black;
+}
+
+.tool-remove {
+   opacity: 0;
+   cursor: pointer;
+}
+
+.link:hover .tool-remove {
+   opacity: 1;
+}
+.block:hover .tool-remove {
+   opacity: 1;
+}
+
+
+.tool-remove circle {
+    fill: white;
+    stroke: #ccc;
+    stroke-width: 1px;
+    stroke-opacity: .5;
+}
+
+.tool-remove:hover circle {
+    fill: #e74c3c;
+    stroke: #c0392b;
+}
+
+.tool-remove path {
+    stroke: #ccc;
+}
+
+.tool-remove circle {
+    transition: fill 1s;
+}
+
+.tool-remove:hover path {
+    stroke: none;
+}
+
+/*
+ * Override default in JointJS, otherwise the elements are not shown at all.
+ * (Workaround for Firefox bug?)
+ */
+.element * {
+    vector-effect: none;
+}
